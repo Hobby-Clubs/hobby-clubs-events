@@ -1,4 +1,4 @@
-package com.example.hobbyclubs.screens.`home-screen`
+package com.example.hobbyclubs.screens.home
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

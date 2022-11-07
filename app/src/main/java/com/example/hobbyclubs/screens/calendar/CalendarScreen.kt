@@ -1,4 +1,4 @@
-package com.example.hobbyclubs.screens.`calendar-screen`
+package com.example.hobbyclubs.screens.calendar
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController

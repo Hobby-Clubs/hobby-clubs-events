@@ -1,4 +1,4 @@
-package com.example.hobbyclubs.screens.`clubs-screen`
+package com.example.hobbyclubs.screens.clubs
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
