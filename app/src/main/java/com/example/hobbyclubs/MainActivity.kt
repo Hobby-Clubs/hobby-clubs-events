@@ -12,8 +12,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.compose.HobbyClubsTheme
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.calendar.CalendarScreen
-import com.example.hobbyclubs.screens.`club-management`.ClubManagementScreen
-import com.example.hobbyclubs.screens.`club-page`.ClubPageScreen
+import com.example.hobbyclubs.screens.clubmanagement.ClubManagementScreen
+import com.example.hobbyclubs.screens.clubpage.ClubPageScreen
 import com.example.hobbyclubs.screens.home.HomeScreen
 import com.example.hobbyclubs.screens.login.LoginScreen
 import com.example.hobbyclubs.screens.members.ClubMembersScreen
