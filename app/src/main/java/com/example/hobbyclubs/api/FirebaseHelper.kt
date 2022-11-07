@@ -1,17 +1,19 @@
 package com.example.hobbyclubs.api
 
 import android.util.Log
+import com.google.android.gms.tasks.Task
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import java.io.Serializable
-import java.lang.Exception
 
 object FirebaseHelper {
     const val TAG = "FirebaseHelper"
-    val db get() = Firebase.firestore
-    val uid get() = Firebase.auth.uid
+    private val db get() = Firebase.firestore
+
+    // Firestore
 
     fun addClub(club: Club) {
         val ref = db.collection(CollectionName.clubs)
@@ -51,6 +53,25 @@ object FirebaseHelper {
     }
 
     fun getAllNews() = db.collection(CollectionName.news)
+
+    // Auth
+
+    private val auth = Firebase.auth
+    val uid get() = auth.uid
+    val currentUser = auth.currentUser
+
+    fun login(email: String, pwd: String): Task<AuthResult> {
+        return auth.signInWithEmailAndPassword(email, pwd)
+    }
+
+    fun register(email: String, pwd: String): Task<AuthResult> {
+        return auth.createUserWithEmailAndPassword(email, pwd)
+    }
+
+    fun logout() {
+        auth.signOut()
+    }
+
 }
 
 class CollectionName {
