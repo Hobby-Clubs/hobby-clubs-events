@@ -29,7 +29,6 @@ fun LoginScreen(navController: NavController, vm: LoginViewModel = viewModel()) 
     val showRegister by vm.showRegister.observeAsState(false)
     val scope = rememberCoroutineScope()
 
-
     LaunchedEffect(isLoggedIn) {
         if (isLoggedIn) {
             navController.navigate(NavRoutes.HomeScreen.route)
