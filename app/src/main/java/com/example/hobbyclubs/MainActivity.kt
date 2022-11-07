@@ -9,16 +9,25 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.compose.HobbyClubsTheme
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.calendar.CalendarScreen
+<<<<<<< HEAD
 import com.example.hobbyclubs.screens.clubmanagement.ClubManagementScreen
 import com.example.hobbyclubs.screens.clubpage.ClubPageScreen
+=======
+import com.example.hobbyclubs.screens.`club-management`.ClubManagementScreen
+import com.example.hobbyclubs.screens.`club-page`.ClubPageScreen
+>>>>>>> main
 import com.example.hobbyclubs.screens.home.HomeScreen
 import com.example.hobbyclubs.screens.login.LoginScreen
 import com.example.hobbyclubs.screens.members.ClubMembersScreen
 import com.example.hobbyclubs.screens.news.NewsScreen
 import com.example.hobbyclubs.screens.clubs.ClubsScreen
+<<<<<<< HEAD
 import com.example.hobbyclubs.ui.theme.HobbyClubsTheme
+=======
+>>>>>>> main
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.S)
