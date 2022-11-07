@@ -1,4 +1,4 @@
-package com.example.hobbyclubs.screens.`club-management-screen`
+package com.example.hobbyclubs.screens.`club-management`
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController

@@ -10,14 +10,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.hobbyclubs.navigation.NavRoutes
-import com.example.hobbyclubs.screens.`calendar-screen`.CalendarScreen
-import com.example.hobbyclubs.screens.`club-management-screen`.ClubManagementScreen
-import com.example.hobbyclubs.screens.`club-page-screen`.ClubPageScreen
-import com.example.hobbyclubs.screens.`home-screen`.HomeScreen
-import com.example.hobbyclubs.screens.`login-screen`.LoginScreen
-import com.example.hobbyclubs.screens.`members-screen`.ClubMembersScreen
-import com.example.hobbyclubs.screens.`news-screen`.NewsScreen
-import com.example.hobbyclubs.screens.`clubs-screen`.ClubsScreen
+import com.example.hobbyclubs.screens.calendar.CalendarScreen
+import com.example.hobbyclubs.screens.`club-management`.ClubManagementScreen
+import com.example.hobbyclubs.screens.`club-page`.ClubPageScreen
+import com.example.hobbyclubs.screens.home.HomeScreen
+import com.example.hobbyclubs.screens.login.LoginScreen
+import com.example.hobbyclubs.screens.members.ClubMembersScreen
+import com.example.hobbyclubs.screens.news.NewsScreen
+import com.example.hobbyclubs.screens.clubs.ClubsScreen
 import com.example.hobbyclubs.ui.theme.HobbyClubsTheme
 
 class MainActivity : ComponentActivity() {
