@@ -1,4 +1,4 @@
-package com.example.hobbyclubs.screens.`club-page`
+package com.example.hobbyclubs.screens.clubpage
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
