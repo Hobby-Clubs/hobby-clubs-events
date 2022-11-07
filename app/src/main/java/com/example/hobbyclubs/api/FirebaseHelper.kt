@@ -24,6 +24,7 @@ object FirebaseHelper {
 
     fun getClubs() {
 
+
     }
 }
 
