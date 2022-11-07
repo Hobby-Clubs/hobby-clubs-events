@@ -1,47 +1,79 @@
 package com.example.hobbyclubs
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.hobbyclubs.ui.theme.AppTheme
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.hobbyclubs.navigation.NavRoutes
+import com.example.hobbyclubs.screens.`calendar-screen`.CalendarScreen
+import com.example.hobbyclubs.screens.`club-management-screen`.ClubManagementScreen
+import com.example.hobbyclubs.screens.`club-page-screen`.ClubPageScreen
+import com.example.hobbyclubs.screens.`home-screen`.HomeScreen
+import com.example.hobbyclubs.screens.`login-screen`.LoginScreen
+import com.example.hobbyclubs.screens.`members-screen`.ClubMembersScreen
+import com.example.hobbyclubs.screens.`news-screen`.NewsScreen
+import com.example.hobbyclubs.screens.`clubs-screen`.ClubsScreen
+import com.example.hobbyclubs.ui.theme.HobbyClubsTheme
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            AppTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Greeting()
-                }
+            HobbyClubsTheme {
+                MyAppNavHost()
             }
         }
     }
 }
 
+// Jetpack Compose navigation host
+@RequiresApi(Build.VERSION_CODES.S)
 @Composable
-fun Greeting() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(text = "Let's make a great app!")
-    }
-}
+fun MyAppNavHost() {
 
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    AppTheme {
-        Greeting()
+    val navController = rememberNavController()
+
+    NavHost(
+        navController = navController,
+        startDestination = NavRoutes.HomeScreen.route
+    ) {
+        // Login
+        composable(NavRoutes.LoginScreen.route) {
+            LoginScreen(navController = navController)
+        }
+        // HomeScreen
+        composable(NavRoutes.HomeScreen.route) {
+            HomeScreen(navController = navController)
+        }
+        // ClubPageScreen
+        composable(NavRoutes.ClubPageScreen.route) {
+            ClubPageScreen(navController = navController)
+        }
+        // ClubManagementScreen
+        composable(NavRoutes.ClubManagementScreen.route) {
+            ClubManagementScreen(navController = navController)
+        }
+        // ClubMembersScreen
+        composable(NavRoutes.MembersScreen.route) {
+            ClubMembersScreen(navController = navController)
+        }
+        // NewsScreen
+        composable(NavRoutes.NewsScreen.route) {
+            NewsScreen(navController = navController)
+        }
+        // CalendarScreen
+        composable(NavRoutes.CalendarScreen.route) {
+            CalendarScreen(navController = navController)
+        }
+        // ClubsScreen
+        composable(NavRoutes.ClubsScreen.route) {
+            ClubsScreen(navController = navController)
+        }
     }
 }
