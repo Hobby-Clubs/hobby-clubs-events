@@ -1,4 +1,4 @@
-package com.example.hobbyclubs.screens.`news-screen`
+package com.example.hobbyclubs.screens.news
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
