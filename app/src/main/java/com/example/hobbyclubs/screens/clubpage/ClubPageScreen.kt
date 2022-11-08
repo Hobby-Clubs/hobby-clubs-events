@@ -109,7 +109,7 @@ fun ClubPageHeader(navController: NavController, context: Context) {
                     modifier = Modifier.padding(end = 20.dp)
                 )
                 TextButton(
-                    onClick = { navController.navigate(NavRoutes.ClubManagementScreen.route) },
+                    onClick = { navController.navigate(NavRoutes.MembersScreen.route) },
                     colors = ButtonDefaults.buttonColors(
                         contentColor = Color.Black,
                         containerColor = Color.Transparent
