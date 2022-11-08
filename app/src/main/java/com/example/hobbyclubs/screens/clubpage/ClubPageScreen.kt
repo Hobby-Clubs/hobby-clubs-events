@@ -24,6 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -109,7 +110,7 @@ fun ClubPageHeader(navController: NavController, context: Context) {
                     modifier = Modifier.padding(end = 20.dp)
                 )
                 TextButton(
-                    onClick = { navController.navigate(NavRoutes.MembersScreen.route) },
+                    onClick = { navController.navigate(NavRoutes.MembersScreen.route + "/false") },
                     colors = ButtonDefaults.buttonColors(
                         contentColor = Color.Black,
                         containerColor = Color.Transparent
@@ -132,10 +133,14 @@ fun ClubPageHeader(navController: NavController, context: Context) {
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 20.dp), horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            CustomButton(text = "Manage Club", onClick = {
+            CustomButton(
+                text = "Manage Club",
+                onClick = {
                 navController.navigate(NavRoutes.ClubManagementScreen.route)
             })
-            CustomButton(text = "Share", onClick = {
+            CustomButton(
+                text = "Share",
+                onClick = {
                 Toast.makeText(context, "You are sharing the club", Toast.LENGTH_SHORT).show()
             })
         }
@@ -298,19 +303,23 @@ fun ClubLogo(modifier: Modifier) {
 }
 
 @Composable
-fun CustomButton(onClick: () -> Unit, text: String) {
+fun CustomButton(
+    onClick: () -> Unit,
+    text: String,
+    colors: ButtonColors = ButtonDefaults.buttonColors(
+    containerColor = nokiaDarkBlue,
+    contentColor = Color.White,
+)
+) {
     Button(
         onClick = { onClick() },
         modifier = Modifier
             .width(175.dp)
-            .height(60.dp)
+            .height(50.dp)
             .padding(5.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = nokiaDarkBlue,
-            contentColor = Color.White,
-        ),
+        colors = colors,
         shape = RoundedCornerShape(10.dp)
     ) {
-        Text(text = text, fontSize = 16.sp)
+        Text(text = text, fontSize = 14.sp,)
     }
 }

@@ -266,7 +266,7 @@ fun MembersSection(navController: NavController) {
             iconDesc = "People Icon",
             title = "Members",
             numberOfItem = 20,
-            onClick = { navController.navigate(NavRoutes.MembersScreen.route) }
+            onClick = { navController.navigate(NavRoutes.MembersScreen.route + "/false") }
         )
         Spacer(modifier = Modifier.height(10.dp))
         ClubManagementRowCard(
@@ -275,7 +275,7 @@ fun MembersSection(navController: NavController) {
             title = "Member requests",
             numberOfItem = 5,
             isMemberRequest = true,
-            onClick = { navController.navigate(NavRoutes.MembersScreen.route) }
+            onClick = { navController.navigate(NavRoutes.MembersScreen.route + "/true") }
         )
     }
 }
@@ -313,7 +313,6 @@ fun PrivacySection(vm: ClubManagementViewModel, onClick: () -> Unit = {}) {
     val isPrivate by vm.isPrivate.observeAsState()
     Column(modifier = Modifier.fillMaxWidth()) {
         ClubManagementSectionTitle(text = "Privacy")
-//        PrivacyDropdownMenu()
         ExpandablePrivacyCard(
             icon = if (isPrivate == true) Icons.Outlined.Lock else Icons.Outlined.Public,
             iconDesc = "privacy",

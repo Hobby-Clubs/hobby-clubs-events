@@ -6,9 +6,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.compose.HobbyClubsTheme
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.calendar.CalendarScreen
@@ -60,8 +62,14 @@ fun MyAppNavHost() {
             ClubManagementScreen(navController = navController)
         }
         // ClubMembersScreen
-        composable(NavRoutes.MembersScreen.route) {
-            ClubMembersScreen(navController = navController)
+        composable(
+            NavRoutes.MembersScreen.route + "/{showRequests}",
+            arguments = listOf(
+                navArgument("showRequests") { type = NavType.BoolType }
+            )
+        ) {
+            val showRequests = it.arguments!!.getBoolean("showRequests")
+            ClubMembersScreen(navController = navController, showRequests = showRequests)
         }
         // NewsScreen
         composable(NavRoutes.NewsScreen.route) {
