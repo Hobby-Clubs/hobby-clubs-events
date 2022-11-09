@@ -163,7 +163,6 @@ proguard/
 /*/build/
 /*/local.properties
 /*/out
-/*/*/build
 /*/*/production
 .navigation/
 *.ipr

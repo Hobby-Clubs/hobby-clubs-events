@@ -1,0 +1,870 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:2:1-32:12
+INJECTED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:2:1-32:12
+INJECTED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:2:1-32:12
+INJECTED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:2:1-32:12
+MERGED from [io.coil-kt:coil-compose:2.2.2] /Users/souly/.gradle/caches/transforms-3/573f0c517a59c82a076cddc798266321/transformed/coil-compose-2.2.2/AndroidManifest.xml:2:1-9:12
+MERGED from [io.coil-kt:coil-compose-base:2.2.2] /Users/souly/.gradle/caches/transforms-3/678485b987fd6258abb8bffd67d90920/transformed/coil-compose-base-2.2.2/AndroidManifest.xml:2:1-9:12
+MERGED from [io.coil-kt:coil:2.2.2] /Users/souly/.gradle/caches/transforms-3/b355940b5524eec5965252982ae32b6e/transformed/coil-2.2.2/AndroidManifest.xml:2:1-9:12
+MERGED from [io.coil-kt:coil-base:2.2.2] /Users/souly/.gradle/caches/transforms-3/5d2f0c21e6b602896b46a3837d984629/transformed/coil-base-2.2.2/AndroidManifest.xml:2:1-9:12
+MERGED from [androidx.compose.ui:ui-tooling:1.2.0] /Users/souly/.gradle/caches/transforms-3/a9b8157cb6e168d7e3a98a9ec67851f5/transformed/ui-tooling-1.2.0/AndroidManifest.xml:17:1-29:12
+MERGED from [androidx.compose.material:material-icons-extended:1.2.0] /Users/souly/.gradle/caches/transforms-3/f1bd7d783c7f58254dd13c78d0d65734/transformed/material-icons-extended-1.2.0/AndroidManifest.xml:17:1-23:12
+MERGED from [androidx.navigation:navigation-compose:2.5.2] /Users/souly/.gradle/caches/transforms-3/620487dafa5ce88f4f66463d36a9416a/transformed/navigation-compose-2.5.2/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.compose.runtime:runtime-livedata:1.2.1] /Users/souly/.gradle/caches/transforms-3/6bb21868f6b0758273afa23850b1dd90/transformed/runtime-livedata-1.2.1/AndroidManifest.xml:17:1-23:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1] /Users/souly/.gradle/caches/transforms-3/15a3271efbbf1e82b0f577b2ca4d5b9c/transformed/lifecycle-viewmodel-compose-2.5.1/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.compose.material3:material3:1.0.0-alpha01] /Users/souly/.gradle/caches/transforms-3/bfe863a069e3f9487b547c213496b129/transformed/material3-1.0.0-alpha01/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.compose.ui:ui-tooling-preview:1.2.0] /Users/souly/.gradle/caches/transforms-3/e05c713a9a39a6e42738604535d5cbc5/transformed/ui-tooling-preview-1.2.0/AndroidManifest.xml:17:1-23:12
+MERGED from [androidx.compose.material:material:1.0.0] /Users/souly/.gradle/caches/transforms-3/e24af94762f25fd869072e0c435dc5da/transformed/material-1.0.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.compose.material:material-ripple:1.0.0] /Users/souly/.gradle/caches/transforms-3/e9aec9bc0a155806cc01b965b41602a4/transformed/material-ripple-1.0.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.compose.foundation:foundation:1.2.1] /Users/souly/.gradle/caches/transforms-3/67da30f79e2279f778fe98b010e23ec2/transformed/foundation-1.2.1/AndroidManifest.xml:17:1-23:12
+MERGED from [androidx.compose.animation:animation:1.1.1] /Users/souly/.gradle/caches/transforms-3/6f475d515da5f5ff2423651f463823d9/transformed/animation-1.1.1/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.compose.ui:ui-tooling-data:1.2.0] /Users/souly/.gradle/caches/transforms-3/566d0110d9a62f990ca7de4f9e3f24ea/transformed/ui-tooling-data-1.2.0/AndroidManifest.xml:17:1-23:12
+MERGED from [androidx.compose.material:material-icons-core:1.2.0] /Users/souly/.gradle/caches/transforms-3/26ad02f63df756b3632b16b73c3c9d52/transformed/material-icons-core-1.2.0/AndroidManifest.xml:17:1-23:12
+MERGED from [androidx.activity:activity-compose:1.5.1] /Users/souly/.gradle/caches/transforms-3/e52d401b33bfcef11f7436c798845738/transformed/activity-compose-1.5.1/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.compose.foundation:foundation-layout:1.2.1] /Users/souly/.gradle/caches/transforms-3/9d97e27a7db3944d8972c01b8b4841fc/transformed/foundation-layout-1.2.1/AndroidManifest.xml:17:1-23:12
+MERGED from [androidx.compose.animation:animation-core:1.1.1] /Users/souly/.gradle/caches/transforms-3/385cb61712cbb530e2e8cc8b595dbb0f/transformed/animation-core-1.1.1/AndroidManifest.xml:17:1-24:12
+MERGED from [com.google.accompanist:accompanist-drawablepainter:0.25.1] /Users/souly/.gradle/caches/transforms-3/5574edcce9c29107bbbe8ff91c61ff84/transformed/accompanist-drawablepainter-0.25.1/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.compose.ui:ui:1.2.1] /Users/souly/.gradle/caches/transforms-3/24082d0d532a4fcb82dd3a24e6ebc033/transformed/ui-1.2.1/AndroidManifest.xml:17:1-23:12
+MERGED from [androidx.compose.ui:ui-text:1.2.1] /Users/souly/.gradle/caches/transforms-3/603529c714f17f92c402928a0d6c6229/transformed/ui-text-1.2.1/AndroidManifest.xml:17:1-23:12
+MERGED from [androidx.compose.runtime:runtime-saveable:1.2.1] /Users/souly/.gradle/caches/transforms-3/4be5ae4ec89ef608012b49aa3625533d/transformed/runtime-saveable-1.2.1/AndroidManifest.xml:17:1-23:12
+MERGED from [androidx.compose.ui:ui-graphics:1.2.1] /Users/souly/.gradle/caches/transforms-3/a2650df94e75c79f553e168cf74f16a8/transformed/ui-graphics-1.2.1/AndroidManifest.xml:17:1-23:12
+MERGED from [androidx.compose.ui:ui-unit:1.2.1] /Users/souly/.gradle/caches/transforms-3/49a6de74748eb2c8b802a8abef8cb008/transformed/ui-unit-1.2.1/AndroidManifest.xml:17:1-23:12
+MERGED from [androidx.compose.ui:ui-geometry:1.2.1] /Users/souly/.gradle/caches/transforms-3/a852bd50178a19d0abd76d8721a2b490/transformed/ui-geometry-1.2.1/AndroidManifest.xml:17:1-23:12
+MERGED from [androidx.compose.runtime:runtime:1.2.1] /Users/souly/.gradle/caches/transforms-3/2de7f6f893cc8f00518d2e4baf64896f/transformed/runtime-1.2.1/AndroidManifest.xml:17:1-23:12
+MERGED from [androidx.navigation:navigation-runtime-ktx:2.5.2] /Users/souly/.gradle/caches/transforms-3/5445c2317b8f1602e59990893736dbab/transformed/navigation-runtime-ktx-2.5.2/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.navigation:navigation-runtime:2.5.2] /Users/souly/.gradle/caches/transforms-3/7fa30957d198cbb8c99b3afc8235bfdb/transformed/navigation-runtime-2.5.2/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.activity:activity-ktx:1.5.1] /Users/souly/.gradle/caches/transforms-3/02f0a1049fd6993113a1a985c3a16521/transformed/activity-ktx-1.5.1/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.navigation:navigation-common-ktx:2.5.2] /Users/souly/.gradle/caches/transforms-3/60a602d0ef19c3ce58fe764aea65e017/transformed/navigation-common-ktx-2.5.2/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.navigation:navigation-common:2.5.2] /Users/souly/.gradle/caches/transforms-3/0453e88146095a89fa43f3abfc856914/transformed/navigation-common-2.5.2/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1] /Users/souly/.gradle/caches/transforms-3/1418bbfb4ee4175fb4034b8abf2a8bb0/transformed/lifecycle-viewmodel-ktx-2.5.1/AndroidManifest.xml:17:1-24:12
+MERGED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:2:1-109:12
+MERGED from [com.google.android.material:material:1.2.1] /Users/souly/.gradle/caches/transforms-3/d41b28e16e074bab5c402461e74ca87b/transformed/material-1.2.1/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.lifecycle:lifecycle-extensions:2.2.0] /Users/souly/.gradle/caches/transforms-3/ab4fcfa845990a98f17ef017a85f84a4/transformed/lifecycle-extensions-2.2.0/AndroidManifest.xml:17:1-27:12
+MERGED from [androidx.legacy:legacy-support-v4:1.0.0] /Users/souly/.gradle/caches/transforms-3/20e176c35d95dfd9152972a8a9fa2b78/transformed/legacy-support-v4-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [com.google.android.gms:play-services-auth:19.0.0] /Users/souly/.gradle/caches/transforms-3/e278ca6587245087663c709c540cde12/transformed/play-services-auth-19.0.0/AndroidManifest.xml:17:1-40:12
+MERGED from [com.google.firebase:firebase-auth-ktx:21.0.8] /Users/souly/.gradle/caches/transforms-3/d084c2d32078dfb5efc837ca6c0673b7/transformed/firebase-auth-ktx-21.0.8/AndroidManifest.xml:2:1-17:12
+MERGED from [com.google.firebase:firebase-auth:21.0.8] /Users/souly/.gradle/caches/transforms-3/62edfb5d48e463ad901e2291513934e3/transformed/firebase-auth-21.0.8/AndroidManifest.xml:17:1-73:12
+MERGED from [com.google.firebase:firebase-firestore-ktx:24.3.0] /Users/souly/.gradle/caches/transforms-3/10d8a9b2b99ba218c022b3f90a8044ad/transformed/firebase-firestore-ktx-24.3.0/AndroidManifest.xml:2:1-21:12
+MERGED from [com.google.firebase:firebase-storage-ktx:20.0.2] /Users/souly/.gradle/caches/transforms-3/2c0572d469b60438af1c090b686ce63b/transformed/firebase-storage-ktx-20.0.2/AndroidManifest.xml:2:1-21:12
+MERGED from [com.google.firebase:firebase-common-ktx:20.1.2] /Users/souly/.gradle/caches/transforms-3/6bbcf5b7f79fdd8548b938daced308cb/transformed/firebase-common-ktx-20.1.2/AndroidManifest.xml:2:1-21:12
+MERGED from [com.google.firebase:firebase-storage:20.0.2] /Users/souly/.gradle/caches/transforms-3/546fb523c2128e473f84b10cd9e8e7e2/transformed/firebase-storage-20.0.2/AndroidManifest.xml:15:1-39:12
+MERGED from [com.google.firebase:firebase-firestore:24.3.0] /Users/souly/.gradle/caches/transforms-3/39ca479e38b8daf3c557672dbb338a63/transformed/firebase-firestore-24.3.0/AndroidManifest.xml:2:1-26:12
+MERGED from [com.google.firebase:firebase-auth-interop:20.0.0] /Users/souly/.gradle/caches/transforms-3/b2913e29c69bd533dfbaa2ac0d583dcb/transformed/firebase-auth-interop-20.0.0/AndroidManifest.xml:2:1-10:12
+MERGED from [com.google.firebase:firebase-appcheck-interop:16.0.1] /Users/souly/.gradle/caches/transforms-3/d1f72df6c518614d538476fa935c9ea7/transformed/firebase-appcheck-interop-16.0.1/AndroidManifest.xml:15:1-26:12
+MERGED from [com.google.firebase:firebase-common:20.1.2] /Users/souly/.gradle/caches/transforms-3/349563aebbfd1ec9cda27839ca07e7e4/transformed/firebase-common-20.1.2/AndroidManifest.xml:15:1-40:12
+MERGED from [com.google.android.gms:play-services-auth-base:17.0.0] /Users/souly/.gradle/caches/transforms-3/828ec354bf22cc2820a11c4f4c642517/transformed/play-services-auth-base-17.0.0/AndroidManifest.xml:2:1-7:12
+MERGED from [com.google.android.gms:play-services-auth-api-phone:17.4.0] /Users/souly/.gradle/caches/transforms-3/8a29c5b9f1bfc218a8770c5ef2b2bb0c/transformed/play-services-auth-api-phone-17.4.0/AndroidManifest.xml:2:1-7:12
+MERGED from [com.google.android.gms:play-services-safetynet:17.0.0] /Users/souly/.gradle/caches/transforms-3/36381c570bbd8f58571171dac93d1500/transformed/play-services-safetynet-17.0.0/AndroidManifest.xml:17:1-24:12
+MERGED from [com.google.firebase:firebase-database-collection:18.0.1] /Users/souly/.gradle/caches/transforms-3/246e7ddb4a23bdbac9479a993515abd4/transformed/firebase-database-collection-18.0.1/AndroidManifest.xml:2:1-9:12
+MERGED from [com.google.android.gms:play-services-base:18.0.1] /Users/souly/.gradle/caches/transforms-3/a0398d1b7995a071279c7b0d5896fe1d/transformed/play-services-base-18.0.1/AndroidManifest.xml:16:1-24:12
+MERGED from [com.google.android.gms:play-services-tasks:18.0.1] /Users/souly/.gradle/caches/transforms-3/fd64036d9c486df49cd24271383460c6/transformed/play-services-tasks-18.0.1/AndroidManifest.xml:2:1-6:12
+MERGED from [com.google.android.gms:play-services-basement:18.1.0] /Users/souly/.gradle/caches/transforms-3/0e0198dd559f087f7f299f5df44b3254/transformed/play-services-basement-18.1.0/AndroidManifest.xml:16:1-26:12
+MERGED from [androidx.viewpager2:viewpager2:1.0.0] /Users/souly/.gradle/caches/transforms-3/f8169e7ce585ecf6fc4e93a715ee833d/transformed/viewpager2-1.0.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.constraintlayout:constraintlayout:2.0.4] /Users/souly/.gradle/caches/transforms-3/b077d81b5acf40e89ed698561e7c2918/transformed/constraintlayout-2.0.4/AndroidManifest.xml:2:1-11:12
+MERGED from [me.zhanghai.android.materialprogressbar:library:1.6.1] /Users/souly/.gradle/caches/transforms-3/48a0791651675028e78321a570524642/transformed/library-1.6.1/AndroidManifest.xml:6:1-15:12
+MERGED from [androidx.appcompat:appcompat:1.2.0] /Users/souly/.gradle/caches/transforms-3/4de85d36742729b89d5c7b8fec985846/transformed/appcompat-1.2.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.fragment:fragment:1.3.0] /Users/souly/.gradle/caches/transforms-3/02f0c5210c2768a346adb366d6256585/transformed/fragment-1.3.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.legacy:legacy-support-core-ui:1.0.0] /Users/souly/.gradle/caches/transforms-3/21b6b5ce17a21982c51aca932c8d22ab/transformed/legacy-support-core-ui-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.legacy:legacy-support-core-utils:1.0.0] /Users/souly/.gradle/caches/transforms-3/0cb24b8ba05f0573f8d3768401ac18a7/transformed/legacy-support-core-utils-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.loader:loader:1.0.0] /Users/souly/.gradle/caches/transforms-3/11847a8e38b1d625556aa870b0b3fbbd/transformed/loader-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.compose.ui:ui-test-manifest:1.2.0] /Users/souly/.gradle/caches/transforms-3/d05a8a90f784dd6fa6460ea69b64d24f/transformed/ui-test-manifest-1.2.0/AndroidManifest.xml:17:1-29:12
+MERGED from [androidx.activity:activity:1.5.1] /Users/souly/.gradle/caches/transforms-3/16cf67f3c64c93bfa4f70fb593beebf5/transformed/activity-1.5.1/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.5.1] /Users/souly/.gradle/caches/transforms-3/8eafdc39e67cc7b217b6812acd6bcfb8/transformed/lifecycle-viewmodel-2.5.1/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.5.1] /Users/souly/.gradle/caches/transforms-3/61ddc39a63422c7ced2a8352cab85540/transformed/lifecycle-viewmodel-savedstate-2.5.1/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.lifecycle:lifecycle-runtime-ktx:2.5.1] /Users/souly/.gradle/caches/transforms-3/1bcf723bc1f402b02124e4aa33d21cd5/transformed/lifecycle-runtime-ktx-2.5.1/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] /Users/souly/.gradle/caches/transforms-3/1fe645c8ddfb1e0af58aacd8946398cf/transformed/customview-poolingcontainer-1.0.0/AndroidManifest.xml:17:1-23:12
+MERGED from [androidx.core:core-ktx:1.8.0] /Users/souly/.gradle/caches/transforms-3/21b2588c5d828db9547020518b32d454/transformed/core-ktx-1.8.0/AndroidManifest.xml:2:1-9:12
+MERGED from [androidx.savedstate:savedstate-ktx:1.2.0] /Users/souly/.gradle/caches/transforms-3/8de8de8ce3412c2fa29ad9f3c89af799/transformed/savedstate-ktx-1.2.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.savedstate:savedstate:1.2.0] /Users/souly/.gradle/caches/transforms-3/23245ca56af42f29d21cd099191b51ab/transformed/savedstate-1.2.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.2.0] /Users/souly/.gradle/caches/transforms-3/7d1f4132ed0e10941c179268458e66b1/transformed/lifecycle-livedata-2.2.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.5.1] /Users/souly/.gradle/caches/transforms-3/a5d0b21de14191eedf1141b9c05c7290/transformed/lifecycle-livedata-core-2.5.1/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.lifecycle:lifecycle-process:2.2.0] /Users/souly/.gradle/caches/transforms-3/26541541ebd23faed7c9f3f03f09f048/transformed/lifecycle-process-2.2.0/AndroidManifest.xml:17:1-32:12
+MERGED from [androidx.lifecycle:lifecycle-service:2.2.0] /Users/souly/.gradle/caches/transforms-3/fe2f84363c2290f1d92d27c3b08596c6/transformed/lifecycle-service-2.2.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.viewpager:viewpager:1.0.0] /Users/souly/.gradle/caches/transforms-3/f890042a08a6d88002c8113e94b4ede8/transformed/viewpager-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.coordinatorlayout:coordinatorlayout:1.1.0] /Users/souly/.gradle/caches/transforms-3/00539df7d5bbe9bcf548c9d0f5404cbf/transformed/coordinatorlayout-1.1.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.transition:transition:1.2.0] /Users/souly/.gradle/caches/transforms-3/812fe217504c557a704bb42d405c5257/transformed/transition-1.2.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.appcompat:appcompat-resources:1.4.2] /Users/souly/.gradle/caches/transforms-3/f6e2a2f57937efe0e35271fcae1421a5/transformed/appcompat-resources-1.4.2/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] /Users/souly/.gradle/caches/transforms-3/d5371cf9cff76ca6c2593e15cd43f1cb/transformed/vectordrawable-animated-1.1.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] /Users/souly/.gradle/caches/transforms-3/bf313ef58f829245d5e2159e87796397/transformed/vectordrawable-1.1.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.media:media:1.0.0] /Users/souly/.gradle/caches/transforms-3/eb6aa717e9b37a288408c1c9f0fbcde0/transformed/media-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.browser:browser:1.4.0] /Users/souly/.gradle/caches/transforms-3/91f47fef255c5d558051339e2dddd227/transformed/browser-1.4.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.recyclerview:recyclerview:1.1.0] /Users/souly/.gradle/caches/transforms-3/d80c0308537e507a5a25949b0dcf20c8/transformed/recyclerview-1.1.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.drawerlayout:drawerlayout:1.0.0] /Users/souly/.gradle/caches/transforms-3/0730dd2f6055e8adbe4d4cf4a5a23416/transformed/drawerlayout-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.slidingpanelayout:slidingpanelayout:1.0.0] /Users/souly/.gradle/caches/transforms-3/57a83614d5e74bcab7b300f3ce49ffb3/transformed/slidingpanelayout-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.customview:customview:1.0.0] /Users/souly/.gradle/caches/transforms-3/c137c91d0c74d7381b94645417da3227/transformed/customview-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.swiperefreshlayout:swiperefreshlayout:1.0.0] /Users/souly/.gradle/caches/transforms-3/2104107f29e3ef5c21da7d1ac427d19c/transformed/swiperefreshlayout-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.asynclayoutinflater:asynclayoutinflater:1.0.0] /Users/souly/.gradle/caches/transforms-3/27e80a47ee783ab13ad19691bdcb879c/transformed/asynclayoutinflater-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.autofill:autofill:1.0.0] /Users/souly/.gradle/caches/transforms-3/dde0d827ddd690e65823164ac5a29b88/transformed/autofill-1.0.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.core:core:1.8.0] /Users/souly/.gradle/caches/transforms-3/7d4a105424d0316999242d6d5524de7b/transformed/core-1.8.0/AndroidManifest.xml:17:1-26:12
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.5.1] /Users/souly/.gradle/caches/transforms-3/f1ffc7a44238a9faf46b8460de211869/transformed/lifecycle-runtime-2.5.1/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.cardview:cardview:1.0.0] /Users/souly/.gradle/caches/transforms-3/26495af942920a027e998f9a6718732c/transformed/cardview-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [com.google.firebase:firebase-components:17.0.1] /Users/souly/.gradle/caches/transforms-3/ba109b99b27dc41caa932bcf67c57fe1/transformed/firebase-components-17.0.1/AndroidManifest.xml:15:1-23:12
+MERGED from [androidx.arch.core:core-runtime:2.1.0] /Users/souly/.gradle/caches/transforms-3/fa38d8055aad046e3b6c99546cf360cd/transformed/core-runtime-2.1.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] /Users/souly/.gradle/caches/transforms-3/b26045e09b4544e302d485e5810f559c/transformed/localbroadcastmanager-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /Users/souly/.gradle/caches/transforms-3/6cdef2daf4ed9214278f205ce8380564/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:17:1-27:12
+MERGED from [androidx.exifinterface:exifinterface:1.3.3] /Users/souly/.gradle/caches/transforms-3/0c629d776891024385609f0200e9ac12/transformed/exifinterface-1.3.3/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.interpolator:interpolator:1.0.0] /Users/souly/.gradle/caches/transforms-3/993d1da966942f45016358c67a042d10/transformed/interpolator-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] /Users/souly/.gradle/caches/transforms-3/62aede434c0e7adb066314f6138130ed/transformed/cursoradapter-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.documentfile:documentfile:1.0.0] /Users/souly/.gradle/caches/transforms-3/a1e2b67f471a3cc0bba27de183e358a4/transformed/documentfile-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.print:print:1.0.0] /Users/souly/.gradle/caches/transforms-3/21d9513a0789de0bbf45b7f98b23132b/transformed/print-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.profileinstaller:profileinstaller:1.2.0] /Users/souly/.gradle/caches/transforms-3/2063dc1fdcfc061a5e2d097d8cd698bd/transformed/profileinstaller-1.2.0/AndroidManifest.xml:17:1-50:12
+MERGED from [androidx.startup:startup-runtime:1.1.1] /Users/souly/.gradle/caches/transforms-3/800229cc6fe627d3c6e7158900b1165f/transformed/startup-runtime-1.1.1/AndroidManifest.xml:17:1-33:12
+MERGED from [androidx.tracing:tracing:1.0.0] /Users/souly/.gradle/caches/transforms-3/b00c8a69234cb168dca9544114847069/transformed/tracing-1.0.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.compose.ui:ui-util:1.2.1] /Users/souly/.gradle/caches/transforms-3/9c9f03dbdcdf29de5b7891e42c02235b/transformed/ui-util-1.2.1/AndroidManifest.xml:17:1-23:12
+MERGED from [androidx.annotation:annotation-experimental:1.1.0] /Users/souly/.gradle/caches/transforms-3/9c2b4468362aa1bc24fbaf1b36398ca9/transformed/annotation-experimental-1.1.0/AndroidManifest.xml:17:1-24:12
+MERGED from [io.grpc:grpc-android:1.44.1] /Users/souly/.gradle/caches/transforms-3/97b3d0d39ca494d6ab1a5d811bd2797c/transformed/grpc-android-1.44.1/AndroidManifest.xml:2:1-11:12
+MERGED from [com.google.firebase:protolite-well-known-types:18.0.0] /Users/souly/.gradle/caches/transforms-3/22fcb82d8696cfad5190bf4887cf8a30/transformed/protolite-well-known-types-18.0.0/AndroidManifest.xml:2:1-11:12
+INJECTED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:2:1-32:12
+INJECTED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:2:1-32:12
+INJECTED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:2:1-32:12
+	package
+		ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:4:5-37
+		INJECTED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml
+		INJECTED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml
+	android:versionName
+		INJECTED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml
+		ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:2:1-32:12
+		INJECTED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml
+	xmlns:tools
+		ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:3:5-51
+	android:versionCode
+		INJECTED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml
+		ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:2:1-32:12
+		INJECTED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml
+	xmlns:android
+		ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:2:11-69
+uses-permission#android.permission.INTERNET
+ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:6:5-67
+MERGED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:13:5-67
+MERGED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:13:5-67
+MERGED from [com.google.firebase:firebase-auth:21.0.8] /Users/souly/.gradle/caches/transforms-3/62edfb5d48e463ad901e2291513934e3/transformed/firebase-auth-21.0.8/AndroidManifest.xml:23:5-67
+MERGED from [com.google.firebase:firebase-auth:21.0.8] /Users/souly/.gradle/caches/transforms-3/62edfb5d48e463ad901e2291513934e3/transformed/firebase-auth-21.0.8/AndroidManifest.xml:23:5-67
+MERGED from [com.google.firebase:firebase-storage:20.0.2] /Users/souly/.gradle/caches/transforms-3/546fb523c2128e473f84b10cd9e8e7e2/transformed/firebase-storage-20.0.2/AndroidManifest.xml:27:5-67
+MERGED from [com.google.firebase:firebase-storage:20.0.2] /Users/souly/.gradle/caches/transforms-3/546fb523c2128e473f84b10cd9e8e7e2/transformed/firebase-storage-20.0.2/AndroidManifest.xml:27:5-67
+MERGED from [com.google.firebase:firebase-firestore:24.3.0] /Users/souly/.gradle/caches/transforms-3/39ca479e38b8daf3c557672dbb338a63/transformed/firebase-firestore-24.3.0/AndroidManifest.xml:14:5-67
+MERGED from [com.google.firebase:firebase-firestore:24.3.0] /Users/souly/.gradle/caches/transforms-3/39ca479e38b8daf3c557672dbb338a63/transformed/firebase-firestore-24.3.0/AndroidManifest.xml:14:5-67
+	android:name
+		ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:6:22-64
+uses-permission#android.permission.ACCESS_NETWORK_STATE
+ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:7:5-79
+MERGED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:12:5-79
+MERGED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:12:5-79
+MERGED from [com.google.firebase:firebase-auth:21.0.8] /Users/souly/.gradle/caches/transforms-3/62edfb5d48e463ad901e2291513934e3/transformed/firebase-auth-21.0.8/AndroidManifest.xml:24:5-79
+MERGED from [com.google.firebase:firebase-auth:21.0.8] /Users/souly/.gradle/caches/transforms-3/62edfb5d48e463ad901e2291513934e3/transformed/firebase-auth-21.0.8/AndroidManifest.xml:24:5-79
+MERGED from [com.google.firebase:firebase-storage:20.0.2] /Users/souly/.gradle/caches/transforms-3/546fb523c2128e473f84b10cd9e8e7e2/transformed/firebase-storage-20.0.2/AndroidManifest.xml:26:5-79
+MERGED from [com.google.firebase:firebase-storage:20.0.2] /Users/souly/.gradle/caches/transforms-3/546fb523c2128e473f84b10cd9e8e7e2/transformed/firebase-storage-20.0.2/AndroidManifest.xml:26:5-79
+MERGED from [com.google.firebase:firebase-firestore:24.3.0] /Users/souly/.gradle/caches/transforms-3/39ca479e38b8daf3c557672dbb338a63/transformed/firebase-firestore-24.3.0/AndroidManifest.xml:13:5-79
+MERGED from [com.google.firebase:firebase-firestore:24.3.0] /Users/souly/.gradle/caches/transforms-3/39ca479e38b8daf3c557672dbb338a63/transformed/firebase-firestore-24.3.0/AndroidManifest.xml:13:5-79
+MERGED from [io.grpc:grpc-android:1.44.1] /Users/souly/.gradle/caches/transforms-3/97b3d0d39ca494d6ab1a5d811bd2797c/transformed/grpc-android-1.44.1/AndroidManifest.xml:9:5-79
+MERGED from [io.grpc:grpc-android:1.44.1] /Users/souly/.gradle/caches/transforms-3/97b3d0d39ca494d6ab1a5d811bd2797c/transformed/grpc-android-1.44.1/AndroidManifest.xml:9:5-79
+	android:name
+		ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:7:22-76
+application
+ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:9:5-30:19
+MERGED from [androidx.compose.ui:ui-tooling:1.2.0] /Users/souly/.gradle/caches/transforms-3/a9b8157cb6e168d7e3a98a9ec67851f5/transformed/ui-tooling-1.2.0/AndroidManifest.xml:23:5-27:19
+MERGED from [androidx.compose.ui:ui-tooling:1.2.0] /Users/souly/.gradle/caches/transforms-3/a9b8157cb6e168d7e3a98a9ec67851f5/transformed/ui-tooling-1.2.0/AndroidManifest.xml:23:5-27:19
+MERGED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:15:5-107:19
+MERGED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:15:5-107:19
+MERGED from [com.google.android.material:material:1.2.1] /Users/souly/.gradle/caches/transforms-3/d41b28e16e074bab5c402461e74ca87b/transformed/material-1.2.1/AndroidManifest.xml:22:5-20
+MERGED from [com.google.android.material:material:1.2.1] /Users/souly/.gradle/caches/transforms-3/d41b28e16e074bab5c402461e74ca87b/transformed/material-1.2.1/AndroidManifest.xml:22:5-20
+MERGED from [androidx.lifecycle:lifecycle-extensions:2.2.0] /Users/souly/.gradle/caches/transforms-3/ab4fcfa845990a98f17ef017a85f84a4/transformed/lifecycle-extensions-2.2.0/AndroidManifest.xml:24:5-25:19
+MERGED from [androidx.lifecycle:lifecycle-extensions:2.2.0] /Users/souly/.gradle/caches/transforms-3/ab4fcfa845990a98f17ef017a85f84a4/transformed/lifecycle-extensions-2.2.0/AndroidManifest.xml:24:5-25:19
+MERGED from [com.google.android.gms:play-services-auth:19.0.0] /Users/souly/.gradle/caches/transforms-3/e278ca6587245087663c709c540cde12/transformed/play-services-auth-19.0.0/AndroidManifest.xml:22:5-38:19
+MERGED from [com.google.android.gms:play-services-auth:19.0.0] /Users/souly/.gradle/caches/transforms-3/e278ca6587245087663c709c540cde12/transformed/play-services-auth-19.0.0/AndroidManifest.xml:22:5-38:19
+MERGED from [com.google.firebase:firebase-auth-ktx:21.0.8] /Users/souly/.gradle/caches/transforms-3/d084c2d32078dfb5efc837ca6c0673b7/transformed/firebase-auth-ktx-21.0.8/AndroidManifest.xml:7:5-15:19
+MERGED from [com.google.firebase:firebase-auth-ktx:21.0.8] /Users/souly/.gradle/caches/transforms-3/d084c2d32078dfb5efc837ca6c0673b7/transformed/firebase-auth-ktx-21.0.8/AndroidManifest.xml:7:5-15:19
+MERGED from [com.google.firebase:firebase-auth:21.0.8] /Users/souly/.gradle/caches/transforms-3/62edfb5d48e463ad901e2291513934e3/transformed/firebase-auth-21.0.8/AndroidManifest.xml:26:5-71:19
+MERGED from [com.google.firebase:firebase-auth:21.0.8] /Users/souly/.gradle/caches/transforms-3/62edfb5d48e463ad901e2291513934e3/transformed/firebase-auth-21.0.8/AndroidManifest.xml:26:5-71:19
+MERGED from [com.google.firebase:firebase-firestore-ktx:24.3.0] /Users/souly/.gradle/caches/transforms-3/10d8a9b2b99ba218c022b3f90a8044ad/transformed/firebase-firestore-ktx-24.3.0/AndroidManifest.xml:11:5-19:19
+MERGED from [com.google.firebase:firebase-firestore-ktx:24.3.0] /Users/souly/.gradle/caches/transforms-3/10d8a9b2b99ba218c022b3f90a8044ad/transformed/firebase-firestore-ktx-24.3.0/AndroidManifest.xml:11:5-19:19
+MERGED from [com.google.firebase:firebase-storage-ktx:20.0.2] /Users/souly/.gradle/caches/transforms-3/2c0572d469b60438af1c090b686ce63b/transformed/firebase-storage-ktx-20.0.2/AndroidManifest.xml:11:5-19:19
+MERGED from [com.google.firebase:firebase-storage-ktx:20.0.2] /Users/souly/.gradle/caches/transforms-3/2c0572d469b60438af1c090b686ce63b/transformed/firebase-storage-ktx-20.0.2/AndroidManifest.xml:11:5-19:19
+MERGED from [com.google.firebase:firebase-common-ktx:20.1.2] /Users/souly/.gradle/caches/transforms-3/6bbcf5b7f79fdd8548b938daced308cb/transformed/firebase-common-ktx-20.1.2/AndroidManifest.xml:11:5-19:19
+MERGED from [com.google.firebase:firebase-common-ktx:20.1.2] /Users/souly/.gradle/caches/transforms-3/6bbcf5b7f79fdd8548b938daced308cb/transformed/firebase-common-ktx-20.1.2/AndroidManifest.xml:11:5-19:19
+MERGED from [com.google.firebase:firebase-storage:20.0.2] /Users/souly/.gradle/caches/transforms-3/546fb523c2128e473f84b10cd9e8e7e2/transformed/firebase-storage-20.0.2/AndroidManifest.xml:29:5-37:19
+MERGED from [com.google.firebase:firebase-storage:20.0.2] /Users/souly/.gradle/caches/transforms-3/546fb523c2128e473f84b10cd9e8e7e2/transformed/firebase-storage-20.0.2/AndroidManifest.xml:29:5-37:19
+MERGED from [com.google.firebase:firebase-firestore:24.3.0] /Users/souly/.gradle/caches/transforms-3/39ca479e38b8daf3c557672dbb338a63/transformed/firebase-firestore-24.3.0/AndroidManifest.xml:16:5-24:19
+MERGED from [com.google.firebase:firebase-firestore:24.3.0] /Users/souly/.gradle/caches/transforms-3/39ca479e38b8daf3c557672dbb338a63/transformed/firebase-firestore-24.3.0/AndroidManifest.xml:16:5-24:19
+MERGED from [com.google.firebase:firebase-auth-interop:20.0.0] /Users/souly/.gradle/caches/transforms-3/b2913e29c69bd533dfbaa2ac0d583dcb/transformed/firebase-auth-interop-20.0.0/AndroidManifest.xml:7:5-8:19
+MERGED from [com.google.firebase:firebase-auth-interop:20.0.0] /Users/souly/.gradle/caches/transforms-3/b2913e29c69bd533dfbaa2ac0d583dcb/transformed/firebase-auth-interop-20.0.0/AndroidManifest.xml:7:5-8:19
+MERGED from [com.google.firebase:firebase-appcheck-interop:16.0.1] /Users/souly/.gradle/caches/transforms-3/d1f72df6c518614d538476fa935c9ea7/transformed/firebase-appcheck-interop-16.0.1/AndroidManifest.xml:24:5-20
+MERGED from [com.google.firebase:firebase-appcheck-interop:16.0.1] /Users/souly/.gradle/caches/transforms-3/d1f72df6c518614d538476fa935c9ea7/transformed/firebase-appcheck-interop-16.0.1/AndroidManifest.xml:24:5-20
+MERGED from [com.google.firebase:firebase-common:20.1.2] /Users/souly/.gradle/caches/transforms-3/349563aebbfd1ec9cda27839ca07e7e4/transformed/firebase-common-20.1.2/AndroidManifest.xml:25:5-38:19
+MERGED from [com.google.firebase:firebase-common:20.1.2] /Users/souly/.gradle/caches/transforms-3/349563aebbfd1ec9cda27839ca07e7e4/transformed/firebase-common-20.1.2/AndroidManifest.xml:25:5-38:19
+MERGED from [com.google.android.gms:play-services-safetynet:17.0.0] /Users/souly/.gradle/caches/transforms-3/36381c570bbd8f58571171dac93d1500/transformed/play-services-safetynet-17.0.0/AndroidManifest.xml:22:5-20
+MERGED from [com.google.android.gms:play-services-safetynet:17.0.0] /Users/souly/.gradle/caches/transforms-3/36381c570bbd8f58571171dac93d1500/transformed/play-services-safetynet-17.0.0/AndroidManifest.xml:22:5-20
+MERGED from [com.google.android.gms:play-services-base:18.0.1] /Users/souly/.gradle/caches/transforms-3/a0398d1b7995a071279c7b0d5896fe1d/transformed/play-services-base-18.0.1/AndroidManifest.xml:19:5-23:19
+MERGED from [com.google.android.gms:play-services-base:18.0.1] /Users/souly/.gradle/caches/transforms-3/a0398d1b7995a071279c7b0d5896fe1d/transformed/play-services-base-18.0.1/AndroidManifest.xml:19:5-23:19
+MERGED from [com.google.android.gms:play-services-tasks:18.0.1] /Users/souly/.gradle/caches/transforms-3/fd64036d9c486df49cd24271383460c6/transformed/play-services-tasks-18.0.1/AndroidManifest.xml:5:5-20
+MERGED from [com.google.android.gms:play-services-tasks:18.0.1] /Users/souly/.gradle/caches/transforms-3/fd64036d9c486df49cd24271383460c6/transformed/play-services-tasks-18.0.1/AndroidManifest.xml:5:5-20
+MERGED from [com.google.android.gms:play-services-basement:18.1.0] /Users/souly/.gradle/caches/transforms-3/0e0198dd559f087f7f299f5df44b3254/transformed/play-services-basement-18.1.0/AndroidManifest.xml:20:5-24:19
+MERGED from [com.google.android.gms:play-services-basement:18.1.0] /Users/souly/.gradle/caches/transforms-3/0e0198dd559f087f7f299f5df44b3254/transformed/play-services-basement-18.1.0/AndroidManifest.xml:20:5-24:19
+MERGED from [androidx.constraintlayout:constraintlayout:2.0.4] /Users/souly/.gradle/caches/transforms-3/b077d81b5acf40e89ed698561e7c2918/transformed/constraintlayout-2.0.4/AndroidManifest.xml:9:5-20
+MERGED from [androidx.constraintlayout:constraintlayout:2.0.4] /Users/souly/.gradle/caches/transforms-3/b077d81b5acf40e89ed698561e7c2918/transformed/constraintlayout-2.0.4/AndroidManifest.xml:9:5-20
+MERGED from [androidx.compose.ui:ui-test-manifest:1.2.0] /Users/souly/.gradle/caches/transforms-3/d05a8a90f784dd6fa6460ea69b64d24f/transformed/ui-test-manifest-1.2.0/AndroidManifest.xml:23:5-27:19
+MERGED from [androidx.compose.ui:ui-test-manifest:1.2.0] /Users/souly/.gradle/caches/transforms-3/d05a8a90f784dd6fa6460ea69b64d24f/transformed/ui-test-manifest-1.2.0/AndroidManifest.xml:23:5-27:19
+MERGED from [androidx.lifecycle:lifecycle-process:2.2.0] /Users/souly/.gradle/caches/transforms-3/26541541ebd23faed7c9f3f03f09f048/transformed/lifecycle-process-2.2.0/AndroidManifest.xml:24:5-30:19
+MERGED from [androidx.lifecycle:lifecycle-process:2.2.0] /Users/souly/.gradle/caches/transforms-3/26541541ebd23faed7c9f3f03f09f048/transformed/lifecycle-process-2.2.0/AndroidManifest.xml:24:5-30:19
+MERGED from [androidx.core:core:1.8.0] /Users/souly/.gradle/caches/transforms-3/7d4a105424d0316999242d6d5524de7b/transformed/core-1.8.0/AndroidManifest.xml:24:5-89
+MERGED from [androidx.core:core:1.8.0] /Users/souly/.gradle/caches/transforms-3/7d4a105424d0316999242d6d5524de7b/transformed/core-1.8.0/AndroidManifest.xml:24:5-89
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /Users/souly/.gradle/caches/transforms-3/6cdef2daf4ed9214278f205ce8380564/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:24:5-25:19
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /Users/souly/.gradle/caches/transforms-3/6cdef2daf4ed9214278f205ce8380564/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:24:5-25:19
+MERGED from [androidx.profileinstaller:profileinstaller:1.2.0] /Users/souly/.gradle/caches/transforms-3/2063dc1fdcfc061a5e2d097d8cd698bd/transformed/profileinstaller-1.2.0/AndroidManifest.xml:24:5-48:19
+MERGED from [androidx.profileinstaller:profileinstaller:1.2.0] /Users/souly/.gradle/caches/transforms-3/2063dc1fdcfc061a5e2d097d8cd698bd/transformed/profileinstaller-1.2.0/AndroidManifest.xml:24:5-48:19
+MERGED from [androidx.startup:startup-runtime:1.1.1] /Users/souly/.gradle/caches/transforms-3/800229cc6fe627d3c6e7158900b1165f/transformed/startup-runtime-1.1.1/AndroidManifest.xml:25:5-31:19
+MERGED from [androidx.startup:startup-runtime:1.1.1] /Users/souly/.gradle/caches/transforms-3/800229cc6fe627d3c6e7158900b1165f/transformed/startup-runtime-1.1.1/AndroidManifest.xml:25:5-31:19
+	android:appComponentFactory
+		ADDED from [androidx.core:core:1.8.0] /Users/souly/.gradle/caches/transforms-3/7d4a105424d0316999242d6d5524de7b/transformed/core-1.8.0/AndroidManifest.xml:24:18-86
+	android:supportsRtl
+		ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:16:9-35
+	android:label
+		ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:14:9-41
+	android:fullBackupContent
+		ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:12:9-54
+	android:roundIcon
+		ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:15:9-54
+	tools:targetApi
+		ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:18:9-29
+	android:icon
+		ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:13:9-43
+	android:allowBackup
+		ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:10:9-35
+	android:theme
+		ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:17:9-48
+	android:dataExtractionRules
+		ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:11:9-65
+activity#com.example.hobbyclubs.MainActivity
+ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:19:9-29:20
+	android:label
+		ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:22:13-45
+	android:exported
+		ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:21:13-36
+	android:theme
+		ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:23:13-52
+	android:name
+		ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:20:13-41
+intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
+ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:24:13-28:29
+action#android.intent.action.MAIN
+ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:25:17-69
+	android:name
+		ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:25:25-66
+category#android.intent.category.LAUNCHER
+ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:27:17-77
+	android:name
+		ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml:27:27-74
+uses-sdk
+INJECTED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml
+INJECTED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml
+MERGED from [io.coil-kt:coil-compose:2.2.2] /Users/souly/.gradle/caches/transforms-3/573f0c517a59c82a076cddc798266321/transformed/coil-compose-2.2.2/AndroidManifest.xml:5:5-7:41
+MERGED from [io.coil-kt:coil-compose:2.2.2] /Users/souly/.gradle/caches/transforms-3/573f0c517a59c82a076cddc798266321/transformed/coil-compose-2.2.2/AndroidManifest.xml:5:5-7:41
+MERGED from [io.coil-kt:coil-compose-base:2.2.2] /Users/souly/.gradle/caches/transforms-3/678485b987fd6258abb8bffd67d90920/transformed/coil-compose-base-2.2.2/AndroidManifest.xml:5:5-7:41
+MERGED from [io.coil-kt:coil-compose-base:2.2.2] /Users/souly/.gradle/caches/transforms-3/678485b987fd6258abb8bffd67d90920/transformed/coil-compose-base-2.2.2/AndroidManifest.xml:5:5-7:41
+MERGED from [io.coil-kt:coil:2.2.2] /Users/souly/.gradle/caches/transforms-3/b355940b5524eec5965252982ae32b6e/transformed/coil-2.2.2/AndroidManifest.xml:5:5-7:41
+MERGED from [io.coil-kt:coil:2.2.2] /Users/souly/.gradle/caches/transforms-3/b355940b5524eec5965252982ae32b6e/transformed/coil-2.2.2/AndroidManifest.xml:5:5-7:41
+MERGED from [io.coil-kt:coil-base:2.2.2] /Users/souly/.gradle/caches/transforms-3/5d2f0c21e6b602896b46a3837d984629/transformed/coil-base-2.2.2/AndroidManifest.xml:5:5-7:41
+MERGED from [io.coil-kt:coil-base:2.2.2] /Users/souly/.gradle/caches/transforms-3/5d2f0c21e6b602896b46a3837d984629/transformed/coil-base-2.2.2/AndroidManifest.xml:5:5-7:41
+MERGED from [androidx.compose.ui:ui-tooling:1.2.0] /Users/souly/.gradle/caches/transforms-3/a9b8157cb6e168d7e3a98a9ec67851f5/transformed/ui-tooling-1.2.0/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.compose.ui:ui-tooling:1.2.0] /Users/souly/.gradle/caches/transforms-3/a9b8157cb6e168d7e3a98a9ec67851f5/transformed/ui-tooling-1.2.0/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.compose.material:material-icons-extended:1.2.0] /Users/souly/.gradle/caches/transforms-3/f1bd7d783c7f58254dd13c78d0d65734/transformed/material-icons-extended-1.2.0/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.compose.material:material-icons-extended:1.2.0] /Users/souly/.gradle/caches/transforms-3/f1bd7d783c7f58254dd13c78d0d65734/transformed/material-icons-extended-1.2.0/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.navigation:navigation-compose:2.5.2] /Users/souly/.gradle/caches/transforms-3/620487dafa5ce88f4f66463d36a9416a/transformed/navigation-compose-2.5.2/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.navigation:navigation-compose:2.5.2] /Users/souly/.gradle/caches/transforms-3/620487dafa5ce88f4f66463d36a9416a/transformed/navigation-compose-2.5.2/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.compose.runtime:runtime-livedata:1.2.1] /Users/souly/.gradle/caches/transforms-3/6bb21868f6b0758273afa23850b1dd90/transformed/runtime-livedata-1.2.1/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.compose.runtime:runtime-livedata:1.2.1] /Users/souly/.gradle/caches/transforms-3/6bb21868f6b0758273afa23850b1dd90/transformed/runtime-livedata-1.2.1/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1] /Users/souly/.gradle/caches/transforms-3/15a3271efbbf1e82b0f577b2ca4d5b9c/transformed/lifecycle-viewmodel-compose-2.5.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1] /Users/souly/.gradle/caches/transforms-3/15a3271efbbf1e82b0f577b2ca4d5b9c/transformed/lifecycle-viewmodel-compose-2.5.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.compose.material3:material3:1.0.0-alpha01] /Users/souly/.gradle/caches/transforms-3/bfe863a069e3f9487b547c213496b129/transformed/material3-1.0.0-alpha01/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.compose.material3:material3:1.0.0-alpha01] /Users/souly/.gradle/caches/transforms-3/bfe863a069e3f9487b547c213496b129/transformed/material3-1.0.0-alpha01/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.compose.ui:ui-tooling-preview:1.2.0] /Users/souly/.gradle/caches/transforms-3/e05c713a9a39a6e42738604535d5cbc5/transformed/ui-tooling-preview-1.2.0/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.compose.ui:ui-tooling-preview:1.2.0] /Users/souly/.gradle/caches/transforms-3/e05c713a9a39a6e42738604535d5cbc5/transformed/ui-tooling-preview-1.2.0/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.compose.material:material:1.0.0] /Users/souly/.gradle/caches/transforms-3/e24af94762f25fd869072e0c435dc5da/transformed/material-1.0.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.compose.material:material:1.0.0] /Users/souly/.gradle/caches/transforms-3/e24af94762f25fd869072e0c435dc5da/transformed/material-1.0.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.compose.material:material-ripple:1.0.0] /Users/souly/.gradle/caches/transforms-3/e9aec9bc0a155806cc01b965b41602a4/transformed/material-ripple-1.0.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.compose.material:material-ripple:1.0.0] /Users/souly/.gradle/caches/transforms-3/e9aec9bc0a155806cc01b965b41602a4/transformed/material-ripple-1.0.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.compose.foundation:foundation:1.2.1] /Users/souly/.gradle/caches/transforms-3/67da30f79e2279f778fe98b010e23ec2/transformed/foundation-1.2.1/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.compose.foundation:foundation:1.2.1] /Users/souly/.gradle/caches/transforms-3/67da30f79e2279f778fe98b010e23ec2/transformed/foundation-1.2.1/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.compose.animation:animation:1.1.1] /Users/souly/.gradle/caches/transforms-3/6f475d515da5f5ff2423651f463823d9/transformed/animation-1.1.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.compose.animation:animation:1.1.1] /Users/souly/.gradle/caches/transforms-3/6f475d515da5f5ff2423651f463823d9/transformed/animation-1.1.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.compose.ui:ui-tooling-data:1.2.0] /Users/souly/.gradle/caches/transforms-3/566d0110d9a62f990ca7de4f9e3f24ea/transformed/ui-tooling-data-1.2.0/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.compose.ui:ui-tooling-data:1.2.0] /Users/souly/.gradle/caches/transforms-3/566d0110d9a62f990ca7de4f9e3f24ea/transformed/ui-tooling-data-1.2.0/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.compose.material:material-icons-core:1.2.0] /Users/souly/.gradle/caches/transforms-3/26ad02f63df756b3632b16b73c3c9d52/transformed/material-icons-core-1.2.0/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.compose.material:material-icons-core:1.2.0] /Users/souly/.gradle/caches/transforms-3/26ad02f63df756b3632b16b73c3c9d52/transformed/material-icons-core-1.2.0/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.activity:activity-compose:1.5.1] /Users/souly/.gradle/caches/transforms-3/e52d401b33bfcef11f7436c798845738/transformed/activity-compose-1.5.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.activity:activity-compose:1.5.1] /Users/souly/.gradle/caches/transforms-3/e52d401b33bfcef11f7436c798845738/transformed/activity-compose-1.5.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.compose.foundation:foundation-layout:1.2.1] /Users/souly/.gradle/caches/transforms-3/9d97e27a7db3944d8972c01b8b4841fc/transformed/foundation-layout-1.2.1/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.compose.foundation:foundation-layout:1.2.1] /Users/souly/.gradle/caches/transforms-3/9d97e27a7db3944d8972c01b8b4841fc/transformed/foundation-layout-1.2.1/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.compose.animation:animation-core:1.1.1] /Users/souly/.gradle/caches/transforms-3/385cb61712cbb530e2e8cc8b595dbb0f/transformed/animation-core-1.1.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.compose.animation:animation-core:1.1.1] /Users/souly/.gradle/caches/transforms-3/385cb61712cbb530e2e8cc8b595dbb0f/transformed/animation-core-1.1.1/AndroidManifest.xml:20:5-22:41
+MERGED from [com.google.accompanist:accompanist-drawablepainter:0.25.1] /Users/souly/.gradle/caches/transforms-3/5574edcce9c29107bbbe8ff91c61ff84/transformed/accompanist-drawablepainter-0.25.1/AndroidManifest.xml:20:5-22:41
+MERGED from [com.google.accompanist:accompanist-drawablepainter:0.25.1] /Users/souly/.gradle/caches/transforms-3/5574edcce9c29107bbbe8ff91c61ff84/transformed/accompanist-drawablepainter-0.25.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.compose.ui:ui:1.2.1] /Users/souly/.gradle/caches/transforms-3/24082d0d532a4fcb82dd3a24e6ebc033/transformed/ui-1.2.1/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.compose.ui:ui:1.2.1] /Users/souly/.gradle/caches/transforms-3/24082d0d532a4fcb82dd3a24e6ebc033/transformed/ui-1.2.1/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.compose.ui:ui-text:1.2.1] /Users/souly/.gradle/caches/transforms-3/603529c714f17f92c402928a0d6c6229/transformed/ui-text-1.2.1/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.compose.ui:ui-text:1.2.1] /Users/souly/.gradle/caches/transforms-3/603529c714f17f92c402928a0d6c6229/transformed/ui-text-1.2.1/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.compose.runtime:runtime-saveable:1.2.1] /Users/souly/.gradle/caches/transforms-3/4be5ae4ec89ef608012b49aa3625533d/transformed/runtime-saveable-1.2.1/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.compose.runtime:runtime-saveable:1.2.1] /Users/souly/.gradle/caches/transforms-3/4be5ae4ec89ef608012b49aa3625533d/transformed/runtime-saveable-1.2.1/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.compose.ui:ui-graphics:1.2.1] /Users/souly/.gradle/caches/transforms-3/a2650df94e75c79f553e168cf74f16a8/transformed/ui-graphics-1.2.1/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.compose.ui:ui-graphics:1.2.1] /Users/souly/.gradle/caches/transforms-3/a2650df94e75c79f553e168cf74f16a8/transformed/ui-graphics-1.2.1/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.compose.ui:ui-unit:1.2.1] /Users/souly/.gradle/caches/transforms-3/49a6de74748eb2c8b802a8abef8cb008/transformed/ui-unit-1.2.1/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.compose.ui:ui-unit:1.2.1] /Users/souly/.gradle/caches/transforms-3/49a6de74748eb2c8b802a8abef8cb008/transformed/ui-unit-1.2.1/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.compose.ui:ui-geometry:1.2.1] /Users/souly/.gradle/caches/transforms-3/a852bd50178a19d0abd76d8721a2b490/transformed/ui-geometry-1.2.1/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.compose.ui:ui-geometry:1.2.1] /Users/souly/.gradle/caches/transforms-3/a852bd50178a19d0abd76d8721a2b490/transformed/ui-geometry-1.2.1/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.compose.runtime:runtime:1.2.1] /Users/souly/.gradle/caches/transforms-3/2de7f6f893cc8f00518d2e4baf64896f/transformed/runtime-1.2.1/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.compose.runtime:runtime:1.2.1] /Users/souly/.gradle/caches/transforms-3/2de7f6f893cc8f00518d2e4baf64896f/transformed/runtime-1.2.1/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.navigation:navigation-runtime-ktx:2.5.2] /Users/souly/.gradle/caches/transforms-3/5445c2317b8f1602e59990893736dbab/transformed/navigation-runtime-ktx-2.5.2/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.navigation:navigation-runtime-ktx:2.5.2] /Users/souly/.gradle/caches/transforms-3/5445c2317b8f1602e59990893736dbab/transformed/navigation-runtime-ktx-2.5.2/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.navigation:navigation-runtime:2.5.2] /Users/souly/.gradle/caches/transforms-3/7fa30957d198cbb8c99b3afc8235bfdb/transformed/navigation-runtime-2.5.2/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.navigation:navigation-runtime:2.5.2] /Users/souly/.gradle/caches/transforms-3/7fa30957d198cbb8c99b3afc8235bfdb/transformed/navigation-runtime-2.5.2/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.activity:activity-ktx:1.5.1] /Users/souly/.gradle/caches/transforms-3/02f0a1049fd6993113a1a985c3a16521/transformed/activity-ktx-1.5.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.activity:activity-ktx:1.5.1] /Users/souly/.gradle/caches/transforms-3/02f0a1049fd6993113a1a985c3a16521/transformed/activity-ktx-1.5.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.navigation:navigation-common-ktx:2.5.2] /Users/souly/.gradle/caches/transforms-3/60a602d0ef19c3ce58fe764aea65e017/transformed/navigation-common-ktx-2.5.2/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.navigation:navigation-common-ktx:2.5.2] /Users/souly/.gradle/caches/transforms-3/60a602d0ef19c3ce58fe764aea65e017/transformed/navigation-common-ktx-2.5.2/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.navigation:navigation-common:2.5.2] /Users/souly/.gradle/caches/transforms-3/0453e88146095a89fa43f3abfc856914/transformed/navigation-common-2.5.2/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.navigation:navigation-common:2.5.2] /Users/souly/.gradle/caches/transforms-3/0453e88146095a89fa43f3abfc856914/transformed/navigation-common-2.5.2/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1] /Users/souly/.gradle/caches/transforms-3/1418bbfb4ee4175fb4034b8abf2a8bb0/transformed/lifecycle-viewmodel-ktx-2.5.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1] /Users/souly/.gradle/caches/transforms-3/1418bbfb4ee4175fb4034b8abf2a8bb0/transformed/lifecycle-viewmodel-ktx-2.5.1/AndroidManifest.xml:20:5-22:41
+MERGED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:8:5-10:41
+MERGED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:8:5-10:41
+MERGED from [com.google.android.material:material:1.2.1] /Users/souly/.gradle/caches/transforms-3/d41b28e16e074bab5c402461e74ca87b/transformed/material-1.2.1/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.material:material:1.2.1] /Users/souly/.gradle/caches/transforms-3/d41b28e16e074bab5c402461e74ca87b/transformed/material-1.2.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-extensions:2.2.0] /Users/souly/.gradle/caches/transforms-3/ab4fcfa845990a98f17ef017a85f84a4/transformed/lifecycle-extensions-2.2.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-extensions:2.2.0] /Users/souly/.gradle/caches/transforms-3/ab4fcfa845990a98f17ef017a85f84a4/transformed/lifecycle-extensions-2.2.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.legacy:legacy-support-v4:1.0.0] /Users/souly/.gradle/caches/transforms-3/20e176c35d95dfd9152972a8a9fa2b78/transformed/legacy-support-v4-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.legacy:legacy-support-v4:1.0.0] /Users/souly/.gradle/caches/transforms-3/20e176c35d95dfd9152972a8a9fa2b78/transformed/legacy-support-v4-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-auth:19.0.0] /Users/souly/.gradle/caches/transforms-3/e278ca6587245087663c709c540cde12/transformed/play-services-auth-19.0.0/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-auth:19.0.0] /Users/souly/.gradle/caches/transforms-3/e278ca6587245087663c709c540cde12/transformed/play-services-auth-19.0.0/AndroidManifest.xml:20:5-44
+MERGED from [com.google.firebase:firebase-auth-ktx:21.0.8] /Users/souly/.gradle/caches/transforms-3/d084c2d32078dfb5efc837ca6c0673b7/transformed/firebase-auth-ktx-21.0.8/AndroidManifest.xml:5:5-44
+MERGED from [com.google.firebase:firebase-auth-ktx:21.0.8] /Users/souly/.gradle/caches/transforms-3/d084c2d32078dfb5efc837ca6c0673b7/transformed/firebase-auth-ktx-21.0.8/AndroidManifest.xml:5:5-44
+MERGED from [com.google.firebase:firebase-auth:21.0.8] /Users/souly/.gradle/caches/transforms-3/62edfb5d48e463ad901e2291513934e3/transformed/firebase-auth-21.0.8/AndroidManifest.xml:21:5-44
+MERGED from [com.google.firebase:firebase-auth:21.0.8] /Users/souly/.gradle/caches/transforms-3/62edfb5d48e463ad901e2291513934e3/transformed/firebase-auth-21.0.8/AndroidManifest.xml:21:5-44
+MERGED from [com.google.firebase:firebase-firestore-ktx:24.3.0] /Users/souly/.gradle/caches/transforms-3/10d8a9b2b99ba218c022b3f90a8044ad/transformed/firebase-firestore-ktx-24.3.0/AndroidManifest.xml:6:5-8:41
+MERGED from [com.google.firebase:firebase-firestore-ktx:24.3.0] /Users/souly/.gradle/caches/transforms-3/10d8a9b2b99ba218c022b3f90a8044ad/transformed/firebase-firestore-ktx-24.3.0/AndroidManifest.xml:6:5-8:41
+MERGED from [com.google.firebase:firebase-storage-ktx:20.0.2] /Users/souly/.gradle/caches/transforms-3/2c0572d469b60438af1c090b686ce63b/transformed/firebase-storage-ktx-20.0.2/AndroidManifest.xml:6:5-8:41
+MERGED from [com.google.firebase:firebase-storage-ktx:20.0.2] /Users/souly/.gradle/caches/transforms-3/2c0572d469b60438af1c090b686ce63b/transformed/firebase-storage-ktx-20.0.2/AndroidManifest.xml:6:5-8:41
+MERGED from [com.google.firebase:firebase-common-ktx:20.1.2] /Users/souly/.gradle/caches/transforms-3/6bbcf5b7f79fdd8548b938daced308cb/transformed/firebase-common-ktx-20.1.2/AndroidManifest.xml:6:5-8:41
+MERGED from [com.google.firebase:firebase-common-ktx:20.1.2] /Users/souly/.gradle/caches/transforms-3/6bbcf5b7f79fdd8548b938daced308cb/transformed/firebase-common-ktx-20.1.2/AndroidManifest.xml:6:5-8:41
+MERGED from [com.google.firebase:firebase-storage:20.0.2] /Users/souly/.gradle/caches/transforms-3/546fb523c2128e473f84b10cd9e8e7e2/transformed/firebase-storage-20.0.2/AndroidManifest.xml:20:5-22:41
+MERGED from [com.google.firebase:firebase-storage:20.0.2] /Users/souly/.gradle/caches/transforms-3/546fb523c2128e473f84b10cd9e8e7e2/transformed/firebase-storage-20.0.2/AndroidManifest.xml:20:5-22:41
+MERGED from [com.google.firebase:firebase-firestore:24.3.0] /Users/souly/.gradle/caches/transforms-3/39ca479e38b8daf3c557672dbb338a63/transformed/firebase-firestore-24.3.0/AndroidManifest.xml:7:5-9:41
+MERGED from [com.google.firebase:firebase-firestore:24.3.0] /Users/souly/.gradle/caches/transforms-3/39ca479e38b8daf3c557672dbb338a63/transformed/firebase-firestore-24.3.0/AndroidManifest.xml:7:5-9:41
+MERGED from [com.google.firebase:firebase-auth-interop:20.0.0] /Users/souly/.gradle/caches/transforms-3/b2913e29c69bd533dfbaa2ac0d583dcb/transformed/firebase-auth-interop-20.0.0/AndroidManifest.xml:5:5-44
+MERGED from [com.google.firebase:firebase-auth-interop:20.0.0] /Users/souly/.gradle/caches/transforms-3/b2913e29c69bd533dfbaa2ac0d583dcb/transformed/firebase-auth-interop-20.0.0/AndroidManifest.xml:5:5-44
+MERGED from [com.google.firebase:firebase-appcheck-interop:16.0.1] /Users/souly/.gradle/caches/transforms-3/d1f72df6c518614d538476fa935c9ea7/transformed/firebase-appcheck-interop-16.0.1/AndroidManifest.xml:19:5-21:41
+MERGED from [com.google.firebase:firebase-appcheck-interop:16.0.1] /Users/souly/.gradle/caches/transforms-3/d1f72df6c518614d538476fa935c9ea7/transformed/firebase-appcheck-interop-16.0.1/AndroidManifest.xml:19:5-21:41
+MERGED from [com.google.firebase:firebase-common:20.1.2] /Users/souly/.gradle/caches/transforms-3/349563aebbfd1ec9cda27839ca07e7e4/transformed/firebase-common-20.1.2/AndroidManifest.xml:20:5-22:41
+MERGED from [com.google.firebase:firebase-common:20.1.2] /Users/souly/.gradle/caches/transforms-3/349563aebbfd1ec9cda27839ca07e7e4/transformed/firebase-common-20.1.2/AndroidManifest.xml:20:5-22:41
+MERGED from [com.google.android.gms:play-services-auth-base:17.0.0] /Users/souly/.gradle/caches/transforms-3/828ec354bf22cc2820a11c4f4c642517/transformed/play-services-auth-base-17.0.0/AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-auth-base:17.0.0] /Users/souly/.gradle/caches/transforms-3/828ec354bf22cc2820a11c4f4c642517/transformed/play-services-auth-base-17.0.0/AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-auth-api-phone:17.4.0] /Users/souly/.gradle/caches/transforms-3/8a29c5b9f1bfc218a8770c5ef2b2bb0c/transformed/play-services-auth-api-phone-17.4.0/AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-auth-api-phone:17.4.0] /Users/souly/.gradle/caches/transforms-3/8a29c5b9f1bfc218a8770c5ef2b2bb0c/transformed/play-services-auth-api-phone-17.4.0/AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-safetynet:17.0.0] /Users/souly/.gradle/caches/transforms-3/36381c570bbd8f58571171dac93d1500/transformed/play-services-safetynet-17.0.0/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-safetynet:17.0.0] /Users/souly/.gradle/caches/transforms-3/36381c570bbd8f58571171dac93d1500/transformed/play-services-safetynet-17.0.0/AndroidManifest.xml:20:5-44
+MERGED from [com.google.firebase:firebase-database-collection:18.0.1] /Users/souly/.gradle/caches/transforms-3/246e7ddb4a23bdbac9479a993515abd4/transformed/firebase-database-collection-18.0.1/AndroidManifest.xml:5:5-7:41
+MERGED from [com.google.firebase:firebase-database-collection:18.0.1] /Users/souly/.gradle/caches/transforms-3/246e7ddb4a23bdbac9479a993515abd4/transformed/firebase-database-collection-18.0.1/AndroidManifest.xml:5:5-7:41
+MERGED from [com.google.android.gms:play-services-base:18.0.1] /Users/souly/.gradle/caches/transforms-3/a0398d1b7995a071279c7b0d5896fe1d/transformed/play-services-base-18.0.1/AndroidManifest.xml:18:5-43
+MERGED from [com.google.android.gms:play-services-base:18.0.1] /Users/souly/.gradle/caches/transforms-3/a0398d1b7995a071279c7b0d5896fe1d/transformed/play-services-base-18.0.1/AndroidManifest.xml:18:5-43
+MERGED from [com.google.android.gms:play-services-tasks:18.0.1] /Users/souly/.gradle/caches/transforms-3/fd64036d9c486df49cd24271383460c6/transformed/play-services-tasks-18.0.1/AndroidManifest.xml:4:5-43
+MERGED from [com.google.android.gms:play-services-tasks:18.0.1] /Users/souly/.gradle/caches/transforms-3/fd64036d9c486df49cd24271383460c6/transformed/play-services-tasks-18.0.1/AndroidManifest.xml:4:5-43
+MERGED from [com.google.android.gms:play-services-basement:18.1.0] /Users/souly/.gradle/caches/transforms-3/0e0198dd559f087f7f299f5df44b3254/transformed/play-services-basement-18.1.0/AndroidManifest.xml:18:5-43
+MERGED from [com.google.android.gms:play-services-basement:18.1.0] /Users/souly/.gradle/caches/transforms-3/0e0198dd559f087f7f299f5df44b3254/transformed/play-services-basement-18.1.0/AndroidManifest.xml:18:5-43
+MERGED from [androidx.viewpager2:viewpager2:1.0.0] /Users/souly/.gradle/caches/transforms-3/f8169e7ce585ecf6fc4e93a715ee833d/transformed/viewpager2-1.0.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.viewpager2:viewpager2:1.0.0] /Users/souly/.gradle/caches/transforms-3/f8169e7ce585ecf6fc4e93a715ee833d/transformed/viewpager2-1.0.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.constraintlayout:constraintlayout:2.0.4] /Users/souly/.gradle/caches/transforms-3/b077d81b5acf40e89ed698561e7c2918/transformed/constraintlayout-2.0.4/AndroidManifest.xml:5:5-7:41
+MERGED from [androidx.constraintlayout:constraintlayout:2.0.4] /Users/souly/.gradle/caches/transforms-3/b077d81b5acf40e89ed698561e7c2918/transformed/constraintlayout-2.0.4/AndroidManifest.xml:5:5-7:41
+MERGED from [me.zhanghai.android.materialprogressbar:library:1.6.1] /Users/souly/.gradle/caches/transforms-3/48a0791651675028e78321a570524642/transformed/library-1.6.1/AndroidManifest.xml:11:5-13:41
+MERGED from [me.zhanghai.android.materialprogressbar:library:1.6.1] /Users/souly/.gradle/caches/transforms-3/48a0791651675028e78321a570524642/transformed/library-1.6.1/AndroidManifest.xml:11:5-13:41
+MERGED from [androidx.appcompat:appcompat:1.2.0] /Users/souly/.gradle/caches/transforms-3/4de85d36742729b89d5c7b8fec985846/transformed/appcompat-1.2.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.appcompat:appcompat:1.2.0] /Users/souly/.gradle/caches/transforms-3/4de85d36742729b89d5c7b8fec985846/transformed/appcompat-1.2.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.fragment:fragment:1.3.0] /Users/souly/.gradle/caches/transforms-3/02f0c5210c2768a346adb366d6256585/transformed/fragment-1.3.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.fragment:fragment:1.3.0] /Users/souly/.gradle/caches/transforms-3/02f0c5210c2768a346adb366d6256585/transformed/fragment-1.3.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.legacy:legacy-support-core-ui:1.0.0] /Users/souly/.gradle/caches/transforms-3/21b6b5ce17a21982c51aca932c8d22ab/transformed/legacy-support-core-ui-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.legacy:legacy-support-core-ui:1.0.0] /Users/souly/.gradle/caches/transforms-3/21b6b5ce17a21982c51aca932c8d22ab/transformed/legacy-support-core-ui-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.legacy:legacy-support-core-utils:1.0.0] /Users/souly/.gradle/caches/transforms-3/0cb24b8ba05f0573f8d3768401ac18a7/transformed/legacy-support-core-utils-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.legacy:legacy-support-core-utils:1.0.0] /Users/souly/.gradle/caches/transforms-3/0cb24b8ba05f0573f8d3768401ac18a7/transformed/legacy-support-core-utils-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.loader:loader:1.0.0] /Users/souly/.gradle/caches/transforms-3/11847a8e38b1d625556aa870b0b3fbbd/transformed/loader-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.loader:loader:1.0.0] /Users/souly/.gradle/caches/transforms-3/11847a8e38b1d625556aa870b0b3fbbd/transformed/loader-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.ui:ui-test-manifest:1.2.0] /Users/souly/.gradle/caches/transforms-3/d05a8a90f784dd6fa6460ea69b64d24f/transformed/ui-test-manifest-1.2.0/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.compose.ui:ui-test-manifest:1.2.0] /Users/souly/.gradle/caches/transforms-3/d05a8a90f784dd6fa6460ea69b64d24f/transformed/ui-test-manifest-1.2.0/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.activity:activity:1.5.1] /Users/souly/.gradle/caches/transforms-3/16cf67f3c64c93bfa4f70fb593beebf5/transformed/activity-1.5.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.activity:activity:1.5.1] /Users/souly/.gradle/caches/transforms-3/16cf67f3c64c93bfa4f70fb593beebf5/transformed/activity-1.5.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.5.1] /Users/souly/.gradle/caches/transforms-3/8eafdc39e67cc7b217b6812acd6bcfb8/transformed/lifecycle-viewmodel-2.5.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.5.1] /Users/souly/.gradle/caches/transforms-3/8eafdc39e67cc7b217b6812acd6bcfb8/transformed/lifecycle-viewmodel-2.5.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.5.1] /Users/souly/.gradle/caches/transforms-3/61ddc39a63422c7ced2a8352cab85540/transformed/lifecycle-viewmodel-savedstate-2.5.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.5.1] /Users/souly/.gradle/caches/transforms-3/61ddc39a63422c7ced2a8352cab85540/transformed/lifecycle-viewmodel-savedstate-2.5.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-runtime-ktx:2.5.1] /Users/souly/.gradle/caches/transforms-3/1bcf723bc1f402b02124e4aa33d21cd5/transformed/lifecycle-runtime-ktx-2.5.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-runtime-ktx:2.5.1] /Users/souly/.gradle/caches/transforms-3/1bcf723bc1f402b02124e4aa33d21cd5/transformed/lifecycle-runtime-ktx-2.5.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] /Users/souly/.gradle/caches/transforms-3/1fe645c8ddfb1e0af58aacd8946398cf/transformed/customview-poolingcontainer-1.0.0/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] /Users/souly/.gradle/caches/transforms-3/1fe645c8ddfb1e0af58aacd8946398cf/transformed/customview-poolingcontainer-1.0.0/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.core:core-ktx:1.8.0] /Users/souly/.gradle/caches/transforms-3/21b2588c5d828db9547020518b32d454/transformed/core-ktx-1.8.0/AndroidManifest.xml:5:5-7:41
+MERGED from [androidx.core:core-ktx:1.8.0] /Users/souly/.gradle/caches/transforms-3/21b2588c5d828db9547020518b32d454/transformed/core-ktx-1.8.0/AndroidManifest.xml:5:5-7:41
+MERGED from [androidx.savedstate:savedstate-ktx:1.2.0] /Users/souly/.gradle/caches/transforms-3/8de8de8ce3412c2fa29ad9f3c89af799/transformed/savedstate-ktx-1.2.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.savedstate:savedstate-ktx:1.2.0] /Users/souly/.gradle/caches/transforms-3/8de8de8ce3412c2fa29ad9f3c89af799/transformed/savedstate-ktx-1.2.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.savedstate:savedstate:1.2.0] /Users/souly/.gradle/caches/transforms-3/23245ca56af42f29d21cd099191b51ab/transformed/savedstate-1.2.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.savedstate:savedstate:1.2.0] /Users/souly/.gradle/caches/transforms-3/23245ca56af42f29d21cd099191b51ab/transformed/savedstate-1.2.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.2.0] /Users/souly/.gradle/caches/transforms-3/7d1f4132ed0e10941c179268458e66b1/transformed/lifecycle-livedata-2.2.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.2.0] /Users/souly/.gradle/caches/transforms-3/7d1f4132ed0e10941c179268458e66b1/transformed/lifecycle-livedata-2.2.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.5.1] /Users/souly/.gradle/caches/transforms-3/a5d0b21de14191eedf1141b9c05c7290/transformed/lifecycle-livedata-core-2.5.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.5.1] /Users/souly/.gradle/caches/transforms-3/a5d0b21de14191eedf1141b9c05c7290/transformed/lifecycle-livedata-core-2.5.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-process:2.2.0] /Users/souly/.gradle/caches/transforms-3/26541541ebd23faed7c9f3f03f09f048/transformed/lifecycle-process-2.2.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-process:2.2.0] /Users/souly/.gradle/caches/transforms-3/26541541ebd23faed7c9f3f03f09f048/transformed/lifecycle-process-2.2.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-service:2.2.0] /Users/souly/.gradle/caches/transforms-3/fe2f84363c2290f1d92d27c3b08596c6/transformed/lifecycle-service-2.2.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-service:2.2.0] /Users/souly/.gradle/caches/transforms-3/fe2f84363c2290f1d92d27c3b08596c6/transformed/lifecycle-service-2.2.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.viewpager:viewpager:1.0.0] /Users/souly/.gradle/caches/transforms-3/f890042a08a6d88002c8113e94b4ede8/transformed/viewpager-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.viewpager:viewpager:1.0.0] /Users/souly/.gradle/caches/transforms-3/f890042a08a6d88002c8113e94b4ede8/transformed/viewpager-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.coordinatorlayout:coordinatorlayout:1.1.0] /Users/souly/.gradle/caches/transforms-3/00539df7d5bbe9bcf548c9d0f5404cbf/transformed/coordinatorlayout-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.coordinatorlayout:coordinatorlayout:1.1.0] /Users/souly/.gradle/caches/transforms-3/00539df7d5bbe9bcf548c9d0f5404cbf/transformed/coordinatorlayout-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.transition:transition:1.2.0] /Users/souly/.gradle/caches/transforms-3/812fe217504c557a704bb42d405c5257/transformed/transition-1.2.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.transition:transition:1.2.0] /Users/souly/.gradle/caches/transforms-3/812fe217504c557a704bb42d405c5257/transformed/transition-1.2.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.appcompat:appcompat-resources:1.4.2] /Users/souly/.gradle/caches/transforms-3/f6e2a2f57937efe0e35271fcae1421a5/transformed/appcompat-resources-1.4.2/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.appcompat:appcompat-resources:1.4.2] /Users/souly/.gradle/caches/transforms-3/f6e2a2f57937efe0e35271fcae1421a5/transformed/appcompat-resources-1.4.2/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] /Users/souly/.gradle/caches/transforms-3/d5371cf9cff76ca6c2593e15cd43f1cb/transformed/vectordrawable-animated-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] /Users/souly/.gradle/caches/transforms-3/d5371cf9cff76ca6c2593e15cd43f1cb/transformed/vectordrawable-animated-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] /Users/souly/.gradle/caches/transforms-3/bf313ef58f829245d5e2159e87796397/transformed/vectordrawable-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] /Users/souly/.gradle/caches/transforms-3/bf313ef58f829245d5e2159e87796397/transformed/vectordrawable-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.media:media:1.0.0] /Users/souly/.gradle/caches/transforms-3/eb6aa717e9b37a288408c1c9f0fbcde0/transformed/media-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.media:media:1.0.0] /Users/souly/.gradle/caches/transforms-3/eb6aa717e9b37a288408c1c9f0fbcde0/transformed/media-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.browser:browser:1.4.0] /Users/souly/.gradle/caches/transforms-3/91f47fef255c5d558051339e2dddd227/transformed/browser-1.4.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.browser:browser:1.4.0] /Users/souly/.gradle/caches/transforms-3/91f47fef255c5d558051339e2dddd227/transformed/browser-1.4.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.recyclerview:recyclerview:1.1.0] /Users/souly/.gradle/caches/transforms-3/d80c0308537e507a5a25949b0dcf20c8/transformed/recyclerview-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.recyclerview:recyclerview:1.1.0] /Users/souly/.gradle/caches/transforms-3/d80c0308537e507a5a25949b0dcf20c8/transformed/recyclerview-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.drawerlayout:drawerlayout:1.0.0] /Users/souly/.gradle/caches/transforms-3/0730dd2f6055e8adbe4d4cf4a5a23416/transformed/drawerlayout-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.drawerlayout:drawerlayout:1.0.0] /Users/souly/.gradle/caches/transforms-3/0730dd2f6055e8adbe4d4cf4a5a23416/transformed/drawerlayout-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.slidingpanelayout:slidingpanelayout:1.0.0] /Users/souly/.gradle/caches/transforms-3/57a83614d5e74bcab7b300f3ce49ffb3/transformed/slidingpanelayout-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.slidingpanelayout:slidingpanelayout:1.0.0] /Users/souly/.gradle/caches/transforms-3/57a83614d5e74bcab7b300f3ce49ffb3/transformed/slidingpanelayout-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.customview:customview:1.0.0] /Users/souly/.gradle/caches/transforms-3/c137c91d0c74d7381b94645417da3227/transformed/customview-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.customview:customview:1.0.0] /Users/souly/.gradle/caches/transforms-3/c137c91d0c74d7381b94645417da3227/transformed/customview-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.swiperefreshlayout:swiperefreshlayout:1.0.0] /Users/souly/.gradle/caches/transforms-3/2104107f29e3ef5c21da7d1ac427d19c/transformed/swiperefreshlayout-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.swiperefreshlayout:swiperefreshlayout:1.0.0] /Users/souly/.gradle/caches/transforms-3/2104107f29e3ef5c21da7d1ac427d19c/transformed/swiperefreshlayout-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.asynclayoutinflater:asynclayoutinflater:1.0.0] /Users/souly/.gradle/caches/transforms-3/27e80a47ee783ab13ad19691bdcb879c/transformed/asynclayoutinflater-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.asynclayoutinflater:asynclayoutinflater:1.0.0] /Users/souly/.gradle/caches/transforms-3/27e80a47ee783ab13ad19691bdcb879c/transformed/asynclayoutinflater-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.autofill:autofill:1.0.0] /Users/souly/.gradle/caches/transforms-3/dde0d827ddd690e65823164ac5a29b88/transformed/autofill-1.0.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.autofill:autofill:1.0.0] /Users/souly/.gradle/caches/transforms-3/dde0d827ddd690e65823164ac5a29b88/transformed/autofill-1.0.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.core:core:1.8.0] /Users/souly/.gradle/caches/transforms-3/7d4a105424d0316999242d6d5524de7b/transformed/core-1.8.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.core:core:1.8.0] /Users/souly/.gradle/caches/transforms-3/7d4a105424d0316999242d6d5524de7b/transformed/core-1.8.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.5.1] /Users/souly/.gradle/caches/transforms-3/f1ffc7a44238a9faf46b8460de211869/transformed/lifecycle-runtime-2.5.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.5.1] /Users/souly/.gradle/caches/transforms-3/f1ffc7a44238a9faf46b8460de211869/transformed/lifecycle-runtime-2.5.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.cardview:cardview:1.0.0] /Users/souly/.gradle/caches/transforms-3/26495af942920a027e998f9a6718732c/transformed/cardview-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.cardview:cardview:1.0.0] /Users/souly/.gradle/caches/transforms-3/26495af942920a027e998f9a6718732c/transformed/cardview-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [com.google.firebase:firebase-components:17.0.1] /Users/souly/.gradle/caches/transforms-3/ba109b99b27dc41caa932bcf67c57fe1/transformed/firebase-components-17.0.1/AndroidManifest.xml:19:5-21:41
+MERGED from [com.google.firebase:firebase-components:17.0.1] /Users/souly/.gradle/caches/transforms-3/ba109b99b27dc41caa932bcf67c57fe1/transformed/firebase-components-17.0.1/AndroidManifest.xml:19:5-21:41
+MERGED from [androidx.arch.core:core-runtime:2.1.0] /Users/souly/.gradle/caches/transforms-3/fa38d8055aad046e3b6c99546cf360cd/transformed/core-runtime-2.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.arch.core:core-runtime:2.1.0] /Users/souly/.gradle/caches/transforms-3/fa38d8055aad046e3b6c99546cf360cd/transformed/core-runtime-2.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] /Users/souly/.gradle/caches/transforms-3/b26045e09b4544e302d485e5810f559c/transformed/localbroadcastmanager-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] /Users/souly/.gradle/caches/transforms-3/b26045e09b4544e302d485e5810f559c/transformed/localbroadcastmanager-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /Users/souly/.gradle/caches/transforms-3/6cdef2daf4ed9214278f205ce8380564/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /Users/souly/.gradle/caches/transforms-3/6cdef2daf4ed9214278f205ce8380564/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.exifinterface:exifinterface:1.3.3] /Users/souly/.gradle/caches/transforms-3/0c629d776891024385609f0200e9ac12/transformed/exifinterface-1.3.3/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.exifinterface:exifinterface:1.3.3] /Users/souly/.gradle/caches/transforms-3/0c629d776891024385609f0200e9ac12/transformed/exifinterface-1.3.3/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.interpolator:interpolator:1.0.0] /Users/souly/.gradle/caches/transforms-3/993d1da966942f45016358c67a042d10/transformed/interpolator-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.interpolator:interpolator:1.0.0] /Users/souly/.gradle/caches/transforms-3/993d1da966942f45016358c67a042d10/transformed/interpolator-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] /Users/souly/.gradle/caches/transforms-3/62aede434c0e7adb066314f6138130ed/transformed/cursoradapter-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] /Users/souly/.gradle/caches/transforms-3/62aede434c0e7adb066314f6138130ed/transformed/cursoradapter-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.documentfile:documentfile:1.0.0] /Users/souly/.gradle/caches/transforms-3/a1e2b67f471a3cc0bba27de183e358a4/transformed/documentfile-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.documentfile:documentfile:1.0.0] /Users/souly/.gradle/caches/transforms-3/a1e2b67f471a3cc0bba27de183e358a4/transformed/documentfile-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.print:print:1.0.0] /Users/souly/.gradle/caches/transforms-3/21d9513a0789de0bbf45b7f98b23132b/transformed/print-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.print:print:1.0.0] /Users/souly/.gradle/caches/transforms-3/21d9513a0789de0bbf45b7f98b23132b/transformed/print-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.profileinstaller:profileinstaller:1.2.0] /Users/souly/.gradle/caches/transforms-3/2063dc1fdcfc061a5e2d097d8cd698bd/transformed/profileinstaller-1.2.0/AndroidManifest.xml:21:5-22:38
+MERGED from [androidx.profileinstaller:profileinstaller:1.2.0] /Users/souly/.gradle/caches/transforms-3/2063dc1fdcfc061a5e2d097d8cd698bd/transformed/profileinstaller-1.2.0/AndroidManifest.xml:21:5-22:38
+MERGED from [androidx.startup:startup-runtime:1.1.1] /Users/souly/.gradle/caches/transforms-3/800229cc6fe627d3c6e7158900b1165f/transformed/startup-runtime-1.1.1/AndroidManifest.xml:21:5-23:41
+MERGED from [androidx.startup:startup-runtime:1.1.1] /Users/souly/.gradle/caches/transforms-3/800229cc6fe627d3c6e7158900b1165f/transformed/startup-runtime-1.1.1/AndroidManifest.xml:21:5-23:41
+MERGED from [androidx.tracing:tracing:1.0.0] /Users/souly/.gradle/caches/transforms-3/b00c8a69234cb168dca9544114847069/transformed/tracing-1.0.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.tracing:tracing:1.0.0] /Users/souly/.gradle/caches/transforms-3/b00c8a69234cb168dca9544114847069/transformed/tracing-1.0.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.compose.ui:ui-util:1.2.1] /Users/souly/.gradle/caches/transforms-3/9c9f03dbdcdf29de5b7891e42c02235b/transformed/ui-util-1.2.1/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.compose.ui:ui-util:1.2.1] /Users/souly/.gradle/caches/transforms-3/9c9f03dbdcdf29de5b7891e42c02235b/transformed/ui-util-1.2.1/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.annotation:annotation-experimental:1.1.0] /Users/souly/.gradle/caches/transforms-3/9c2b4468362aa1bc24fbaf1b36398ca9/transformed/annotation-experimental-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.annotation:annotation-experimental:1.1.0] /Users/souly/.gradle/caches/transforms-3/9c2b4468362aa1bc24fbaf1b36398ca9/transformed/annotation-experimental-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [io.grpc:grpc-android:1.44.1] /Users/souly/.gradle/caches/transforms-3/97b3d0d39ca494d6ab1a5d811bd2797c/transformed/grpc-android-1.44.1/AndroidManifest.xml:5:5-7:41
+MERGED from [io.grpc:grpc-android:1.44.1] /Users/souly/.gradle/caches/transforms-3/97b3d0d39ca494d6ab1a5d811bd2797c/transformed/grpc-android-1.44.1/AndroidManifest.xml:5:5-7:41
+MERGED from [com.google.firebase:protolite-well-known-types:18.0.0] /Users/souly/.gradle/caches/transforms-3/22fcb82d8696cfad5190bf4887cf8a30/transformed/protolite-well-known-types-18.0.0/AndroidManifest.xml:7:5-9:41
+MERGED from [com.google.firebase:protolite-well-known-types:18.0.0] /Users/souly/.gradle/caches/transforms-3/22fcb82d8696cfad5190bf4887cf8a30/transformed/protolite-well-known-types-18.0.0/AndroidManifest.xml:7:5-9:41
+INJECTED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml
+INJECTED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml
+		ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml
+		INJECTED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml
+		ADDED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml
+		INJECTED from /Users/souly/Documents/Code/Android/hobby-clubs/hobby-clubs-events/app/src/main/AndroidManifest.xml
+activity#androidx.compose.ui.tooling.PreviewActivity
+ADDED from [androidx.compose.ui:ui-tooling:1.2.0] /Users/souly/.gradle/caches/transforms-3/a9b8157cb6e168d7e3a98a9ec67851f5/transformed/ui-tooling-1.2.0/AndroidManifest.xml:24:9-26:39
+	android:exported
+		ADDED from [androidx.compose.ui:ui-tooling:1.2.0] /Users/souly/.gradle/caches/transforms-3/a9b8157cb6e168d7e3a98a9ec67851f5/transformed/ui-tooling-1.2.0/AndroidManifest.xml:26:13-36
+	android:name
+		ADDED from [androidx.compose.ui:ui-tooling:1.2.0] /Users/souly/.gradle/caches/transforms-3/a9b8157cb6e168d7e3a98a9ec67851f5/transformed/ui-tooling-1.2.0/AndroidManifest.xml:25:13-71
+meta-data#com.google.android.gms.version
+ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:16:9-18:69
+MERGED from [com.google.android.gms:play-services-basement:18.1.0] /Users/souly/.gradle/caches/transforms-3/0e0198dd559f087f7f299f5df44b3254/transformed/play-services-basement-18.1.0/AndroidManifest.xml:21:9-23:69
+MERGED from [com.google.android.gms:play-services-basement:18.1.0] /Users/souly/.gradle/caches/transforms-3/0e0198dd559f087f7f299f5df44b3254/transformed/play-services-basement-18.1.0/AndroidManifest.xml:21:9-23:69
+	android:value
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:18:13-66
+	android:name
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:17:13-58
+meta-data#com.facebook.sdk.ApplicationId
+ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:19:9-21:63
+	android:value
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:21:13-60
+	android:name
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:20:13-58
+activity#com.firebase.ui.auth.KickoffActivity
+ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:23:9-27:61
+	android:label
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:26:13-29
+	android:exported
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:25:13-37
+	android:theme
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:27:13-58
+	android:name
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:24:13-64
+activity#com.firebase.ui.auth.ui.idp.SingleSignInActivity
+ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:28:9-32:61
+	android:label
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:31:13-29
+	android:exported
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:30:13-37
+	android:theme
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:32:13-58
+	android:name
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:29:13-76
+activity#com.firebase.ui.auth.ui.credentials.CredentialSaveActivity
+ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:33:9-37:61
+	android:label
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:36:13-29
+	android:exported
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:35:13-37
+	android:theme
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:37:13-58
+	android:name
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:34:13-86
+activity#com.firebase.ui.auth.ui.email.RecoverPasswordActivity
+ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:38:9-42:58
+	android:label
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:41:13-72
+	android:windowSoftInputMode
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:42:13-55
+	android:exported
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:40:13-37
+	android:name
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:39:13-81
+activity#com.firebase.ui.auth.ui.email.EmailActivity
+ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:43:9-47:58
+	android:label
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:46:13-56
+	android:windowSoftInputMode
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:47:13-55
+	android:exported
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:45:13-37
+	android:name
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:44:13-71
+activity#com.firebase.ui.auth.ui.phone.PhoneActivity
+ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:48:9-52:77
+	android:label
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:51:13-66
+	android:windowSoftInputMode
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:52:13-74
+	android:exported
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:50:13-37
+	android:name
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:49:13-71
+activity#com.firebase.ui.auth.ui.idp.WelcomeBackIdpPrompt
+ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:53:9-57:58
+	android:label
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:56:13-70
+	android:windowSoftInputMode
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:57:13-55
+	android:exported
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:55:13-37
+	android:name
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:54:13-76
+activity#com.firebase.ui.auth.ui.email.WelcomeBackPasswordPrompt
+ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:58:9-62:58
+	android:label
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:61:13-75
+	android:windowSoftInputMode
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:62:13-55
+	android:exported
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:60:13-37
+	android:name
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:59:13-83
+activity#com.firebase.ui.auth.ui.email.WelcomeBackEmailLinkPrompt
+ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:63:9-67:58
+	android:label
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:66:13-75
+	android:windowSoftInputMode
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:67:13-55
+	android:exported
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:65:13-37
+	android:name
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:64:13-84
+activity#com.firebase.ui.auth.ui.email.EmailLinkCatcherActivity
+ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:68:9-73:58
+	android:label
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:71:13-29
+	android:windowSoftInputMode
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:73:13-55
+	android:exported
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:70:13-37
+	android:theme
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:72:13-58
+	android:name
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:69:13-82
+activity#com.firebase.ui.auth.ui.email.EmailLinkErrorRecoveryActivity
+ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:74:9-78:58
+	android:label
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:77:13-56
+	android:windowSoftInputMode
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:78:13-55
+	android:exported
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:76:13-37
+	android:name
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:75:13-88
+activity#com.firebase.ui.auth.ui.idp.AuthMethodPickerActivity
+ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:79:9-82:65
+	android:label
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:82:13-62
+	android:exported
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:81:13-37
+	android:name
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:80:13-80
+activity#com.facebook.FacebookActivity
+ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:83:9-87:48
+	android:label
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:86:13-45
+	tools:ignore
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:87:13-45
+	android:configChanges
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:85:13-96
+	android:name
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:84:13-57
+activity#com.facebook.CustomTabActivity
+ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:88:9-100:20
+	android:exported
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:90:13-36
+	tools:ignore
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:91:13-45
+	android:name
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:89:13-58
+intent-filter#action:name:android.intent.action.VIEW+category:name:android.intent.category.BROWSABLE+category:name:android.intent.category.DEFAULT+data:scheme:@string/facebook_login_protocol_scheme
+ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:92:13-99:29
+action#android.intent.action.VIEW
+ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:93:17-69
+	android:name
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:93:25-66
+category#android.intent.category.DEFAULT
+ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:95:17-76
+	android:name
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:95:27-73
+category#android.intent.category.BROWSABLE
+ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:96:17-78
+	android:name
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:96:27-75
+data
+ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:98:17-81
+	android:scheme
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:98:23-78
+provider#com.firebase.ui.auth.data.client.AuthUiInitProvider
+ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:102:9-106:38
+	android:authorities
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:104:13-70
+	android:exported
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:105:13-37
+	android:initOrder
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:106:13-35
+	android:name
+		ADDED from [com.firebaseui:firebase-ui-auth:7.2.0] /Users/souly/.gradle/caches/transforms-3/715c5e3ce81da62b08a6dcc2992f66ee/transformed/firebase-ui-auth-7.2.0/AndroidManifest.xml:103:13-79
+activity#com.google.android.gms.auth.api.signin.internal.SignInHubActivity
+ADDED from [com.google.android.gms:play-services-auth:19.0.0] /Users/souly/.gradle/caches/transforms-3/e278ca6587245087663c709c540cde12/transformed/play-services-auth-19.0.0/AndroidManifest.xml:23:9-27:75
+	android:excludeFromRecents
+		ADDED from [com.google.android.gms:play-services-auth:19.0.0] /Users/souly/.gradle/caches/transforms-3/e278ca6587245087663c709c540cde12/transformed/play-services-auth-19.0.0/AndroidManifest.xml:25:13-46
+	android:exported
+		ADDED from [com.google.android.gms:play-services-auth:19.0.0] /Users/souly/.gradle/caches/transforms-3/e278ca6587245087663c709c540cde12/transformed/play-services-auth-19.0.0/AndroidManifest.xml:26:13-37
+	android:theme
+		ADDED from [com.google.android.gms:play-services-auth:19.0.0] /Users/souly/.gradle/caches/transforms-3/e278ca6587245087663c709c540cde12/transformed/play-services-auth-19.0.0/AndroidManifest.xml:27:13-72
+	android:name
+		ADDED from [com.google.android.gms:play-services-auth:19.0.0] /Users/souly/.gradle/caches/transforms-3/e278ca6587245087663c709c540cde12/transformed/play-services-auth-19.0.0/AndroidManifest.xml:24:13-93
+service#com.google.android.gms.auth.api.signin.RevocationBoundService
+ADDED from [com.google.android.gms:play-services-auth:19.0.0] /Users/souly/.gradle/caches/transforms-3/e278ca6587245087663c709c540cde12/transformed/play-services-auth-19.0.0/AndroidManifest.xml:33:9-37:51
+	android:exported
+		ADDED from [com.google.android.gms:play-services-auth:19.0.0] /Users/souly/.gradle/caches/transforms-3/e278ca6587245087663c709c540cde12/transformed/play-services-auth-19.0.0/AndroidManifest.xml:35:13-36
+	android:visibleToInstantApps
+		ADDED from [com.google.android.gms:play-services-auth:19.0.0] /Users/souly/.gradle/caches/transforms-3/e278ca6587245087663c709c540cde12/transformed/play-services-auth-19.0.0/AndroidManifest.xml:37:13-48
+	android:permission
+		ADDED from [com.google.android.gms:play-services-auth:19.0.0] /Users/souly/.gradle/caches/transforms-3/e278ca6587245087663c709c540cde12/transformed/play-services-auth-19.0.0/AndroidManifest.xml:36:13-107
+	android:name
+		ADDED from [com.google.android.gms:play-services-auth:19.0.0] /Users/souly/.gradle/caches/transforms-3/e278ca6587245087663c709c540cde12/transformed/play-services-auth-19.0.0/AndroidManifest.xml:34:13-89
+service#com.google.firebase.components.ComponentDiscoveryService
+ADDED from [com.google.firebase:firebase-auth-ktx:21.0.8] /Users/souly/.gradle/caches/transforms-3/d084c2d32078dfb5efc837ca6c0673b7/transformed/firebase-auth-ktx-21.0.8/AndroidManifest.xml:8:9-14:19
+MERGED from [com.google.firebase:firebase-auth:21.0.8] /Users/souly/.gradle/caches/transforms-3/62edfb5d48e463ad901e2291513934e3/transformed/firebase-auth-21.0.8/AndroidManifest.xml:64:9-70:19
+MERGED from [com.google.firebase:firebase-auth:21.0.8] /Users/souly/.gradle/caches/transforms-3/62edfb5d48e463ad901e2291513934e3/transformed/firebase-auth-21.0.8/AndroidManifest.xml:64:9-70:19
+MERGED from [com.google.firebase:firebase-firestore-ktx:24.3.0] /Users/souly/.gradle/caches/transforms-3/10d8a9b2b99ba218c022b3f90a8044ad/transformed/firebase-firestore-ktx-24.3.0/AndroidManifest.xml:12:9-18:19
+MERGED from [com.google.firebase:firebase-firestore-ktx:24.3.0] /Users/souly/.gradle/caches/transforms-3/10d8a9b2b99ba218c022b3f90a8044ad/transformed/firebase-firestore-ktx-24.3.0/AndroidManifest.xml:12:9-18:19
+MERGED from [com.google.firebase:firebase-storage-ktx:20.0.2] /Users/souly/.gradle/caches/transforms-3/2c0572d469b60438af1c090b686ce63b/transformed/firebase-storage-ktx-20.0.2/AndroidManifest.xml:12:9-18:19
+MERGED from [com.google.firebase:firebase-storage-ktx:20.0.2] /Users/souly/.gradle/caches/transforms-3/2c0572d469b60438af1c090b686ce63b/transformed/firebase-storage-ktx-20.0.2/AndroidManifest.xml:12:9-18:19
+MERGED from [com.google.firebase:firebase-common-ktx:20.1.2] /Users/souly/.gradle/caches/transforms-3/6bbcf5b7f79fdd8548b938daced308cb/transformed/firebase-common-ktx-20.1.2/AndroidManifest.xml:12:9-18:19
+MERGED from [com.google.firebase:firebase-common-ktx:20.1.2] /Users/souly/.gradle/caches/transforms-3/6bbcf5b7f79fdd8548b938daced308cb/transformed/firebase-common-ktx-20.1.2/AndroidManifest.xml:12:9-18:19
+MERGED from [com.google.firebase:firebase-storage:20.0.2] /Users/souly/.gradle/caches/transforms-3/546fb523c2128e473f84b10cd9e8e7e2/transformed/firebase-storage-20.0.2/AndroidManifest.xml:30:9-36:19
+MERGED from [com.google.firebase:firebase-storage:20.0.2] /Users/souly/.gradle/caches/transforms-3/546fb523c2128e473f84b10cd9e8e7e2/transformed/firebase-storage-20.0.2/AndroidManifest.xml:30:9-36:19
+MERGED from [com.google.firebase:firebase-firestore:24.3.0] /Users/souly/.gradle/caches/transforms-3/39ca479e38b8daf3c557672dbb338a63/transformed/firebase-firestore-24.3.0/AndroidManifest.xml:17:9-23:19
+MERGED from [com.google.firebase:firebase-firestore:24.3.0] /Users/souly/.gradle/caches/transforms-3/39ca479e38b8daf3c557672dbb338a63/transformed/firebase-firestore-24.3.0/AndroidManifest.xml:17:9-23:19
+MERGED from [com.google.firebase:firebase-common:20.1.2] /Users/souly/.gradle/caches/transforms-3/349563aebbfd1ec9cda27839ca07e7e4/transformed/firebase-common-20.1.2/AndroidManifest.xml:33:9-37:35
+MERGED from [com.google.firebase:firebase-common:20.1.2] /Users/souly/.gradle/caches/transforms-3/349563aebbfd1ec9cda27839ca07e7e4/transformed/firebase-common-20.1.2/AndroidManifest.xml:33:9-37:35
+	android:exported
+		ADDED from [com.google.firebase:firebase-auth-ktx:21.0.8] /Users/souly/.gradle/caches/transforms-3/d084c2d32078dfb5efc837ca6c0673b7/transformed/firebase-auth-ktx-21.0.8/AndroidManifest.xml:10:13-37
+	tools:targetApi
+		ADDED from [com.google.firebase:firebase-common:20.1.2] /Users/souly/.gradle/caches/transforms-3/349563aebbfd1ec9cda27839ca07e7e4/transformed/firebase-common-20.1.2/AndroidManifest.xml:37:13-32
+	android:directBootAware
+		ADDED from [com.google.firebase:firebase-common:20.1.2] /Users/souly/.gradle/caches/transforms-3/349563aebbfd1ec9cda27839ca07e7e4/transformed/firebase-common-20.1.2/AndroidManifest.xml:35:13-43
+	android:name
+		ADDED from [com.google.firebase:firebase-auth-ktx:21.0.8] /Users/souly/.gradle/caches/transforms-3/d084c2d32078dfb5efc837ca6c0673b7/transformed/firebase-auth-ktx-21.0.8/AndroidManifest.xml:9:13-84
+meta-data#com.google.firebase.components:com.google.firebase.auth.ktx.FirebaseAuthKtxRegistrar
+ADDED from [com.google.firebase:firebase-auth-ktx:21.0.8] /Users/souly/.gradle/caches/transforms-3/d084c2d32078dfb5efc837ca6c0673b7/transformed/firebase-auth-ktx-21.0.8/AndroidManifest.xml:11:13-13:85
+	android:value
+		ADDED from [com.google.firebase:firebase-auth-ktx:21.0.8] /Users/souly/.gradle/caches/transforms-3/d084c2d32078dfb5efc837ca6c0673b7/transformed/firebase-auth-ktx-21.0.8/AndroidManifest.xml:13:17-82
+	android:name
+		ADDED from [com.google.firebase:firebase-auth-ktx:21.0.8] /Users/souly/.gradle/caches/transforms-3/d084c2d32078dfb5efc837ca6c0673b7/transformed/firebase-auth-ktx-21.0.8/AndroidManifest.xml:12:17-116
+activity#com.google.firebase.auth.internal.GenericIdpActivity
+ADDED from [com.google.firebase:firebase-auth:21.0.8] /Users/souly/.gradle/caches/transforms-3/62edfb5d48e463ad901e2291513934e3/transformed/firebase-auth-21.0.8/AndroidManifest.xml:27:9-44:20
+	android:excludeFromRecents
+		ADDED from [com.google.firebase:firebase-auth:21.0.8] /Users/souly/.gradle/caches/transforms-3/62edfb5d48e463ad901e2291513934e3/transformed/firebase-auth-21.0.8/AndroidManifest.xml:29:13-46
+	android:launchMode
+		ADDED from [com.google.firebase:firebase-auth:21.0.8] /Users/souly/.gradle/caches/transforms-3/62edfb5d48e463ad901e2291513934e3/transformed/firebase-auth-21.0.8/AndroidManifest.xml:31:13-44
+	android:exported
+		ADDED from [com.google.firebase:firebase-auth:21.0.8] /Users/souly/.gradle/caches/transforms-3/62edfb5d48e463ad901e2291513934e3/transformed/firebase-auth-21.0.8/AndroidManifest.xml:30:13-36
+	android:theme
+		ADDED from [com.google.firebase:firebase-auth:21.0.8] /Users/souly/.gradle/caches/transforms-3/62edfb5d48e463ad901e2291513934e3/transformed/firebase-auth-21.0.8/AndroidManifest.xml:32:13-72
+	android:name
+		ADDED from [com.google.firebase:firebase-auth:21.0.8] /Users/souly/.gradle/caches/transforms-3/62edfb5d48e463ad901e2291513934e3/transformed/firebase-auth-21.0.8/AndroidManifest.xml:28:13-80
+intent-filter#action:name:android.intent.action.VIEW+category:name:android.intent.category.BROWSABLE+category:name:android.intent.category.DEFAULT+data:host:firebase.auth+data:path:/+data:scheme:genericidp
+ADDED from [com.google.firebase:firebase-auth:21.0.8] /Users/souly/.gradle/caches/transforms-3/62edfb5d48e463ad901e2291513934e3/transformed/firebase-auth-21.0.8/AndroidManifest.xml:33:13-43:29
+activity#com.google.firebase.auth.internal.RecaptchaActivity
+ADDED from [com.google.firebase:firebase-auth:21.0.8] /Users/souly/.gradle/caches/transforms-3/62edfb5d48e463ad901e2291513934e3/transformed/firebase-auth-21.0.8/AndroidManifest.xml:45:9-62:20
+	android:excludeFromRecents
+		ADDED from [com.google.firebase:firebase-auth:21.0.8] /Users/souly/.gradle/caches/transforms-3/62edfb5d48e463ad901e2291513934e3/transformed/firebase-auth-21.0.8/AndroidManifest.xml:47:13-46
+	android:launchMode
+		ADDED from [com.google.firebase:firebase-auth:21.0.8] /Users/souly/.gradle/caches/transforms-3/62edfb5d48e463ad901e2291513934e3/transformed/firebase-auth-21.0.8/AndroidManifest.xml:49:13-44
+	android:exported
+		ADDED from [com.google.firebase:firebase-auth:21.0.8] /Users/souly/.gradle/caches/transforms-3/62edfb5d48e463ad901e2291513934e3/transformed/firebase-auth-21.0.8/AndroidManifest.xml:48:13-36
+	android:theme
+		ADDED from [com.google.firebase:firebase-auth:21.0.8] /Users/souly/.gradle/caches/transforms-3/62edfb5d48e463ad901e2291513934e3/transformed/firebase-auth-21.0.8/AndroidManifest.xml:50:13-72
+	android:name
+		ADDED from [com.google.firebase:firebase-auth:21.0.8] /Users/souly/.gradle/caches/transforms-3/62edfb5d48e463ad901e2291513934e3/transformed/firebase-auth-21.0.8/AndroidManifest.xml:46:13-79
+intent-filter#action:name:android.intent.action.VIEW+category:name:android.intent.category.BROWSABLE+category:name:android.intent.category.DEFAULT+data:host:firebase.auth+data:path:/+data:scheme:recaptcha
+ADDED from [com.google.firebase:firebase-auth:21.0.8] /Users/souly/.gradle/caches/transforms-3/62edfb5d48e463ad901e2291513934e3/transformed/firebase-auth-21.0.8/AndroidManifest.xml:51:13-61:29
+meta-data#com.google.firebase.components:com.google.firebase.auth.FirebaseAuthRegistrar
+ADDED from [com.google.firebase:firebase-auth:21.0.8] /Users/souly/.gradle/caches/transforms-3/62edfb5d48e463ad901e2291513934e3/transformed/firebase-auth-21.0.8/AndroidManifest.xml:67:13-69:85
+	android:value
+		ADDED from [com.google.firebase:firebase-auth:21.0.8] /Users/souly/.gradle/caches/transforms-3/62edfb5d48e463ad901e2291513934e3/transformed/firebase-auth-21.0.8/AndroidManifest.xml:69:17-82
+	android:name
+		ADDED from [com.google.firebase:firebase-auth:21.0.8] /Users/souly/.gradle/caches/transforms-3/62edfb5d48e463ad901e2291513934e3/transformed/firebase-auth-21.0.8/AndroidManifest.xml:68:17-109
+meta-data#com.google.firebase.components:com.google.firebase.firestore.ktx.FirebaseFirestoreKtxRegistrar
+ADDED from [com.google.firebase:firebase-firestore-ktx:24.3.0] /Users/souly/.gradle/caches/transforms-3/10d8a9b2b99ba218c022b3f90a8044ad/transformed/firebase-firestore-ktx-24.3.0/AndroidManifest.xml:15:13-17:85
+	android:value
+		ADDED from [com.google.firebase:firebase-firestore-ktx:24.3.0] /Users/souly/.gradle/caches/transforms-3/10d8a9b2b99ba218c022b3f90a8044ad/transformed/firebase-firestore-ktx-24.3.0/AndroidManifest.xml:17:17-82
+	android:name
+		ADDED from [com.google.firebase:firebase-firestore-ktx:24.3.0] /Users/souly/.gradle/caches/transforms-3/10d8a9b2b99ba218c022b3f90a8044ad/transformed/firebase-firestore-ktx-24.3.0/AndroidManifest.xml:16:17-126
+meta-data#com.google.firebase.components:com.google.firebase.storage.ktx.FirebaseStorageKtxRegistrar
+ADDED from [com.google.firebase:firebase-storage-ktx:20.0.2] /Users/souly/.gradle/caches/transforms-3/2c0572d469b60438af1c090b686ce63b/transformed/firebase-storage-ktx-20.0.2/AndroidManifest.xml:15:13-17:85
+	android:value
+		ADDED from [com.google.firebase:firebase-storage-ktx:20.0.2] /Users/souly/.gradle/caches/transforms-3/2c0572d469b60438af1c090b686ce63b/transformed/firebase-storage-ktx-20.0.2/AndroidManifest.xml:17:17-82
+	android:name
+		ADDED from [com.google.firebase:firebase-storage-ktx:20.0.2] /Users/souly/.gradle/caches/transforms-3/2c0572d469b60438af1c090b686ce63b/transformed/firebase-storage-ktx-20.0.2/AndroidManifest.xml:16:17-122
+meta-data#com.google.firebase.components:com.google.firebase.ktx.FirebaseCommonKtxRegistrar
+ADDED from [com.google.firebase:firebase-common-ktx:20.1.2] /Users/souly/.gradle/caches/transforms-3/6bbcf5b7f79fdd8548b938daced308cb/transformed/firebase-common-ktx-20.1.2/AndroidManifest.xml:15:13-17:85
+	android:value
+		ADDED from [com.google.firebase:firebase-common-ktx:20.1.2] /Users/souly/.gradle/caches/transforms-3/6bbcf5b7f79fdd8548b938daced308cb/transformed/firebase-common-ktx-20.1.2/AndroidManifest.xml:17:17-82
+	android:name
+		ADDED from [com.google.firebase:firebase-common-ktx:20.1.2] /Users/souly/.gradle/caches/transforms-3/6bbcf5b7f79fdd8548b938daced308cb/transformed/firebase-common-ktx-20.1.2/AndroidManifest.xml:16:17-113
+meta-data#com.google.firebase.components:com.google.firebase.storage.StorageRegistrar
+ADDED from [com.google.firebase:firebase-storage:20.0.2] /Users/souly/.gradle/caches/transforms-3/546fb523c2128e473f84b10cd9e8e7e2/transformed/firebase-storage-20.0.2/AndroidManifest.xml:33:13-35:85
+	android:value
+		ADDED from [com.google.firebase:firebase-storage:20.0.2] /Users/souly/.gradle/caches/transforms-3/546fb523c2128e473f84b10cd9e8e7e2/transformed/firebase-storage-20.0.2/AndroidManifest.xml:35:17-82
+	android:name
+		ADDED from [com.google.firebase:firebase-storage:20.0.2] /Users/souly/.gradle/caches/transforms-3/546fb523c2128e473f84b10cd9e8e7e2/transformed/firebase-storage-20.0.2/AndroidManifest.xml:34:17-107
+meta-data#com.google.firebase.components:com.google.firebase.firestore.FirestoreRegistrar
+ADDED from [com.google.firebase:firebase-firestore:24.3.0] /Users/souly/.gradle/caches/transforms-3/39ca479e38b8daf3c557672dbb338a63/transformed/firebase-firestore-24.3.0/AndroidManifest.xml:20:13-22:85
+	android:value
+		ADDED from [com.google.firebase:firebase-firestore:24.3.0] /Users/souly/.gradle/caches/transforms-3/39ca479e38b8daf3c557672dbb338a63/transformed/firebase-firestore-24.3.0/AndroidManifest.xml:22:17-82
+	android:name
+		ADDED from [com.google.firebase:firebase-firestore:24.3.0] /Users/souly/.gradle/caches/transforms-3/39ca479e38b8daf3c557672dbb338a63/transformed/firebase-firestore-24.3.0/AndroidManifest.xml:21:17-111
+provider#com.google.firebase.provider.FirebaseInitProvider
+ADDED from [com.google.firebase:firebase-common:20.1.2] /Users/souly/.gradle/caches/transforms-3/349563aebbfd1ec9cda27839ca07e7e4/transformed/firebase-common-20.1.2/AndroidManifest.xml:26:9-31:39
+	android:authorities
+		ADDED from [com.google.firebase:firebase-common:20.1.2] /Users/souly/.gradle/caches/transforms-3/349563aebbfd1ec9cda27839ca07e7e4/transformed/firebase-common-20.1.2/AndroidManifest.xml:28:13-72
+	android:exported
+		ADDED from [com.google.firebase:firebase-common:20.1.2] /Users/souly/.gradle/caches/transforms-3/349563aebbfd1ec9cda27839ca07e7e4/transformed/firebase-common-20.1.2/AndroidManifest.xml:30:13-37
+	android:directBootAware
+		ADDED from [com.google.firebase:firebase-common:20.1.2] /Users/souly/.gradle/caches/transforms-3/349563aebbfd1ec9cda27839ca07e7e4/transformed/firebase-common-20.1.2/AndroidManifest.xml:29:13-43
+	android:initOrder
+		ADDED from [com.google.firebase:firebase-common:20.1.2] /Users/souly/.gradle/caches/transforms-3/349563aebbfd1ec9cda27839ca07e7e4/transformed/firebase-common-20.1.2/AndroidManifest.xml:31:13-36
+	android:name
+		ADDED from [com.google.firebase:firebase-common:20.1.2] /Users/souly/.gradle/caches/transforms-3/349563aebbfd1ec9cda27839ca07e7e4/transformed/firebase-common-20.1.2/AndroidManifest.xml:27:13-77
+activity#com.google.android.gms.common.api.GoogleApiActivity
+ADDED from [com.google.android.gms:play-services-base:18.0.1] /Users/souly/.gradle/caches/transforms-3/a0398d1b7995a071279c7b0d5896fe1d/transformed/play-services-base-18.0.1/AndroidManifest.xml:20:9-22:45
+	android:exported
+		ADDED from [com.google.android.gms:play-services-base:18.0.1] /Users/souly/.gradle/caches/transforms-3/a0398d1b7995a071279c7b0d5896fe1d/transformed/play-services-base-18.0.1/AndroidManifest.xml:22:19-43
+	android:theme
+		ADDED from [com.google.android.gms:play-services-base:18.0.1] /Users/souly/.gradle/caches/transforms-3/a0398d1b7995a071279c7b0d5896fe1d/transformed/play-services-base-18.0.1/AndroidManifest.xml:21:19-78
+	android:name
+		ADDED from [com.google.android.gms:play-services-base:18.0.1] /Users/souly/.gradle/caches/transforms-3/a0398d1b7995a071279c7b0d5896fe1d/transformed/play-services-base-18.0.1/AndroidManifest.xml:20:19-85
+activity#androidx.activity.ComponentActivity
+ADDED from [androidx.compose.ui:ui-test-manifest:1.2.0] /Users/souly/.gradle/caches/transforms-3/d05a8a90f784dd6fa6460ea69b64d24f/transformed/ui-test-manifest-1.2.0/AndroidManifest.xml:24:9-26:39
+	android:exported
+		ADDED from [androidx.compose.ui:ui-test-manifest:1.2.0] /Users/souly/.gradle/caches/transforms-3/d05a8a90f784dd6fa6460ea69b64d24f/transformed/ui-test-manifest-1.2.0/AndroidManifest.xml:26:13-36
+	android:name
+		ADDED from [androidx.compose.ui:ui-test-manifest:1.2.0] /Users/souly/.gradle/caches/transforms-3/d05a8a90f784dd6fa6460ea69b64d24f/transformed/ui-test-manifest-1.2.0/AndroidManifest.xml:25:13-63
+provider#androidx.lifecycle.ProcessLifecycleOwnerInitializer
+ADDED from [androidx.lifecycle:lifecycle-process:2.2.0] /Users/souly/.gradle/caches/transforms-3/26541541ebd23faed7c9f3f03f09f048/transformed/lifecycle-process-2.2.0/AndroidManifest.xml:25:9-29:43
+	android:authorities
+		ADDED from [androidx.lifecycle:lifecycle-process:2.2.0] /Users/souly/.gradle/caches/transforms-3/26541541ebd23faed7c9f3f03f09f048/transformed/lifecycle-process-2.2.0/AndroidManifest.xml:27:13-69
+	android:multiprocess
+		ADDED from [androidx.lifecycle:lifecycle-process:2.2.0] /Users/souly/.gradle/caches/transforms-3/26541541ebd23faed7c9f3f03f09f048/transformed/lifecycle-process-2.2.0/AndroidManifest.xml:29:13-40
+	android:exported
+		ADDED from [androidx.lifecycle:lifecycle-process:2.2.0] /Users/souly/.gradle/caches/transforms-3/26541541ebd23faed7c9f3f03f09f048/transformed/lifecycle-process-2.2.0/AndroidManifest.xml:28:13-37
+	android:name
+		ADDED from [androidx.lifecycle:lifecycle-process:2.2.0] /Users/souly/.gradle/caches/transforms-3/26541541ebd23faed7c9f3f03f09f048/transformed/lifecycle-process-2.2.0/AndroidManifest.xml:26:13-79
+provider#androidx.startup.InitializationProvider
+ADDED from [androidx.profileinstaller:profileinstaller:1.2.0] /Users/souly/.gradle/caches/transforms-3/2063dc1fdcfc061a5e2d097d8cd698bd/transformed/profileinstaller-1.2.0/AndroidManifest.xml:25:9-33:20
+MERGED from [androidx.startup:startup-runtime:1.1.1] /Users/souly/.gradle/caches/transforms-3/800229cc6fe627d3c6e7158900b1165f/transformed/startup-runtime-1.1.1/AndroidManifest.xml:26:9-30:34
+MERGED from [androidx.startup:startup-runtime:1.1.1] /Users/souly/.gradle/caches/transforms-3/800229cc6fe627d3c6e7158900b1165f/transformed/startup-runtime-1.1.1/AndroidManifest.xml:26:9-30:34
+	tools:node
+		ADDED from [androidx.profileinstaller:profileinstaller:1.2.0] /Users/souly/.gradle/caches/transforms-3/2063dc1fdcfc061a5e2d097d8cd698bd/transformed/profileinstaller-1.2.0/AndroidManifest.xml:29:13-31
+	android:authorities
+		ADDED from [androidx.profileinstaller:profileinstaller:1.2.0] /Users/souly/.gradle/caches/transforms-3/2063dc1fdcfc061a5e2d097d8cd698bd/transformed/profileinstaller-1.2.0/AndroidManifest.xml:27:13-68
+	android:exported
+		ADDED from [androidx.profileinstaller:profileinstaller:1.2.0] /Users/souly/.gradle/caches/transforms-3/2063dc1fdcfc061a5e2d097d8cd698bd/transformed/profileinstaller-1.2.0/AndroidManifest.xml:28:13-37
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.2.0] /Users/souly/.gradle/caches/transforms-3/2063dc1fdcfc061a5e2d097d8cd698bd/transformed/profileinstaller-1.2.0/AndroidManifest.xml:26:13-67
+meta-data#androidx.profileinstaller.ProfileInstallerInitializer
+ADDED from [androidx.profileinstaller:profileinstaller:1.2.0] /Users/souly/.gradle/caches/transforms-3/2063dc1fdcfc061a5e2d097d8cd698bd/transformed/profileinstaller-1.2.0/AndroidManifest.xml:30:13-32:52
+	android:value
+		ADDED from [androidx.profileinstaller:profileinstaller:1.2.0] /Users/souly/.gradle/caches/transforms-3/2063dc1fdcfc061a5e2d097d8cd698bd/transformed/profileinstaller-1.2.0/AndroidManifest.xml:32:17-49
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.2.0] /Users/souly/.gradle/caches/transforms-3/2063dc1fdcfc061a5e2d097d8cd698bd/transformed/profileinstaller-1.2.0/AndroidManifest.xml:31:17-85
+receiver#androidx.profileinstaller.ProfileInstallReceiver
+ADDED from [androidx.profileinstaller:profileinstaller:1.2.0] /Users/souly/.gradle/caches/transforms-3/2063dc1fdcfc061a5e2d097d8cd698bd/transformed/profileinstaller-1.2.0/AndroidManifest.xml:35:9-47:20
+	android:enabled
+		ADDED from [androidx.profileinstaller:profileinstaller:1.2.0] /Users/souly/.gradle/caches/transforms-3/2063dc1fdcfc061a5e2d097d8cd698bd/transformed/profileinstaller-1.2.0/AndroidManifest.xml:38:13-35
+	android:exported
+		ADDED from [androidx.profileinstaller:profileinstaller:1.2.0] /Users/souly/.gradle/caches/transforms-3/2063dc1fdcfc061a5e2d097d8cd698bd/transformed/profileinstaller-1.2.0/AndroidManifest.xml:39:13-36
+	android:permission
+		ADDED from [androidx.profileinstaller:profileinstaller:1.2.0] /Users/souly/.gradle/caches/transforms-3/2063dc1fdcfc061a5e2d097d8cd698bd/transformed/profileinstaller-1.2.0/AndroidManifest.xml:40:13-57
+	android:directBootAware
+		ADDED from [androidx.profileinstaller:profileinstaller:1.2.0] /Users/souly/.gradle/caches/transforms-3/2063dc1fdcfc061a5e2d097d8cd698bd/transformed/profileinstaller-1.2.0/AndroidManifest.xml:37:13-44
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.2.0] /Users/souly/.gradle/caches/transforms-3/2063dc1fdcfc061a5e2d097d8cd698bd/transformed/profileinstaller-1.2.0/AndroidManifest.xml:36:13-76
+intent-filter#action:name:androidx.profileinstaller.action.INSTALL_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.2.0] /Users/souly/.gradle/caches/transforms-3/2063dc1fdcfc061a5e2d097d8cd698bd/transformed/profileinstaller-1.2.0/AndroidManifest.xml:41:13-43:29
+action#androidx.profileinstaller.action.INSTALL_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.2.0] /Users/souly/.gradle/caches/transforms-3/2063dc1fdcfc061a5e2d097d8cd698bd/transformed/profileinstaller-1.2.0/AndroidManifest.xml:42:17-91
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.2.0] /Users/souly/.gradle/caches/transforms-3/2063dc1fdcfc061a5e2d097d8cd698bd/transformed/profileinstaller-1.2.0/AndroidManifest.xml:42:25-88
+intent-filter#action:name:androidx.profileinstaller.action.SKIP_FILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.2.0] /Users/souly/.gradle/caches/transforms-3/2063dc1fdcfc061a5e2d097d8cd698bd/transformed/profileinstaller-1.2.0/AndroidManifest.xml:44:13-46:29
+action#androidx.profileinstaller.action.SKIP_FILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.2.0] /Users/souly/.gradle/caches/transforms-3/2063dc1fdcfc061a5e2d097d8cd698bd/transformed/profileinstaller-1.2.0/AndroidManifest.xml:45:17-85
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.2.0] /Users/souly/.gradle/caches/transforms-3/2063dc1fdcfc061a5e2d097d8cd698bd/transformed/profileinstaller-1.2.0/AndroidManifest.xml:45:25-82
