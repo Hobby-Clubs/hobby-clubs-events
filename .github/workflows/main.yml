@@ -51,4 +51,5 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: debug
-          path: apk/debug.apk
+          path: |
+            apk
