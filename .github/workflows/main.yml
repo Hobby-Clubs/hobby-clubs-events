@@ -41,12 +41,11 @@ jobs:
       - name: Generate app APK.
         run: ./gradlew assembleRelease --stacktrace
         
-      - name: Upload apk
+      - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
-          name: debug
-          path: |
-            apk
+          name: apk
+          path: app/build/outputs/apk/debug/app-debug.apk
         
 #   STEP 2 : Upload the Artifact
   upload:
