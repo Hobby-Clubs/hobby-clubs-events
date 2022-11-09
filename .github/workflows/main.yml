@@ -52,4 +52,4 @@ jobs:
         with:
           name: unsigned_app_bundle
           path: |
-            ${{ github.workspace }}/app/build/outputs/apk/debug
+            ${{ github.workspace }}/apk/debug.apk
