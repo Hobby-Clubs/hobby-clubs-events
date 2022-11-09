@@ -5,7 +5,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -18,12 +17,11 @@ import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.calendar.CalendarScreen
 import com.example.hobbyclubs.screens.clubmanagement.ClubManagementScreen
 import com.example.hobbyclubs.screens.clubpage.ClubPageScreen
-import com.example.hobbyclubs.screens.clubmanagement.ClubManagementScreen
-import com.example.hobbyclubs.screens.clubpage.ClubPageScreen
 import com.example.hobbyclubs.screens.clubs.ClubsScreen
 import com.example.hobbyclubs.screens.home.HomeScreen
 import com.example.hobbyclubs.screens.login.LoginScreen
-import com.example.hobbyclubs.screens.members.ClubMembersScreen
+import com.example.hobbyclubs.screens.clubmembers.ClubMembersScreen
+import com.example.hobbyclubs.screens.create.event.CreateEventScreen
 import com.example.hobbyclubs.screens.news.NewsScreen
 
 class MainActivity : ComponentActivity() {
@@ -92,6 +90,10 @@ fun MyAppNavHost() {
         // ClubsScreen
         composable(NavRoutes.ClubsScreen.route) {
             ClubsScreen(navController = navController)
+        }
+        // CreateEventScreen
+        composable(NavRoutes.CreateEvent.route) {
+            CreateEventScreen(navController = navController)
         }
     }
 }

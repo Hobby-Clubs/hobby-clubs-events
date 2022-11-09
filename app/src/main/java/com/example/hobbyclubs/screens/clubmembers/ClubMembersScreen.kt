@@ -1,4 +1,4 @@
-package com.example.hobbyclubs.screens.members
+package com.example.hobbyclubs.screens.clubmembers
 
 import android.widget.Toast
 import androidx.compose.animation.animateContentSize
@@ -26,6 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.compose.forestGreen
 import com.example.hobbyclubs.R
@@ -33,7 +34,11 @@ import com.example.hobbyclubs.screens.clubpage.CustomButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ClubMembersScreen(navController: NavController, showRequests: Boolean) {
+fun ClubMembersScreen(
+    navController: NavController,
+    showRequests: Boolean,
+    vm: ClubMembersViewModel = viewModel()
+) {
     val listOfMembers = listOf("Matti Meikäläinen", "Matin Veli", "Matin Isä")
 
     Box() {
@@ -49,7 +54,7 @@ fun ClubMembersScreen(navController: NavController, showRequests: Boolean) {
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(top = 75.dp, bottom = 20.dp),
             )
-            ListOfMembers(listOfMembers, showRequests)
+            ListOfMembers(listOfMembers, showRequests, vm)
         }
         CenterAlignedTopAppBar(
             title = { Text(text = "Ice Hockey Club", fontSize = 16.sp) },
@@ -64,7 +69,7 @@ fun ClubMembersScreen(navController: NavController, showRequests: Boolean) {
 }
 
 @Composable
-fun ListOfMembers(listOfMembers: List<String>, showRequests: Boolean) {
+fun ListOfMembers(listOfMembers: List<String>, showRequests: Boolean, vm: ClubMembersViewModel) {
     var selectedMemberIndex: Int? by remember { mutableStateOf(null) }
 
     LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -72,8 +77,10 @@ fun ListOfMembers(listOfMembers: List<String>, showRequests: Boolean) {
             MemberCard(
                 name = member,
                 showRequests = showRequests,
-                setSelectedMemberIndex = { selectedMemberIndex = index },
-                isSelected = selectedMemberIndex == index
+                setSelectedMemberIndex = {
+                    selectedMemberIndex = if (selectedMemberIndex == index ) null else index
+                },
+                isSelected = selectedMemberIndex == index,
             )
         }
     }
@@ -85,7 +92,7 @@ fun MemberCard(
     name: String,
     showRequests: Boolean,
     setSelectedMemberIndex: () -> Unit,
-    isSelected: Boolean
+    isSelected: Boolean,
 ) {
     val context = LocalContext.current
     var expandedState by remember { mutableStateOf(false) }

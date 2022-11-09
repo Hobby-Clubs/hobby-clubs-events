@@ -35,6 +35,9 @@ fun HomeScreen(navController: NavController) {
             FakeButtonForNavigationTest(destination = "Clubs") {
                 navController.navigate(NavRoutes.ClubsScreen.route)
             }
+            FakeButtonForNavigationTest(destination = "Create event") {
+                navController.navigate(NavRoutes.CreateEvent.route)
+            }
             FakeButtonForNavigationTest(destination = "Log out") {
                 FirebaseHelper.logout()
                 navController.navigate(NavRoutes.LoginScreen.route)

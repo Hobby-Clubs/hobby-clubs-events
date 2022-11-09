@@ -66,6 +66,7 @@ val md_theme_dark_scrim = Color(0xFF000000)
 
 val nokiaBlue = Color(0xFF124191)
 val nokiaDarkBlue = Color(0xFF253991)
+val nokiaLighterBlue = Color(0xFF4895F8)
 val linkBlue = Color(0xFF3366CC)
 
 val forestGreen = Color(0xFF228B22)

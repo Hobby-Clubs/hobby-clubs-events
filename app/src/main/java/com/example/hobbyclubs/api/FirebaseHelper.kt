@@ -5,6 +5,7 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import java.io.Serializable
@@ -82,13 +83,25 @@ class CollectionName {
     }
 }
 
+data class User(
+    val name: String,
+    val avatarId: Int,
+): Serializable
+
 data class Club(
     val name: String
 ): Serializable
 
 data class Event(
+    val clubId: String,
     val name: String,
-    val date: Timestamp
+    val description: String,
+    val date: Timestamp,
+    val address: String,
+    val participantLimit: Int,
+    val contactInfoName: String,
+    val contactInfoEmail: String,
+    val contactInfoNumber: String,
 ): Serializable
 
 data class News(
