@@ -46,15 +46,3 @@ jobs:
         with:
           name: apk
           path: app/build/outputs/apk/debug/app-debug.apk
-        
-#   STEP 2 : Upload the Artifact
-  upload:
-    needs: [ build ]
-    name: Upload the unsigned artifact
-    runs-on: ubuntu-latest
-    steps:
-      - name: Upload apk
-        uses: actions/upload-artifact@v3
-        with:
-          name: debug
-          path: app/build/outputs/apk/debug/
