@@ -41,6 +41,9 @@ gen-external-apklibs
 **/node_modules/*
 **/.firebaserc
 
+#Google Services (e.g. APIs or Firebase)
+google-services.json
+
 ### Firebase Patch ###
 .runtimeconfig.json
 .firebase/
