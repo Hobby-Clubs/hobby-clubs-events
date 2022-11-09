@@ -11,6 +11,14 @@ jobs:
     name: Setup Environment and build
     runs-on: ubuntu-latest
     steps:
+      - name: Create file
+        run: cat ./app/google-services.json | base64
+        
+      - name: Putting data
+        env:
+          DATA: ${{ secrets.GOOGLE_SERVICE_JSON }}
+        run: echo $DATA > ./app/google-services.json
+  
       - name: Checkout the code to specific branch
         uses: actions/checkout@v2
         with:
