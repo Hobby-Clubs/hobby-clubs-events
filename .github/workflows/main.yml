@@ -46,12 +46,9 @@ jobs:
     needs: [ build ]
     name: Upload the unsigned artifact
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./hobby-clubs-events
     steps:
       - name: Upload apk
         uses: actions/upload-artifact@v2
         with:
           name: unsigned_app_bundle
-          path: hobby-clubs-events/app/build/outputs/apk/debug/app-debug.apk
+          path: ${{ github.workspace }}/app/build/outputs/apk/debug/app-debug.apk
