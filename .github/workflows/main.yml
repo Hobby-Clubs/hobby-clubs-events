@@ -47,8 +47,8 @@ jobs:
     name: Upload the unsigned artifact
     runs-on: ubuntu-latest
     steps:
-      - name: Upload Bundle
+      - name: Upload apk
         uses: actions/upload-artifact@v2
         with:
           name: unsigned_app_bundle
-          path: ../../app/build/outputs/apk/debug/app-debug.apk
+          path: app/build/outputs/apk/debug/app-debug.apk
