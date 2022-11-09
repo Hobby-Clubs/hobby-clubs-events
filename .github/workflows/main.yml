@@ -46,6 +46,9 @@ jobs:
     needs: [ build ]
     name: Upload the unsigned artifact
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./hobby-clubs-events
     steps:
       - name: Upload apk
         uses: actions/upload-artifact@v2
