@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.navigation.NavRoutes
 
 @Composable
@@ -33,6 +34,10 @@ fun HomeScreen(navController: NavController) {
             }
             FakeButtonForNavigationTest(destination = "Clubs") {
                 navController.navigate(NavRoutes.ClubsScreen.route)
+            }
+            FakeButtonForNavigationTest(destination = "Log out") {
+                FirebaseHelper.logout()
+                navController.navigate(NavRoutes.LoginScreen.route)
             }
         }
     }
