@@ -39,7 +39,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Generate app APK.
-        run: ./gradlew app:assembleRelease --stacktrace
+        run: ./gradlew assembleRelease --stacktrace
         
 #   STEP 2 : Upload the Artifact
   upload:
@@ -51,4 +51,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: unsigned_app_bundle
-          path: app/build/outputs/bundle/release/app-release.aab
+          path: app/build/outputs/bundle/release/app-release.apk
