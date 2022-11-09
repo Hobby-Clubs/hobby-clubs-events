@@ -51,5 +51,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: unsigned_app_bundle
-          path: |
-            ${{ github.workspace }}/apk/debug.apk
+          path: apk/debug.apk
