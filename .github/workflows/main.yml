@@ -11,9 +11,7 @@ jobs:
     name: Setup Environment and build
     runs-on: ubuntu-latest
     steps:
-      - name: Create file
-        run: touch ./app/google-services.json && echo $GOOGLE_SERVICE_JSON | base64 -d > ./app/google-services.json
-  
+    
       - name: Checkout the code to specific branch
         uses: actions/checkout@v2
         with:
