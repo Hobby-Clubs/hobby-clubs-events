@@ -1,5 +1,6 @@
 package com.example.hobbyclubs.api
 
+import android.net.Uri
 import android.util.Log
 import com.google.android.gms.tasks.Task
 import com.google.firebase.Timestamp
@@ -7,6 +8,7 @@ import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import java.io.Serializable
 
 object FirebaseHelper {
@@ -14,6 +16,17 @@ object FirebaseHelper {
     private val db get() = Firebase.firestore
 
     // Firestore
+
+    fun addUser(user: User) {
+        val ref = db.collection("users").document(user.uid)
+        ref.set(user)
+            .addOnSuccessListener {
+                Log.d(TAG, "addUser: $ref")
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "addUser: ", e)
+            }
+    }
 
     fun addClub(club: Club) {
         val ref = db.collection(CollectionName.clubs)
@@ -72,15 +85,38 @@ object FirebaseHelper {
         auth.signOut()
     }
 
+    // Storage
+
+    private val storage = Firebase.storage
+
+    fun addPic(uri: Uri, path: String) {
+        storage.reference.child(path).putFile(uri)
+            .addOnSuccessListener {
+                Log.d(TAG, "addPic: $path")
+            }
+            .addOnFailureListener {
+                Log.e(TAG, "addPic: ", it)
+            }
+    }
+
 }
 
 class CollectionName {
     companion object {
+        const val users = "users"
         const val clubs = "clubs"
         const val events = "events"
         const val news = "news"
     }
 }
+
+data class User(
+    var uid: String = "",
+    val fName: String = "",
+    val lName: String = "",
+    val phone: String = "",
+    val email: String = "",
+): Serializable
 
 data class Club(
     val name: String
