@@ -50,6 +50,11 @@ dependencies {
 
     def nav_version = "2.5.2"
 
+    //Horizontal pager
+    implementation "com.google.accompanist:accompanist-systemuicontroller:0.17.0"
+    implementation "com.google.accompanist:accompanist-pager:0.26.5-rc"
+    implementation "com.google.accompanist:accompanist-pager-indicators:0.26.5-rc"
+
     implementation("io.coil-kt:coil-compose:2.2.2")
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
     implementation("androidx.navigation:navigation-compose:$nav_version")

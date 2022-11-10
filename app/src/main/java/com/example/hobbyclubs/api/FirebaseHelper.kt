@@ -1,13 +1,15 @@
 package com.example.hobbyclubs.api
 
+import android.graphics.Bitmap
 import android.util.Log
 import com.google.android.gms.tasks.Task
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
+import java.io.ByteArrayOutputStream
 import java.io.Serializable
 
 object FirebaseHelper {
@@ -29,6 +31,7 @@ object FirebaseHelper {
 
     fun getAllClubs() = db.collection(CollectionName.clubs)
 
+    // Event 
     fun addEvent(event: Event) {
         val ref = db.collection(CollectionName.events)
         ref.add(event)
@@ -42,6 +45,19 @@ object FirebaseHelper {
 
     fun getAllEvents() = db.collection(CollectionName.events)
 
+    fun sendEventImage(imageId: String, eventId: String, imageBitmap: Bitmap) {
+        val storageRef = Firebase.storage.reference.child("events").child(eventId).child(imageId)
+        val baos = ByteArrayOutputStream()
+        imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        val bytes = baos.toByteArray()
+        storageRef.putBytes(bytes)
+            .addOnSuccessListener {
+                Log.d(TAG, "sendSelfie: picture uploaded ($imageId)")
+            }
+    }
+
+    // News
+    
     fun addNews(news: News) {
         val ref = db.collection(CollectionName.news)
         ref.add(news)
@@ -54,6 +70,21 @@ object FirebaseHelper {
     }
 
     fun getAllNews() = db.collection(CollectionName.news)
+
+    // User
+
+    fun addUser(user: User) {
+        val ref = db.collection(CollectionName.users)
+        ref.add(user)
+            .addOnSuccessListener {
+                Log.d(TAG, "addUser: $ref")
+            }
+            .addOnFailureListener { e ->
+                Log.d(TAG, "addUser: ", e)
+            }
+    }
+
+    fun getAllUsers() = db.collection(CollectionName.users)
 
     // Auth
 
@@ -80,6 +111,7 @@ class CollectionName {
         const val clubs = "clubs"
         const val events = "events"
         const val news = "news"
+        const val users = "users"
     }
 }
 
