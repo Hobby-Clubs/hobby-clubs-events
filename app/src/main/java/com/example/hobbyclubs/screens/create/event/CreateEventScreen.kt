@@ -1,28 +1,25 @@
 package com.example.hobbyclubs.screens.create.event
 
-import android.content.Context
+import android.app.DatePickerDialog
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
+import android.widget.DatePicker
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -39,11 +36,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -51,18 +49,16 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 import com.example.compose.nokiaLighterBlue
 import com.example.hobbyclubs.api.Event
-import com.example.hobbyclubs.api.User
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.rememberPagerState
-import com.google.firebase.Timestamp
-import com.google.firebase.firestore.GeoPoint
+import kotlinx.coroutines.launch
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -104,6 +100,9 @@ fun CreateEventScreen(
                     showLeaveDialog = false
                 }
             )
+        }
+        BackHandler(enabled = true) {
+            showLeaveDialog = true
         }
     }
 }
@@ -274,11 +273,99 @@ fun SelectedImageItem(bitmap: Bitmap? = null, uri: Uri? = null) {
 }
 
 @Composable
+fun ClubSelectionDropdownMenu(vm: CreateEventViewModel) {
+    var expanded by remember { mutableStateOf(false) }
+    val items = mutableListOf("Club1", "Club2", "Club3")
+    var selectedIndex: Int? by remember { mutableStateOf(null) }
+
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .clickable { expanded = true }
+    ) {
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .height(50.dp)
+            .border(BorderStroke(1.dp, Color.Black))
+            .padding(horizontal = 15.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Text(text = if (selectedIndex != null) items[selectedIndex!!] else "Select Club", modifier = Modifier.weight(6f), textAlign = TextAlign.Start)
+                Icon(Icons.Outlined.KeyboardArrowDown, null, modifier = Modifier.weight(1f))
+            }
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .background(Color.White)
+        ) {
+            items.forEachIndexed { index, club ->
+                DropdownMenuItem(
+                    text = { Text(text = club) },
+                    onClick = {
+                        selectedIndex = index
+                        vm.updateSelectedClub(club)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+
+}
+
+@Composable
+fun DateSelector(vm: CreateEventViewModel) {
+    val context = LocalContext.current
+
+    val year: Int
+    val month: Int
+    val day: Int
+
+    val calendar = Calendar.getInstance()
+    year = calendar.get(Calendar.YEAR)
+    month = calendar.get(Calendar.MONTH)
+    day = calendar.get(Calendar.DAY_OF_MONTH)
+    calendar.time = Date()
+
+    val selectedDate by vm.selectedDate.observeAsState("Select Date")
+
+    val datePickerDialog = DatePickerDialog(
+        context,
+        { _: DatePicker, mYear: Int, mMonth: Int, dayOfMonth: Int ->
+            vm.updateSelectedDate("$dayOfMonth/${mMonth+1}/$mYear")
+        }, year, month, day
+    )
+
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .clickable { datePickerDialog.show() }
+    ) {
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .height(50.dp)
+            .border(BorderStroke(1.dp, Color.Black))
+            .padding(horizontal = 15.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Text(text = selectedDate, modifier = Modifier.weight(6f), textAlign = TextAlign.Start)
+                Icon(Icons.Outlined.CalendarMonth, null, modifier = Modifier.weight(1f))
+            }
+        }
+    }
+}
+
+@Composable
 fun EventCreationPage1(vm: CreateEventViewModel) {
     val focusManager = LocalFocusManager.current
     val screenHeight = LocalConfiguration.current.screenHeightDp
     val eventName by vm.eventName.observeAsState(null)
     val eventDescription by vm.eventDescription.observeAsState(null)
+    val eventLocation by vm.eventLocation.observeAsState(null)
+    val eventParticipantLimit by vm.eventParticipantLimit.observeAsState(null)
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -288,6 +375,7 @@ fun EventCreationPage1(vm: CreateEventViewModel) {
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(bottom = 20.dp)
             )
+            ClubSelectionDropdownMenu(vm)
             CustomOutlinedTextField(
                 value = eventName ?: TextFieldValue(""),
                 onValueChange = { vm.updateEventName(it) },
@@ -306,7 +394,30 @@ fun EventCreationPage1(vm: CreateEventViewModel) {
                 label = "Description",
                 placeholder = "Describe your event",
                 modifier = Modifier
-                    .height((screenHeight * 0.4).dp)
+                    .height((screenHeight * 0.2).dp)
+                    .fillMaxWidth()
+            )
+            CustomOutlinedTextField(
+                value = eventLocation ?: TextFieldValue(""),
+                onValueChange = { vm.updateEventLocation(it) },
+                focusManager = focusManager,
+                keyboardType = KeyboardType.Text,
+                label = "Location",
+                placeholder = "Give the address of the event",
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+            DateSelector(vm)
+            Spacer(modifier = Modifier.height(5.dp))
+            CustomOutlinedTextField(
+                value = eventParticipantLimit ?: TextFieldValue(""),
+                onValueChange = { vm.updateEventParticipantLimit(it) },
+                focusManager = focusManager,
+                keyboardType = KeyboardType.Number,
+                label = "Participant limit",
+                placeholder = "Leave empty for no limit",
+                modifier = Modifier
                     .fillMaxWidth()
             )
         }
@@ -478,7 +589,7 @@ fun EventCreationPage3(vm: CreateEventViewModel) {
                     if (currentLinkName != null && currentLinkURL != null) {
                         vm.addLinkToList(
                             Pair(
-                                currentLinkName!!.text,
+                                currentLinkName!!.text.replaceFirstChar { it.uppercase() },
                                 currentLinkURL!!.text
                             )
                         )
@@ -490,7 +601,9 @@ fun EventCreationPage3(vm: CreateEventViewModel) {
                     }
                 },
                 text = "Add Link",
-                modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 20.dp)
             )
             Text(
                 text = "Provided links",
@@ -542,14 +655,32 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
     val context = LocalContext.current
 
     // First page
+    val selectedClub by vm.selectedClub.observeAsState(null)
+    val selectedDate by vm.selectedDate.observeAsState(null)
     val eventName by vm.eventName.observeAsState(null)
     val eventDescription by vm.eventDescription.observeAsState(null)
+    val eventLocation by vm.eventLocation.observeAsState(null)
+    val eventParticipantLimit by vm.eventParticipantLimit.observeAsState(null)
+    val linkArray by vm.givenLinksLiveData.observeAsState(null)
+    val currentUser by vm.currentUser.observeAsState()
+
+    val selectedImages by vm.imagesAsBitmap.observeAsState()
 
     // Last Page
     val contactInfoName by vm.contactInfoName.observeAsState(null)
     val contactInfoEmail by vm.contactInfoEmail.observeAsState(null)
     val contactInfoNumber by vm.contactInfoNumber.observeAsState(null)
 
+    val scope = rememberCoroutineScope()
+
+    if (currentUser == null) {
+        LaunchedEffect(Unit) {
+            scope.launch {
+                vm.getCurrentUser()
+                Log.d("fetchUser", "current user fetched")
+            }
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -596,6 +727,11 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
                 modifier = Modifier
                     .fillMaxWidth()
             )
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(text = "Or fill quickly using account details", fontSize = 12.sp)
+            CustomButton(
+                onClick = { currentUser?.let { vm.quickFillOptions(it) } },
+                text = "Quick fill")
         }
         Column(
             modifier = Modifier
@@ -616,7 +752,16 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
                 )
                 CustomButton(
                     onClick = {
-                        if (eventName == null || eventDescription == null || contactInfoName == null || contactInfoEmail == null || contactInfoNumber == null) {
+                        if (
+                            selectedClub == null ||
+                            selectedDate == null ||
+                            eventName == null ||
+                            eventDescription == null ||
+                            eventLocation == null ||
+                            contactInfoName == null ||
+                            contactInfoEmail == null ||
+                            contactInfoNumber == null
+                        ) {
                             Toast.makeText(
                                 context,
                                 "Please fill in all the fields",
@@ -625,17 +770,19 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
                             return@CustomButton
                         } else {
                             val event = Event(
-                                clubId = "9H7A1soQdHcQ0U6a0AfO",
+                                clubId = selectedClub!!,
                                 name = eventName!!.text,
                                 description = eventDescription!!.text,
-                                date = Timestamp.now(),
-                                address = "Karaportti 2",
-                                participantLimit = 5,
+                                date = selectedDate!!,
+                                address = eventLocation!!.text,
+                                participantLimit = if (eventParticipantLimit == null || eventParticipantLimit!!.text.isBlank()) -1 else eventParticipantLimit!!.text.toInt(),
+                                linkArray = if (linkArray == null || linkArray!!.size == 0) mutableListOf() else linkArray!!,
                                 contactInfoName = contactInfoName!!.text,
                                 contactInfoEmail = contactInfoEmail!!.text,
                                 contactInfoNumber = contactInfoNumber!!.text
                             )
-                            vm.addEvent(event)
+                            val eventId = vm.addEvent(event)
+                            vm.storeBitmapsOnFirebase(listToStore = selectedImages?.toList() ?: listOf(), eventId = eventId)
                             Toast.makeText(context, "Event created.", Toast.LENGTH_SHORT).show()
                             navController.navigate(NavRoutes.HomeScreen.route)
                         }

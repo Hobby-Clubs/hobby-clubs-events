@@ -6,6 +6,7 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -32,15 +33,19 @@ object FirebaseHelper {
     fun getAllClubs() = db.collection(CollectionName.clubs)
 
     // Event 
-    fun addEvent(event: Event) {
-        val ref = db.collection(CollectionName.events)
-        ref.add(event)
+    fun addEvent(event: Event) : String {
+        val ref = db.collection(CollectionName.events).document()
+        val eventWithId = event.apply {
+            id = ref.id
+        }
+        ref.set(eventWithId)
             .addOnSuccessListener {
                 Log.d(TAG, "addEvent: $ref")
             }
             .addOnFailureListener { e ->
                 Log.e(TAG, "addEvent: ", e)
             }
+        return ref.id
     }
 
     fun getAllEvents() = db.collection(CollectionName.events)
@@ -52,7 +57,7 @@ object FirebaseHelper {
         val bytes = baos.toByteArray()
         storageRef.putBytes(bytes)
             .addOnSuccessListener {
-                Log.d(TAG, "sendSelfie: picture uploaded ($imageId)")
+                Log.d(TAG, "sendImage: picture uploaded ($imageId)")
             }
     }
 
@@ -82,6 +87,10 @@ object FirebaseHelper {
             .addOnFailureListener { e ->
                 Log.d(TAG, "addUser: ", e)
             }
+    }
+
+    fun getCurrentUser() : DocumentReference {
+        return db.collection(CollectionName.users).document(uid!!)
     }
 
     fun getAllUsers() = db.collection(CollectionName.users)
@@ -116,8 +125,11 @@ class CollectionName {
 }
 
 data class User(
-    val name: String,
-    val avatarId: Int,
+    val uid: String = "",
+    val fname: String = "",
+    val lname: String = "",
+    val phone: String = "",
+    val email: String = "",
 ): Serializable
 
 data class Club(
@@ -125,15 +137,17 @@ data class Club(
 ): Serializable
 
 data class Event(
-    val clubId: String,
-    val name: String,
-    val description: String,
-    val date: Timestamp,
-    val address: String,
-    val participantLimit: Int,
-    val contactInfoName: String,
-    val contactInfoEmail: String,
-    val contactInfoNumber: String,
+    var id: String = "",
+    val clubId: String = "",
+    val name: String = "",
+    val description: String = "",
+    val date: String = "",
+    val address: String = "",
+    val participantLimit: Int = -1,
+    val linkArray: MutableList<Pair<String, String>> = mutableListOf(),
+    val contactInfoName: String = "",
+    val contactInfoEmail: String = "",
+    val contactInfoNumber: String = "",
 ): Serializable
 
 data class News(

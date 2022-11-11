@@ -11,6 +11,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.FirebaseHelper
+import com.example.hobbyclubs.api.User
 import okhttp3.internal.notifyAll
 import java.net.URL
 
@@ -18,9 +19,14 @@ class CreateEventViewModel : ViewModel() {
 
     val firebase = FirebaseHelper
 
+    val currentUser = MutableLiveData<User>()
     val currentCreationProgressPage = MutableLiveData<Int>()
+    val selectedClub = MutableLiveData<String>()
+    val selectedDate = MutableLiveData<String>()
     val eventName = MutableLiveData<TextFieldValue?>()
     val eventDescription = MutableLiveData<TextFieldValue>()
+    val eventLocation = MutableLiveData<TextFieldValue>()
+    val eventParticipantLimit = MutableLiveData<TextFieldValue>()
     val contactInfoName = MutableLiveData<TextFieldValue>()
     val contactInfoEmail = MutableLiveData<TextFieldValue>()
     val contactInfoNumber = MutableLiveData<TextFieldValue>()
@@ -35,8 +41,20 @@ class CreateEventViewModel : ViewModel() {
     fun updateEventName(newVal: TextFieldValue) {
         eventName.value = newVal
     }
+    fun updateSelectedClub(newVal: String) {
+        selectedClub.value = newVal
+    }
+    fun updateSelectedDate(newVal: String) {
+        selectedDate.value = newVal
+    }
     fun updateEventDescription(newVal: TextFieldValue) {
         eventDescription.value = newVal
+    }
+    fun updateEventParticipantLimit(newVal: TextFieldValue) {
+        eventParticipantLimit.value = newVal
+    }
+    fun updateEventLocation(newVal: TextFieldValue) {
+        eventLocation.value = newVal
     }
     fun updateContactInfoName(newVal: TextFieldValue) {
         contactInfoName.value = newVal
@@ -55,7 +73,7 @@ class CreateEventViewModel : ViewModel() {
     }
 
     val givenLinksLiveData = MutableLiveData<MutableList<Pair<String, String>>>()
-    val givenLinks = mutableListOf<Pair<String, String>>()
+    private val givenLinks = mutableListOf<Pair<String, String>>()
 
     fun addLinkToList(pair: Pair<String, String>) {
         givenLinks.add(pair)
@@ -68,8 +86,8 @@ class CreateEventViewModel : ViewModel() {
         currentLinkURL.value = null
     }
 
-    fun addEvent(event: Event) {
-        firebase.addEvent(event)
+    fun addEvent(event: Event) : String {
+        return firebase.addEvent(event)
     }
 
     val imagesAsBitmap = MutableLiveData<MutableList<Bitmap>>()
@@ -86,12 +104,37 @@ class CreateEventViewModel : ViewModel() {
         imagesAsBitmap.notifyObserver()
     }
 
+    var count = 0
+    fun storeBitmapsOnFirebase(listToStore: List<Bitmap>, eventId: String) {
+        listToStore.forEach { bitmap ->
+            firebase.sendEventImage(imageId = "$count.jpg", eventId = eventId, imageBitmap = bitmap)
+            count += 1
+        }
+    }
+
     fun temporarilyStoreImages(images: MutableList<Uri>) {
         selectedImages.value = images
     }
 
     fun emptySelection() {
         selectedImages.value = mutableListOf()
+    }
+
+    fun getCurrentUser() {
+        firebase.getCurrentUser().get()
+            .addOnSuccessListener { data ->
+                val fetchedUser = data.toObject(User::class.java)
+                fetchedUser?.let { currentUser.postValue(it) }
+            }
+            .addOnFailureListener {
+                Log.e("FetchUser", "getUserFail: ", it)
+            }
+    }
+
+    fun quickFillOptions(user: User) {
+        contactInfoName.value = TextFieldValue("${user.fname} ${user.lname}")
+        contactInfoEmail.value = TextFieldValue(user.email)
+        contactInfoNumber.value = TextFieldValue(user.phone)
     }
 
 }
