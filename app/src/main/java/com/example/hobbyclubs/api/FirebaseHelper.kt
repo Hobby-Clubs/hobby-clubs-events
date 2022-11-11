@@ -107,6 +107,6 @@ data class News(
     val clubId: String,
     val headline: String,
     val newsContent: String,
-    val image : data,
+   // val image : data,
     val date: Timestamp
 ): Serializable
