@@ -1,5 +1,6 @@
 package com.example.hobbyclubs.api
 
+import android.net.Uri
 import android.graphics.Bitmap
 import android.util.Log
 import com.google.android.gms.tasks.Task
@@ -9,6 +10,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
+import com.google.firebase.storage.ktx.storage
 import java.io.ByteArrayOutputStream
 import java.io.Serializable
 
@@ -17,6 +19,17 @@ object FirebaseHelper {
     private val db get() = Firebase.firestore
 
     // Firestore
+
+    fun addUser(user: User) {
+        val ref = db.collection("users").document(user.uid)
+        ref.set(user)
+            .addOnSuccessListener {
+                Log.d(TAG, "addUser: $ref")
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "addUser: ", e)
+            }
+    }
 
     fun addClub(club: Club) {
         val ref = db.collection(CollectionName.clubs)
@@ -29,6 +42,43 @@ object FirebaseHelper {
             }
     }
 
+    fun getAllClubs() = db.collection(CollectionName.clubs)
+
+    fun addEvent(event: Event) {
+        val ref = db.collection(CollectionName.events)
+        ref.add(event)
+            .addOnSuccessListener {
+                Log.d(TAG, "addEvent: $ref")
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "addEvent: ", e)
+            }
+    }
+
+    fun getAllEvents() = db.collection(CollectionName.events)
+
+    fun addNews(news: News) {
+        val ref = db.collection(CollectionName.news)
+        ref.add(news)
+            .addOnSuccessListener {
+                Log.d(TAG, "addNews: $ref")
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "addNews: ", e)
+            }
+    }
+
+    fun getAllNews() = db.collection(CollectionName.news)
+
+    // Auth
+
+    private val auth = Firebase.auth
+    val uid get() = auth.uid
+    val currentUser = auth.currentUser
+
+    fun login(email: String, pwd: String): Task<AuthResult> {
+        return auth.signInWithEmailAndPassword(email, pwd)
+    }
     fun getAllClubs() = db.collection(CollectionName.clubs)
 
     fun addEvent(event: Event) {
@@ -90,10 +140,33 @@ object FirebaseHelper {
         auth.signOut()
     }
 
+    fun register(email: String, pwd: String): Task<AuthResult> {
+        return auth.createUserWithEmailAndPassword(email, pwd)
+    }
+
+    fun logout() {
+        auth.signOut()
+    }
+
+    // Storage
+
+    private val storage = Firebase.storage
+
+    fun addPic(uri: Uri, path: String) {
+        storage.reference.child(path).putFile(uri)
+            .addOnSuccessListener {
+                Log.d(TAG, "addPic: $path")
+            }
+            .addOnFailureListener {
+                Log.e(TAG, "addPic: ", it)
+            }
+    }
+
 }
 
 class CollectionName {
     companion object {
+        const val users = "users"
         const val clubs = "clubs"
         const val events = "events"
         const val news = "news"
@@ -101,8 +174,11 @@ class CollectionName {
 }
 
 data class User(
-    val name: String,
-    val avatarId: Int,
+    var uid: String = "",
+    val fName: String = "",
+    val lName: String = "",
+    val phone: String = "",
+    val email: String = "",
 ): Serializable
 
 data class Club(
@@ -110,15 +186,8 @@ data class Club(
 ): Serializable
 
 data class Event(
-    val clubId: String,
     val name: String,
-    val description: String,
-    val date: Timestamp,
-    val address: String,
-    val participantLimit: Int,
-    val contactInfoName: String,
-    val contactInfoEmail: String,
-    val contactInfoNumber: String,
+    val date: Timestamp
 ): Serializable
 
 data class News(
@@ -126,6 +195,6 @@ data class News(
     val clubId: String,
     val headline: String,
     val newsContent: String,
-   // val image : data,
+    // val image : data,
     val date: Timestamp
 ): Serializable
