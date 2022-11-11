@@ -1,5 +1,6 @@
 package com.example.hobbyclubs.api
 
+import android.graphics.Bitmap
 import android.util.Log
 import com.google.android.gms.tasks.Task
 import com.google.firebase.Timestamp
@@ -7,6 +8,8 @@ import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
+import java.io.ByteArrayOutputStream
 import java.io.Serializable
 
 object FirebaseHelper {
@@ -41,15 +44,30 @@ object FirebaseHelper {
 
     fun getAllEvents() = db.collection(CollectionName.events)
 
-    fun addNews(news: News) {
-        val ref = db.collection(CollectionName.news)
-        ref.add(news)
+    fun sendNewsImage(imageId: String, newsId: String, imageBitmap: Bitmap) {
+        val storageRef = Firebase.storage.reference.child("events").child(newsId).child(imageId)
+        val baos = ByteArrayOutputStream()
+        imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        val bytes = baos.toByteArray()
+        storageRef.putBytes(bytes)
+            .addOnSuccessListener {
+                Log.d(TAG, "sendImage: picture uploaded ($imageId)")
+            }
+    }
+
+    fun addNews(news: News) : String {
+        val ref = db.collection(CollectionName.news).document()
+        val newsId = news.apply {
+            id = ref.id
+        }
+        ref.set(newsId)
             .addOnSuccessListener {
                 Log.d(TAG, "addNews: $ref")
             }
             .addOnFailureListener { e ->
                 Log.e(TAG, "addNews: ", e)
             }
+        return ref.id
     }
 
     fun getAllNews() = db.collection(CollectionName.news)
@@ -104,6 +122,7 @@ data class Event(
 ): Serializable
 
 data class News(
+    var id: String = "",
     val clubId: String,
     val headline: String,
     val newsContent: String,

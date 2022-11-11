@@ -1,6 +1,6 @@
 package com.example.hobbyclubs.screens.createnews
 
-import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -8,8 +8,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -215,6 +213,8 @@ fun NewsCreationPage1(vm: CreateNewsViewModel) {
 @Composable
 fun NewsCreationPage2(vm: CreateNewsViewModel, navController: NavController) {
     val context = LocalContext.current
+    val selectImages by vm.selectedImage.observeAsState(null)
+    val selectImageBitmap by vm.selectedImageBitmap.observeAsState(null)
 
     // First page
     val headline by vm.headline.observeAsState(null)
@@ -226,7 +226,7 @@ fun NewsCreationPage2(vm: CreateNewsViewModel, navController: NavController) {
                 .padding(bottom = 75.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            ImagePicker()
+            ImagePicker(vm)
             PageProgression(numberOfLines = 2, vm)
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly)
             {
@@ -247,7 +247,10 @@ fun NewsCreationPage2(vm: CreateNewsViewModel, navController: NavController) {
                 }
                 Button(modifier = Modifier,
                     onClick = {
-                    if (headline == null || newsContent == null) {
+                        vm.convertUriToBitmap(selectImages!!, context)
+                    if (headline == null || newsContent == null || selectImageBitmap == null)
+                    {
+                        Log.d("imageStoring", "$headline\n$newsContent\n$selectImageBitmap")
                         Toast.makeText(
                             context, "Please fill in all the fields", Toast.LENGTH_SHORT
                         ).show()
@@ -259,7 +262,8 @@ fun NewsCreationPage2(vm: CreateNewsViewModel, navController: NavController) {
                             date = Timestamp.now(),
 
                             )
-                        vm.addNews(news)
+                       val newsId = vm.addNews(news)
+                        vm.storeNewsImage(bitmap =selectImageBitmap!!, newsId)
                         Toast.makeText(context, "News created.", Toast.LENGTH_SHORT).show()
                         navController.navigate(NavRoutes.HomeScreen.route)
                     }
@@ -285,13 +289,13 @@ fun NewsCreationPage2(vm: CreateNewsViewModel, navController: NavController) {
 }
 
 @Composable
-fun ImagePicker() {
+fun ImagePicker(vm: CreateNewsViewModel) {
 
-    var selectImages by remember { mutableStateOf(listOf<Uri>()) }
+    val selectImages by vm.selectedImage.observeAsState(null)
 
     val galleryLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) {
-            selectImages = it
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            vm.storeSelectedImage(uri)
         }
         Column( modifier= Modifier
             .height(400.dp)
@@ -300,10 +304,8 @@ fun ImagePicker() {
             verticalArrangement = Arrangement.Top
         ) {
 
-            LazyRow {
-                items(selectImages) { uri ->
                     Image(
-                        painter = rememberAsyncImagePainter(uri),
+                        painter = rememberAsyncImagePainter(selectImages),
                         contentScale = ContentScale.FillWidth,
                         contentDescription = null,
                         modifier = Modifier
@@ -313,7 +315,6 @@ fun ImagePicker() {
 
                             }
                     )
-                }
             }
             Spacer(modifier = Modifier.padding(50.dp))
             Button(
@@ -326,5 +327,5 @@ fun ImagePicker() {
             }
 
         }
-    }
+
 
