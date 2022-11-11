@@ -1,6 +1,5 @@
 package com.example.hobbyclubs.screens.news
 
-import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -11,8 +10,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,33 +31,43 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.hobbyclubs.R
-import com.example.hobbyclubs.general.SwitchPill
+import com.example.hobbyclubs.api.News
 import com.example.hobbyclubs.navigation.NavRoutes
-import com.example.hobbyclubs.screens.createnews.CreateNewsViewModel
 import com.example.hobbyclubs.screens.home.FakeButtonForNavigationTest
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewsScreen(navController: NavController,vm: CreateNewsViewModel = viewModel()) {
-    Box(modifier = Modifier.padding(10.dp)) {
-        Column(modifier = Modifier.fillMaxSize()) {
+fun NewsScreen(navController: NavController,vm: NewsViewModel = viewModel()) {
+    val scope = rememberCoroutineScope()
+    val allNews = vm.listOfNews.observeAsState(listOf())
+    LaunchedEffect(Unit){
+        scope.launch(Dispatchers.IO) { vm.getALlNews() }
 
+    }
+    Box() {
 
-            var showMyNews by remember { mutableStateOf(true) }
-            SwitchPill(
-                isFirstSelected = showMyNews,
-                onChange = { isFirst -> showMyNews = isFirst },
-                firstText = "My News",
-                secondText = "All News"
+        Column(modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp)) {
+            CenterAlignedTopAppBar(
+                title = { },
+                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")
+                    }
+                }
             )
-            Row() {
                 FakeButtonForNavigationTest(destination ="Create News" ) {
                     navController.navigate(NavRoutes.CreateNewsScreen.route)
                 }
 
-            }
 
             Spacer(modifier = Modifier.padding(top = 10.dp))
-            Dashboard(images = images)
+
+           if (allNews.value.isNotEmpty()) {
+               Dashboard(newsList = allNews.value)
+           }
 
         }
     }
@@ -111,21 +122,21 @@ fun SearchView(state: MutableState<TextFieldValue>) {
     )
 }
 @Composable
-fun Dashboard(images: List<ImageData>) {
+fun Dashboard(newsList: List<News>) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(10.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        images.forEach {
-            item { ImageCard(image = it)}
+        newsList.forEach {
+            item { ImageCard(it)}
         }
     }
 }
 
 @Composable
-fun ImageCard(image: ImageData) {
+fun ImageCard(news: News) {
     var expandedState by remember { mutableStateOf(false) }
     val rotationState by animateFloatAsState(
         targetValue = if (expandedState) 180f else 0f
@@ -141,8 +152,8 @@ fun ImageCard(image: ImageData) {
             .fillMaxSize(),
         ) {
             Image(
-                painter = painterResource(id = image.drawable),
-                contentDescription = image.text,
+                painter = painterResource(id = R.drawable.ice),
+                contentDescription = "image.text",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -153,7 +164,8 @@ fun ImageCard(image: ImageData) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = image.text,  fontWeight = FontWeight.Bold)
+                Text(text = news.headline,  fontWeight = FontWeight.Bold)
+//                Text(text = news.date.toString())
                 IconButton(
                     modifier = Modifier
                         .weight(1f)
@@ -168,53 +180,12 @@ fun ImageCard(image: ImageData) {
                 }
             }
             if (expandedState) {
-                Text(text =
-                "Lorem ipsum dolor sit amet," +
-                        " consectetur adipiscing elit." +
-                        " Quisque in felis condimentum," +
-                        " ultricies erat at, vestibulum leo." +
-                        " Donec ipsum turpis, eleifend id libero ut," +
-                        " vulputate pulvinar felis. Aliquam sodales mattis eros," +
-                        " in maximus lacus mattis nec." +
-                        " Nam sed risus sed elit pretium efficitur at eu lorem." +
-                        " Proin vitae magna magna. Interdum et malesuada fames ac ante ipsum primis in faucibus. " +
-                        "Donec tincidunt pulvinar nisi. Proin lobortis justo in lectus pharetra, " +
-                        "eget commodo diam tempor. Morbi tortor turpis, sodales varius ipsum sit amet," +
-                        " congue lobortis sem. Nunc facilisis lacus et nisi tempor, at aliquet sem cursus. " +
-                        "Suspendisse faucibus felis quis ex tristique, non tempor lacus pretium.")
+                Text(text =news.newsContent)
             } else {
-                Text(text =
-        "Lorem ipsum dolor sit amet," +
-                " consectetur adipiscing elit." +
-                " Quisque in felis condimentum," +
-                " ultricies erat at, vestibulum leo." +
-                " Donec ipsum turpis, eleifend id libero ut," +
-                " vulputate pulvinar felis. Aliquam sodales mattis eros," +
-                " in maximus lacus mattis nec." +
-                " Nam sed risus sed elit pretium efficitur at eu lorem." +
-                " Proin vitae magna magna. Interdum et malesuada fames ac ante ipsum primis in faucibus. " +
-                "Donec tincidunt pulvinar nisi. Proin lobortis justo in lectus pharetra, " +
-                "eget commodo diam tempor. Morbi tortor turpis, sodales varius ipsum sit amet," +
-                " congue lobortis sem. Nunc facilisis lacus et nisi tempor, at aliquet sem cursus. " +
-                "Suspendisse faucibus felis quis ex tristique, non tempor lacus pretium.",
+                Text(text =news.newsContent,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )}
         }
     }
 }
-
-val images = listOf(
-    ImageData("Ice hockey club", R.drawable.ice),
-    ImageData("Ice hockey club", R.drawable.ice),
-    ImageData("Ice hockey club", R.drawable.ice),
-    ImageData("Ice hockey club", R.drawable.ice),
-    ImageData("Ice hockey club", R.drawable.ice),
-    ImageData("Ice hockey club", R.drawable.ice),
-    ImageData("Ice hockey club", R.drawable.ice)
-)
-
-data class ImageData(
-    val text: String,
-    @DrawableRes val drawable: Int
-)
