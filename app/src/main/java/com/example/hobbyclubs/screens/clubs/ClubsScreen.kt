@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,21 +37,51 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.compose.*
 import com.example.hobbyclubs.api.Club
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ClubsScreen(navController: NavController, vm: ClubsScreenViewModel = viewModel()) {
     val suggestedClubs by vm.suggestedClubs.observeAsState(listOf())
-    val otherClubs by vm.otherClubs.observeAsState(listOf())
-    Column(
+    val otherClubs by vm.clubs.observeAsState(listOf())
+    LazyColumn(
         Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(8.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        ClubList(clubs = suggestedClubs, title = "Suggested Clubs", vm = vm)
-        Spacer(modifier = Modifier.height(32.dp))
-        ClubList(clubs = otherClubs, title = "All Clubs", vm = vm)
+        stickyHeader {
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White)) {
+                Text(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    text = "Suggested Clubs",
+                    fontWeight = FontWeight.Light,
+                    fontSize = 24.sp
+                )
+            }
+        }
+        items(suggestedClubs) {
+            ClubTile(club = it, vm = vm)
+        }
+        stickyHeader {
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White)) {
+                Text(
+                    modifier = Modifier.padding(vertical = 24.dp),
+                    text = "All Clubs",
+                    fontWeight = FontWeight.Light,
+                    fontSize = 24.sp
+                )
+            }
+        }
+        items(otherClubs) {
+            ClubTile(club = it, vm = vm)
+        }
     }
 //    AddMockClubs(vm = vm)
 }
@@ -112,10 +144,8 @@ fun AddMockClubs(vm: ClubsScreenViewModel) {
 }
 
 @Composable
-fun ClubList(clubs: List<Club>, title: String, vm: ClubsScreenViewModel) {
+fun ClubList(clubs: List<Club>, vm: ClubsScreenViewModel) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(text = title, fontWeight = FontWeight.Light, fontSize = 24.sp)
-        Spacer(modifier = Modifier.height(24.dp))
         LazyColumn(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             items(clubs) {
                 ClubTile(club = it, vm = vm)
@@ -126,30 +156,33 @@ fun ClubList(clubs: List<Club>, title: String, vm: ClubsScreenViewModel) {
 
 @Composable
 fun ClubTile(modifier: Modifier = Modifier, club: Club, vm: ClubsScreenViewModel) {
-    var logoBitmap: Bitmap? by remember { mutableStateOf(null) }
-    var bannerBitmap: Bitmap? by remember { mutableStateOf(null) }
-    val byte = 1024L * 1024
+    var logoUri: Uri? by rememberSaveable { mutableStateOf(null) }
+    var bannerUri: Uri? by rememberSaveable { mutableStateOf(null) }
 
     LaunchedEffect(Unit) {
-        vm.getLogo(club.ref)
-            .getBytes(byte)
-            .addOnSuccessListener {
-                logoBitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
-            }
-            .addOnFailureListener {
-                Log.e("getLogo", "ClubTile: ", it)
-            }
-        vm.getBanner(club.ref)
-            .getBytes(byte)
-            .addOnSuccessListener {
-                bannerBitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
-            }
-            .addOnFailureListener {
-                Log.e("getLogo", "ClubTile: ", it)
-            }
+        if (logoUri == null) {
+            vm.getLogo(club.ref)
+                .downloadUrl
+                .addOnSuccessListener {
+                    logoUri = it
+                }
+                .addOnFailureListener {
+                    Log.e("getLogo", "ClubTile: ", it)
+                }
+        }
+        if (bannerUri == null) {
+            vm.getBanner(club.ref)
+                .downloadUrl
+                .addOnSuccessListener {
+                    bannerUri = it
+                }
+                .addOnFailureListener {
+                    Log.e("getLogo", "ClubTile: ", it)
+                }
+        }
     }
 
-    if (logoBitmap != null && bannerBitmap != null) {
+    if (logoUri != null && logoUri != null) {
         Card(
             modifier = modifier,
             shape = RoundedCornerShape(12.dp),
@@ -168,14 +201,14 @@ fun ClubTile(modifier: Modifier = Modifier, club: Club, vm: ClubsScreenViewModel
                         .padding(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Image(
+                    AsyncImage(
                         modifier = Modifier
                             .size(50.dp)
                             .aspectRatio(1f)
                             .clip(CircleShape)
                             .padding(0.dp)
                             .padding(end = 8.dp),
-                        bitmap = logoBitmap!!.asImageBitmap(),
+                        model = logoUri,
                         contentDescription = "logo"
                     )
                     Column(
@@ -186,9 +219,9 @@ fun ClubTile(modifier: Modifier = Modifier, club: Club, vm: ClubsScreenViewModel
                         Text(text = "Join now!", fontSize = 14.sp)
                     }
                 }
-                Image(
+                AsyncImage(
                     modifier = Modifier.weight(1f),
-                    bitmap = bannerBitmap!!.asImageBitmap(),
+                    model = bannerUri,
                     contentDescription = "banner",
                     contentScale = ContentScale.Crop
                 )
