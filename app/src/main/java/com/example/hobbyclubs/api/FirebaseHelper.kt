@@ -7,6 +7,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageReference
@@ -54,11 +55,31 @@ object FirebaseHelper {
 
     fun getAllClubs() = db.collection(CollectionName.clubs)
 
+    fun updateClubNextEvent(clubId: String, date: Timestamp) {
+        val ref = db.collection(CollectionName.clubs).document(clubId)
+        ref.update("nextEvent", date)
+            .addOnSuccessListener {
+                Log.d(TAG, "updateClubNextEvent: $clubId next event updated")
+            }
+            .addOnFailureListener {
+                Log.e(TAG, "updateClubNextEvent: ", it)
+            }
+
+    }
+
     fun addEvent(event: Event) {
         val ref = db.collection(CollectionName.events)
         ref.add(event)
             .addOnSuccessListener {
                 Log.d(TAG, "addEvent: $ref")
+                event.clubId?.let { id ->
+                    getNextEvent(id)
+                        .get()
+                        .addOnSuccessListener {
+                            val next = it.toObjects(Event::class.java)[0]
+                            updateClubNextEvent(id, next.date)
+                        }
+                }
             }
             .addOnFailureListener { e ->
                 Log.e(TAG, "addEvent: ", e)
@@ -66,6 +87,14 @@ object FirebaseHelper {
     }
 
     fun getAllEvents() = db.collection(CollectionName.events)
+
+    fun getAllEventsOfClub(clubId: String): Query {
+        return db.collection(CollectionName.events).whereEqualTo("clubId", clubId)
+    }
+
+    fun getNextEvent(clubId: String): Query {
+        return getAllEventsOfClub(clubId).orderBy("date", Query.Direction.ASCENDING).limit(1L)
+    }
 
     fun addNews(news: News) {
         val ref = db.collection(CollectionName.news)
@@ -79,6 +108,8 @@ object FirebaseHelper {
     }
 
     fun getAllNews() = db.collection(CollectionName.news)
+
+    fun getAllNewsOfClub(clubId: String) = getAllNews().whereEqualTo("clubId", clubId)
 
     // Auth
 
@@ -144,12 +175,12 @@ data class User(
     val phone: String = "",
     val email: String = "",
     val interests: List<String> = listOf()
-): Serializable
+) : Serializable
 
 data class Club(
     var ref: String = "0",
     val name: String = "Club name",
-    val description: String = "Some cool club" ,
+    val description: String = "Some cool club",
     val admins: List<String> = listOf(),
     val members: List<String> = listOf(),
     val contactPerson: String = "Mikko Mäkelä",
@@ -158,15 +189,24 @@ data class Club(
     val socials: Map<String, String> = mapOf(Pair("Facebook", "https://www.facebook.com")),
     val isPrivate: Boolean = false,
     val created: Timestamp = Timestamp.now(),
-    val category: String = ClubCategory.other
-): Serializable
+    val category: String = ClubCategory.other,
+    val nextEvent: Timestamp? = null
+) : Serializable
 
 data class Event(
-    val name: String,
-    val date: Timestamp
-): Serializable
+    val clubId: String? = null,
+    val name: String = "Event name",
+    val description: String = "Some event description",
+    val date: Timestamp = Timestamp.now(),
+    val address: String = "Some address",
+    val participantLimit: Int? = null,
+    val contactInfoName: String = "Some name",
+    val contactInfoEmail: String = "Some@email.fi",
+    val contactInfoNumber: String = "01233456",
+) : Serializable
 
 data class News(
+    val clubId: String? = null,
     val name: String,
     val date: Timestamp
-): Serializable
+) : Serializable

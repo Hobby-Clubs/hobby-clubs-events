@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import com.example.hobbyclubs.api.CollectionName
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.User
-import com.google.firebase.ktx.Firebase
 
 class LoginViewModel : ViewModel() {
     val picUri = MutableLiveData<Uri>()
