@@ -51,6 +51,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.compose.nokiaLighterBlue
 import com.example.hobbyclubs.api.Event
+import com.example.hobbyclubs.general.CustomOutlinedTextField
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -107,32 +108,6 @@ fun CreateEventScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CustomOutlinedTextField(
-    modifier: Modifier = Modifier,
-    value: TextFieldValue,
-    onValueChange: (TextFieldValue) -> Unit,
-    focusManager: FocusManager,
-    keyboardType: KeyboardType,
-    label: String,
-    placeholder: String
-) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        keyboardOptions = KeyboardOptions(
-            imeAction = ImeAction.Done,
-            keyboardType = keyboardType
-        ),
-        keyboardActions = KeyboardActions(
-            onDone = { focusManager.clearFocus() }
-        ),
-        label = { Text(text = label) },
-        placeholder = { Text(text = placeholder) },
-        modifier = modifier
-    )
-}
 
 @Composable
 fun PageProgression(numberOfLines: Int, vm: CreateEventViewModel) {
