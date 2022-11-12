@@ -5,15 +5,14 @@ import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.User
-import okhttp3.internal.notifyAll
-import java.net.URL
+import com.google.firebase.Timestamp
 
 class CreateEventViewModel : ViewModel() {
 
@@ -22,7 +21,7 @@ class CreateEventViewModel : ViewModel() {
     val currentUser = MutableLiveData<User>()
     val currentCreationProgressPage = MutableLiveData<Int>()
     val selectedClub = MutableLiveData<String>()
-    val selectedDate = MutableLiveData<String>()
+    val selectedDate = MutableLiveData<Timestamp>()
     val eventName = MutableLiveData<TextFieldValue?>()
     val eventDescription = MutableLiveData<TextFieldValue>()
     val eventLocation = MutableLiveData<TextFieldValue>()
@@ -44,7 +43,7 @@ class CreateEventViewModel : ViewModel() {
     fun updateSelectedClub(newVal: String) {
         selectedClub.value = newVal
     }
-    fun updateSelectedDate(newVal: String) {
+    fun updateSelectedDate(newVal: Timestamp) {
         selectedDate.value = newVal
     }
     fun updateEventDescription(newVal: TextFieldValue) {
@@ -72,13 +71,15 @@ class CreateEventViewModel : ViewModel() {
         currentLinkURL.value = newVal
     }
 
-    val givenLinksLiveData = MutableLiveData<MutableList<Pair<String, String>>>()
-    private val givenLinks = mutableListOf<Pair<String, String>>()
+    val givenLinksLiveData = MutableLiveData<Map<String, String>>(mapOf())
 
     fun addLinkToList(pair: Pair<String, String>) {
-        givenLinks.add(pair)
-        givenLinksLiveData.value = givenLinks
-        givenLinksLiveData.notifyObserver()
+        givenLinksLiveData.value?.let {
+            val newMap = it.toMutableMap().apply { put(pair.first, pair.second) }
+            println(newMap)
+            givenLinksLiveData.value = newMap
+
+        }
     }
 
     fun clearLinkFields() {
@@ -132,7 +133,7 @@ class CreateEventViewModel : ViewModel() {
     }
 
     fun quickFillOptions(user: User) {
-        contactInfoName.value = TextFieldValue("${user.fname} ${user.lname}")
+        contactInfoName.value = TextFieldValue("${user.fName} ${user.lName}")
         contactInfoEmail.value = TextFieldValue(user.email)
         contactInfoNumber.value = TextFieldValue(user.phone)
     }

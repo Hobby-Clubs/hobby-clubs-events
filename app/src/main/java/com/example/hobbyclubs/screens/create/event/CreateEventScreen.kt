@@ -12,11 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
@@ -27,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -36,9 +31,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -58,7 +51,10 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.rememberPagerState
+import com.google.firebase.Timestamp
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -305,12 +301,14 @@ fun DateSelector(vm: CreateEventViewModel) {
     day = calendar.get(Calendar.DAY_OF_MONTH)
     calendar.time = Date()
 
-    val selectedDate by vm.selectedDate.observeAsState("Select Date")
+    val selectedDate by vm.selectedDate.observeAsState()
 
     val datePickerDialog = DatePickerDialog(
         context,
         { _: DatePicker, mYear: Int, mMonth: Int, dayOfMonth: Int ->
-            vm.updateSelectedDate("$dayOfMonth/${mMonth+1}/$mYear")
+            val date = Date(mYear-1900,mMonth,dayOfMonth)
+            val timestamp = Timestamp(date)
+            vm.updateSelectedDate(timestamp)
         }, year, month, day
     )
 
@@ -326,7 +324,14 @@ fun DateSelector(vm: CreateEventViewModel) {
             contentAlignment = Alignment.CenterStart
         ) {
             Row(modifier = Modifier.fillMaxWidth()) {
-                Text(text = selectedDate, modifier = Modifier.weight(6f), textAlign = TextAlign.Start)
+                val dateText = if (selectedDate == null) {
+                    "Select date"
+                } else {
+
+                    val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH)
+                    sdf.format(selectedDate!!.toDate())
+                }
+                Text(text = dateText, modifier = Modifier.weight(6f), textAlign = TextAlign.Start)
                 Icon(Icons.Outlined.CalendarMonth, null, modifier = Modifier.weight(1f))
             }
         }
@@ -524,7 +529,7 @@ fun EventCreationPage3(vm: CreateEventViewModel) {
 
     val currentLinkName by vm.currentLinkName.observeAsState(null)
     val currentLinkURL by vm.currentLinkURL.observeAsState(null)
-    val givenLinks by vm.givenLinksLiveData.observeAsState(mutableListOf())
+    val givenLinks by vm.givenLinksLiveData.observeAsState(mapOf())
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -587,7 +592,7 @@ fun EventCreationPage3(vm: CreateEventViewModel) {
                 modifier = Modifier.padding(bottom = 20.dp)
             )
             givenLinks.forEach {
-                Text(text = it.first)
+                Text(text = it.key)
             }
             DisposableEffect(linkSent) {
                 if (linkSent) {
@@ -751,7 +756,7 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
                                 date = selectedDate!!,
                                 address = eventLocation!!.text,
                                 participantLimit = if (eventParticipantLimit == null || eventParticipantLimit!!.text.isBlank()) -1 else eventParticipantLimit!!.text.toInt(),
-                                linkArray = if (linkArray == null || linkArray!!.size == 0) mutableListOf() else linkArray!!,
+                                linkArray = if (linkArray == null || linkArray!!.size == 0) mapOf() else linkArray!!,
                                 contactInfoName = contactInfoName!!.text,
                                 contactInfoEmail = contactInfoEmail!!.text,
                                 contactInfoNumber = contactInfoNumber!!.text

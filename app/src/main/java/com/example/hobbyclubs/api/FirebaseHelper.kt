@@ -8,14 +8,12 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.ktx.storage
-import java.io.ByteArrayOutputStream
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
+import java.io.ByteArrayOutputStream
 import java.io.Serializable
 
 object FirebaseHelper {
@@ -37,10 +35,6 @@ object FirebaseHelper {
 
     fun getUser(uid: String): DocumentReference {
         return db.collection("users").document(uid)
-    }
-
-    fun getCurrentUser(): DocumentReference {
-        return db.collection("users").document(uid.toString())
     }
 
     fun addClub(club: Club, logoUri: Uri, bannerUri: Uri) {
@@ -71,11 +65,7 @@ object FirebaseHelper {
 
     }
 
-    fun addEvent(event: Event) {
-        val ref = db.collection(CollectionName.events)
-        ref.add(event)
-    // Event
-    fun addEvent(event: Event) : String {
+    fun addEvent(event: Event): String {
         val ref = db.collection(CollectionName.events).document()
         val eventWithId = event.apply {
             id = ref.id
@@ -101,7 +91,8 @@ object FirebaseHelper {
     fun getAllEvents() = db.collection(CollectionName.events)
 
     fun sendEventImage(imageId: String, eventId: String, imageBitmap: Bitmap) {
-        val storageRef = Firebase.storage.reference.child("events").child(eventId).child(imageId)
+        val storageRef =
+            Firebase.storage.reference.child("events").child(eventId).child(imageId)
         val baos = ByteArrayOutputStream()
         imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
         val bytes = baos.toByteArray()
@@ -138,18 +129,7 @@ object FirebaseHelper {
 
     // User
 
-    fun addUser(user: User) {
-        val ref = db.collection(CollectionName.users)
-        ref.add(user)
-            .addOnSuccessListener {
-                Log.d(TAG, "addUser: $ref")
-            }
-            .addOnFailureListener { e ->
-                Log.d(TAG, "addUser: ", e)
-            }
-    }
-
-    fun getCurrentUser() : DocumentReference {
+    fun getCurrentUser(): DocumentReference {
         return db.collection(CollectionName.users).document(uid!!)
     }
 
@@ -242,14 +222,14 @@ data class Event(
     val clubId: String = "",
     val name: String = "",
     val description: String = "",
-    val date: String = "",
+    val date: Timestamp = Timestamp.now(),
     val address: String = "",
     val participantLimit: Int = -1,
-    val linkArray: MutableList<Pair<String, String>> = mutableListOf(),
+    val linkArray: Map<String, String> = mapOf(),
     val contactInfoName: String = "",
     val contactInfoEmail: String = "",
     val contactInfoNumber: String = "",
-): Serializable
+) : Serializable
 
 data class News(
     val clubId: String? = null,
