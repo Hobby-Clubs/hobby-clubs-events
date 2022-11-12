@@ -62,8 +62,14 @@ fun MyAppNavHost() {
             HomeScreen(navController = navController)
         }
         // ClubPageScreen
-        composable(NavRoutes.ClubPageScreen.route) {
-            ClubPageScreen(navController = navController)
+        composable(
+            NavRoutes.ClubPageScreen.route + "/{clubId}",
+            arguments = listOf(
+                navArgument("clubId") {type = NavType.StringType}
+            )
+        ) {
+            val clubId = it.arguments!!.getString("clubId")!!
+            ClubPageScreen(navController = navController, clubId = clubId)
         }
         // ClubManagementScreen
         composable(NavRoutes.ClubManagementScreen.route) {

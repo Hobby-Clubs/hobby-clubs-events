@@ -57,7 +57,7 @@ fun ClubsScreen(navController: NavController, vm: ClubsScreenViewModel = viewMod
                     club = it,
                     vm = vm,
                     onClick = {
-                        navController.navigate(NavRoutes.ClubPageScreen.route)
+                        navController.navigate(NavRoutes.ClubPageScreen.route + "/${it.ref}")
                     })
             }
             stickyHeader {
@@ -68,7 +68,7 @@ fun ClubsScreen(navController: NavController, vm: ClubsScreenViewModel = viewMod
                     club = it,
                     vm = vm,
                     onClick = {
-                        navController.navigate(NavRoutes.ClubPageScreen.route)
+                        navController.navigate(NavRoutes.ClubPageScreen.route + "/${it.ref}")
                     })
             }
         }

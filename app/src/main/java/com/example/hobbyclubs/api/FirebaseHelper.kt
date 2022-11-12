@@ -51,6 +51,10 @@ object FirebaseHelper {
             }
     }
 
+    fun getClub(uid: String) : DocumentReference {
+        return db.collection(CollectionName.clubs).document(uid)
+    }
+
     fun getAllClubs() = db.collection(CollectionName.clubs)
 
     fun updateClubNextEvent(clubId: String, date: Timestamp) {

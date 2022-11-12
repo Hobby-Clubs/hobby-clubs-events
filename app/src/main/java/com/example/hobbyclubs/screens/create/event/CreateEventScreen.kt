@@ -240,7 +240,6 @@ fun SelectedImageItem(bitmap: Bitmap? = null, uri: Uri? = null) {
             contentScale = ContentScale.FillHeight
         )
     }
-
 }
 
 @Composable

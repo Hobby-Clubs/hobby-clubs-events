@@ -1,6 +1,7 @@
 package com.example.hobbyclubs.screens.clubpage
 
 import android.content.Context
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -11,6 +12,9 @@ import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -28,60 +32,75 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.compose.linkBlue
 import com.example.compose.nokiaBlue
 import com.example.compose.nokiaDarkBlue
 import com.example.hobbyclubs.R
+import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.general.DividerLine
 import com.example.hobbyclubs.navigation.NavRoutes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ClubPageScreen(navController: NavController) {
+fun ClubPageScreen(
+    navController: NavController,
+    vm: ClubPageViewModel = viewModel(),
+    clubId: String
+) {
     val context = LocalContext.current
     val screenWidth = LocalConfiguration.current.screenWidthDp
-    val fakeDesc =
-        "We are a professional ice hockey club located in Espoo. We allow everyone to join our club. Lets have fun!"
-    val listOfLinks = listOf("Facebook", "Discord", "Twitter")
-    Box() {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.Start,
-        ) {
-            ClubPageHeader(navController, context)
-            DividerLine(width = (screenWidth * 0.9).dp)
-            ClubDescription(description = fakeDesc)
-            DividerLine(width = (screenWidth * 0.9).dp)
-            ClubSchedule()
-            DividerLine(width = (screenWidth * 0.9).dp)
-            ClubLinks(listOfLinks, context)
-            DividerLine(width = (screenWidth * 0.9).dp)
-            ClubContactInfo(
-                name = "Matti Meikäläinen",
-                phoneNumber = "+358 501234567",
-                email = "matti@email.fi"
+
+    val club by vm.selectedClub.observeAsState(null)
+
+    LaunchedEffect(Unit) {
+        vm.getClub(clubId)
+        vm.getLogo(clubId)
+        vm.getBanner(clubId)
+    }
+    club?.let {
+        Box() {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.Start,
+            ) {
+                ClubPageHeader(navController, context, it, vm)
+                DividerLine(width = (screenWidth * 0.9).dp)
+                ClubDescription(it.description)
+                DividerLine(width = (screenWidth * 0.9).dp)
+                ClubSchedule()
+                DividerLine(width = (screenWidth * 0.9).dp)
+                ClubLinks(context, linkList = it.socials)
+                DividerLine(width = (screenWidth * 0.9).dp)
+                ClubContactInfo(
+                    name = it.contactPerson,
+                    phoneNumber = it.contactPhone,
+                    email = it.contactEmail
+                )
+            }
+            TopAppBar(
+                title = {},
+                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(Icons.Outlined.ArrowBack, contentDescription = "Back", tint = Color.White)
+                    }
+                }
             )
         }
-        TopAppBar(
-            title = {},
-            colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
-            navigationIcon = {
-                IconButton(onClick = { navController.navigateUp() }) {
-                    Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")
-                }
-            }
-        )
     }
 
 }
 
 @Composable
-fun ClubPageHeader(navController: NavController, context: Context) {
+fun ClubPageHeader(navController: NavController, context: Context, club: Club, vm: ClubPageViewModel) {
     val screenHeight = LocalConfiguration.current.screenHeightDp
-
+    val bannerUri by vm.bannerUri.observeAsState()
+    val logoUri by vm.logoUri.observeAsState()
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -90,8 +109,8 @@ fun ClubPageHeader(navController: NavController, context: Context) {
         Column(
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.hockey),
+            AsyncImage(
+                model = bannerUri,
                 contentDescription = "background image",
                 modifier = Modifier
                     .fillMaxWidth()
@@ -104,7 +123,7 @@ fun ClubPageHeader(navController: NavController, context: Context) {
                     .padding(start = 20.dp, top = 20.dp)
             ) {
                 Text(
-                    text = "Ice Hockey Club",
+                    text = club.name,
                     fontSize = 24.sp,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(end = 20.dp)
@@ -117,14 +136,14 @@ fun ClubPageHeader(navController: NavController, context: Context) {
                     )
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = "20 members")
+                        Text(text = "${club.members.size} members")
                         Icon(Icons.Filled.NavigateNext, contentDescription = "arrow right", modifier = Modifier.size(16.dp))
                     }
                 }
             }
         }
         Row(modifier = Modifier.align(Alignment.CenterEnd)) {
-            ClubLogo(modifier = Modifier)
+            ClubLogo(modifier = Modifier, logoUri)
             Spacer(modifier = Modifier.width(30.dp))
         }
         Row(
@@ -148,11 +167,11 @@ fun ClubPageHeader(navController: NavController, context: Context) {
 }
 
 @Composable
-fun ClubDescription(description: String) {
+fun ClubDescription(desc: String) {
     Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 20.dp)) {
         ClubSectionTitle(text = "Description")
         Spacer(modifier = Modifier.height(10.dp))
-        Text(text = description, fontSize = 14.sp)
+        Text(text = desc, fontSize = 14.sp)
     }
 }
 
@@ -169,14 +188,15 @@ fun ClubSchedule() {
 }
 
 @Composable
-fun ClubLinks(listOfLinks: List<String>, context: Context) {
+fun ClubLinks(context: Context, linkList: Map<String, String>) {
+
     Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 20.dp)) {
         ClubSectionTitle(text = "Links")
         Column(verticalArrangement = Arrangement.Top) {
-            listOfLinks.forEach { link ->
+            linkList.forEach { (name, url) ->
                 ClubLinkRow(
-                    link = link,
-                    onClick = { Toast.makeText(context, link, Toast.LENGTH_SHORT).show() }
+                    link = name,
+                    onClick = { Toast.makeText(context, name, Toast.LENGTH_SHORT).show() }
                 )
             }
         }
@@ -285,15 +305,15 @@ fun EventTileRowItem(icon: ImageVector, iconDesc: String, content: String) {
 }
 
 @Composable
-fun ClubLogo(modifier: Modifier) {
+fun ClubLogo(modifier: Modifier, uri: Uri?) {
     Card(
         shape = CircleShape,
         border = BorderStroke(2.dp, Color.Black),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         modifier = modifier
     ) {
-        Image(
-            painter = painterResource(R.drawable.hockey_logo_with_sticks),
+        AsyncImage(
+            model = uri,
             contentDescription = "avatar",
             modifier = Modifier
                 .padding(10.dp)
