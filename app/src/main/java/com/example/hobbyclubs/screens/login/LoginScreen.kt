@@ -1,21 +1,19 @@
 package com.example.hobbyclubs.screens.login
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.hobbyclubs.api.User
+import com.example.hobbyclubs.general.PicturePicker
+import com.example.hobbyclubs.general.SwitchPill
 import com.example.hobbyclubs.navigation.NavRoutes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -54,22 +52,31 @@ fun LoginScreen(navController: NavController, vm: LoginViewModel = viewModel()) 
     }
 
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) { padVal ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padVal)
-                .padding(horizontal = 32.dp), contentAlignment = Alignment.Center
+                .padding(horizontal = 32.dp), horizontalAlignment = Alignment.CenterHorizontally
         ) {
             SwitchPill(
                 modifier = Modifier
-                    .align(Alignment.TopCenter)
                     .padding(top = 16.dp),
                 isFirstSelected = !showRegister,
                 onChange = { vm.updateShowRegister(!it) },
                 firstText = "Log in",
                 secondText = "Register"
             )
-            EmailPwdForm(vm = vm)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                verticalArrangement = Arrangement.Center
+            ) {
+                if (showRegister) {
+                    ProfileForm(vm = vm)
+                }
+                EmailPwdForm(vm = vm)
+            }
         }
     }
 
@@ -85,17 +92,33 @@ fun EmailPwdForm(vm: LoginViewModel) {
 
     fun handleAuth() {
         vm.updateAuthException(null)
-        if (email.isNotEmpty() && pwd.isNotEmpty()) {
-            when (showRegister) {
-                true -> vm.register(email, pwd)
-                false -> vm.login(email, pwd)
+
+        if (showRegister) {
+            if (vm.fName.value.isNullOrBlank() || vm.lName.value.isNullOrBlank()) {
+                vm.updateAuthException(Exception("Please enter a first and last name"))
+                return
             }
+        }
+        if (email.isEmpty() || pwd.isEmpty()) {
+            vm.updateAuthException(Exception("Please enter a valid email and password"))
+            return
+        }
+        when (showRegister) {
+            true -> {
+                val newUser = User(
+                    fName = vm.fName.value ?: "",
+                    lName = vm.lName.value ?: "",
+                    phone = vm.phone.value ?: "",
+                    email = email
+                )
+                vm.register(newUser, pwd)
+            }
+            false -> vm.login(email, pwd)
         }
     }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
@@ -119,54 +142,34 @@ fun EmailPwdForm(vm: LoginViewModel) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SwitchPill(
-    modifier: Modifier = Modifier,
-    isFirstSelected: Boolean,
-    onChange: (Boolean) -> Unit,
-    firstText: String,
-    secondText: String
-) {
-    Row(modifier = modifier) {
-        Pill(modifier = Modifier.weight(1f), isSelected = isFirstSelected, text = firstText) {
-            onChange(true)
-        }
-        Pill(
-            modifier = Modifier.weight(1f),
-            isLeft = false,
-            isSelected = !isFirstSelected,
-            text = secondText
-        ) {
-            onChange(false)
-        }
-    }
-}
+fun ProfileForm(vm: LoginViewModel) {
+    val picUri by vm.picUri.observeAsState()
+    val fName by vm.fName.observeAsState("")
+    val lName by vm.lName.observeAsState("")
+    val phone by vm.phone.observeAsState("")
 
-@Composable
-fun Pill(
-    modifier: Modifier = Modifier,
-    isLeft: Boolean = true,
-    isSelected: Boolean,
-    text: String,
-    onClick: () -> Unit
-) {
-    val shape = if (isLeft) {
-        RoundedCornerShape(topStart = 10.dp, bottomStart = 10.dp)
-    } else {
-        RoundedCornerShape(topEnd = 10.dp, bottomEnd = 10.dp)
-    }
-
-    val color =
-        if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
-
-    Card(
-        shape = shape,
-        modifier = modifier
-            .clickable { onClick() },
-        colors = CardDefaults.cardColors(color)
-    ) {
-        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
-            Text(modifier = Modifier.padding(8.dp), text = text)
-        }
+    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+        PicturePicker(modifier = Modifier.size(170.dp), uri = picUri, onPick = { vm.updateUri(it) })
+        Spacer(modifier = Modifier.height(32.dp))
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = fName,
+            onValueChange = { vm.updateFName(it) },
+            label = { Text(text = "First name") }
+        )
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = lName,
+            onValueChange = { vm.updateLName(it) },
+            label = { Text(text = "Last name") }
+        )
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = phone,
+            onValueChange = { vm.updatePhone(it) },
+            label = { Text(text = "Phone number (optional)") }
+        )
     }
 }
