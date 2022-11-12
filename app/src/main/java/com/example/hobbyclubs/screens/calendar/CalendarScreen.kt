@@ -12,10 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Crop169
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.outlined.People
-import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -34,9 +31,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.hobbyclubs.R
-import com.example.hobbyclubs.screens.clubpage.EventTileRowItem
-import com.example.hobbyclubs.ui.theme.joinedColor
-import com.example.hobbyclubs.ui.theme.nokiaBlue
+import com.example.compose.joinedColor
+import com.example.compose.nokiaBlue
 import io.github.boguszpawlowski.composecalendar.SelectableCalendar
 import io.github.boguszpawlowski.composecalendar.day.DayState
 import io.github.boguszpawlowski.composecalendar.header.MonthState
@@ -116,7 +112,7 @@ fun CalendarScreen(navController: NavController, vm: CalendarScreenViewModel = v
                     .fillMaxHeight()
                     .padding(horizontal = 10.dp, vertical = 5.dp), contentPadding = PaddingValues(15.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(selectedDayEvents!!) { event ->
-                        EventCard(event.name)
+                        Text(event.name)
                     }
                 }
             }
@@ -181,9 +177,7 @@ fun EventCard(header: String) {
                     .padding(vertical = 10.dp),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
-                EventTileRowItem(icon = Icons.Outlined.CalendarMonth, iconDesc = "Calendar Icon", content = "12/12/2022" )
-                EventTileRowItem(icon = Icons.Outlined.Timer, iconDesc = "Timer Icon", content = "19:00")
-                EventTileRowItem(icon = Icons.Outlined.People, iconDesc = "People Icon", content = "5")
+
             }
         }
 

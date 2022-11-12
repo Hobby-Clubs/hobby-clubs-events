@@ -1,4 +1,5 @@
-package com.example.hobbyclubs.ui.theme
+package com.example.compose
+
 import androidx.compose.ui.graphics.Color
 
 val md_theme_light_primary = Color(0xFF345BAC)
@@ -68,3 +69,6 @@ val nokiaBlue = Color(0xFF124191)
 val nokiaDarkBlue = Color(0xFF253991)
 val linkBlue = Color(0xFF3366CC)
 val joinedColor = Color(0xFF4CAF50)
+val seed = Color(0xFF124191)
+val clubTileBg = Color(0xFFFEFBFF)
+val clubTileBorder = Color(0xFFCAC4D0)

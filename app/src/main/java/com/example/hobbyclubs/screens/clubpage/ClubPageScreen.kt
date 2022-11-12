@@ -24,13 +24,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
-import com.example.hobbyclubs.ui.theme.linkBlue
-import com.example.hobbyclubs.ui.theme.nokiaBlue
-import com.example.hobbyclubs.ui.theme.nokiaDarkBlue
+import com.example.compose.linkBlue
+import com.example.compose.nokiaBlue
+import com.example.compose.nokiaDarkBlue
 import com.example.hobbyclubs.R
 import com.example.hobbyclubs.general.DividerLine
 import com.example.hobbyclubs.navigation.NavRoutes
@@ -109,7 +110,7 @@ fun ClubPageHeader(navController: NavController, context: Context) {
                     modifier = Modifier.padding(end = 20.dp)
                 )
                 TextButton(
-                    onClick = { navController.navigate(NavRoutes.ClubManagementScreen.route) },
+                    onClick = { navController.navigate(NavRoutes.MembersScreen.route + "/false") },
                     colors = ButtonDefaults.buttonColors(
                         contentColor = Color.Black,
                         containerColor = Color.Transparent
@@ -132,12 +133,16 @@ fun ClubPageHeader(navController: NavController, context: Context) {
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 20.dp), horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            CustomButton(text = "Manage Club", onClick = {
-                navController.navigate(NavRoutes.ClubManagementScreen.route)
-            })
-            CustomButton(text = "Share", onClick = {
-                Toast.makeText(context, "You are sharing the club", Toast.LENGTH_SHORT).show()
-            })
+            CustomButton(
+                text = "Manage Club",
+                onClick = {
+                    navController.navigate(NavRoutes.ClubManagementScreen.route)
+                })
+            CustomButton(
+                text = "Share",
+                onClick = {
+                    Toast.makeText(context, "You are sharing the club", Toast.LENGTH_SHORT).show()
+                })
         }
     }
 }
@@ -298,19 +303,24 @@ fun ClubLogo(modifier: Modifier) {
 }
 
 @Composable
-fun CustomButton(onClick: () -> Unit, text: String) {
+fun CustomButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    text: String,
+    colors: ButtonColors = ButtonDefaults.buttonColors(
+        containerColor = nokiaDarkBlue,
+        contentColor = Color.White,
+    )
+) {
     Button(
         onClick = { onClick() },
-        modifier = Modifier
+        modifier = modifier
             .width(175.dp)
-            .height(60.dp)
+            .height(50.dp)
             .padding(5.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = nokiaDarkBlue,
-            contentColor = Color.White,
-        ),
+        colors = colors,
         shape = RoundedCornerShape(10.dp)
     ) {
-        Text(text = text, fontSize = 16.sp)
+        Text(text = text, fontSize = 14.sp,)
     }
 }

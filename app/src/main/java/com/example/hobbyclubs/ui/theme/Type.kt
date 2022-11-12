@@ -1,4 +1,4 @@
-package com.example.hobbyclubs.ui.theme
+package com.example.compose
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
