@@ -23,6 +23,9 @@ fun HomeScreen(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxSize(),
         ) {
+            FakeButtonForNavigationTest(destination = "Clubs") {
+                navController.navigate(NavRoutes.ClubsScreen.route)
+            }
             FakeButtonForNavigationTest(destination = "News") {
                 navController.navigate(NavRoutes.NewsScreen.route)
             }

@@ -65,3 +65,5 @@ val md_theme_dark_scrim = Color(0xFF000000)
 
 
 val seed = Color(0xFF124191)
+val clubTileBg = Color(0xFFFEFBFF)
+val clubTileBorder = Color(0xFFCAC4D0)

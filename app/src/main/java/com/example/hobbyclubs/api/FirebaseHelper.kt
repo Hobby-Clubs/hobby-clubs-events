@@ -6,8 +6,10 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import java.io.Serializable
 
@@ -28,10 +30,21 @@ object FirebaseHelper {
             }
     }
 
-    fun addClub(club: Club) {
-        val ref = db.collection(CollectionName.clubs)
-        ref.add(club)
+    fun getUser(uid: String): DocumentReference {
+        return db.collection("users").document(uid)
+    }
+
+    fun getCurrentUser(): DocumentReference {
+        return db.collection("users").document(uid.toString())
+    }
+
+    fun addClub(club: Club, logoUri: Uri, bannerUri: Uri) {
+        val ref = db.collection(CollectionName.clubs).document()
+        val clubWithRef = club.apply { this.ref = ref.id }
+        ref.set(clubWithRef)
             .addOnSuccessListener {
+                addPic(logoUri, "${CollectionName.clubs}/${ref.id}/logo")
+                addPic(bannerUri, "${CollectionName.clubs}/${ref.id}/banner")
                 Log.d(TAG, "addClub: $ref")
             }
             .addOnFailureListener { e ->
@@ -99,6 +112,9 @@ object FirebaseHelper {
             }
     }
 
+    fun getFile(path: String): StorageReference {
+        return storage.reference.child(path)
+    }
 }
 
 class CollectionName {
@@ -110,16 +126,39 @@ class CollectionName {
     }
 }
 
+class ClubCategory {
+    companion object {
+        const val sports = "sports"
+        const val boardGames = "board games"
+        const val videoGames = "video games"
+        const val music = "music"
+        const val movies = "movies"
+        const val other = "other"
+    }
+}
+
 data class User(
     var uid: String = "",
     val fName: String = "",
     val lName: String = "",
     val phone: String = "",
     val email: String = "",
+    val interests: List<String> = listOf()
 ): Serializable
 
 data class Club(
-    val name: String
+    var ref: String = "0",
+    val name: String = "Club name",
+    val description: String = "Some cool club" ,
+    val admins: List<String> = listOf(),
+    val members: List<String> = listOf(),
+    val contactPerson: String = "Mikko Mäkelä",
+    val contactPhone: String = "050 554 9826",
+    val contactEmail: String = "mikko.makela70@nokia.fi",
+    val socials: Map<String, String> = mapOf(Pair("Facebook", "https://www.facebook.com")),
+    val isPrivate: Boolean = false,
+    val created: Timestamp = Timestamp.now(),
+    val category: String = ClubCategory.other
 ): Serializable
 
 data class Event(
