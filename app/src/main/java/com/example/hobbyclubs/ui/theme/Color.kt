@@ -1,5 +1,4 @@
 package com.example.compose
-
 import androidx.compose.ui.graphics.Color
 
 val md_theme_light_primary = Color(0xFF345BAC)
@@ -67,8 +66,10 @@ val md_theme_dark_scrim = Color(0xFF000000)
 
 val nokiaBlue = Color(0xFF124191)
 val nokiaDarkBlue = Color(0xFF253991)
+val nokiaLighterBlue = Color(0xFF4895F8)
 val linkBlue = Color(0xFF3366CC)
 val joinedColor = Color(0xFF4CAF50)
-val seed = Color(0xFF124191)
 val clubTileBg = Color(0xFFFEFBFF)
 val clubTileBorder = Color(0xFFCAC4D0)
+
+val forestGreen = Color(0xFF228B22)

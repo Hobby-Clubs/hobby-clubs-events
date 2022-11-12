@@ -1,5 +1,6 @@
 package com.example.hobbyclubs.api
 
+import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
 import com.google.android.gms.tasks.Task
@@ -12,6 +13,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
+import java.io.ByteArrayOutputStream
 import java.io.Serializable
 
 object FirebaseHelper {
@@ -35,10 +37,6 @@ object FirebaseHelper {
         return db.collection("users").document(uid)
     }
 
-    fun getCurrentUser(): DocumentReference {
-        return db.collection("users").document(uid.toString())
-    }
-
     fun addClub(club: Club, logoUri: Uri, bannerUri: Uri) {
         val ref = db.collection(CollectionName.clubs).document()
         val clubWithRef = club.apply { this.ref = ref.id }
@@ -51,6 +49,10 @@ object FirebaseHelper {
             .addOnFailureListener { e ->
                 Log.e(TAG, "addClub: ", e)
             }
+    }
+
+    fun getClub(uid: String) : DocumentReference {
+        return db.collection(CollectionName.clubs).document(uid)
     }
 
     fun getAllClubs() = db.collection(CollectionName.clubs)
@@ -67,9 +69,12 @@ object FirebaseHelper {
 
     }
 
-    fun addEvent(event: Event) {
-        val ref = db.collection(CollectionName.events)
-        ref.add(event)
+    fun addEvent(event: Event): String {
+        val ref = db.collection(CollectionName.events).document()
+        val eventWithId = event.apply {
+            id = ref.id
+        }
+        ref.set(eventWithId)
             .addOnSuccessListener {
                 Log.d(TAG, "addEvent: $ref")
                 event.clubId?.let { id ->
@@ -84,9 +89,24 @@ object FirebaseHelper {
             .addOnFailureListener { e ->
                 Log.e(TAG, "addEvent: ", e)
             }
+        return ref.id
     }
 
     fun getAllEvents() = db.collection(CollectionName.events)
+
+    fun sendEventImage(imageId: String, eventId: String, imageBitmap: Bitmap) {
+        val storageRef =
+            Firebase.storage.reference.child("events").child(eventId).child(imageId)
+        val baos = ByteArrayOutputStream()
+        imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        val bytes = baos.toByteArray()
+        storageRef.putBytes(bytes)
+            .addOnSuccessListener {
+                Log.d(TAG, "sendImage: picture uploaded ($imageId)")
+            }
+    }
+
+    // News
 
     fun getAllEventsOfClub(clubId: String): Query {
         return db.collection(CollectionName.events).whereEqualTo("clubId", clubId)
@@ -110,6 +130,14 @@ object FirebaseHelper {
     fun getAllNews() = db.collection(CollectionName.news)
 
     fun getAllNewsOfClub(clubId: String) = getAllNews().whereEqualTo("clubId", clubId)
+
+    // User
+
+    fun getCurrentUser(): DocumentReference {
+        return db.collection(CollectionName.users).document(uid!!)
+    }
+
+    fun getAllUsers() = db.collection(CollectionName.users)
 
     // Auth
 
@@ -150,10 +178,10 @@ object FirebaseHelper {
 
 class CollectionName {
     companion object {
-        const val users = "users"
         const val clubs = "clubs"
         const val events = "events"
         const val news = "news"
+        const val users = "users"
     }
 }
 
@@ -194,15 +222,17 @@ data class Club(
 ) : Serializable
 
 data class Event(
-    val clubId: String? = null,
-    val name: String = "Event name",
-    val description: String = "Some event description",
+    var id: String = "",
+    val clubId: String = "",
+    val name: String = "",
+    val description: String = "",
     val date: Timestamp = Timestamp.now(),
-    val address: String = "Some address",
-    val participantLimit: Int? = null,
-    val contactInfoName: String = "Some name",
-    val contactInfoEmail: String = "Some@email.fi",
-    val contactInfoNumber: String = "01233456",
+    val address: String = "",
+    val participantLimit: Int = -1,
+    val linkArray: Map<String, String> = mapOf(),
+    val contactInfoName: String = "",
+    val contactInfoEmail: String = "",
+    val contactInfoNumber: String = "",
 ) : Serializable
 
 data class News(

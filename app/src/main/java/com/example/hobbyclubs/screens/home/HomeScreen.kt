@@ -59,7 +59,7 @@ fun HomeScreen(navController: NavController, vm: HomeScreenViewModel = viewModel
             }
             items(myClubs) {
                 MyClubTile(club = it, vm = vm) {
-
+                    navController.navigate(NavRoutes.ClubPageScreen.route + "/${it.ref}")
                 }
             }
         }
@@ -238,6 +238,9 @@ fun FakeNavigation(navController: NavController) {
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxSize(),
     ) {
+        FakeButtonForNavigationTest(destination = "Home") {
+            navController.navigate(NavRoutes.HomeScreen.route)
+        }
         FakeButtonForNavigationTest(destination = "Clubs") {
             navController.navigate(NavRoutes.ClubsScreen.route)
         }
@@ -253,12 +256,12 @@ fun FakeNavigation(navController: NavController) {
         FakeButtonForNavigationTest(destination = "Clubs") {
             navController.navigate(NavRoutes.ClubsScreen.route)
         }
+        FakeButtonForNavigationTest(destination = "Create event") {
+            navController.navigate(NavRoutes.CreateEvent.route)
+        }
         FakeButtonForNavigationTest(destination = "Log out") {
             FirebaseHelper.logout()
             navController.navigate(NavRoutes.LoginScreen.route)
         }
     }
 }
-
-
-
