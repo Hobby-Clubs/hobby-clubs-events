@@ -28,9 +28,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
-import com.example.compose.linkBlue
-import com.example.compose.nokiaBlue
-import com.example.compose.nokiaDarkBlue
+import com.example.hobbyclubs.ui.theme.linkBlue
+import com.example.hobbyclubs.ui.theme.nokiaBlue
+import com.example.hobbyclubs.ui.theme.nokiaDarkBlue
 import com.example.hobbyclubs.R
 import com.example.hobbyclubs.general.DividerLine
 import com.example.hobbyclubs.navigation.NavRoutes
