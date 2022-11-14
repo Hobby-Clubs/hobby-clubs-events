@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "380692904083",
+    "project_id": "hobby-clubs",
+    "storage_bucket": "hobby-clubs.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:380692904083:android:8ae5d89ffb87896aa2b566",
+        "android_client_info": {
+          "package_name": "com.example.hobbyclubs"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "380692904083-c91e1rdt88cc9gpepd2j1dlfv5qi7o3o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "${{ secrets.FIREBASE_API_KEY }}"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "380692904083-c91e1rdt88cc9gpepd2j1dlfv5qi7o3o.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
