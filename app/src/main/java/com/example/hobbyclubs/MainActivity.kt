@@ -5,11 +5,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.compose.HobbyClubsTheme
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.navigation.NavRoutes
@@ -23,7 +24,8 @@ import com.example.hobbyclubs.screens.clubs.ClubsScreen
 import com.example.hobbyclubs.screens.createnews.CreateNewsScreen
 import com.example.hobbyclubs.screens.home.HomeScreen
 import com.example.hobbyclubs.screens.login.LoginScreen
-import com.example.hobbyclubs.screens.members.ClubMembersScreen
+import com.example.hobbyclubs.screens.clubmembers.ClubMembersScreen
+import com.example.hobbyclubs.screens.create.event.CreateEventScreen
 import com.example.hobbyclubs.screens.news.NewsScreen
 
 class MainActivity : ComponentActivity() {
@@ -64,16 +66,28 @@ fun MyAppNavHost() {
             HomeScreen(navController = navController)
         }
         // ClubPageScreen
-        composable(NavRoutes.ClubPageScreen.route) {
-            ClubPageScreen(navController = navController)
+        composable(
+            NavRoutes.ClubPageScreen.route + "/{clubId}",
+            arguments = listOf(
+                navArgument("clubId") {type = NavType.StringType}
+            )
+        ) {
+            val clubId = it.arguments!!.getString("clubId")!!
+            ClubPageScreen(navController = navController, clubId = clubId)
         }
         // ClubManagementScreen
         composable(NavRoutes.ClubManagementScreen.route) {
             ClubManagementScreen(navController = navController)
         }
         // ClubMembersScreen
-        composable(NavRoutes.MembersScreen.route) {
-            ClubMembersScreen(navController = navController)
+        composable(
+            NavRoutes.MembersScreen.route + "/{showRequests}",
+            arguments = listOf(
+                navArgument("showRequests") { type = NavType.BoolType }
+            )
+        ) {
+            val showRequests = it.arguments!!.getBoolean("showRequests")
+            ClubMembersScreen(navController = navController, showRequests = showRequests)
         }
         // NewsScreen
         composable(NavRoutes.NewsScreen.route) {
@@ -90,6 +104,10 @@ fun MyAppNavHost() {
         // CreateNewsScreen
         composable(NavRoutes.CreateNewsScreen.route) {
             CreateNewsScreen(navController = navController)
+        }
+        // CreateEventScreen
+        composable(NavRoutes.CreateEvent.route) {
+            CreateEventScreen(navController = navController)
         }
     }
 }

@@ -3,11 +3,11 @@ package com.example.hobbyclubs.screens.login
 import android.net.Uri
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.hobbyclubs.api.CollectionName
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.User
-import com.google.firebase.ktx.Firebase
 
-class LoginViewModel: ViewModel() {
+class LoginViewModel : ViewModel() {
     val picUri = MutableLiveData<Uri>()
     val fName = MutableLiveData<String>()
     val lName = MutableLiveData<String>()
@@ -82,5 +82,6 @@ class LoginViewModel: ViewModel() {
 
     fun addUser(user: User) = FirebaseHelper.addUser(user)
 
-    fun addProfilePic(uri: Uri, uid: String) = FirebaseHelper.addPic(uri, "users/$uid")
+    fun addProfilePic(uri: Uri, uid: String) =
+        FirebaseHelper.addPic(uri, "${CollectionName.users}/$uid")
 }
