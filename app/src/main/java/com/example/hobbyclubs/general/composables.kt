@@ -221,12 +221,13 @@ fun Pill(
 }
 
 @Composable
-fun DividerLine(width: Dp) {
+fun DividerLine() {
     Box(
         modifier = Modifier
-            .width(width)
+            .fillMaxWidth()
             .height(1.dp)
-            .background(color = Color.Black)
+            .padding(horizontal = 50.dp)
+            .background(color = Color.Gray)
     )
 }
 

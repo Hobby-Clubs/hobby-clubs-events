@@ -5,15 +5,15 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,8 +40,11 @@ import com.example.compose.nokiaBlue
 import com.example.compose.nokiaDarkBlue
 import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.Club
+import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.general.DividerLine
 import com.example.hobbyclubs.navigation.NavRoutes
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,14 +54,14 @@ fun ClubPageScreen(
     clubId: String
 ) {
     val context = LocalContext.current
-    val screenWidth = LocalConfiguration.current.screenWidthDp
-
     val club by vm.selectedClub.observeAsState(null)
 
     LaunchedEffect(Unit) {
+        vm.getCurrentUser()
         vm.getClub(clubId)
         vm.getLogo(clubId)
         vm.getBanner(clubId)
+        vm.getClubEvents(clubId)
     }
     club?.let {
         Box() {
@@ -69,13 +72,15 @@ fun ClubPageScreen(
                 horizontalAlignment = Alignment.Start,
             ) {
                 ClubPageHeader(navController, context, it, vm)
-                DividerLine(width = (screenWidth * 0.9).dp)
+                DividerLine()
                 ClubDescription(it.description)
-                DividerLine(width = (screenWidth * 0.9).dp)
-                ClubSchedule()
-                DividerLine(width = (screenWidth * 0.9).dp)
+                DividerLine()
+                ClubSchedule(vm)
+                DividerLine()
+                ClubNews(vm)
+                DividerLine()
                 ClubLinks(context, linkList = it.socials)
-                DividerLine(width = (screenWidth * 0.9).dp)
+                DividerLine()
                 ClubContactInfo(
                     name = it.contactPerson,
                     phoneNumber = it.contactPhone,
@@ -87,7 +92,11 @@ fun ClubPageScreen(
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Outlined.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(
+                            Icons.Outlined.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color.Black
+                        )
                     }
                 }
             )
@@ -96,8 +105,14 @@ fun ClubPageScreen(
 
 }
 
+
 @Composable
-fun ClubPageHeader(navController: NavController, context: Context, club: Club, vm: ClubPageViewModel) {
+fun ClubPageHeader(
+    navController: NavController,
+    context: Context,
+    club: Club,
+    vm: ClubPageViewModel
+) {
     val screenHeight = LocalConfiguration.current.screenHeightDp
     val bannerUri by vm.bannerUri.observeAsState()
     val logoUri by vm.logoUri.observeAsState()
@@ -136,8 +151,12 @@ fun ClubPageHeader(navController: NavController, context: Context, club: Club, v
                     )
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = "${club.members.size} members")
-                        Icon(Icons.Filled.NavigateNext, contentDescription = "arrow right", modifier = Modifier.size(16.dp))
+                        Text(text = "${club.members.size} " + if (club.members.size == 1) "member" else "members")
+                        Icon(
+                            Icons.Filled.NavigateNext,
+                            contentDescription = "arrow right",
+                            modifier = Modifier.size(16.dp)
+                        )
                     }
                 }
             }
@@ -176,14 +195,27 @@ fun ClubDescription(desc: String) {
 }
 
 @Composable
-fun ClubSchedule() {
+fun ClubSchedule(vm: ClubPageViewModel) {
+    val listOfEvents by vm.listOfEvents.observeAsState()
     Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 20.dp)) {
         ClubSectionTitle(text = "Schedule")
         Text(text = "Upcoming events", fontSize = 14.sp)
         Spacer(modifier = Modifier.height(20.dp))
-        EventTile()
+        listOfEvents?.let { events ->
+            events.forEach { event ->
+                EventTile(vm = vm, event)
+                Spacer(modifier = Modifier.height(20.dp))
+            }
+        }
+    }
+}
+
+
+@Composable
+fun ClubNews(vm: ClubPageViewModel) {
+    Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 20.dp)) {
+        ClubSectionTitle(text = "News")
         Spacer(modifier = Modifier.height(20.dp))
-        EventTile()
     }
 }
 
@@ -229,8 +261,9 @@ fun ClubSectionTitle(text: String) {
 }
 
 @Composable
-fun EventTile() {
-
+fun EventTile(vm: ClubPageViewModel, event: Event) {
+    val joinedEvent by remember { mutableStateOf(false) }
+    val currentUser by vm.currentUser.observeAsState()
     Card(
         shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -251,7 +284,7 @@ fun EventTile() {
                     contentScale = ContentScale.FillWidth
                 )
                 Text(
-                    text = "Ice Hockey Tournament",
+                    text = event.name,
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .padding(10.dp),
@@ -265,6 +298,66 @@ fun EventTile() {
                         )
                     )
                 )
+                if (joinedEvent) {
+                    Card(
+                        shape = RoundedCornerShape(50.dp),
+                        colors = CardDefaults.cardColors(containerColor = nokiaBlue),
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .height(50.dp)
+                            .width(110.dp)
+                            .padding(5.dp)
+//                            .clickable { vm.joinEvent() }
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(5.dp)
+                        ) {
+                            Icon(
+                                Icons.Outlined.Check,
+                                "Join icon",
+                                tint = Color.White,
+                                modifier = Modifier
+                                    .padding(end = 5.dp)
+                                    .size(16.dp)
+                            )
+                            Text(text = "Joined", color = Color.White, fontSize = 12.sp)
+                        }
+
+                    }
+                } else {
+                    Card(
+                        shape = RoundedCornerShape(50.dp),
+                        colors = CardDefaults.cardColors(containerColor = nokiaBlue),
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .height(50.dp)
+                            .width(100.dp)
+                            .padding(5.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(5.dp)
+                        ) {
+                            Icon(
+                                Icons.Outlined.PersonAddAlt,
+                                "Join icon",
+                                tint = Color.White,
+                                modifier = Modifier
+                                    .padding(end = 5.dp)
+                                    .size(16.dp)
+                            )
+                            Text(text = "Join", color = Color.White, fontSize = 12.sp)
+                        }
+
+                    }
+                }
                 Card(
                     shape = CircleShape,
                     colors = CardDefaults.cardColors(containerColor = nokiaBlue),
@@ -276,7 +369,9 @@ fun EventTile() {
                         Icons.Outlined.FavoriteBorder,
                         "Favourite icon",
                         tint = Color.White,
-                        modifier = Modifier.padding(5.dp)
+                        modifier = Modifier
+                            .padding(5.dp)
+                            .size(16.dp)
                     )
                 }
             }
@@ -286,9 +381,23 @@ fun EventTile() {
                     .padding(vertical = 10.dp),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
-                EventTileRowItem(icon = Icons.Outlined.CalendarMonth, iconDesc = "Calendar Icon", content = "12/12/2022" )
-                EventTileRowItem(icon = Icons.Outlined.Timer, iconDesc = "Timer Icon", content = "19:00")
-                EventTileRowItem(icon = Icons.Outlined.People, iconDesc = "People Icon", content = "5")
+                val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH)
+                val dateFormatted = sdf.format(event.date.toDate())
+                EventTileRowItem(
+                    icon = Icons.Outlined.CalendarMonth,
+                    iconDesc = "Calendar Icon",
+                    content = dateFormatted
+                )
+                EventTileRowItem(
+                    icon = Icons.Outlined.Timer,
+                    iconDesc = "Timer Icon",
+                    content = "19:00"
+                )
+                EventTileRowItem(
+                    icon = Icons.Outlined.People,
+                    iconDesc = "People Icon",
+                    content = "5"
+                )
             }
         }
 
@@ -341,6 +450,6 @@ fun CustomButton(
         colors = colors,
         shape = RoundedCornerShape(10.dp)
     ) {
-        Text(text = text, fontSize = 14.sp,)
+        Text(text = text, fontSize = 14.sp)
     }
 }

@@ -92,6 +92,17 @@ object FirebaseHelper {
         return ref.id
     }
 
+    fun addUserToEvent(eventId: String, user: User) {
+        val userRef = db.collection(CollectionName.events).document(eventId).collection("participants").document(user.uid)
+        userRef.set(user)
+            .addOnSuccessListener {
+                Log.d(TAG, "addUser: " + "success (${userRef.id})")
+            }
+            .addOnFailureListener {
+                Log.e(TAG, "addUser: ", it)
+            }
+    }
+
     fun getAllEvents() = db.collection(CollectionName.events)
 
     fun sendEventImage(imageId: String, eventId: String, imageBitmap: Bitmap) {
