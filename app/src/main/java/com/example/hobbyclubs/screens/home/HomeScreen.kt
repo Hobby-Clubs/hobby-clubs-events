@@ -253,6 +253,9 @@ fun FakeNavigation(navController: NavController) {
         FakeButtonForNavigationTest(destination = "Create event") {
             navController.navigate(NavRoutes.CreateEvent.route)
         }
+        FakeButtonForNavigationTest(destination = "Create news") {
+            navController.navigate(NavRoutes.CreateNewsScreen.route)
+        }
         FakeButtonForNavigationTest(destination = "Log out") {
             FirebaseHelper.logout()
             navController.navigate(NavRoutes.LoginScreen.route)
