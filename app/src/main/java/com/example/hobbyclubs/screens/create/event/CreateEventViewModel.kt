@@ -5,10 +5,10 @@ import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.util.Log
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.User
@@ -33,7 +33,11 @@ class CreateEventViewModel : ViewModel() {
     val currentLinkURL = MutableLiveData<TextFieldValue>()
 
     val selectedImages = MutableLiveData<MutableList<Uri>>()
+    val clubsJoined = MutableLiveData<List<Club>>()
 
+    init {
+        getJoinedClubs()
+    }
     fun changePageTo(page: Int) {
         currentCreationProgressPage.value = page
     }
@@ -69,6 +73,17 @@ class CreateEventViewModel : ViewModel() {
     }
     fun updateCurrentLinkURL(newVal: TextFieldValue) {
         currentLinkURL.value = newVal
+    }
+
+    fun getJoinedClubs(){
+        firebase.uid?.let {
+            firebase.getAllClubs().whereArrayContains("members", it)
+                .get()
+                .addOnSuccessListener { data ->
+                    val fetchedClubs = data.toObjects(Club::class.java)
+                    clubsJoined.value = fetchedClubs
+                }
+        }
     }
 
     val givenLinksLiveData = MutableLiveData<Map<String, String>>(mapOf())
@@ -143,3 +158,4 @@ class CreateEventViewModel : ViewModel() {
 fun <T> MutableLiveData<T>.notifyObserver() {
     this.value = this.value
 }
+

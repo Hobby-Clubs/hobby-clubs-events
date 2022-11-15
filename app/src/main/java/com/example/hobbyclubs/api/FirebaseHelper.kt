@@ -156,9 +156,9 @@ object FirebaseHelper {
             }
         return ref.id
     }
-    fun getAllNews() = db.collection(CollectionName.news)
+    fun getAllNews() = db.collection(CollectionName.news).orderBy("date", Query.Direction.DESCENDING)
 
-    fun getNews( newsId: String):DocumentReference {
+    fun getNews( newsId: String):DocumentReference{
         val ref = db.collection(CollectionName.news)
         return ref.document(newsId)
     }
@@ -266,6 +266,8 @@ data class Event(
     val contactInfoName: String = "",
     val contactInfoEmail: String = "",
     val contactInfoNumber: String = "",
+    val participants: List<String> = listOf(),
+    val likers: List<String> = listOf(),
 ) : Serializable
 
 data class News(
@@ -273,5 +275,5 @@ data class News(
     val clubId: String = "",
     val headline: String = "",
     val newsContent: String = "",
-    val date: Timestamp = Timestamp(0L,0)
+    val date: Timestamp = Timestamp.now(),
 ): Serializable

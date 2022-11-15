@@ -37,6 +37,8 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.hobbyclubs.api.News
 import com.example.hobbyclubs.navigation.NavRoutes
+import com.example.hobbyclubs.screens.clubpage.CustomButton
+import com.example.hobbyclubs.screens.create.event.ClubSelectionDropdownMenu
 import com.google.firebase.Timestamp
 import java.util.*
 
@@ -153,6 +155,7 @@ fun NewsCreationPage1(vm: CreateNewsViewModel) {
     val screenHeight = LocalConfiguration.current.screenHeightDp
     val headline by vm.headline.observeAsState(null)
     val newsContent by vm.newsContent.observeAsState(null)
+    val clubList by vm.clubsJoined.observeAsState(listOf())
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -182,6 +185,10 @@ fun NewsCreationPage1(vm: CreateNewsViewModel) {
                     .height((screenHeight * 0.4).dp)
                     .fillMaxWidth()
             )
+            Spacer(modifier = Modifier.padding(10.dp))
+            ClubSelectionDropdownMenu(clubs = clubList, onSelect = {
+                vm.updateSelectedClub(it.ref)
+            })
         }
         Column(
             modifier = Modifier
@@ -215,10 +222,11 @@ fun NewsCreationPage2(vm: CreateNewsViewModel, navController: NavController) {
     val context = LocalContext.current
     val selectImages by vm.selectedImage.observeAsState(null)
     val selectImageBitmap by vm.selectedImageBitmap.observeAsState(null)
-
     // First page
     val headline by vm.headline.observeAsState(null)
     val newsContent by vm.newsContent.observeAsState(null)
+    val selectedClub by vm.selectedClub.observeAsState(null)
+
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -245,33 +253,33 @@ fun NewsCreationPage2(vm: CreateNewsViewModel, navController: NavController) {
                         textAlign = TextAlign.Start
                     )
                 }
-                Button(modifier = Modifier,
+                Button(
+                    modifier = Modifier,
                     onClick = {
                         vm.convertUriToBitmap(selectImages!!, context)
-                    if (headline == null || newsContent == null || selectImageBitmap == null)
-                    {
-                        Log.d("imageStoring", "$headline\n$newsContent\n$selectImageBitmap")
-                        Toast.makeText(
-                            context, "Please fill in all the fields", Toast.LENGTH_SHORT
-                        ).show()
-                    } else {
-                        val news = News(
-                            clubId = "9H7A1soQdHcQ0U6a0AfO",
-                            headline = headline!!.text,
-                            newsContent = newsContent!!.text,
-                            date = Timestamp.now(),
-
+                        if (headline == null || newsContent == null || selectedClub == null || selectImageBitmap == null) {
+                            Log.d("imageStoring", "$headline\n$newsContent\n$selectImageBitmap")
+                            Toast.makeText(
+                                context, "Please fill in all the fields", Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            val news = News(
+                                clubId = selectedClub!!,
+                                headline = headline!!.text,
+                                newsContent = newsContent!!.text,
+                                date = Timestamp.now()
                             )
-                       val newsId = vm.addNews(news)
-                        vm.storeNewsImage(bitmap =selectImageBitmap!!, newsId)
-                        Toast.makeText(context, "News created.", Toast.LENGTH_SHORT).show()
-                        navController.navigate(NavRoutes.HomeScreen.route)
-                    }
-                },
+                            val newsId = vm.addNews(news)
+                            vm.storeNewsImage(bitmap = selectImageBitmap!!, newsId)
+                            Toast.makeText(context, "News created.", Toast.LENGTH_SHORT).show()
+                            navController.navigate(NavRoutes.HomeScreen.route)
+                        }
+                    },
                     shape = RoundedCornerShape(
                         topEndPercent = 25,
                         bottomEndPercent = 25
-                    ),)
+                    ),
+                )
                 {
                     Text(
                         text = "Create News",
@@ -310,21 +318,24 @@ fun ImagePicker(vm: CreateNewsViewModel) {
                         contentDescription = null,
                         modifier = Modifier
                             .padding(16.dp, 8.dp)
-                            .size(200.dp)
+                            .size(400.dp)
                             .clickable {
 
                             }
                     )
             }
             Spacer(modifier = Modifier.padding(50.dp))
-            Button(
-                onClick = { galleryLauncher.launch("image/*") },
-                modifier = Modifier
-                    .wrapContentSize()
-                    .padding(10.dp)
-            ) {
-                Text(text = "Add Image")
-            }
+    Row(modifier = Modifier.fillMaxWidth(),
+    horizontalArrangement = Arrangement.Center) {
+
+        CustomButton(
+            onClick = { galleryLauncher.launch("image/*") },
+            text = "Add Image",
+            modifier = Modifier
+                .wrapContentSize()
+                .padding(10.dp)
+        )
+    }
 
         }
 

@@ -16,16 +16,13 @@ import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.calendar.CalendarScreen
 import com.example.hobbyclubs.screens.clubmanagement.ClubManagementScreen
+import com.example.hobbyclubs.screens.clubmembers.ClubMembersScreen
 import com.example.hobbyclubs.screens.clubpage.ClubPageScreen
 import com.example.hobbyclubs.screens.clubs.ClubsScreen
-import com.example.hobbyclubs.screens.clubmanagement.ClubManagementScreen
-import com.example.hobbyclubs.screens.clubpage.ClubPageScreen
-import com.example.hobbyclubs.screens.clubs.ClubsScreen
+import com.example.hobbyclubs.screens.create.event.CreateEventScreen
 import com.example.hobbyclubs.screens.createnews.CreateNewsScreen
 import com.example.hobbyclubs.screens.home.HomeScreen
 import com.example.hobbyclubs.screens.login.LoginScreen
-import com.example.hobbyclubs.screens.clubmembers.ClubMembersScreen
-import com.example.hobbyclubs.screens.create.event.CreateEventScreen
 import com.example.hobbyclubs.screens.news.NewsScreen
 
 class MainActivity : ComponentActivity() {
@@ -71,6 +68,7 @@ fun MyAppNavHost() {
             arguments = listOf(
                 navArgument("clubId") {type = NavType.StringType}
             )
+
         ) {
             val clubId = it.arguments!!.getString("clubId")!!
             ClubPageScreen(navController = navController, clubId = clubId)

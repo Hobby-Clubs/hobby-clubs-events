@@ -43,6 +43,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.compose.nokiaLighterBlue
+import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.general.CustomOutlinedTextField
 import com.example.hobbyclubs.navigation.NavRoutes
@@ -54,7 +55,6 @@ import com.google.accompanist.pager.rememberPagerState
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.time.LocalDate
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -243,9 +243,8 @@ fun SelectedImageItem(bitmap: Bitmap? = null, uri: Uri? = null) {
 }
 
 @Composable
-fun ClubSelectionDropdownMenu(vm: CreateEventViewModel) {
+fun ClubSelectionDropdownMenu(clubs: List<Club>, onSelect: (Club) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
-    val items = mutableListOf("Club1", "Club2", "Club3")
     var selectedIndex: Int? by remember { mutableStateOf(null) }
 
     Box(modifier = Modifier
@@ -260,7 +259,7 @@ fun ClubSelectionDropdownMenu(vm: CreateEventViewModel) {
             contentAlignment = Alignment.CenterStart
         ) {
             Row(modifier = Modifier.fillMaxWidth()) {
-                Text(text = if (selectedIndex != null) items[selectedIndex!!] else "Select Club", modifier = Modifier.weight(6f), textAlign = TextAlign.Start)
+                Text(text = if (selectedIndex != null) clubs[selectedIndex!!].name else "Select Club", modifier = Modifier.weight(6f), textAlign = TextAlign.Start)
                 Icon(Icons.Outlined.KeyboardArrowDown, null, modifier = Modifier.weight(1f))
             }
         }
@@ -271,12 +270,12 @@ fun ClubSelectionDropdownMenu(vm: CreateEventViewModel) {
                 .fillMaxWidth(0.9f)
                 .background(Color.White)
         ) {
-            items.forEachIndexed { index, club ->
+            clubs.forEachIndexed { index, club ->
                 DropdownMenuItem(
-                    text = { Text(text = club) },
+                    text = { Text(text = club.name) },
                     onClick = {
                         selectedIndex = index
-                        vm.updateSelectedClub(club)
+                        onSelect(club)
                         expanded = false
                     }
                 )
@@ -345,6 +344,7 @@ fun EventCreationPage1(vm: CreateEventViewModel) {
     val eventDescription by vm.eventDescription.observeAsState(null)
     val eventLocation by vm.eventLocation.observeAsState(null)
     val eventParticipantLimit by vm.eventParticipantLimit.observeAsState(null)
+    val clubList by vm.clubsJoined.observeAsState(listOf())
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -354,7 +354,9 @@ fun EventCreationPage1(vm: CreateEventViewModel) {
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(bottom = 20.dp)
             )
-            ClubSelectionDropdownMenu(vm)
+            ClubSelectionDropdownMenu(clubs = clubList, onSelect = {
+                vm.updateSelectedClub(it.ref)
+            })
             CustomOutlinedTextField(
                 value = eventName ?: TextFieldValue(""),
                 onValueChange = { vm.updateEventName(it) },
