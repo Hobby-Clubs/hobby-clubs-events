@@ -11,6 +11,7 @@ import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ListResult
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import java.io.ByteArrayOutputStream
@@ -69,6 +70,8 @@ object FirebaseHelper {
 
     }
 
+    // Events
+
     fun addEvent(event: Event): String {
         val ref = db.collection(CollectionName.events).document()
         val eventWithId = event.apply {
@@ -103,6 +106,17 @@ object FirebaseHelper {
         storageRef.putBytes(bytes)
             .addOnSuccessListener {
                 Log.d(TAG, "sendImage: picture uploaded ($imageId)")
+            }
+    }
+
+    fun updateLikeEvent(updatedLikers: List<String>, eventId: String) {
+        val ref = db.collection(CollectionName.events).document(eventId)
+        ref.update(mapOf(Pair("likers", updatedLikers)))
+            .addOnSuccessListener {
+                Log.d(TAG, "updateLikeEvent: $ref")
+            }
+            .addOnFailureListener {
+                Log.e(TAG, "updateLikeEvent: ", it)
             }
     }
 
@@ -174,6 +188,10 @@ object FirebaseHelper {
     fun getFile(path: String): StorageReference {
         return storage.reference.child(path)
     }
+
+    fun getAllFiles(path: String): Task<ListResult> {
+        return storage.reference.child(path).listAll()
+    }
 }
 
 class CollectionName {
@@ -233,10 +251,14 @@ data class Event(
     val contactInfoName: String = "",
     val contactInfoEmail: String = "",
     val contactInfoNumber: String = "",
+    val participants: List<String> = listOf(),
+    val likers: List<String> = listOf()
 ) : Serializable
 
 data class News(
-    val clubId: String? = null,
-    val name: String,
-    val date: Timestamp
+    var id: String = "",
+    val clubId: String = "",
+    val headline: String = "",
+    val newsContent: String = "",
+    val date: Timestamp = Timestamp.now(),
 ) : Serializable

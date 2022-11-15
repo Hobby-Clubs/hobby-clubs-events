@@ -70,5 +70,6 @@ val nokiaLighterBlue = Color(0xFF4895F8)
 val linkBlue = Color(0xFF3366CC)
 val clubTileBg = Color(0xFFFEFBFF)
 val clubTileBorder = Color(0xFFCAC4D0)
+val liked = Color(0xFF725572)
 
 val forestGreen = Color(0xFF228B22)
