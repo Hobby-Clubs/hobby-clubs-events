@@ -24,7 +24,11 @@ class ClubPageViewModel : ViewModel() {
     val isAdmin = Transformations.map(selectedClub) {
         it.admins.contains(firebase.uid)
     }
+    val clubIsPrivate = Transformations.map(selectedClub) {
+        it.isPrivate
+    }
     val listOfEvents = MutableLiveData<List<Event>>(listOf())
+    val listOfNews = MutableLiveData<List<News>>(listOf())
     val joinClubDialogText = MutableLiveData<TextFieldValue>()
 
     fun updateDialogText(newVal: TextFieldValue) {
@@ -52,6 +56,18 @@ class ClubPageViewModel : ViewModel() {
 
     fun getEventBackground(eventId: String) =
         FirebaseHelper.getFile("${CollectionName.events}/$eventId/0.jpg")
+
+    fun getAllNews(clubId: String) {
+        firebase.getAllNewsOfClub(clubId).orderBy("date", Query.Direction.ASCENDING).get()
+            .addOnSuccessListener { data ->
+                val fetchedNews = data.toObjects(News::class.java)
+                Log.d("fetchNews", fetchedNews.toString())
+                fetchedNews.let { listOfNews.postValue(it) }
+            }
+            .addOnFailureListener { e ->
+                Log.e("fetchNews", "fetchNewsFail: ", e)
+            }
+    }
 
     fun getClubEvents(clubId: String) {
         firebase.getAllEventsOfClub(clubId).orderBy("date", Query.Direction.ASCENDING).get()

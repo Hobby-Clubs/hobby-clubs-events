@@ -3,10 +3,8 @@ package com.example.hobbyclubs.screens.clubmanagement
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.hobbyclubs.api.Club
-import com.example.hobbyclubs.api.Event
-import com.example.hobbyclubs.api.FirebaseHelper
-import com.example.hobbyclubs.api.User
+import com.example.hobbyclubs.api.*
+import com.google.firebase.firestore.Query
 
 class ClubManagementViewModel() : ViewModel() {
 
@@ -14,6 +12,7 @@ class ClubManagementViewModel() : ViewModel() {
     val isPrivate = MutableLiveData<Boolean>()
     val selectedClub = MutableLiveData<Club>()
     val listOfEvents = MutableLiveData<List<Event>>(listOf())
+    val listOfNews = MutableLiveData<List<News>>(listOf())
 
     fun updatePrivacy(isPrivate: Boolean) {
         this.isPrivate.value = isPrivate
@@ -38,6 +37,18 @@ class ClubManagementViewModel() : ViewModel() {
             .addOnSuccessListener { data ->
                 val fetchedEvents = data.toObjects(Event::class.java)
                 fetchedEvents.let { listOfEvents.postValue(it) }
+            }
+    }
+
+    fun getAllNews(clubId: String) {
+        firebase.getAllNewsOfClub(clubId).orderBy("date", Query.Direction.ASCENDING).get()
+            .addOnSuccessListener { data ->
+                val fetchedNews = data.toObjects(News::class.java)
+                Log.d("fetchNews", fetchedNews.toString())
+                fetchedNews.let { listOfNews.postValue(it) }
+            }
+            .addOnFailureListener { e ->
+                Log.e("fetchNews", "fetchNewsFail: ", e)
             }
     }
 }

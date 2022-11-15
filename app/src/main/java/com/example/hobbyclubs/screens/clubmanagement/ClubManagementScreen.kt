@@ -38,6 +38,7 @@ fun ClubManagementScreen(
     LaunchedEffect(Unit) {
         vm.getClub(clubId)
         vm.getClubEvents(clubId)
+        vm.getAllNews(clubId)
     }
     club?.let {
         Box() {
@@ -55,7 +56,7 @@ fun ClubManagementScreen(
                 )
                 MembersSection(navController, clubId, it)
                 Spacer(modifier = Modifier.height(10.dp))
-                NewsSection()
+                NewsSection(vm)
                 Spacer(modifier = Modifier.height(10.dp))
                 EventsSection(vm)
                 Spacer(modifier = Modifier.height(10.dp))
@@ -290,14 +291,15 @@ fun MembersSection(navController: NavController, clubId: String, club: Club) {
 }
 
 @Composable
-fun NewsSection() {
+fun NewsSection(vm: ClubManagementViewModel) {
+    val listOfNews by vm.listOfNews.observeAsState(null)
     Column() {
         ClubManagementSectionTitle(text = "News")
         ClubManagementRowCard(
             icon = Icons.Outlined.Feed,
             iconDesc = "News feed",
             title = "News",
-            numberOfItem = 1,
+            numberOfItem = listOfNews?.size ?: 0,
             onClick = { }
         )
     }

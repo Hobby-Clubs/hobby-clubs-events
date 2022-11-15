@@ -8,6 +8,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.PropertyName
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -139,7 +140,7 @@ object FirebaseHelper {
     }
     fun updatePrivacy(clubId: String, newValue: Boolean) {
         val userRef = db.collection(CollectionName.clubs).document(clubId)
-        userRef.update("private", newValue)
+        userRef.update("isPrivate", newValue)
             .addOnSuccessListener {
                 Log.d(TAG, "UpdatePrivacy: " + "success (${userRef.id})")
             }
@@ -185,7 +186,9 @@ object FirebaseHelper {
 
     fun getAllNews() = db.collection(CollectionName.news)
 
-    fun getAllNewsOfClub(clubId: String) = getAllNews().whereEqualTo("clubId", clubId)
+    fun getAllNewsOfClub(clubId: String) : Query {
+        return getAllNews().whereEqualTo("clubId", clubId)
+    }
 
     // User
 
@@ -271,7 +274,9 @@ data class Club(
     val contactPhone: String = "050 554 9826",
     val contactEmail: String = "mikko.makela70@nokia.fi",
     val socials: Map<String, String> = mapOf(Pair("Facebook", "https://www.facebook.com")),
-    val isPrivate: Boolean = false,
+    @get:PropertyName("isPrivate")
+    @set:PropertyName("isPrivate")
+    var isPrivate: Boolean = false,
     val created: Timestamp = Timestamp.now(),
     val category: String = ClubCategory.other,
     val nextEvent: Timestamp? = null

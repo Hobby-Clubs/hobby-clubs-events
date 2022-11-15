@@ -49,6 +49,7 @@ import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.general.CustomOutlinedTextField
 import com.example.hobbyclubs.general.DividerLine
+import com.example.hobbyclubs.general.SmallNewsTile
 import com.example.hobbyclubs.navigation.NavRoutes
 import java.text.SimpleDateFormat
 import java.util.*
@@ -68,6 +69,7 @@ fun ClubPageScreen(
         vm.getLogo(clubId)
         vm.getBanner(clubId)
         vm.getClubEvents(clubId)
+        vm.getAllNews(clubId)
     }
     club?.let {
         Box() {
@@ -81,9 +83,9 @@ fun ClubPageScreen(
                 DividerLine()
                 ClubDescription(it.description)
                 DividerLine()
-                ClubSchedule(vm)
+                ClubSchedule(vm, navController)
                 DividerLine()
-                ClubNews(vm)
+                ClubNews(vm, navController)
                 DividerLine()
                 ClubLinks(context, linkList = it.socials)
                 DividerLine()
@@ -108,9 +110,7 @@ fun ClubPageScreen(
             )
         }
     }
-
 }
-
 
 @Composable
 fun ClubPageHeader(
@@ -124,6 +124,7 @@ fun ClubPageHeader(
     val logoUri by vm.logoUri.observeAsState()
     val hasJoinedClub by vm.hasJoinedClub.observeAsState(false)
     val isAdmin by vm.isAdmin.observeAsState(false)
+    val clubIsPrivate by vm.clubIsPrivate.observeAsState(null)
     var showJoinRequestDialog by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
@@ -191,11 +192,20 @@ fun ClubPageHeader(
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 20.dp), horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            if (!hasJoinedClub) {
+            if (!hasJoinedClub && clubIsPrivate == true) {
                 CustomButton(
                     text = "Join",
                     onClick = {
                         showJoinRequestDialog = true
+                    },
+                    icon = Icons.Outlined.PersonAddAlt
+                )
+            }
+            if(!hasJoinedClub && clubIsPrivate == false){
+                CustomButton(
+                    text = "Join",
+                    onClick = {
+                        vm.joinClub(club.ref)
                     },
                     icon = Icons.Outlined.PersonAddAlt
                 )
@@ -238,7 +248,7 @@ fun ClubDescription(desc: String) {
 }
 
 @Composable
-fun ClubSchedule(vm: ClubPageViewModel) {
+fun ClubSchedule(vm: ClubPageViewModel, navController: NavController) {
     val listOfEvents by vm.listOfEvents.observeAsState()
     Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 20.dp)) {
         ClubSectionTitle(text = "Schedule")
@@ -255,10 +265,22 @@ fun ClubSchedule(vm: ClubPageViewModel) {
 
 
 @Composable
-fun ClubNews(vm: ClubPageViewModel) {
+fun ClubNews(vm: ClubPageViewModel, navController: NavController) {
+    val listOfNews by vm.listOfNews.observeAsState()
     Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 20.dp)) {
         ClubSectionTitle(text = "News")
         Spacer(modifier = Modifier.height(20.dp))
+        listOfNews?.let { news ->
+            news.forEach { singleNews ->
+                SmallNewsTile(
+                    news = singleNews,
+                    onClick = {
+                        // TODO: Navigate to that news page
+                    }
+                )
+                Spacer(modifier = Modifier.height(5.dp))
+            }
+        }
     }
 }
 
@@ -516,7 +538,7 @@ fun EventTile(vm: ClubPageViewModel, event: Event) {
                             .align(Alignment.TopEnd)
                             .padding(5.dp)
                             .clickable {
-                                if(likedEvent == true) {
+                                if (likedEvent == true) {
                                     vm.removeLikeOnEvent(event)
                                 } else {
                                     vm.likeEvent(event)
@@ -524,7 +546,7 @@ fun EventTile(vm: ClubPageViewModel, event: Event) {
                             }
                     ) {
                         Icon(
-                            if(likedEvent == true) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                            if (likedEvent == true) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                             "Favourite icon",
                             tint = Color.White,
                             modifier = Modifier
