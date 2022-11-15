@@ -1,6 +1,7 @@
 package com.example.hobbyclubs.screens.create.event
 
 import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
@@ -252,15 +253,20 @@ fun ClubSelectionDropdownMenu(vm: CreateEventViewModel) {
         .fillMaxWidth()
         .clickable { expanded = true }
     ) {
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .height(50.dp)
-            .border(BorderStroke(1.dp, Color.Black))
-            .padding(horizontal = 15.dp),
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
+                .border(BorderStroke(1.dp, Color.Black))
+                .padding(horizontal = 15.dp),
             contentAlignment = Alignment.CenterStart
         ) {
             Row(modifier = Modifier.fillMaxWidth()) {
-                Text(text = if (selectedIndex != null) items[selectedIndex!!] else "Select Club", modifier = Modifier.weight(6f), textAlign = TextAlign.Start)
+                Text(
+                    text = if (selectedIndex != null) items[selectedIndex!!] else "Select Club",
+                    modifier = Modifier.weight(6f),
+                    textAlign = TextAlign.Start
+                )
                 Icon(Icons.Outlined.KeyboardArrowDown, null, modifier = Modifier.weight(1f))
             }
         }
@@ -290,47 +296,63 @@ fun ClubSelectionDropdownMenu(vm: CreateEventViewModel) {
 fun DateSelector(vm: CreateEventViewModel) {
     val context = LocalContext.current
 
-    val year: Int
-    val month: Int
-    val day: Int
-
     val calendar = Calendar.getInstance()
-    year = calendar.get(Calendar.YEAR)
-    month = calendar.get(Calendar.MONTH)
-    day = calendar.get(Calendar.DAY_OF_MONTH)
+    val year = calendar.get(Calendar.YEAR)
+    val month = calendar.get(Calendar.MONTH)
+    val day = calendar.get(Calendar.DAY_OF_MONTH)
+    val hour = calendar.get(Calendar.HOUR_OF_DAY)
+    val minute = calendar.get(Calendar.MINUTE)
     calendar.time = Date()
 
     val selectedDate by vm.selectedDate.observeAsState()
+    val selectedYear = remember { mutableStateOf(0) }
+    val selectedMonth = remember { mutableStateOf(0) }
+    val selectedDay = remember { mutableStateOf(0) }
+    val selectedHour = remember { mutableStateOf(0) }
+    val selectedMinute = remember { mutableStateOf(0) }
 
     val datePickerDialog = DatePickerDialog(
         context,
         { _: DatePicker, mYear: Int, mMonth: Int, dayOfMonth: Int ->
-            val date = Date(mYear-1900,mMonth,dayOfMonth)
-            val timestamp = Timestamp(date)
-            vm.updateSelectedDate(timestamp)
+            selectedYear.value = mYear
+            selectedMonth.value = mMonth
+            selectedDay.value = dayOfMonth
+//            val date = Date(mYear-1900,mMonth,dayOfMonth)
+//            val timestamp = Timestamp(date)
+//            vm.updateSelectedDate(timestamp)
         }, year, month, day
     )
 
+    val mTimePickerDialog = TimePickerDialog(
+        context,
+        { _, mHour: Int, mMinute: Int ->
+            selectedHour.value = mHour
+            selectedMinute.value = mMinute
+        }, hour, minute, true
+    )
+
     Box(modifier = Modifier
-        .fillMaxWidth()
+        .fillMaxWidth(0.5f)
         .clickable { datePickerDialog.show() }
     ) {
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .height(50.dp)
-            .border(BorderStroke(1.dp, Color.Black))
-            .padding(horizontal = 15.dp),
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
+                .border(BorderStroke(1.dp, Color.Black))
+                .padding(horizontal = 15.dp),
             contentAlignment = Alignment.CenterStart
         ) {
             Row(modifier = Modifier.fillMaxWidth()) {
                 val dateText = if (selectedDate == null) {
                     "Select date"
                 } else {
-
-                    val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH)
-                    sdf.format(selectedDate!!.toDate())
+                    selectedDate?.let {
+                        val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH)
+                        sdf.format(it)
+                    }
                 }
-                Text(text = dateText, modifier = Modifier.weight(6f), textAlign = TextAlign.Start)
+                Text(text = dateText ?: "no date", modifier = Modifier.weight(6f), textAlign = TextAlign.Start)
                 Icon(Icons.Outlined.CalendarMonth, null, modifier = Modifier.weight(1f))
             }
         }
@@ -710,7 +732,8 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
             Text(text = "Or fill quickly using account details", fontSize = 12.sp)
             CustomButton(
                 onClick = { currentUser?.let { vm.quickFillOptions(it) } },
-                text = "Quick fill")
+                text = "Quick fill"
+            )
         }
         Column(
             modifier = Modifier
@@ -748,20 +771,24 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
                             ).show()
                             return@CustomButton
                         } else {
+                            val timestamp = Timestamp(selectedDate!!)
                             val event = Event(
                                 clubId = selectedClub!!,
                                 name = eventName!!.text,
                                 description = eventDescription!!.text,
-                                date = selectedDate!!,
+                                date = timestamp,
                                 address = eventLocation!!.text,
                                 participantLimit = if (eventParticipantLimit == null || eventParticipantLimit!!.text.isBlank()) -1 else eventParticipantLimit!!.text.toInt(),
-                                linkArray = if (linkArray == null || linkArray!!.size == 0) mapOf() else linkArray!!,
+                                linkArray = if (linkArray == null || linkArray!!.isEmpty()) mapOf() else linkArray!!,
                                 contactInfoName = contactInfoName!!.text,
                                 contactInfoEmail = contactInfoEmail!!.text,
                                 contactInfoNumber = contactInfoNumber!!.text
                             )
                             val eventId = vm.addEvent(event)
-                            vm.storeBitmapsOnFirebase(listToStore = selectedImages?.toList() ?: listOf(), eventId = eventId)
+                            vm.storeBitmapsOnFirebase(
+                                listToStore = selectedImages?.toList() ?: listOf(),
+                                eventId = eventId
+                            )
                             Toast.makeText(context, "Event created.", Toast.LENGTH_SHORT).show()
                             navController.navigate(NavRoutes.HomeScreen.route)
                         }

@@ -2,11 +2,10 @@ package com.example.hobbyclubs.screens.clubpage
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -16,6 +15,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -24,14 +24,18 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -41,6 +45,7 @@ import com.example.compose.nokiaDarkBlue
 import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.Event
+import com.example.hobbyclubs.general.CustomOutlinedTextField
 import com.example.hobbyclubs.general.DividerLine
 import com.example.hobbyclubs.navigation.NavRoutes
 import java.text.SimpleDateFormat
@@ -62,6 +67,10 @@ fun ClubPageScreen(
         vm.getLogo(clubId)
         vm.getBanner(clubId)
         vm.getClubEvents(clubId)
+    }
+    LaunchedEffect(club) {
+        vm.checkIfUserIsInClub()
+        vm.checkIfUserIsAdmin()
     }
     club?.let {
         Box() {
@@ -116,6 +125,8 @@ fun ClubPageHeader(
     val screenHeight = LocalConfiguration.current.screenHeightDp
     val bannerUri by vm.bannerUri.observeAsState()
     val logoUri by vm.logoUri.observeAsState()
+    val hasJoinedClub by vm.hasJoinedClub.observeAsState(false)
+    val isAdmin by vm.isAdmin.observeAsState(false)
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -144,7 +155,7 @@ fun ClubPageHeader(
                     modifier = Modifier.padding(end = 20.dp)
                 )
                 TextButton(
-                    onClick = { navController.navigate(NavRoutes.MembersScreen.route + "/false") },
+                    onClick = { navController.navigate(NavRoutes.MembersScreen.route + "/false/${club.ref}") },
                     colors = ButtonDefaults.buttonColors(
                         contentColor = Color.Black,
                         containerColor = Color.Transparent
@@ -171,16 +182,39 @@ fun ClubPageHeader(
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 20.dp), horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            CustomButton(
-                text = "Manage Club",
-                onClick = {
-                    navController.navigate(NavRoutes.ClubManagementScreen.route)
-                })
+            if (!hasJoinedClub) {
+                CustomButton(
+                    text = "Join",
+                    onClick = {
+                        vm.joinClub(clubId = club.ref)
+                    },
+                    icon = Icons.Outlined.PersonAddAlt
+                )
+            }
+            if (hasJoinedClub && !isAdmin) {
+                CustomButton(
+                    text = "Leave club",
+                    onClick = {
+                        vm.leaveClub(clubId = club.ref)
+                    },
+                    icon = Icons.Outlined.ExitToApp
+                )
+            }
+            if (hasJoinedClub && isAdmin) {
+                CustomButton(
+                    text = "Manage club",
+                    onClick = {
+                        navController.navigate(NavRoutes.ClubManagementScreen.route + "/${club.ref}")
+                    }
+                )
+            }
+
             CustomButton(
                 text = "Share",
                 onClick = {
                     Toast.makeText(context, "You are sharing the club", Toast.LENGTH_SHORT).show()
-                })
+                }
+            )
         }
     }
 }
@@ -260,147 +294,233 @@ fun ClubSectionTitle(text: String) {
     Text(text = text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun JoinClubDialog(
+    onConfirm: () -> Unit,
+    onDismissRequest: () -> Unit,
+    vm: ClubPageViewModel
+) {
+    val joinClubDialogText by vm.joinClubDialogText.observeAsState(TextFieldValue(""))
+    val focusManager = LocalFocusManager.current
+    val screenHeight = LocalConfiguration.current.screenHeightDp
+    Dialog(
+        onDismissRequest = { onDismissRequest() },
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Card(
+            modifier = Modifier
+                .height((screenHeight * 0.55).dp)
+                .fillMaxWidth(0.9f)
+        ) {
+            Box {
+
+                Icon(
+                    Icons.Outlined.Close,
+                    null,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(10.dp)
+                        .clickable { onDismissRequest() }
+                )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(20.dp)
+                ) {
+                    Text(
+                        text = "Introduce yourself!",
+                        fontSize = 24.sp,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Start
+                    )
+                    Text(
+                        text = "Please fill in the following form. The admins of the club will review your membership request as soon as possible!",
+                        fontSize = 12.sp,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 20.dp),
+                        lineHeight = 15.sp
+                    )
+                    CustomOutlinedTextField(
+                        value = joinClubDialogText,
+                        onValueChange = { vm.updateDialogText(newVal = it) },
+                        focusManager = focusManager,
+                        keyboardType = KeyboardType.Text,
+                        label = "Introduction",
+                        placeholder = "Tell us about yourself",
+                        modifier = Modifier
+                            .height((screenHeight * 0.3).dp)
+                            .fillMaxWidth()
+                            .padding(bottom = 10.dp)
+                    )
+                    CustomButton(onClick = { onConfirm() }, text = "Send")
+                }
+            }
+
+        }
+    }
+}
+
 @Composable
 fun EventTile(vm: ClubPageViewModel, event: Event) {
     val joinedEvent by remember { mutableStateOf(false) }
-    val currentUser by vm.currentUser.observeAsState()
-    Card(
-        shape = RoundedCornerShape(10.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(5.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(175.dp)
-    ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(125.dp)
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.hockey),
-                    contentDescription = "Tile background",
-                    contentScale = ContentScale.FillWidth
-                )
-                Text(
-                    text = event.name,
+    var showJoinRequestDialog by remember { mutableStateOf(false) }
+    Box {
+        if (showJoinRequestDialog) {
+            JoinClubDialog(
+                onConfirm = {
+//                          vm.joinEvent(eventId = event.id)
+                },
+                onDismissRequest = {
+                    showJoinRequestDialog = false
+                },
+                vm
+            )
+        }
+        Card(
+            shape = RoundedCornerShape(10.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            elevation = CardDefaults.cardElevation(5.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(175.dp)
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                Box(
                     modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(10.dp),
-                    color = Color.White,
-                    style = TextStyle(
-                        fontSize = 18.sp,
-                        shadow = Shadow(
-                            color = Color.Black,
-                            offset = Offset.Zero,
-                            blurRadius = 5f
+                        .fillMaxWidth()
+                        .height(125.dp)
+                ) {
+                    //                    AsyncImage(
+                    //                        model = ,
+                    //                        contentDescription = "Tile background",
+                    //                        modifier = Modifier.fillMaxSize(),
+                    //                        contentScale = ContentScale.FillWidth
+                    //                    )
+                    Text(
+                        text = event.name,
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(10.dp),
+                        color = Color.White,
+                        style = TextStyle(
+                            fontSize = 18.sp,
+                            shadow = Shadow(
+                                color = Color.Black,
+                                offset = Offset.Zero,
+                                blurRadius = 5f
+                            )
                         )
                     )
-                )
-                if (joinedEvent) {
-                    Card(
-                        shape = RoundedCornerShape(50.dp),
-                        colors = CardDefaults.cardColors(containerColor = nokiaBlue),
-                        modifier = Modifier
-                            .align(Alignment.TopStart)
-                            .height(50.dp)
-                            .width(110.dp)
-                            .padding(5.dp)
-//                            .clickable { vm.joinEvent() }
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center,
+                    if (joinedEvent) {
+                        Card(
+                            shape = RoundedCornerShape(50.dp),
+                            colors = CardDefaults.cardColors(containerColor = nokiaBlue),
                             modifier = Modifier
-                                .fillMaxSize()
+                                .align(Alignment.TopStart)
+                                .height(50.dp)
+                                .width(110.dp)
                                 .padding(5.dp)
                         ) {
-                            Icon(
-                                Icons.Outlined.Check,
-                                "Join icon",
-                                tint = Color.White,
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center,
                                 modifier = Modifier
-                                    .padding(end = 5.dp)
-                                    .size(16.dp)
-                            )
-                            Text(text = "Joined", color = Color.White, fontSize = 12.sp)
-                        }
+                                    .fillMaxSize()
+                                    .padding(5.dp)
+                            ) {
+                                Icon(
+                                    Icons.Outlined.Check,
+                                    "Join icon",
+                                    tint = Color.White,
+                                    modifier = Modifier
+                                        .padding(end = 5.dp)
+                                        .size(16.dp)
+                                )
+                                Text(text = "Joined", color = Color.White, fontSize = 12.sp)
+                            }
 
+                        }
+                    } else {
+                        Card(
+                            shape = RoundedCornerShape(50.dp),
+                            colors = CardDefaults.cardColors(containerColor = nokiaBlue),
+                            modifier = Modifier
+                                .align(Alignment.TopStart)
+                                .height(50.dp)
+                                .width(100.dp)
+                                .padding(5.dp)
+                                .clickable {
+                                    vm.getEvent(event.id)
+                                    showJoinRequestDialog = true
+                                }
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(5.dp)
+                            ) {
+                                Icon(
+                                    Icons.Outlined.PersonAddAlt,
+                                    "Join icon",
+                                    tint = Color.White,
+                                    modifier = Modifier
+                                        .padding(end = 5.dp)
+                                        .size(16.dp)
+                                )
+                                Text(text = "Join", color = Color.White, fontSize = 12.sp)
+                            }
+
+                        }
                     }
-                } else {
                     Card(
-                        shape = RoundedCornerShape(50.dp),
+                        shape = CircleShape,
                         colors = CardDefaults.cardColors(containerColor = nokiaBlue),
                         modifier = Modifier
-                            .align(Alignment.TopStart)
-                            .height(50.dp)
-                            .width(100.dp)
+                            .align(Alignment.TopEnd)
                             .padding(5.dp)
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center,
+                        Icon(
+                            Icons.Outlined.FavoriteBorder,
+                            "Favourite icon",
+                            tint = Color.White,
                             modifier = Modifier
-                                .fillMaxSize()
                                 .padding(5.dp)
-                        ) {
-                            Icon(
-                                Icons.Outlined.PersonAddAlt,
-                                "Join icon",
-                                tint = Color.White,
-                                modifier = Modifier
-                                    .padding(end = 5.dp)
-                                    .size(16.dp)
-                            )
-                            Text(text = "Join", color = Color.White, fontSize = 12.sp)
-                        }
-
+                                .size(16.dp)
+                        )
                     }
                 }
-                Card(
-                    shape = CircleShape,
-                    colors = CardDefaults.cardColors(containerColor = nokiaBlue),
+                Row(
                     modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(5.dp)
+                        .fillMaxWidth()
+                        .padding(vertical = 10.dp),
+                    horizontalArrangement = Arrangement.SpaceAround
                 ) {
-                    Icon(
-                        Icons.Outlined.FavoriteBorder,
-                        "Favourite icon",
-                        tint = Color.White,
-                        modifier = Modifier
-                            .padding(5.dp)
-                            .size(16.dp)
+                    val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH)
+                    val dateFormatted = sdf.format(event.date.toDate())
+                    EventTileRowItem(
+                        icon = Icons.Outlined.CalendarMonth,
+                        iconDesc = "Calendar Icon",
+                        content = dateFormatted
+                    )
+                    EventTileRowItem(
+                        icon = Icons.Outlined.Timer,
+                        iconDesc = "Timer Icon",
+                        content = "19:00"
+                    )
+                    EventTileRowItem(
+                        icon = Icons.Outlined.People,
+                        iconDesc = "People Icon",
+                        content = "5"
                     )
                 }
             }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 10.dp),
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH)
-                val dateFormatted = sdf.format(event.date.toDate())
-                EventTileRowItem(
-                    icon = Icons.Outlined.CalendarMonth,
-                    iconDesc = "Calendar Icon",
-                    content = dateFormatted
-                )
-                EventTileRowItem(
-                    icon = Icons.Outlined.Timer,
-                    iconDesc = "Timer Icon",
-                    content = "19:00"
-                )
-                EventTileRowItem(
-                    icon = Icons.Outlined.People,
-                    iconDesc = "People Icon",
-                    content = "5"
-                )
-            }
         }
-
     }
 }
 
@@ -439,7 +559,8 @@ fun CustomButton(
     colors: ButtonColors = ButtonDefaults.buttonColors(
         containerColor = nokiaDarkBlue,
         contentColor = Color.White,
-    )
+    ),
+    icon: ImageVector? = null
 ) {
     Button(
         onClick = { onClick() },
@@ -450,6 +571,19 @@ fun CustomButton(
         colors = colors,
         shape = RoundedCornerShape(10.dp)
     ) {
-        Text(text = text, fontSize = 14.sp)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            if (icon != null) {
+                Icon(
+                    icon, null, modifier = Modifier
+                        .padding(end = 5.dp)
+                        .size(14.dp)
+                )
+            }
+            Text(text = text, fontSize = 14.sp)
+        }
     }
 }

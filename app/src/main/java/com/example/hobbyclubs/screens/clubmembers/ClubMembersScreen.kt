@@ -17,6 +17,7 @@ import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.TaskAlt
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,6 +31,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.compose.forestGreen
 import com.example.hobbyclubs.R
+import com.example.hobbyclubs.api.User
 import com.example.hobbyclubs.screens.clubpage.CustomButton
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,50 +39,69 @@ import com.example.hobbyclubs.screens.clubpage.CustomButton
 fun ClubMembersScreen(
     navController: NavController,
     showRequests: Boolean,
-    vm: ClubMembersViewModel = viewModel()
+    vm: ClubMembersViewModel = viewModel(),
+    clubId: String
 ) {
-    val listOfMembers = listOf("Matti Meikäläinen", "Matin Veli", "Matin Isä")
-
-    Box() {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 20.dp),
-            horizontalAlignment = Alignment.Start,
-        ) {
-            Text(
-                text = if (showRequests) "Member Requests" else "Members",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(top = 75.dp, bottom = 20.dp),
-            )
-            ListOfMembers(listOfMembers, showRequests, vm)
-        }
-        CenterAlignedTopAppBar(
-            title = { Text(text = "Ice Hockey Club", fontSize = 16.sp) },
-            colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
-            navigationIcon = {
-                IconButton(onClick = { navController.navigateUp() }) {
-                    Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")
+//    val listOfMembers = listOf("Matti Meikäläinen", "Matin Veli", "Matin Isä")
+    val club by vm.selectedClub.observeAsState(null)
+    val listOfMembers by vm.listOfMembers.observeAsState(null)
+    LaunchedEffect(Unit) {
+        vm.getClub(clubId)
+    }
+    LaunchedEffect(club) {
+        vm.getClubMembers()
+    }
+    club?.let {
+        listOfMembers?.let { members ->
+            Box() {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 20.dp),
+                    horizontalAlignment = Alignment.Start,
+                ) {
+                    Text(
+                        text = if (showRequests) "Member Requests" else "Members",
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(top = 75.dp, bottom = 20.dp),
+                    )
+                    ListOfMembers(members, showRequests, vm, clubId)
                 }
+                CenterAlignedTopAppBar(
+                    title = { Text(text = "Ice Hockey Club", fontSize = 16.sp) },
+                    colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
+                    navigationIcon = {
+                        IconButton(onClick = { navController.navigateUp() }) {
+                            Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")
+                        }
+                    }
+                )
             }
-        )
+        }
     }
 }
 
 @Composable
-fun ListOfMembers(listOfMembers: List<String>, showRequests: Boolean, vm: ClubMembersViewModel) {
+fun ListOfMembers(
+    listOfMembers: MutableList<User>?,
+    showRequests: Boolean,
+    vm: ClubMembersViewModel,
+    clubId: String
+) {
     var selectedMemberIndex: Int? by remember { mutableStateOf(null) }
 
     LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        itemsIndexed(listOfMembers) { index, member ->
+        itemsIndexed(listOfMembers?.toList() ?: listOf()) { index, member ->
             MemberCard(
-                name = member,
+                user = member,
                 showRequests = showRequests,
                 setSelectedMemberIndex = {
-                    selectedMemberIndex = if (selectedMemberIndex == index ) null else index
+                    selectedMemberIndex = if (selectedMemberIndex == index) null else index
                 },
                 isSelected = selectedMemberIndex == index,
+                vm = vm,
+                clubId = clubId
             )
         }
     }
@@ -89,10 +110,12 @@ fun ListOfMembers(listOfMembers: List<String>, showRequests: Boolean, vm: ClubMe
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MemberCard(
-    name: String,
+    user: User,
     showRequests: Boolean,
     setSelectedMemberIndex: () -> Unit,
     isSelected: Boolean,
+    vm: ClubMembersViewModel,
+    clubId: String
 ) {
     val context = LocalContext.current
     var expandedState by remember { mutableStateOf(false) }
@@ -121,7 +144,7 @@ fun MemberCard(
             ) {
                 MemberImage(avatarId = R.drawable.humanface)
                 Text(
-                    text = name, fontSize = 16.sp, modifier = Modifier
+                    text = "${user.fName} ${user.lName}", fontSize = 16.sp, modifier = Modifier
                         .weight(6f)
                         .padding(start = 30.dp)
                 )
@@ -158,17 +181,13 @@ fun MemberCard(
                 Row(modifier = Modifier.fillMaxWidth()) {
                     CustomButton(
                         onClick = {
-                            Toast
-                                .makeText(context, "Promoted to admin", Toast.LENGTH_SHORT)
-                                .show()
+                            vm.promoteToAdmin(clubId = clubId, user.uid)
                         },
                         text = "Promote to admin",
                     )
                     CustomButton(
                         onClick = {
-                            Toast
-                                .makeText(context, "Kicked", Toast.LENGTH_SHORT)
-                                .show()
+                            vm.kickUserFromClub(clubId, user.uid)
                         },
                         text = "Kick",
                         colors = ButtonDefaults.buttonColors(

@@ -13,6 +13,7 @@ import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.User
 import com.google.firebase.Timestamp
+import java.util.*
 
 class CreateEventViewModel : ViewModel() {
 
@@ -21,7 +22,7 @@ class CreateEventViewModel : ViewModel() {
     val currentUser = MutableLiveData<User>()
     val currentCreationProgressPage = MutableLiveData<Int>()
     val selectedClub = MutableLiveData<String>()
-    val selectedDate = MutableLiveData<Timestamp>()
+    val selectedDate = MutableLiveData<Date>()
     val eventName = MutableLiveData<TextFieldValue?>()
     val eventDescription = MutableLiveData<TextFieldValue>()
     val eventLocation = MutableLiveData<TextFieldValue>()
@@ -43,8 +44,8 @@ class CreateEventViewModel : ViewModel() {
     fun updateSelectedClub(newVal: String) {
         selectedClub.value = newVal
     }
-    fun updateSelectedDate(newVal: Timestamp) {
-        selectedDate.value = newVal
+    fun updateSelectedDate() {
+//        selectedDate.value = Date(years, month, day, hour,minutes)
     }
     fun updateEventDescription(newVal: TextFieldValue) {
         eventDescription.value = newVal

@@ -34,7 +34,7 @@ object FirebaseHelper {
     }
 
     fun getUser(uid: String): DocumentReference {
-        return db.collection("users").document(uid)
+        return db.collection(CollectionName.users).document(uid)
     }
 
     fun addClub(club: Club, logoUri: Uri, bannerUri: Uri) {
@@ -92,14 +92,49 @@ object FirebaseHelper {
         return ref.id
     }
 
-    fun addUserToEvent(eventId: String, user: User) {
-        val userRef = db.collection(CollectionName.events).document(eventId).collection("participants").document(user.uid)
-        userRef.set(user)
+    fun getEvent(eventId: String) : DocumentReference {
+        return db.collection(CollectionName.events).document(eventId)
+    }
+
+    fun addUserToEvent(eventId: String, membersListUpdated: List<String>) {
+        val userRef = db.collection(CollectionName.events).document(eventId)
+        userRef.update("members", membersListUpdated)
             .addOnSuccessListener {
                 Log.d(TAG, "addUser: " + "success (${userRef.id})")
             }
             .addOnFailureListener {
                 Log.e(TAG, "addUser: ", it)
+            }
+    }
+
+    fun updateUserInClub(clubId: String, newList: List<String>) {
+        val userRef = db.collection(CollectionName.clubs).document(clubId)
+        userRef.update("members", newList)
+            .addOnSuccessListener {
+                Log.d(TAG, "UpdateUser: " + "success (${userRef.id})")
+            }
+            .addOnFailureListener {
+                Log.e(TAG, "UpdateUser: ", it)
+            }
+    }
+    fun updateUserAdminStatus(clubId: String, newList: List<String>) {
+        val userRef = db.collection(CollectionName.clubs).document(clubId)
+        userRef.update("admins", newList)
+            .addOnSuccessListener {
+                Log.d(TAG, "UpdateAdminStatus: " + "success (${userRef.id})")
+            }
+            .addOnFailureListener {
+                Log.e(TAG, "UpdateAdminStatus: ", it)
+            }
+    }
+    fun updatePrivacy(clubId: String, newValue: Boolean) {
+        val userRef = db.collection(CollectionName.clubs).document(clubId)
+        userRef.update("private", newValue)
+            .addOnSuccessListener {
+                Log.d(TAG, "UpdatePrivacy: " + "success (${userRef.id})")
+            }
+            .addOnFailureListener {
+                Log.e(TAG, "UpdatePrivacy: ", it)
             }
     }
 
@@ -244,6 +279,8 @@ data class Event(
     val contactInfoName: String = "",
     val contactInfoEmail: String = "",
     val contactInfoNumber: String = "",
+    val participants: List<String> = listOf(),
+    val likers: List<String> = listOf(),
 ) : Serializable
 
 data class News(
