@@ -79,6 +79,9 @@ fun ClubsScreen(navController: NavController, vm: ClubsScreenViewModel = viewMod
                             navController.navigate(NavRoutes.ClubPageScreen.route + "/${it.ref}")
                         })
                 }
+                item {
+                    Spacer(modifier = Modifier.height(32.dp))
+                }
             }
         }
 

@@ -107,6 +107,9 @@ fun HomeScreen(navController: NavController, vm: HomeScreenViewModel = viewModel
 
                     }
                 }
+                item { 
+                    Spacer(modifier = Modifier.height(32.dp))
+                }
             }
         }
     }
