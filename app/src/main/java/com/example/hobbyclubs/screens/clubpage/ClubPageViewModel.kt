@@ -101,6 +101,7 @@ class ClubPageViewModel : ViewModel() {
             updatedList.remove(it)
         }
         firebase.addUserLikeToEvent(eventId = event.id, updatedList)
+        getClubEvents(event.clubId)
     }
 
     fun getEvent(eventId: String) = firebase.getEvent(eventId)

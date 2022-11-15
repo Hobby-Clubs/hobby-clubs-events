@@ -12,6 +12,7 @@ import com.google.firebase.firestore.PropertyName
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ListResult
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import java.io.ByteArrayOutputStream
@@ -232,6 +233,10 @@ object FirebaseHelper {
 
     fun getFile(path: String): StorageReference {
         return storage.reference.child(path)
+    }
+
+    fun getAllFiles(path: String): Task<ListResult> {
+        return storage.reference.child(path).listAll()
     }
 }
 
