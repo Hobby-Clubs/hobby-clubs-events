@@ -4,8 +4,10 @@ import android.net.Uri
 import android.util.Log
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.example.hobbyclubs.api.*
+import com.google.firebase.firestore.Query
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
@@ -14,15 +16,16 @@ import okhttp3.internal.wait
 class ClubPageViewModel : ViewModel() {
     val firebase = FirebaseHelper
     val selectedClub = MutableLiveData<Club>()
-    val selectedEvent = MutableLiveData<Event>()
     val logoUri = MutableLiveData<Uri>()
     val bannerUri = MutableLiveData<Uri>()
-    val hasJoinedClub = MutableLiveData<Boolean>()
-    val isAdmin = MutableLiveData<Boolean>()
+    val hasJoinedClub = Transformations.map(selectedClub) {
+        it.members.contains(firebase.uid)
+    }
+    val isAdmin = Transformations.map(selectedClub) {
+        it.admins.contains(firebase.uid)
+    }
     val listOfEvents = MutableLiveData<List<Event>>(listOf())
     val joinClubDialogText = MutableLiveData<TextFieldValue>()
-
-    val currentUser = MutableLiveData<User>()
 
     fun updateDialogText(newVal: TextFieldValue) {
         joinClubDialogText.value = newVal
@@ -47,59 +50,49 @@ class ClubPageViewModel : ViewModel() {
         FirebaseHelper.getFile("${CollectionName.clubs}/$clubRef/banner").downloadUrl
             .addOnSuccessListener { bannerUri.value = it }
 
-//    val eventUri = MutableLiveData<MutableMap<String, Uri>>(mutableMapOf())
-//    fun getEventImages(eventId: String) {
-//        FirebaseHelper.getFile("${CollectionName.events}/${eventId}/0.jpg").downloadUrl
-//            .addOnSuccessListener {
-//                eventUri.value?.put(eventId, it)
-//            }
-//    }
-
-
-
-    fun getCurrentUser() {
-        firebase.getCurrentUser().get()
-            .addOnSuccessListener { data ->
-                val fetchedUser = data.toObject(User::class.java)
-                fetchedUser?.let { currentUser.postValue(it) }
-            }
-            .addOnFailureListener {
-                Log.e("FetchUser", "getUserFail: ", it)
-            }
-    }
+    fun getEventBackground(eventId: String) =
+        FirebaseHelper.getFile("${CollectionName.events}/$eventId/0.jpg")
 
     fun getClubEvents(clubId: String) {
-        firebase.getAllEventsOfClub(clubId).get()
+        firebase.getAllEventsOfClub(clubId).orderBy("date", Query.Direction.ASCENDING).get()
             .addOnSuccessListener { data ->
                 val fetchedEvents = data.toObjects(Event::class.java)
                 fetchedEvents.let { listOfEvents.postValue(it) }
             }
     }
 
-//    fun joinEvent(eventId: String) {
-//        val updatedList =
-//
-//        firebase.addUserToEvent(eventId = eventId, updatedList)
-//    }
-
-    fun getEvent(eventId: String) {
-        firebase.getEvent(eventId).get()
-            .addOnSuccessListener {
-                val fetchedEvent = it.toObject(Event::class.java)
-                fetchedEvent?.let { event ->
-                    Log.d("getEvent", "event: $event")
-                    selectedEvent.postValue(event)
-                }
-            }
-            .addOnFailureListener {
-                Log.e("getEvent", "getEventFail: ", it)
-            }
+    fun joinEvent(event: Event) {
+        val updatedList = event.participants.toMutableList()
+        firebase.uid?.let {
+            updatedList.add(it)
+        }
+        firebase.addUserToEvent(eventId = event.id, updatedList)
+        getClubEvents(event.clubId)
     }
+
+    fun likeEvent(event: Event) {
+        val updatedList = event.likers.toMutableList()
+        firebase.uid?.let {
+            updatedList.add(it)
+        }
+        firebase.addUserLikeToEvent(eventId = event.id, updatedList)
+        getClubEvents(event.clubId)
+    }
+
+    fun removeLikeOnEvent(event: Event) {
+        val updatedList = event.likers.toMutableList()
+        firebase.uid?.let {
+            updatedList.remove(it)
+        }
+        firebase.addUserLikeToEvent(eventId = event.id, updatedList)
+    }
+
+    fun getEvent(eventId: String) = firebase.getEvent(eventId)
 
     fun joinClub(clubId: String) {
         val updatedList = selectedClub.value?.members?.toMutableList()
-        currentUser.value?.let {
-            updatedList?.add(it.uid)
+        firebase.uid?.let {
+            updatedList?.add(it)
         }
         firebase.updateUserInClub(clubId = clubId, updatedList!!)
         getClub(clubId)
@@ -107,18 +100,10 @@ class ClubPageViewModel : ViewModel() {
 
     fun leaveClub(clubId: String) {
         val updatedList = selectedClub.value?.members?.toMutableList()
-        currentUser.value?.let {
-            updatedList?.remove(it.uid)
+        firebase.uid?.let {
+            updatedList?.remove(it)
         }
         firebase.updateUserInClub(clubId = clubId, updatedList!!)
         getClub(clubId)
-    }
-
-    fun checkIfUserIsInClub() {
-        hasJoinedClub.value = selectedClub.value?.members?.contains(currentUser.value!!.uid)
-    }
-
-    fun checkIfUserIsAdmin() {
-        isAdmin.value = selectedClub.value?.admins?.contains(currentUser.value!!.uid)
     }
 }

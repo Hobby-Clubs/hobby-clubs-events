@@ -98,7 +98,17 @@ object FirebaseHelper {
 
     fun addUserToEvent(eventId: String, membersListUpdated: List<String>) {
         val userRef = db.collection(CollectionName.events).document(eventId)
-        userRef.update("members", membersListUpdated)
+        userRef.update("participants", membersListUpdated)
+            .addOnSuccessListener {
+                Log.d(TAG, "addUser: " + "success (${userRef.id})")
+            }
+            .addOnFailureListener {
+                Log.e(TAG, "addUser: ", it)
+            }
+    }
+    fun addUserLikeToEvent(eventId: String, membersListUpdated: List<String>) {
+        val userRef = db.collection(CollectionName.events).document(eventId)
+        userRef.update("likers", membersListUpdated)
             .addOnSuccessListener {
                 Log.d(TAG, "addUser: " + "success (${userRef.id})")
             }
@@ -284,7 +294,10 @@ data class Event(
 ) : Serializable
 
 data class News(
-    val clubId: String? = null,
-    val name: String,
-    val date: Timestamp
+    val clubId: String? = "",
+    val id: String? = "",
+    val name: String = "",
+    val headline: String = "",
+    val newsContent: String = "",
+    val date: Timestamp = Timestamp.now()
 ) : Serializable

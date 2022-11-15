@@ -10,15 +10,16 @@ import com.example.hobbyclubs.api.User
 class ClubMembersViewModel : ViewModel() {
     val firebase = FirebaseHelper
     val selectedClub = MutableLiveData<Club>()
-    val listOfMembers = MutableLiveData<MutableList<User>>(mutableListOf())
+    val listOfMembers = MutableLiveData<List<User>>(listOf())
 
-    fun getClubMembers() {
-        selectedClub.value?.members?.forEach { memberId ->
+    private fun getClubMembers(clubMembers: List<String>) {
+        listOfMembers.value = listOf()
+        clubMembers.forEach { memberId ->
             firebase.getUser(memberId).get()
                 .addOnSuccessListener {
                     Log.d("getMembers", it.toString())
                     val fetchedUser = it.toObject(User::class.java)
-                    fetchedUser?.let { listOfMembers.value!!.add(fetchedUser) }
+                    fetchedUser?.let { user -> listOfMembers.value = listOfMembers.value?.plus(listOf(user)) }
                     Log.d("getMembers", listOfMembers.value.toString())
                 }
                 .addOnFailureListener { e ->
@@ -28,14 +29,18 @@ class ClubMembersViewModel : ViewModel() {
     }
 
     fun getClub(clubId: String) {
-        firebase.getClub(uid = clubId).get()
-            .addOnSuccessListener { data ->
-                val fetchedClub = data.toObject(Club::class.java)
-                fetchedClub?.let { selectedClub.postValue(fetchedClub) }
+        firebase.getClub(uid = clubId).addSnapshotListener { data, e ->
+            data ?: run {
+                Log.e("FetchClub", "getClubFail: ", e)
+                return@addSnapshotListener
             }
-            .addOnFailureListener {
-                Log.e("FetchClub", "getClubFail: ", it)
+            val fetchedClub = data.toObject(Club::class.java)
+            fetchedClub?.let {
+                println("hello")
+                selectedClub.postValue(it)
+                getClubMembers(it.members)
             }
+        }
     }
 
     fun promoteToAdmin(clubId: String, userId: String) {

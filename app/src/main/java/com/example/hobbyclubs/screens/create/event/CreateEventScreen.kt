@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -44,6 +45,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.compose.nokiaLighterBlue
+import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.general.CustomOutlinedTextField
 import com.example.hobbyclubs.navigation.NavRoutes
@@ -244,9 +246,8 @@ fun SelectedImageItem(bitmap: Bitmap? = null, uri: Uri? = null) {
 }
 
 @Composable
-fun ClubSelectionDropdownMenu(vm: CreateEventViewModel) {
+fun ClubSelectionDropdownMenu(clubList: List<Club>, onSelect: (Club) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
-    val items = mutableListOf("Club1", "Club2", "Club3")
     var selectedIndex: Int? by remember { mutableStateOf(null) }
 
     Box(modifier = Modifier
@@ -263,7 +264,7 @@ fun ClubSelectionDropdownMenu(vm: CreateEventViewModel) {
         ) {
             Row(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = if (selectedIndex != null) items[selectedIndex!!] else "Select Club",
+                    text = if (selectedIndex != null) clubList[selectedIndex!!].name else "Select Club",
                     modifier = Modifier.weight(6f),
                     textAlign = TextAlign.Start
                 )
@@ -277,12 +278,12 @@ fun ClubSelectionDropdownMenu(vm: CreateEventViewModel) {
                 .fillMaxWidth(0.9f)
                 .background(Color.White)
         ) {
-            items.forEachIndexed { index, club ->
+            clubList.forEachIndexed { index, club ->
                 DropdownMenuItem(
-                    text = { Text(text = club) },
+                    text = { Text(text = club.name) },
                     onClick = {
                         selectedIndex = index
-                        vm.updateSelectedClub(club)
+                        onSelect(club)
                         expanded = false
                     }
                 )
@@ -317,43 +318,94 @@ fun DateSelector(vm: CreateEventViewModel) {
             selectedYear.value = mYear
             selectedMonth.value = mMonth
             selectedDay.value = dayOfMonth
-//            val date = Date(mYear-1900,mMonth,dayOfMonth)
-//            val timestamp = Timestamp(date)
-//            vm.updateSelectedDate(timestamp)
-        }, year, month, day
+        },
+        year, month, day,
     )
 
-    val mTimePickerDialog = TimePickerDialog(
+    val timePickerDialog = TimePickerDialog(
         context,
+        3,
         { _, mHour: Int, mMinute: Int ->
             selectedHour.value = mHour
             selectedMinute.value = mMinute
+            vm.updateSelectedDate(
+                years = selectedYear.value - 1900,
+                month = selectedMonth.value,
+                day = selectedDay.value,
+                hour = selectedHour.value,
+                minutes = selectedMinute.value
+            )
         }, hour, minute, true
     )
 
-    Box(modifier = Modifier
-        .fillMaxWidth(0.5f)
-        .clickable { datePickerDialog.show() }
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp)
-                .border(BorderStroke(1.dp, Color.Black))
-                .padding(horizontal = 15.dp),
-            contentAlignment = Alignment.CenterStart
+    Row(modifier = Modifier.fillMaxWidth()) {
+        Box(modifier = Modifier
+            .weight(1f)
+            .clickable {
+                datePickerDialog.show()
+            }
         ) {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                val dateText = if (selectedDate == null) {
-                    "Select date"
-                } else {
-                    selectedDate?.let {
-                        val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH)
-                        sdf.format(it)
-                    }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .border(BorderStroke(1.dp, Color.Black))
+                    .padding(horizontal = 15.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    val dateText: String =
+                        if (selectedYear.value == 0 && selectedMonth.value == 0 && selectedDay.value == 0) {
+                            "Select date"
+                        } else {
+                            "${selectedDay.value}.${selectedMonth.value}.${selectedYear.value}"
+                        }
+                    Text(
+                        text = dateText,
+                        modifier = Modifier.weight(6f),
+                        textAlign = TextAlign.Start
+                    )
+                    Icon(Icons.Outlined.CalendarMonth, null, modifier = Modifier.weight(1f))
                 }
-                Text(text = dateText ?: "no date", modifier = Modifier.weight(6f), textAlign = TextAlign.Start)
-                Icon(Icons.Outlined.CalendarMonth, null, modifier = Modifier.weight(1f))
+            }
+        }
+        Spacer(modifier = Modifier.width(10.dp))
+        Box(modifier = Modifier
+            .weight(1f)
+            .clickable {
+                if (selectedYear.value == 0 || selectedMonth.value == 0 || selectedDay.value == 0) {
+                    Toast
+                        .makeText(context, "Select date first", Toast.LENGTH_SHORT)
+                        .show()
+                } else {
+                    timePickerDialog.show()
+                }
+            }
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .border(BorderStroke(1.dp, Color.Black))
+                    .padding(horizontal = 15.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    val timeText = if (selectedDate == null) {
+                        "Select time"
+                    } else {
+                        selectedDate?.let {
+                            val sdf = SimpleDateFormat("HH:mm", Locale.ENGLISH)
+                            sdf.format(it)
+                        }
+                    }
+                    Text(
+                        text = timeText ?: "no time",
+                        modifier = Modifier.weight(6f),
+                        textAlign = TextAlign.Start
+                    )
+                    Icon(Icons.Outlined.Timer, null, modifier = Modifier.weight(1f))
+                }
             }
         }
     }
@@ -367,6 +419,7 @@ fun EventCreationPage1(vm: CreateEventViewModel) {
     val eventDescription by vm.eventDescription.observeAsState(null)
     val eventLocation by vm.eventLocation.observeAsState(null)
     val eventParticipantLimit by vm.eventParticipantLimit.observeAsState(null)
+    val joinedClubs by vm.joinedClubs.observeAsState(listOf())
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -376,7 +429,9 @@ fun EventCreationPage1(vm: CreateEventViewModel) {
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(bottom = 20.dp)
             )
-            ClubSelectionDropdownMenu(vm)
+            ClubSelectionDropdownMenu(joinedClubs, onSelect = {
+                vm.updateSelectedClub(it.ref)
+            })
             CustomOutlinedTextField(
                 value = eventName ?: TextFieldValue(""),
                 onValueChange = { vm.updateEventName(it) },

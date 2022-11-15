@@ -42,17 +42,12 @@ fun ClubMembersScreen(
     vm: ClubMembersViewModel = viewModel(),
     clubId: String
 ) {
-//    val listOfMembers = listOf("Matti Meikäläinen", "Matin Veli", "Matin Isä")
     val club by vm.selectedClub.observeAsState(null)
-    val listOfMembers by vm.listOfMembers.observeAsState(null)
+    val listOfMembers by vm.listOfMembers.observeAsState(listOf())
     LaunchedEffect(Unit) {
         vm.getClub(clubId)
     }
-    LaunchedEffect(club) {
-        vm.getClubMembers()
-    }
     club?.let {
-        listOfMembers?.let { members ->
             Box() {
                 Column(
                     modifier = Modifier
@@ -66,10 +61,10 @@ fun ClubMembersScreen(
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(top = 75.dp, bottom = 20.dp),
                     )
-                    ListOfMembers(members, showRequests, vm, clubId)
+                    ListOfMembers(listOfMembers, showRequests, vm, clubId)
                 }
                 CenterAlignedTopAppBar(
-                    title = { Text(text = "Ice Hockey Club", fontSize = 16.sp) },
+                    title = { Text(text = it.name, fontSize = 16.sp) },
                     colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
                     navigationIcon = {
                         IconButton(onClick = { navController.navigateUp() }) {
@@ -78,13 +73,12 @@ fun ClubMembersScreen(
                     }
                 )
             }
-        }
     }
 }
 
 @Composable
 fun ListOfMembers(
-    listOfMembers: MutableList<User>?,
+    listOfMembers: List<User>,
     showRequests: Boolean,
     vm: ClubMembersViewModel,
     clubId: String
@@ -92,7 +86,7 @@ fun ListOfMembers(
     var selectedMemberIndex: Int? by remember { mutableStateOf(null) }
 
     LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        itemsIndexed(listOfMembers?.toList() ?: listOf()) { index, member ->
+        itemsIndexed(listOfMembers) { index, member ->
             MemberCard(
                 user = member,
                 showRequests = showRequests,

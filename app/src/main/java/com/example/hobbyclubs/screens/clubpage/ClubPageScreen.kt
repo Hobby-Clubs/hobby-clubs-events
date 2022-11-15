@@ -9,11 +9,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -62,15 +64,10 @@ fun ClubPageScreen(
     val club by vm.selectedClub.observeAsState(null)
 
     LaunchedEffect(Unit) {
-        vm.getCurrentUser()
         vm.getClub(clubId)
         vm.getLogo(clubId)
         vm.getBanner(clubId)
         vm.getClubEvents(clubId)
-    }
-    LaunchedEffect(club) {
-        vm.checkIfUserIsInClub()
-        vm.checkIfUserIsAdmin()
     }
     club?.let {
         Box() {
@@ -127,11 +124,23 @@ fun ClubPageHeader(
     val logoUri by vm.logoUri.observeAsState()
     val hasJoinedClub by vm.hasJoinedClub.observeAsState(false)
     val isAdmin by vm.isAdmin.observeAsState(false)
+    var showJoinRequestDialog by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height((screenHeight * 0.5).dp)
     ) {
+        if (showJoinRequestDialog) {
+            JoinClubDialog(
+                onConfirm = {
+                    vm.joinClub(clubId = club.ref)
+                },
+                onDismissRequest = {
+                    showJoinRequestDialog = false
+                },
+                vm = vm
+            )
+        }
         Column(
             modifier = Modifier.fillMaxWidth(),
         ) {
@@ -186,7 +195,7 @@ fun ClubPageHeader(
                 CustomButton(
                     text = "Join",
                     onClick = {
-                        vm.joinClub(clubId = club.ref)
+                        showJoinRequestDialog = true
                     },
                     icon = Icons.Outlined.PersonAddAlt
                 )
@@ -366,20 +375,42 @@ fun JoinClubDialog(
 
 @Composable
 fun EventTile(vm: ClubPageViewModel, event: Event) {
-    val joinedEvent by remember { mutableStateOf(false) }
-    var showJoinRequestDialog by remember { mutableStateOf(false) }
-    Box {
-        if (showJoinRequestDialog) {
-            JoinClubDialog(
-                onConfirm = {
-//                          vm.joinEvent(eventId = event.id)
-                },
-                onDismissRequest = {
-                    showJoinRequestDialog = false
-                },
-                vm
-            )
+    var backgroundUri: Uri? by rememberSaveable { mutableStateOf(null) }
+    var selectedEvent: Event? by rememberSaveable { mutableStateOf(null) }
+    var joinedEvent: Boolean? by rememberSaveable { mutableStateOf(null) }
+    var likedEvent: Boolean? by rememberSaveable { mutableStateOf(null) }
+    LaunchedEffect(Unit) {
+        if (backgroundUri == null) {
+            vm.getEventBackground(event.id)
+                .downloadUrl
+                .addOnSuccessListener {
+                    backgroundUri = it
+                }
+                .addOnFailureListener {
+                    Log.e("getEventBackgroundImage", "EventImageFail: ", it)
+                }
         }
+        if (selectedEvent == null) {
+            vm.getEvent(event.id).get()
+                .addOnSuccessListener {
+                    val fetchedEvent = it.toObject(Event::class.java)
+                    fetchedEvent?.let { event ->
+                        Log.d("getEvent", "event: $event")
+                        selectedEvent = event
+                    }
+                }
+                .addOnFailureListener {
+                    Log.e("getEvent", "getEventFail: ", it)
+                }
+        }
+        if (joinedEvent == null) {
+            joinedEvent = event.participants.contains(vm.firebase.uid)
+        }
+        if (likedEvent == null) {
+            likedEvent = event.likers.contains(vm.firebase.uid)
+        }
+    }
+    Box {
         Card(
             shape = RoundedCornerShape(10.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -394,12 +425,13 @@ fun EventTile(vm: ClubPageViewModel, event: Event) {
                         .fillMaxWidth()
                         .height(125.dp)
                 ) {
-                    //                    AsyncImage(
-                    //                        model = ,
-                    //                        contentDescription = "Tile background",
-                    //                        modifier = Modifier.fillMaxSize(),
-                    //                        contentScale = ContentScale.FillWidth
-                    //                    )
+                    AsyncImage(
+                        model = backgroundUri,
+                        error = painterResource(id = R.drawable.hockey),
+                        contentDescription = "Tile background",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.FillWidth
+                    )
                     Text(
                         text = event.name,
                         modifier = Modifier
@@ -415,7 +447,7 @@ fun EventTile(vm: ClubPageViewModel, event: Event) {
                             )
                         )
                     )
-                    if (joinedEvent) {
+                    if (joinedEvent == true) {
                         Card(
                             shape = RoundedCornerShape(50.dp),
                             colors = CardDefaults.cardColors(containerColor = nokiaBlue),
@@ -454,8 +486,7 @@ fun EventTile(vm: ClubPageViewModel, event: Event) {
                                 .width(100.dp)
                                 .padding(5.dp)
                                 .clickable {
-                                    vm.getEvent(event.id)
-                                    showJoinRequestDialog = true
+                                    vm.joinEvent(event)
                                 }
                         ) {
                             Row(
@@ -484,9 +515,16 @@ fun EventTile(vm: ClubPageViewModel, event: Event) {
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .padding(5.dp)
+                            .clickable {
+                                if(likedEvent == true) {
+                                    vm.removeLikeOnEvent(event)
+                                } else {
+                                    vm.likeEvent(event)
+                                }
+                            }
                     ) {
                         Icon(
-                            Icons.Outlined.FavoriteBorder,
+                            if(likedEvent == true) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                             "Favourite icon",
                             tint = Color.White,
                             modifier = Modifier
@@ -502,7 +540,9 @@ fun EventTile(vm: ClubPageViewModel, event: Event) {
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
                     val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH)
+                    val sdf2 = SimpleDateFormat("HH.mm", Locale.ENGLISH)
                     val dateFormatted = sdf.format(event.date.toDate())
+                    val timeFormatted = sdf2.format(event.date.toDate())
                     EventTileRowItem(
                         icon = Icons.Outlined.CalendarMonth,
                         iconDesc = "Calendar Icon",
@@ -511,12 +551,12 @@ fun EventTile(vm: ClubPageViewModel, event: Event) {
                     EventTileRowItem(
                         icon = Icons.Outlined.Timer,
                         iconDesc = "Timer Icon",
-                        content = "19:00"
+                        content = timeFormatted
                     )
                     EventTileRowItem(
                         icon = Icons.Outlined.People,
                         iconDesc = "People Icon",
-                        content = "5"
+                        content = event.participants.size.toString()
                     )
                 }
             }

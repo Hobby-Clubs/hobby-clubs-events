@@ -9,6 +9,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.User
@@ -34,6 +35,11 @@ class CreateEventViewModel : ViewModel() {
     val currentLinkURL = MutableLiveData<TextFieldValue>()
 
     val selectedImages = MutableLiveData<MutableList<Uri>>()
+    val joinedClubs = MutableLiveData<List<Club>>()
+
+    init {
+        getJoinedClubs()
+    }
 
     fun changePageTo(page: Int) {
         currentCreationProgressPage.value = page
@@ -44,8 +50,9 @@ class CreateEventViewModel : ViewModel() {
     fun updateSelectedClub(newVal: String) {
         selectedClub.value = newVal
     }
-    fun updateSelectedDate() {
-//        selectedDate.value = Date(years, month, day, hour,minutes)
+    fun updateSelectedDate(years: Int, month: Int, day: Int, hour: Int, minutes: Int) {
+        selectedDate.value = Date(years, month, day, hour,minutes)
+        Log.d("dateSelection", selectedDate.value.toString())
     }
     fun updateEventDescription(newVal: TextFieldValue) {
         eventDescription.value = newVal
@@ -70,6 +77,15 @@ class CreateEventViewModel : ViewModel() {
     }
     fun updateCurrentLinkURL(newVal: TextFieldValue) {
         currentLinkURL.value = newVal
+    }
+
+    private fun getJoinedClubs() {
+        firebase.uid?.let {
+            firebase.getAllClubs().whereArrayContains("members", it).get()
+                .addOnSuccessListener { club ->
+                    joinedClubs.value = club.toObjects(Club::class.java)
+                }
+        }
     }
 
     val givenLinksLiveData = MutableLiveData<Map<String, String>>(mapOf())
