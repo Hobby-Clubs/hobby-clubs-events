@@ -48,7 +48,7 @@ fun NewsScreen(
 
         Column(modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 20.dp)) {
+            .padding(horizontal = 10.dp)) {
             CenterAlignedTopAppBar(
                 title = { },
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
@@ -59,7 +59,7 @@ fun NewsScreen(
                 }
             )
 
-            Spacer(modifier = Modifier.padding(top = 10.dp))
+//            Spacer(modifier = Modifier.padding(top = 10.dp))
 
            if (allNews.value.isNotEmpty()) {
                Dashboard(newsList = allNews.value, navController)
@@ -73,7 +73,7 @@ fun Dashboard(newsList: List<News>, navController: NavController) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(10.dp),
+            .padding(1.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         newsList.forEach {
@@ -122,11 +122,11 @@ fun ImageCard(news: News,
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(15.dp)
+                .padding(10.dp)
                 .clickable { onClick() },
         ) {
             Column(modifier = Modifier
-                .padding(10.dp)
+                //.padding(10.dp)
                 .fillMaxSize(),
             ) {
                 AsyncImage(
@@ -139,19 +139,31 @@ fun ImageCard(news: News,
                         .clip(RoundedCornerShape(16.dp))
 
                 )
-                Row( modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
-                    horizontalArrangement = Arrangement.SpaceAround
+                Column( modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
                 ) {
-                    Text(text = news.headline,  fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.padding(10.dp))
-                    Text(text = it.name,  fontWeight = FontWeight.Bold)
-                    val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH)
-                    val dateFormatted = sdf.format(news.date.toDate())
-                    Text(text = dateFormatted.toString())
-                    Text(text =news.newsContent,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )}
+                    Row( modifier = Modifier
+                        .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(text = news.headline,  fontWeight = FontWeight.Bold)
+                        Text(text = it.name,  fontWeight = FontWeight.Bold)
+                    }
+                    Row( modifier = Modifier
+                        .fillMaxWidth()) {
+                        val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH)
+                        val dateFormatted = sdf.format(news.date.toDate())
+                        Text(text = dateFormatted.toString())
+                    }
+                  Row( modifier = Modifier
+                      .fillMaxWidth().padding(vertical = 5.dp)) {
+                      Text(text =news.newsContent,
+                          maxLines = 2,
+                          overflow = TextOverflow.Ellipsis
+                      )}
+                  }
+
             }
         }
     }

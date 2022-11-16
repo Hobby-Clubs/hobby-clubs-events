@@ -1,10 +1,8 @@
 package com.example.hobbyclubs.screens.news
 
-import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.CollectionName
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.News
@@ -13,8 +11,7 @@ class NewsViewModel: ViewModel() {
     val firebase = FirebaseHelper
     val listOfNews = MutableLiveData<List<News>>()
     val news = MutableLiveData<News>()
-    val newsUri = MutableLiveData<Uri>()
-    val selectedNewsClub = MutableLiveData<Club>()
+
 
 
 
