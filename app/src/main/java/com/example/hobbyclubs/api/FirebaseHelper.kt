@@ -94,10 +94,6 @@ object FirebaseHelper {
         return ref.id
     }
 
-    fun getEvent(eventId: String) : DocumentReference {
-        return db.collection(CollectionName.events).document(eventId)
-    }
-
     fun addUserToEvent(eventId: String, membersListUpdated: List<String>) {
         val userRef = db.collection(CollectionName.events).document(eventId)
         userRef.update("participants", membersListUpdated)
