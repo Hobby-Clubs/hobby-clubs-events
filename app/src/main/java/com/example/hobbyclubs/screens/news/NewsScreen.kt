@@ -2,13 +2,11 @@ package com.example.hobbyclubs.screens.news
 
 import android.net.Uri
 import android.util.Log
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,7 +14,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -27,6 +24,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.News
+import com.example.hobbyclubs.navigation.NavRoutes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -37,6 +35,7 @@ import java.util.*
 fun NewsScreen(
     navController: NavController,
    vm: NewsViewModel = viewModel(),
+
 ) {
     val scope = rememberCoroutineScope()
     val allNews = vm.listOfNews.observeAsState(listOf())
@@ -63,14 +62,14 @@ fun NewsScreen(
             Spacer(modifier = Modifier.padding(top = 10.dp))
 
            if (allNews.value.isNotEmpty()) {
-               Dashboard(newsList = allNews.value)
+               Dashboard(newsList = allNews.value, navController)
            }
 
         }
     }
 }
 @Composable
-fun Dashboard(newsList: List<News>) {
+fun Dashboard(newsList: List<News>, navController: NavController) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -78,17 +77,19 @@ fun Dashboard(newsList: List<News>) {
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         newsList.forEach {
-            item { ImageCard(it, vm = NewsViewModel())}
+            item {
+                ImageCard(it, vm = NewsViewModel()
+                ) { navController.navigate(NavRoutes.SingleNewsScreen.route + "/${it.id}") }
+            }
         }
     }
 }
 
 @Composable
-fun ImageCard(news: News,vm: NewsViewModel) {
-    var expandedState by remember { mutableStateOf(false) }
-    val rotationState by animateFloatAsState(
-        targetValue = if (expandedState) 180f else 0f
-    )
+fun ImageCard(news: News,
+              vm: NewsViewModel,
+              onClick: () -> Unit) {
+
     var newsUri: Uri? by rememberSaveable { mutableStateOf(null) }
     var club: Club? by rememberSaveable { mutableStateOf(null) }
 
@@ -122,7 +123,7 @@ fun ImageCard(news: News,vm: NewsViewModel) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(15.dp)
-                .clickable { expandedState = !expandedState },
+                .clickable { onClick() },
         ) {
             Column(modifier = Modifier
                 .padding(10.dp)
@@ -147,22 +148,6 @@ fun ImageCard(news: News,vm: NewsViewModel) {
                     val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH)
                     val dateFormatted = sdf.format(news.date.toDate())
                     Text(text = dateFormatted.toString())
-                    IconButton(
-                        modifier = Modifier
-                            .weight(1f)
-                            .rotate(rotationState),
-                        onClick = {
-                            expandedState = !expandedState
-                        }) {
-                        Icon( modifier = Modifier.size(20.dp),
-                            imageVector = Icons.Default.ArrowDropDown,
-                            contentDescription = "Drop-Down Arrow"
-                        )
-                    }
-                }
-                if (expandedState) {
-                    Text(text =news.newsContent)
-                } else {
                     Text(text =news.newsContent,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis

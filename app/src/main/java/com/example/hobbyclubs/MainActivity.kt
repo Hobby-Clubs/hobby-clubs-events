@@ -24,6 +24,7 @@ import com.example.hobbyclubs.screens.createnews.CreateNewsScreen
 import com.example.hobbyclubs.screens.home.HomeScreen
 import com.example.hobbyclubs.screens.login.LoginScreen
 import com.example.hobbyclubs.screens.news.NewsScreen
+import com.example.hobbyclubs.screens.news.SingleNewsScreen
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.S)
@@ -106,6 +107,16 @@ fun MyAppNavHost() {
         // CreateEventScreen
         composable(NavRoutes.CreateEvent.route) {
             CreateEventScreen(navController = navController)
+        }
+        composable(
+            NavRoutes.SingleNewsScreen.route + "/{newsId}",
+            arguments = listOf(
+                navArgument("newsId") {type = NavType.StringType}
+            )
+
+        ) {
+            val newsId = it.arguments!!.getString("newsId")!!
+            SingleNewsScreen(navController = navController, newsId = newsId)
         }
     }
 }
