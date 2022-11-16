@@ -185,7 +185,7 @@ fun ClubPageHeader(
             }
         }
         Row(modifier = Modifier.align(Alignment.CenterEnd)) {
-            ClubLogo(modifier = Modifier, logoUri)
+            ClubLogo(modifier = Modifier.size(150.dp), logoUri)
             Spacer(modifier = Modifier.width(30.dp))
         }
         Row(
@@ -419,9 +419,8 @@ fun ClubLogo(modifier: Modifier, uri: Uri?) {
         AsyncImage(
             model = uri,
             contentDescription = "avatar",
-            modifier = Modifier
-                .padding(10.dp)
-                .size(125.dp)
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
         )
     }
 }

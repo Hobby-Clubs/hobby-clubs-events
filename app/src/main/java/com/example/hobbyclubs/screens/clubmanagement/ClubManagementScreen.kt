@@ -60,7 +60,7 @@ fun ClubManagementScreen(
                 Spacer(modifier = Modifier.height(10.dp))
                 EventsSection(vm)
                 Spacer(modifier = Modifier.height(10.dp))
-                PrivacySection(vm)
+                PrivacySection(vm, clubId)
             }
             CenterAlignedTopAppBar(
                 title = { Text(text = it.name, fontSize = 16.sp) },
@@ -168,6 +168,7 @@ fun ExpandablePrivacyCard(
     icon: ImageVector,
     iconDesc: String,
     title: String,
+    clubId: String,
     vm: ClubManagementViewModel,
 ) {
     var expandedState by remember { mutableStateOf(false) }
@@ -223,7 +224,7 @@ fun ExpandablePrivacyCard(
                 icon = Icons.Outlined.Public,
                 iconDesc = "Public", title = "Public",
                 onClick = {
-                    vm.updatePrivacy(false)
+                    vm.updatePrivacy(false, clubId = clubId)
                     expandedState = false
                 }
             )
@@ -232,7 +233,7 @@ fun ExpandablePrivacyCard(
                 icon = Icons.Outlined.Lock,
                 iconDesc = "Private", title = "Private",
                 onClick = {
-                    vm.updatePrivacy(true)
+                    vm.updatePrivacy(true, clubId = clubId)
                     expandedState = false
                 }
             )
@@ -321,7 +322,7 @@ fun EventsSection(vm: ClubManagementViewModel) {
 }
 
 @Composable
-fun PrivacySection(vm: ClubManagementViewModel, onClick: () -> Unit = {}) {
+fun PrivacySection(vm: ClubManagementViewModel, clubId: String) {
     val isPrivate by vm.isPrivate.observeAsState()
     Column(modifier = Modifier.fillMaxWidth()) {
         ClubManagementSectionTitle(text = "Privacy")
@@ -329,7 +330,8 @@ fun PrivacySection(vm: ClubManagementViewModel, onClick: () -> Unit = {}) {
             icon = if (isPrivate == true) Icons.Outlined.Lock else Icons.Outlined.Public,
             iconDesc = "privacy",
             title = if (isPrivate == true) "Private" else "Public",
-            vm = vm
+            vm = vm,
+            clubId = clubId
         )
     }
 }

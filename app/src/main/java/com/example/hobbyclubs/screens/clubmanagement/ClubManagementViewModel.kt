@@ -2,6 +2,7 @@ package com.example.hobbyclubs.screens.clubmanagement
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.example.hobbyclubs.api.*
 import com.google.firebase.firestore.Query
@@ -9,15 +10,17 @@ import com.google.firebase.firestore.Query
 class ClubManagementViewModel() : ViewModel() {
 
     val firebase = FirebaseHelper
-    val isPrivate = MutableLiveData<Boolean>()
     val selectedClub = MutableLiveData<Club>()
+    val isPrivate = Transformations.map(selectedClub) {
+        it.isPrivate
+    }
     val listOfEvents = MutableLiveData<List<Event>>(listOf())
     val listOfNews = MutableLiveData<List<News>>(listOf())
 
-    fun updatePrivacy(isPrivate: Boolean) {
-        this.isPrivate.value = isPrivate
+    fun updatePrivacy(clubIsPrivate: Boolean, clubId: String) {
+        getClub(clubId)
         selectedClub.let {
-            firebase.updatePrivacy(clubId = it.value!!.ref, newValue = isPrivate)
+            firebase.updatePrivacy(clubId = it.value!!.ref, newValue = clubIsPrivate)
         }
     }
 

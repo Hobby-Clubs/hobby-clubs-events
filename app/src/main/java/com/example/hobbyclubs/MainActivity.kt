@@ -21,6 +21,7 @@ import com.example.hobbyclubs.screens.clubs.ClubsScreen
 import com.example.hobbyclubs.screens.home.HomeScreen
 import com.example.hobbyclubs.screens.login.LoginScreen
 import com.example.hobbyclubs.screens.clubmembers.ClubMembersScreen
+import com.example.hobbyclubs.screens.create.club.CreateClubScreen
 import com.example.hobbyclubs.screens.create.event.CreateEventScreen
 import com.example.hobbyclubs.screens.news.NewsScreen
 
@@ -107,6 +108,10 @@ fun MyAppNavHost() {
         // CreateEventScreen
         composable(NavRoutes.CreateEvent.route) {
             CreateEventScreen(navController = navController)
+        }
+        // CreateClubScreen
+        composable(NavRoutes.CreateClub.route) {
+            CreateClubScreen(navController = navController)
         }
     }
 }

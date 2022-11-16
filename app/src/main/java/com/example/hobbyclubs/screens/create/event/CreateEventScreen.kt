@@ -109,16 +109,22 @@ fun CreateEventScreen(
 
 
 @Composable
-fun PageProgression(numberOfLines: Int, vm: CreateEventViewModel) {
+fun PageProgression(
+    numberOfLines: Int,
+    onClick1: () -> Unit,
+    onClick2: () -> Unit,
+    onClick3: () -> Unit,
+    onClick4: () -> Unit,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(5.dp), horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        ProgressionBar(isMarked = numberOfLines >= 1, onClick = { vm.changePageTo(1) })
-        ProgressionBar(isMarked = numberOfLines > 1, onClick = { vm.changePageTo(2) })
-        ProgressionBar(isMarked = numberOfLines > 2, onClick = { vm.changePageTo(3) })
-        ProgressionBar(isMarked = numberOfLines > 3, onClick = { vm.changePageTo(4) })
+        ProgressionBar(isMarked = numberOfLines >= 1, onClick = { onClick1() })
+        ProgressionBar(isMarked = numberOfLines > 1, onClick = { onClick2() })
+        ProgressionBar(isMarked = numberOfLines > 2, onClick = { onClick3() })
+        ProgressionBar(isMarked = numberOfLines > 3, onClick = { onClick4() })
     }
 }
 
@@ -165,11 +171,11 @@ fun CustomAlertDialog(
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalPagerApi::class)
 @Composable
 fun SelectedImagesDialog(
-    vm: CreateEventViewModel,
+    selectedImages: List<Uri>? = null,
+    selectedLogo: Uri? = null,
     onConfirm: () -> Unit,
     onDismissRequest: () -> Unit
 ) {
-    val selectedImages by vm.selectedImages.observeAsState(mutableListOf())
     Dialog(
         onDismissRequest = { onDismissRequest() },
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -191,21 +197,26 @@ fun SelectedImagesDialog(
                     Text(text = "Image Previews")
                     Spacer(modifier = Modifier.height(10.dp))
                     val pagerState2 = rememberPagerState()
-                    HorizontalPager(
-                        count = selectedImages.size,
-                        state = pagerState2,
-                        itemSpacing = 10.dp,
-                        contentPadding = PaddingValues(end = 150.dp)
-                    ) { page ->
-                        Log.d("imageList", "page: $page, index: ${selectedImages[page]}")
-                        SelectedImageItem(uri = selectedImages[page])
+                    selectedImages?.let {
+                        HorizontalPager(
+                            count = it.size,
+                            state = pagerState2,
+                            itemSpacing = 10.dp,
+                            contentPadding = PaddingValues(end = 150.dp)
+                        ) { page ->
+                            Log.d("imageList", "page: $page, index: ${it[page]}")
+                            SelectedImageItem(uri = it[page])
+                        }
+                        HorizontalPagerIndicator(
+                            pagerState = pagerState2,
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                                .padding(16.dp),
+                        )
                     }
-                    HorizontalPagerIndicator(
-                        pagerState = pagerState2,
-                        modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .padding(16.dp),
-                    )
+                    selectedLogo?.let {
+                        SelectedImageItem(uri = it)
+                    }
                     Spacer(modifier = Modifier.height(15.dp))
                     Row(modifier = Modifier.fillMaxWidth()) {
                         CustomButton(
@@ -231,7 +242,7 @@ fun SelectedImageItem(bitmap: Bitmap? = null, uri: Uri? = null) {
         Image(
             bitmap = bitmap.asImageBitmap(),
             contentDescription = null,
-            modifier = Modifier.height(150.dp),
+            modifier = Modifier.height(100.dp),
             contentScale = ContentScale.FillHeight
         )
     }
@@ -239,7 +250,7 @@ fun SelectedImageItem(bitmap: Bitmap? = null, uri: Uri? = null) {
         Image(
             painter = rememberAsyncImagePainter(uri),
             contentDescription = null,
-            modifier = Modifier.height(150.dp),
+            modifier = Modifier.height(100.dp),
             contentScale = ContentScale.FillHeight
         )
     }
@@ -482,7 +493,13 @@ fun EventCreationPage1(vm: CreateEventViewModel) {
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 75.dp)
         ) {
-            PageProgression(numberOfLines = 1, vm)
+            PageProgression(
+                numberOfLines = 1,
+                onClick1 = { vm.changePageTo(1) },
+                onClick2 = { vm.changePageTo(2) },
+                onClick3 = { vm.changePageTo(3) },
+                onClick4 = { vm.changePageTo(4) },
+            )
             CustomButton(
                 onClick = { vm.changePageTo(2) },
                 text = "Next",
@@ -563,7 +580,13 @@ fun EventCreationPage2(vm: CreateEventViewModel) {
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 75.dp)
         ) {
-            PageProgression(numberOfLines = 2, vm)
+            PageProgression(
+                numberOfLines = 2,
+                onClick1 = { vm.changePageTo(1) },
+                onClick2 = { vm.changePageTo(2) },
+                onClick3 = { vm.changePageTo(3) },
+                onClick4 = { vm.changePageTo(4) },
+            )
             Row() {
                 CustomButton(
                     onClick = { vm.changePageTo(1) },
@@ -585,7 +608,7 @@ fun EventCreationPage2(vm: CreateEventViewModel) {
         }
         if (showImagePreview) {
             SelectedImagesDialog(
-                vm = vm,
+                selectedImages = selectedImages,
                 onConfirm = {
                     vm.convertUriToBitmap(selectedImages, context)
                     vm.emptySelection()
@@ -682,7 +705,13 @@ fun EventCreationPage3(vm: CreateEventViewModel) {
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 75.dp)
         ) {
-            PageProgression(numberOfLines = 3, vm)
+            PageProgression(
+                numberOfLines = 3,
+                onClick1 = { vm.changePageTo(1) },
+                onClick2 = { vm.changePageTo(2) },
+                onClick3 = { vm.changePageTo(3) },
+                onClick4 = { vm.changePageTo(4) },
+            )
             Row() {
                 CustomButton(
                     onClick = { vm.changePageTo(2) },
@@ -795,7 +824,13 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 75.dp)
         ) {
-            PageProgression(numberOfLines = 4, vm)
+            PageProgression(
+                numberOfLines = 4,
+                onClick1 = { vm.changePageTo(1) },
+                onClick2 = { vm.changePageTo(2) },
+                onClick3 = { vm.changePageTo(3) },
+                onClick4 = { vm.changePageTo(4) },
+            )
             Row() {
                 CustomButton(
                     onClick = { vm.changePageTo(3) },
