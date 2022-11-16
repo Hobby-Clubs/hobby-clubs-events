@@ -76,25 +76,32 @@ fun MyAppNavHost() {
         composable(
             NavRoutes.ClubPageScreen.route + "/{clubId}",
             arguments = listOf(
-                navArgument("clubId") {type = NavType.StringType}
+                navArgument("clubId") { type = NavType.StringType }
             )
         ) {
             val clubId = it.arguments!!.getString("clubId")!!
             ClubPageScreen(navController = navController, clubId = clubId)
         }
         // ClubManagementScreen
-        composable(NavRoutes.ClubManagementScreen.route) {
-            ClubManagementScreen(navController = navController)
+        composable(NavRoutes.ClubManagementScreen.route + "/{clubId}",
+            arguments = listOf(
+                navArgument("clubId") { type = NavType.StringType }
+            )
+        ) {
+            val clubId = it.arguments!!.getString("clubId")!!
+            ClubManagementScreen(navController = navController, clubId = clubId)
         }
         // ClubMembersScreen
         composable(
-            NavRoutes.MembersScreen.route + "/{showRequests}",
+            NavRoutes.MembersScreen.route + "/{showRequests}/{clubId}",
             arguments = listOf(
-                navArgument("showRequests") { type = NavType.BoolType }
+                navArgument("showRequests") { type = NavType.BoolType },
+                navArgument("clubId") { type = NavType.StringType }
             )
         ) {
             val showRequests = it.arguments!!.getBoolean("showRequests")
-            ClubMembersScreen(navController = navController, showRequests = showRequests)
+            val clubId = it.arguments!!.getString("clubId")!!
+            ClubMembersScreen(navController = navController, showRequests = showRequests, clubId = clubId)
         }
         // NewsScreen
         composable(NavRoutes.NewsScreen.route) {

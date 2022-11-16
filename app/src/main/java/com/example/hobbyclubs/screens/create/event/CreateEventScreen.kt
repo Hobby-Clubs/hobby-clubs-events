@@ -1,6 +1,7 @@
 package com.example.hobbyclubs.screens.create.event
 
 import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
@@ -16,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -43,6 +45,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.compose.nokiaLighterBlue
+import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.general.CustomOutlinedTextField
 import com.example.hobbyclubs.navigation.NavRoutes
@@ -243,24 +246,28 @@ fun SelectedImageItem(bitmap: Bitmap? = null, uri: Uri? = null) {
 }
 
 @Composable
-fun ClubSelectionDropdownMenu(vm: CreateEventViewModel) {
+fun ClubSelectionDropdownMenu(clubList: List<Club>, onSelect: (Club) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
-    val items = mutableListOf("Club1", "Club2", "Club3")
     var selectedIndex: Int? by remember { mutableStateOf(null) }
 
     Box(modifier = Modifier
         .fillMaxWidth()
         .clickable { expanded = true }
     ) {
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .height(50.dp)
-            .border(BorderStroke(1.dp, Color.Black))
-            .padding(horizontal = 15.dp),
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
+                .border(BorderStroke(1.dp, Color.Black))
+                .padding(horizontal = 15.dp),
             contentAlignment = Alignment.CenterStart
         ) {
             Row(modifier = Modifier.fillMaxWidth()) {
-                Text(text = if (selectedIndex != null) items[selectedIndex!!] else "Select Club", modifier = Modifier.weight(6f), textAlign = TextAlign.Start)
+                Text(
+                    text = if (selectedIndex != null) clubList[selectedIndex!!].name else "Select Club",
+                    modifier = Modifier.weight(6f),
+                    textAlign = TextAlign.Start
+                )
                 Icon(Icons.Outlined.KeyboardArrowDown, null, modifier = Modifier.weight(1f))
             }
         }
@@ -271,12 +278,12 @@ fun ClubSelectionDropdownMenu(vm: CreateEventViewModel) {
                 .fillMaxWidth(0.9f)
                 .background(Color.White)
         ) {
-            items.forEachIndexed { index, club ->
+            clubList.forEachIndexed { index, club ->
                 DropdownMenuItem(
-                    text = { Text(text = club) },
+                    text = { Text(text = club.name) },
                     onClick = {
                         selectedIndex = index
-                        vm.updateSelectedClub(club)
+                        onSelect(club)
                         expanded = false
                     }
                 )
@@ -290,48 +297,115 @@ fun ClubSelectionDropdownMenu(vm: CreateEventViewModel) {
 fun DateSelector(vm: CreateEventViewModel) {
     val context = LocalContext.current
 
-    val year: Int
-    val month: Int
-    val day: Int
-
     val calendar = Calendar.getInstance()
-    year = calendar.get(Calendar.YEAR)
-    month = calendar.get(Calendar.MONTH)
-    day = calendar.get(Calendar.DAY_OF_MONTH)
+    val year = calendar.get(Calendar.YEAR)
+    val month = calendar.get(Calendar.MONTH)
+    val day = calendar.get(Calendar.DAY_OF_MONTH)
+    val hour = calendar.get(Calendar.HOUR_OF_DAY)
+    val minute = calendar.get(Calendar.MINUTE)
     calendar.time = Date()
 
     val selectedDate by vm.selectedDate.observeAsState()
+    val selectedYear = remember { mutableStateOf(0) }
+    val selectedMonth = remember { mutableStateOf(0) }
+    val selectedDay = remember { mutableStateOf(0) }
+    val selectedHour = remember { mutableStateOf(0) }
+    val selectedMinute = remember { mutableStateOf(0) }
 
     val datePickerDialog = DatePickerDialog(
         context,
         { _: DatePicker, mYear: Int, mMonth: Int, dayOfMonth: Int ->
-            val date = Date(mYear-1900,mMonth,dayOfMonth)
-            val timestamp = Timestamp(date)
-            vm.updateSelectedDate(timestamp)
-        }, year, month, day
+            selectedYear.value = mYear
+            selectedMonth.value = mMonth
+            selectedDay.value = dayOfMonth
+        },
+        year, month, day,
     )
 
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .clickable { datePickerDialog.show() }
-    ) {
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .height(50.dp)
-            .border(BorderStroke(1.dp, Color.Black))
-            .padding(horizontal = 15.dp),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                val dateText = if (selectedDate == null) {
-                    "Select date"
-                } else {
+    val timePickerDialog = TimePickerDialog(
+        context,
+        3,
+        { _, mHour: Int, mMinute: Int ->
+            selectedHour.value = mHour
+            selectedMinute.value = mMinute
+            vm.updateSelectedDate(
+                years = selectedYear.value - 1900,
+                month = selectedMonth.value,
+                day = selectedDay.value,
+                hour = selectedHour.value,
+                minutes = selectedMinute.value
+            )
+        }, hour, minute, true
+    )
 
-                    val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH)
-                    sdf.format(selectedDate!!.toDate())
+    Row(modifier = Modifier.fillMaxWidth()) {
+        Box(modifier = Modifier
+            .weight(1f)
+            .clickable {
+                datePickerDialog.show()
+            }
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .border(BorderStroke(1.dp, Color.Black))
+                    .padding(horizontal = 15.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    val dateText: String =
+                        if (selectedYear.value == 0 && selectedMonth.value == 0 && selectedDay.value == 0) {
+                            "Select date"
+                        } else {
+                            "${selectedDay.value}.${selectedMonth.value}.${selectedYear.value}"
+                        }
+                    Text(
+                        text = dateText,
+                        modifier = Modifier.weight(6f),
+                        textAlign = TextAlign.Start
+                    )
+                    Icon(Icons.Outlined.CalendarMonth, null, modifier = Modifier.weight(1f))
                 }
-                Text(text = dateText, modifier = Modifier.weight(6f), textAlign = TextAlign.Start)
-                Icon(Icons.Outlined.CalendarMonth, null, modifier = Modifier.weight(1f))
+            }
+        }
+        Spacer(modifier = Modifier.width(10.dp))
+        Box(modifier = Modifier
+            .weight(1f)
+            .clickable {
+                if (selectedYear.value == 0 || selectedMonth.value == 0 || selectedDay.value == 0) {
+                    Toast
+                        .makeText(context, "Select date first", Toast.LENGTH_SHORT)
+                        .show()
+                } else {
+                    timePickerDialog.show()
+                }
+            }
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .border(BorderStroke(1.dp, Color.Black))
+                    .padding(horizontal = 15.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    val timeText = if (selectedDate == null) {
+                        "Select time"
+                    } else {
+                        selectedDate?.let {
+                            val sdf = SimpleDateFormat("HH:mm", Locale.ENGLISH)
+                            sdf.format(it)
+                        }
+                    }
+                    Text(
+                        text = timeText ?: "no time",
+                        modifier = Modifier.weight(6f),
+                        textAlign = TextAlign.Start
+                    )
+                    Icon(Icons.Outlined.Timer, null, modifier = Modifier.weight(1f))
+                }
             }
         }
     }
@@ -345,6 +419,7 @@ fun EventCreationPage1(vm: CreateEventViewModel) {
     val eventDescription by vm.eventDescription.observeAsState(null)
     val eventLocation by vm.eventLocation.observeAsState(null)
     val eventParticipantLimit by vm.eventParticipantLimit.observeAsState(null)
+    val joinedClubs by vm.joinedClubs.observeAsState(listOf())
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -354,7 +429,9 @@ fun EventCreationPage1(vm: CreateEventViewModel) {
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(bottom = 20.dp)
             )
-            ClubSelectionDropdownMenu(vm)
+            ClubSelectionDropdownMenu(joinedClubs, onSelect = {
+                vm.updateSelectedClub(it.ref)
+            })
             CustomOutlinedTextField(
                 value = eventName ?: TextFieldValue(""),
                 onValueChange = { vm.updateEventName(it) },
@@ -710,7 +787,8 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
             Text(text = "Or fill quickly using account details", fontSize = 12.sp)
             CustomButton(
                 onClick = { currentUser?.let { vm.quickFillOptions(it) } },
-                text = "Quick fill")
+                text = "Quick fill"
+            )
         }
         Column(
             modifier = Modifier
@@ -748,20 +826,24 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
                             ).show()
                             return@CustomButton
                         } else {
+                            val timestamp = Timestamp(selectedDate!!)
                             val event = Event(
                                 clubId = selectedClub!!,
                                 name = eventName!!.text,
                                 description = eventDescription!!.text,
-                                date = selectedDate!!,
+                                date = timestamp,
                                 address = eventLocation!!.text,
                                 participantLimit = if (eventParticipantLimit == null || eventParticipantLimit!!.text.isBlank()) -1 else eventParticipantLimit!!.text.toInt(),
-                                linkArray = if (linkArray == null || linkArray!!.size == 0) mapOf() else linkArray!!,
+                                linkArray = if (linkArray == null || linkArray!!.isEmpty()) mapOf() else linkArray!!,
                                 contactInfoName = contactInfoName!!.text,
                                 contactInfoEmail = contactInfoEmail!!.text,
                                 contactInfoNumber = contactInfoNumber!!.text
                             )
                             val eventId = vm.addEvent(event)
-                            vm.storeBitmapsOnFirebase(listToStore = selectedImages?.toList() ?: listOf(), eventId = eventId)
+                            vm.storeBitmapsOnFirebase(
+                                listToStore = selectedImages?.toList() ?: listOf(),
+                                eventId = eventId
+                            )
                             Toast.makeText(context, "Event created.", Toast.LENGTH_SHORT).show()
                             navController.navigate(NavRoutes.HomeScreen.route)
                         }

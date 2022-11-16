@@ -71,5 +71,6 @@ val linkBlue = Color(0xFF3366CC)
 val joinedColor = Color(0xFF4CAF50)
 val clubTileBg = Color(0xFFFEFBFF)
 val clubTileBorder = Color(0xFFCAC4D0)
+val liked = Color(0xFF725572)
 
 val forestGreen = Color(0xFF228B22)

@@ -8,9 +8,11 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.PropertyName
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ListResult
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import java.io.ByteArrayOutputStream
@@ -34,7 +36,7 @@ object FirebaseHelper {
     }
 
     fun getUser(uid: String): DocumentReference {
-        return db.collection("users").document(uid)
+        return db.collection(CollectionName.users).document(uid)
     }
 
     fun addClub(club: Club, logoUri: Uri, bannerUri: Uri) {
@@ -92,6 +94,62 @@ object FirebaseHelper {
         return ref.id
     }
 
+    fun getEvent(eventId: String) : DocumentReference {
+        return db.collection(CollectionName.events).document(eventId)
+    }
+
+    fun addUserToEvent(eventId: String, membersListUpdated: List<String>) {
+        val userRef = db.collection(CollectionName.events).document(eventId)
+        userRef.update("participants", membersListUpdated)
+            .addOnSuccessListener {
+                Log.d(TAG, "addUser: " + "success (${userRef.id})")
+            }
+            .addOnFailureListener {
+                Log.e(TAG, "addUser: ", it)
+            }
+    }
+    fun addUserLikeToEvent(eventId: String, membersListUpdated: List<String>) {
+        val userRef = db.collection(CollectionName.events).document(eventId)
+        userRef.update("likers", membersListUpdated)
+            .addOnSuccessListener {
+                Log.d(TAG, "addUser: " + "success (${userRef.id})")
+            }
+            .addOnFailureListener {
+                Log.e(TAG, "addUser: ", it)
+            }
+    }
+
+    fun updateUserInClub(clubId: String, newList: List<String>) {
+        val userRef = db.collection(CollectionName.clubs).document(clubId)
+        userRef.update("members", newList)
+            .addOnSuccessListener {
+                Log.d(TAG, "UpdateUser: " + "success (${userRef.id})")
+            }
+            .addOnFailureListener {
+                Log.e(TAG, "UpdateUser: ", it)
+            }
+    }
+    fun updateUserAdminStatus(clubId: String, newList: List<String>) {
+        val userRef = db.collection(CollectionName.clubs).document(clubId)
+        userRef.update("admins", newList)
+            .addOnSuccessListener {
+                Log.d(TAG, "UpdateAdminStatus: " + "success (${userRef.id})")
+            }
+            .addOnFailureListener {
+                Log.e(TAG, "UpdateAdminStatus: ", it)
+            }
+    }
+    fun updatePrivacy(clubId: String, newValue: Boolean) {
+        val userRef = db.collection(CollectionName.clubs).document(clubId)
+        userRef.update("isPrivate", newValue)
+            .addOnSuccessListener {
+                Log.d(TAG, "UpdatePrivacy: " + "success (${userRef.id})")
+            }
+            .addOnFailureListener {
+                Log.e(TAG, "UpdatePrivacy: ", it)
+            }
+    }
+
     fun getAllEvents() = db.collection(CollectionName.events)
 
     fun getEvent(uid: String) : DocumentReference {
@@ -133,7 +191,9 @@ object FirebaseHelper {
 
     fun getAllNews() = db.collection(CollectionName.news)
 
-    fun getAllNewsOfClub(clubId: String) = getAllNews().whereEqualTo("clubId", clubId)
+    fun getAllNewsOfClub(clubId: String) : Query {
+        return getAllNews().whereEqualTo("clubId", clubId)
+    }
 
     // User
 
@@ -178,6 +238,10 @@ object FirebaseHelper {
     fun getFile(path: String): StorageReference {
         return storage.reference.child(path)
     }
+
+    fun getAllFiles(path: String): Task<ListResult> {
+        return storage.reference.child(path).listAll()
+    }
 }
 
 class CollectionName {
@@ -219,7 +283,9 @@ data class Club(
     val contactPhone: String = "050 554 9826",
     val contactEmail: String = "mikko.makela70@nokia.fi",
     val socials: Map<String, String> = mapOf(Pair("Facebook", "https://www.facebook.com")),
-    val isPrivate: Boolean = false,
+    @get:PropertyName("isPrivate")
+    @set:PropertyName("isPrivate")
+    var isPrivate: Boolean = false,
     val created: Timestamp = Timestamp.now(),
     val category: String = ClubCategory.other,
     val nextEvent: Timestamp? = null
@@ -237,10 +303,15 @@ data class Event(
     val contactInfoName: String = "",
     val contactInfoEmail: String = "",
     val contactInfoNumber: String = "",
+    val participants: List<String> = listOf(),
+    val likers: List<String> = listOf(),
 ) : Serializable
 
 data class News(
-    val clubId: String? = null,
-    val name: String,
-    val date: Timestamp
+    val clubId: String? = "",
+    val id: String? = "",
+    val name: String = "",
+    val headline: String = "",
+    val newsContent: String = "",
+    val date: Timestamp = Timestamp.now()
 ) : Serializable
