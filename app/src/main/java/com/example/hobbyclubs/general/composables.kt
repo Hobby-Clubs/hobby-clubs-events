@@ -25,13 +25,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role.Companion.Image
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -123,6 +132,7 @@ fun BurgerMenuButton(onClick: () -> Unit) {
 fun DrawerScreen(
     navController: NavController,
     drawerState: DrawerState,
+    fab: @Composable () -> Unit = {},
     topBar: @Composable (DrawerState) -> Unit,
     content: @Composable () -> Unit,
 ) {
@@ -132,7 +142,8 @@ fun DrawerScreen(
         drawerContent = { FakeNavigation(navController = navController) }) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
-            topBar = { topBar(drawerState) }
+            topBar = { topBar(drawerState) },
+            floatingActionButton = { fab() }
         ) { pad ->
             Box(
                 modifier = Modifier
@@ -242,13 +253,12 @@ fun Pill(
 }
 
 @Composable
-fun DividerLine() {
+fun DividerLine(width: Dp) {
     Box(
         modifier = Modifier
-            .fillMaxWidth()
+            .width(width)
             .height(1.dp)
-            .padding(horizontal = 50.dp)
-            .background(color = Color.Gray)
+            .background(color = Color.Black)
     )
 }
 
@@ -277,6 +287,262 @@ fun CustomOutlinedTextField(
         placeholder = { Text(text = placeholder) },
         modifier = modifier
     )
+}
+
+@Composable
+fun EventTile(
+    modifier: Modifier = Modifier,
+    event: Event,
+    onJoin: () -> Unit,
+    onLike: () -> Unit,
+    onClick: () -> Unit
+) {
+    var picUri: Uri? by rememberSaveable { mutableStateOf(null) }
+    val joined = event.participants.contains(FirebaseHelper.uid)
+    val liked = event.likers.contains(FirebaseHelper.uid)
+
+    LaunchedEffect(Unit) {
+        if (picUri == null) {
+            FirebaseHelper.getAllFiles("${CollectionName.events}/${event.id}")
+                .addOnSuccessListener { res ->
+                    val items = res.items
+                    if (items.isEmpty()) {
+                        return@addOnSuccessListener
+                    }
+                    val bannerRef = items.find { it.name == "0.jpg" } ?: items.first()
+                    bannerRef
+                        .downloadUrl
+                        .addOnSuccessListener {
+                            picUri = it
+                        }
+                        .addOnFailureListener {
+                            Log.e("getPicUri", "EventTile: ", it)
+                        }
+                }
+                .addOnFailureListener {
+                    Log.e("getAllFiles", "EventTile: ", it)
+                }
+        }
+    }
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = clubTileBg),
+        border = BorderStroke(1.dp, clubTileBorder),
+        elevation = CardDefaults.cardElevation(0.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .aspectRatio(2.06f)
+            .clickable { onClick() }
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(3.07f)
+            ) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(picUri)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = "Tile background",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    colorFilter = ColorFilter.tint(Color(0x91000000), BlendMode.Darken)
+                )
+                Row(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .align(Alignment.TopCenter)
+                        .padding(12.dp),
+                    verticalAlignment = Alignment.Top,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    JoinEventButton(isJoined = joined) {
+                        onJoin()
+                    }
+                    LikeEventButton(isLiked = liked) {
+                        onLike()
+                    }
+                }
+                Text(
+                    text = event.name,
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(20.dp),
+                    color = Color.White,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 16.sp,
+                    letterSpacing = 0.15.sp
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH)
+                val dateFormatted = sdf.format(event.date.toDate())
+                val time = SimpleDateFormat("HH:mm", Locale.ENGLISH).format(event.date.toDate())
+                EventTileRowItem(
+                    icon = Icons.Outlined.CalendarMonth,
+                    iconDesc = "Calendar Icon",
+                    content = dateFormatted
+                )
+                EventTileRowItem(
+                    icon = Icons.Outlined.Schedule,
+                    iconDesc = "Timer Icon",
+                    content = time
+                )
+                val participants = event.participants.size.toString() +
+                        if (event.participantLimit == -1) "/${event.participantLimit}" else ""
+                EventTileRowItem(
+                    icon = Icons.Outlined.People,
+                    iconDesc = "People Icon",
+                    content = participants
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun JoinEventButton(modifier: Modifier = Modifier, isJoined: Boolean, onClick: () -> Unit) {
+    val icon = if (isJoined) Icons.Outlined.Check else Icons.Outlined.PersonAddAlt
+    val text = if (isJoined) "Joined" else "Join"
+    Card(
+        shape = RoundedCornerShape(100.dp),
+        colors = CardDefaults.cardColors(containerColor = md_theme_light_surfaceTint),
+        modifier = modifier
+            .clickable { onClick() }
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .padding(vertical = 12.dp)
+                .padding(horizontal = 16.dp)
+                .padding(end = 4.dp)
+        ) {
+            Icon(
+                icon,
+                "Join icon",
+                tint = Color.White,
+                modifier = Modifier
+                    .padding(end = 8.dp)
+                    .width(18.dp)
+            )
+            Text(
+                text = text,
+                color = Color.White,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
+    }
+}
+
+@Composable
+fun LikeEventButton(modifier: Modifier = Modifier, isLiked: Boolean, onClick: () -> Unit) {
+    val icon = if (isLiked) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder
+    Card(
+        shape = CircleShape,
+        colors = CardDefaults.cardColors(containerColor = clubTileBg),
+        modifier = modifier
+            .clickable { onClick() }
+    ) {
+        Icon(
+            icon,
+            "Favourite icon",
+            tint = liked,
+            modifier = Modifier
+                .padding(4.dp)
+                .width(24.dp)
+        )
+    }
+}
+
+@Composable
+fun EventTileRowItem(icon: ImageVector, iconDesc: String, content: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(icon, iconDesc)
+        Spacer(modifier = Modifier.width(5.dp))
+        Text(text = content, fontSize = 14.sp, color = md_theme_light_onSurfaceVariant)
+    }
+}
+
+@Composable
+fun SmallNewsTile(modifier: Modifier = Modifier, news: News, onClick: () -> Unit) {
+    var picUri: Uri? by rememberSaveable { mutableStateOf(null) }
+    val sdf = SimpleDateFormat("dd.MM.yyyy", java.util.Locale.ENGLISH)
+    val date = sdf.format(news.date.toDate())
+    LaunchedEffect(Unit) {
+        if (picUri == null && news.clubId.isNotEmpty()) {
+            FirebaseHelper.getFile("${CollectionName.clubs}/${news.clubId}/logo")
+                .downloadUrl
+                .addOnSuccessListener {
+                    picUri = it
+                }
+                .addOnFailureListener {
+                    Log.e("getLogoUri", "SmallNewsTile: ", it)
+                }
+        }
+    }
+    Card(
+        modifier = modifier
+            .aspectRatio(4.7f)
+            .clickable { onClick() },
+        colors = CardDefaults.cardColors(clubTileBg),
+        border = BorderStroke(1.dp, clubTileBorder),
+    ) {
+        Row(
+            Modifier
+                .fillMaxSize()
+                .padding(vertical = 16.dp)
+                .padding(start = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            AsyncImage(
+                modifier = Modifier
+                    .size(40.dp)
+                    .aspectRatio(1f)
+                    .clip(CircleShape)
+                    .padding(0.dp),
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(picUri)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = "logo",
+                contentScale = ContentScale.Crop,
+                error = painterResource(id = R.drawable.nokia_logo)
+            )
+            Column(
+                Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .padding(end = 4.dp),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(text = news.headline, fontWeight = FontWeight.Medium, fontSize = 16.sp)
+                    Text(text = date, fontWeight = FontWeight.Light, fontSize = 12.sp)
+                }
+                Text(
+                    modifier = modifier.padding(end = 8.dp),
+                    text = news.newsContent,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    fontWeight = FontWeight.Light,
+                    fontSize = 14.sp
+                )
+            }
+        }
+    }
 }
 
 @Composable

@@ -16,11 +16,16 @@ class ClubsScreenViewModel : ViewModel() {
     }
 
     val clubs = MutableLiveData<List<Club>>()
-    val suggestedClubs = MutableLiveData<List<Club>>()
-    val otherClubs = MutableLiveData<List<Club>>()
+    val suggestedClubs = MutableLiveData<List<Club>>(listOf())
     val currentUser = MutableLiveData<User>()
+    val isRefreshing = MutableLiveData(false)
 
     init {
+        refresh()
+    }
+
+    fun refresh() {
+        isRefreshing.value = true
         getClubs(suggestedAmount = 3)
     }
 
@@ -33,34 +38,47 @@ class ClubsScreenViewModel : ViewModel() {
                     currentUser.value = u
                     FirebaseHelper.getAllClubs()
                         .get()
-                        .addOnSuccessListener listener@ { clubList ->
+                        .addOnSuccessListener listener@{ clubList ->
                             val fetchedClubs = clubList.toObjects(Club::class.java)
                             println(fetchedClubs)
                             if (fetchedClubs.isEmpty()) {
+                                isRefreshing.postValue(false)
                                 return@listener
                             }
-                            val suggested = min(fetchedClubs.size, suggestedAmount)
+                            val suggestedCount = min(fetchedClubs.size, suggestedAmount)
                             val clubsByMembers =
-                                fetchedClubs.sortedByDescending { club -> club.members.size }
+                                fetchedClubs.filter { club -> !club.members.contains(u.uid) }
+                                    .sortedByDescending { club -> club.members.size }
                             clubs.value = clubsByMembers
+
+                            val suggestedPool = if (clubsByMembers.size >= 2 * suggestedAmount) {
+                                clubsByMembers.filter { club ->
+                                    suggestedClubs.value?.contains(club) == false
+                                }
+                            } else {
+                                clubsByMembers
+                            }
+
                             suggestedClubs.value =
                                 if (u.interests.isEmpty()) {
-                                    clubsByMembers.take(suggested)
+                                    suggestedPool.shuffled().take(suggestedCount)
                                 } else {
-                                    clubsByMembers.filter { club -> u.interests.contains(club.category) }
-                                        .take(suggested)
+                                    suggestedPool.filter { club -> u.interests.contains(club.category) }
+                                        .shuffled()
+                                        .take(suggestedCount)
                                 }
-                            val other =
-                                clubsByMembers.subList(suggested, clubsByMembers.size)
-                            otherClubs.value = other
+
+                            isRefreshing.postValue(false)
                         }
                         .addOnFailureListener { error ->
                             Log.e(TAG, "getClubs: ", error)
+                            isRefreshing.postValue(false)
                         }
                 }
             }
             .addOnFailureListener { error ->
                 Log.e(TAG, "getCurrentUser: ", error)
+                isRefreshing.postValue(false)
             }
     }
 

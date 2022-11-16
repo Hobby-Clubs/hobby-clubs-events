@@ -36,7 +36,7 @@ object FirebaseHelper {
     }
 
     fun getUser(uid: String): DocumentReference {
-        return db.collection(CollectionName.users).document(uid)
+        return db.collection("users").document(uid)
     }
 
     fun addClub(club: Club, logoUri: Uri, bannerUri: Uri) {
@@ -70,6 +70,8 @@ object FirebaseHelper {
             }
 
     }
+
+    // Events
 
     fun addEvent(event: Event): String {
         val ref = db.collection(CollectionName.events).document()
@@ -161,6 +163,17 @@ object FirebaseHelper {
         storageRef.putBytes(bytes)
             .addOnSuccessListener {
                 Log.d(TAG, "sendImage: picture uploaded ($imageId)")
+            }
+    }
+
+    fun updateLikeEvent(updatedLikers: List<String>, eventId: String) {
+        val ref = db.collection(CollectionName.events).document(eventId)
+        ref.update(mapOf(Pair("likers", updatedLikers)))
+            .addOnSuccessListener {
+                Log.d(TAG, "updateLikeEvent: $ref")
+            }
+            .addOnFailureListener {
+                Log.e(TAG, "updateLikeEvent: ", it)
             }
     }
 

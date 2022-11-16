@@ -18,12 +18,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.compose.clubTileBg
 import com.example.compose.clubTileBorder
 import com.example.hobbyclubs.api.Club
@@ -31,47 +33,58 @@ import com.example.hobbyclubs.general.DrawerScreen
 import com.example.hobbyclubs.general.LazyColumnHeader
 import com.example.hobbyclubs.general.MenuTopBar
 import com.example.hobbyclubs.navigation.NavRoutes
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ClubsScreen(navController: NavController, vm: ClubsScreenViewModel = viewModel()) {
     val suggestedClubs by vm.suggestedClubs.observeAsState(listOf())
-    val otherClubs by vm.clubs.observeAsState(listOf())
+    val allClubs by vm.clubs.observeAsState(listOf())
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val isRefreshing by vm.isRefreshing.observeAsState(false)
 
     DrawerScreen(
         navController = navController,
         drawerState = drawerState,
         topBar = { MenuTopBar(drawerState = drawerState) }) {
-        LazyColumn(
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            stickyHeader {
-                LazyColumnHeader(text = "Suggested Clubs")
-            }
-            items(suggestedClubs) {
-                ClubTile(
-                    club = it,
-                    vm = vm,
-                    onClick = {
-                        navController.navigate(NavRoutes.ClubPageScreen.route + "/${it.ref}")
-                    })
-            }
-            stickyHeader {
-                LazyColumnHeader(text = "All Clubs")
-            }
-            items(otherClubs) {
-                ClubTile(
-                    club = it,
-                    vm = vm,
-                    onClick = {
-                        navController.navigate(NavRoutes.ClubPageScreen.route + "/${it.ref}")
-                    })
+        SwipeRefresh(
+            state = rememberSwipeRefreshState(isRefreshing = isRefreshing),
+            onRefresh = { vm.refresh() }) {
+            LazyColumn(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                stickyHeader {
+                    LazyColumnHeader(text = "Suggested Clubs")
+                }
+                items(suggestedClubs) {
+                    ClubTile(
+                        club = it,
+                        vm = vm,
+                        onClick = {
+                            navController.navigate(NavRoutes.ClubPageScreen.route + "/${it.ref}")
+                        })
+                }
+                stickyHeader {
+                    LazyColumnHeader(text = "All Clubs")
+                }
+                items(allClubs) {
+                    ClubTile(
+                        club = it,
+                        vm = vm,
+                        onClick = {
+                            navController.navigate(NavRoutes.ClubPageScreen.route + "/${it.ref}")
+                        })
+                }
+                item {
+                    Spacer(modifier = Modifier.height(32.dp))
+                }
             }
         }
+
     }
 //    AddMockClubs(vm = vm)
 }
@@ -146,7 +159,10 @@ fun ClubTile(
                             .clip(CircleShape)
                             .padding(0.dp)
                             .padding(end = 8.dp),
-                        model = logoUri,
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(logoUri)
+                            .crossfade(true)
+                            .build(),
                         contentDescription = "logo"
                     )
                     Column(
@@ -159,7 +175,10 @@ fun ClubTile(
                 }
                 AsyncImage(
                     modifier = Modifier.weight(1f),
-                    model = bannerUri,
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(bannerUri)
+                        .crossfade(true)
+                        .build(),
                     contentDescription = "banner",
                     contentScale = ContentScale.Crop
                 )
