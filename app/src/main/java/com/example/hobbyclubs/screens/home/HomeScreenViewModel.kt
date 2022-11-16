@@ -14,13 +14,15 @@ class HomeScreenViewModel : ViewModel() {
         const val TAG = "HomeScreenViewModel"
     }
 
+    val allClubs = MutableLiveData<List<Club>>()
+    val allEvents = MutableLiveData<List<Event>>()
     val myClubs = MutableLiveData<List<Club>>()
     val upcomingEvents = MutableLiveData<List<Event>>()
     val joinedEvents = MutableLiveData<List<Event>>()
     val likedEvents = MutableLiveData<List<Event>>()
     val news = MutableLiveData<List<News>>()
-
     val isRefreshing = MutableLiveData(false)
+    val searchInput = MutableLiveData("")
 
     init {
         refresh()
@@ -34,6 +36,18 @@ class HomeScreenViewModel : ViewModel() {
             delay(1500)
             isRefreshing.postValue(false)
         }
+    }
+
+    fun fetchAllClubs() {
+        FirebaseHelper.getAllClubs()
+            .get()
+            .addOnSuccessListener {
+                val clubs = it.toObjects(Club::class.java)
+                if (clubs.isEmpty()) {
+                    return@addOnSuccessListener
+                }
+                allClubs.value = clubs.sortedByDescending { club -> club.members.size }
+            }
     }
 
     fun fetchMyClubs() {
@@ -106,9 +120,15 @@ class HomeScreenViewModel : ViewModel() {
         }
     }
 
+    fun getLogo(clubId: String) = FirebaseHelper.getFile("${CollectionName.clubs}/$clubId/logo")
     fun getBanner(clubId: String) = FirebaseHelper.getFile("${CollectionName.clubs}/$clubId/banner")
 
     fun getNextEvent(clubId: String) = FirebaseHelper.getNextEvent(clubId)
 
     fun getNews(clubId: String) = FirebaseHelper.getAllNewsOfClub(clubId)
+
+    fun updateInput(newVal: String) {
+        searchInput.value = newVal
+    }
+
 }

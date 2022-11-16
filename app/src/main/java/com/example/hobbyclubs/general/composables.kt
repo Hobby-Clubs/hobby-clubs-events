@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
@@ -65,9 +66,11 @@ fun BasicText(value: String) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MenuTopBar(drawerState: DrawerState, hasSearch: Boolean = false) {
+fun MenuTopBar(
+    drawerState: DrawerState,
+    searchBar: (@Composable () -> Unit)? = null
+) {
     val scope = rememberCoroutineScope()
-    val screenWidth = LocalConfiguration.current.screenWidthDp
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -82,27 +85,44 @@ fun MenuTopBar(drawerState: DrawerState, hasSearch: Boolean = false) {
                 }
             }
         }
-        if (hasSearch) {
-            Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                TopSearchBar(
-                    modifier = Modifier
-                        .width((screenWidth * 0.72).dp)
-                        .aspectRatio(4.64f)
-                )
-            }
+        searchBar?.let {
+            it()
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopSearchBar(modifier: Modifier = Modifier) {
-    var input by remember { mutableStateOf("") }
-    OutlinedTextField(
-        modifier = modifier,
-        value = input,
-        onValueChange = { input = it },
-        leadingIcon = { Icon(imageVector = Icons.Filled.Search, contentDescription = "search") })
+fun TopSearchBar(
+    modifier: Modifier = Modifier,
+    input: String,
+    onTextChange: (String) -> Unit,
+    onCancel: () -> Unit
+) {
+    val screenWidth = LocalConfiguration.current.screenWidthDp
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        OutlinedTextField(
+            modifier = Modifier
+                .width((screenWidth * 0.72).dp)
+                .aspectRatio(4.64f),
+            value = input,
+            onValueChange = { onTextChange(it) },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Filled.Search,
+                    contentDescription = "search"
+                )
+            },
+            trailingIcon = {
+                if (input.isNotEmpty()) {
+                    IconButton(onClick = { onCancel() }) {
+                        Icon(imageVector = Icons.Filled.Close, contentDescription = "cancel")
+                    }
+                }
+            },
+            singleLine = true,
+        )
+    }
 }
 
 @Composable
@@ -177,7 +197,6 @@ fun PicturePicker(modifier: Modifier = Modifier, uri: Uri?, onPick: (Uri) -> Uni
             }
         }
     )
-
     Card(
         modifier = modifier
             .clickable { launcher.launch("image/*") },
@@ -464,7 +483,7 @@ fun LikeEventButton(modifier: Modifier = Modifier, isLiked: Boolean, onClick: ()
 @Composable
 fun EventTileRowItem(icon: ImageVector, iconDesc: String, content: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(icon, iconDesc)
+        Icon(modifier = Modifier.size(24.dp), imageVector = icon, contentDescription = iconDesc)
         Spacer(modifier = Modifier.width(5.dp))
         Text(text = content, fontSize = 14.sp, color = md_theme_light_onSurfaceVariant)
     }
@@ -506,8 +525,7 @@ fun SmallNewsTile(modifier: Modifier = Modifier, news: News, onClick: () -> Unit
                 modifier = Modifier
                     .size(40.dp)
                     .aspectRatio(1f)
-                    .clip(CircleShape)
-                    .padding(0.dp),
+                    .clip(CircleShape),
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(picUri)
                     .crossfade(true)

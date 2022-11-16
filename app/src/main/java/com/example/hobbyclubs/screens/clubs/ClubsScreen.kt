@@ -29,12 +29,14 @@ import coil.request.ImageRequest
 import com.example.compose.clubTileBg
 import com.example.compose.clubTileBorder
 import com.example.hobbyclubs.api.Club
+import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.general.DrawerScreen
 import com.example.hobbyclubs.general.LazyColumnHeader
 import com.example.hobbyclubs.general.MenuTopBar
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.google.firebase.storage.StorageReference
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -50,7 +52,9 @@ fun ClubsScreen(navController: NavController, vm: ClubsScreenViewModel = viewMod
         topBar = { MenuTopBar(drawerState = drawerState) }) {
         SwipeRefresh(
             state = rememberSwipeRefreshState(isRefreshing = isRefreshing),
-            onRefresh = { vm.refresh() }) {
+            onRefresh = { vm.refresh() },
+            refreshTriggerDistance = 50.dp
+        ) {
             LazyColumn(
                 Modifier
                     .fillMaxWidth()
@@ -63,7 +67,8 @@ fun ClubsScreen(navController: NavController, vm: ClubsScreenViewModel = viewMod
                 items(suggestedClubs) {
                     ClubTile(
                         club = it,
-                        vm = vm,
+                        logoRef = vm.getLogo(it.ref),
+                        bannerRef = vm.getBanner(it.ref),
                         onClick = {
                             navController.navigate(NavRoutes.ClubPageScreen.route + "/${it.ref}")
                         })
@@ -74,7 +79,8 @@ fun ClubsScreen(navController: NavController, vm: ClubsScreenViewModel = viewMod
                 items(allClubs) {
                     ClubTile(
                         club = it,
-                        vm = vm,
+                        logoRef = vm.getLogo(it.ref),
+                        bannerRef = vm.getBanner(it.ref),
                         onClick = {
                             navController.navigate(NavRoutes.ClubPageScreen.route + "/${it.ref}")
                         })
@@ -104,15 +110,17 @@ fun ClubsScreen(navController: NavController, vm: ClubsScreenViewModel = viewMod
 fun ClubTile(
     modifier: Modifier = Modifier,
     club: Club,
-    vm: ClubsScreenViewModel,
+    logoRef: StorageReference,
+    bannerRef: StorageReference,
     onClick: () -> Unit
 ) {
     var logoUri: Uri? by rememberSaveable { mutableStateOf(null) }
     var bannerUri: Uri? by rememberSaveable { mutableStateOf(null) }
+    val isJoined = club.members.contains(FirebaseHelper.uid)
 
     LaunchedEffect(Unit) {
         if (logoUri == null) {
-            vm.getLogo(club.ref)
+            logoRef
                 .downloadUrl
                 .addOnSuccessListener {
                     logoUri = it
@@ -122,7 +130,7 @@ fun ClubTile(
                 }
         }
         if (bannerUri == null) {
-            vm.getBanner(club.ref)
+            bannerRef
                 .downloadUrl
                 .addOnSuccessListener {
                     bannerUri = it
@@ -150,27 +158,27 @@ fun ClubTile(
                     modifier = Modifier
                         .weight(1f)
                         .padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     AsyncImage(
                         modifier = Modifier
                             .size(50.dp)
                             .aspectRatio(1f)
-                            .clip(CircleShape)
-                            .padding(0.dp)
-                            .padding(end = 8.dp),
+                            .clip(CircleShape),
                         model = ImageRequest.Builder(LocalContext.current)
                             .data(logoUri)
                             .crossfade(true)
                             .build(),
-                        contentDescription = "logo"
+                        contentDescription = "logo",
+                        contentScale = ContentScale.Crop
                     )
                     Column(
                         modifier = Modifier.weight(1f),
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(text = club.name, fontWeight = FontWeight.Medium, fontSize = 16.sp)
-                        Text(text = "Join now!", fontSize = 14.sp)
+                        Text(text = if (isJoined) "Already joined" else "Join now!", fontSize = 14.sp)
                     }
                 }
                 AsyncImage(

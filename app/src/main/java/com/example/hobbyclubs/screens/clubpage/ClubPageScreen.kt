@@ -230,7 +230,6 @@ fun ClubSectionTitle(text: String) {
 
 @Composable
 fun EventTile() {
-
     Card(
         shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -316,8 +315,8 @@ fun ClubLogo(modifier: Modifier, uri: Uri?) {
             model = uri,
             contentDescription = "avatar",
             modifier = Modifier
-                .padding(10.dp)
-                .size(125.dp)
+                .size(125.dp),
+            contentScale = ContentScale.Crop
         )
     }
 }
