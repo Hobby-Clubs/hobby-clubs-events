@@ -1,6 +1,7 @@
 package com.example.hobbyclubs.screens.clubpage
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
@@ -229,15 +230,26 @@ fun ClubPageHeader(
                     }
                 )
             }
-
-            CustomButton(
-                text = "Share",
-                onClick = {
-                    Toast.makeText(context, "You are sharing the club", Toast.LENGTH_SHORT).show()
-                }
-            )
+            ShareButton(text = "Share", clubId = club.ref)
         }
     }
+}
+
+@Composable
+fun ShareButton(text: String, clubId: String) {
+    val sendIntent: Intent = Intent().apply {
+        action = Intent.ACTION_SEND
+        putExtra(Intent.EXTRA_TEXT, "https://hobbyclubs.fi/$clubId")
+        type = "text/plain"
+    }
+    val shareIntent = Intent.createChooser(sendIntent, null)
+    val context = LocalContext.current
+    CustomButton(
+        onClick = {
+            context.startActivity(shareIntent)
+        },
+        text = text
+    )
 }
 
 @Composable

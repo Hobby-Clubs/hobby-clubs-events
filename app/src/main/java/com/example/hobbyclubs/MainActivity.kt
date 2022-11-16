@@ -1,5 +1,6 @@
 package com.example.hobbyclubs
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -11,6 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import com.example.compose.HobbyClubsTheme
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.navigation.NavRoutes
@@ -67,6 +69,12 @@ fun MyAppNavHost() {
             NavRoutes.ClubPageScreen.route + "/{clubId}",
             arguments = listOf(
                 navArgument("clubId") { type = NavType.StringType }
+            ),
+            deepLinks = listOf(
+                navDeepLink {
+                    uriPattern = "https://hobbyclubs.fi/{clubId}"
+                    action = Intent.ACTION_VIEW
+                }
             )
         ) {
             val clubId = it.arguments!!.getString("clubId")!!
