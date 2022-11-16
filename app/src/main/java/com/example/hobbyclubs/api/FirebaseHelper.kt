@@ -94,6 +94,10 @@ object FirebaseHelper {
 
     fun getAllEvents() = db.collection(CollectionName.events)
 
+    fun getEvent(uid: String) : DocumentReference {
+        return db.collection(CollectionName.events).document(uid)
+    }
+
     fun sendEventImage(imageId: String, eventId: String, imageBitmap: Bitmap) {
         val storageRef =
             Firebase.storage.reference.child("events").child(eventId).child(imageId)

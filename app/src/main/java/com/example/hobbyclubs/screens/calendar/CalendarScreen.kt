@@ -1,5 +1,6 @@
 package com.example.hobbyclubs.screens.calendar
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -20,6 +21,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -37,54 +39,54 @@ import androidx.navigation.NavController
 import com.example.hobbyclubs.R
 import com.example.compose.joinedColor
 import com.example.compose.nokiaBlue
+import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.general.DrawerScreen
 import com.example.hobbyclubs.general.MenuTopBar
-import com.example.hobbyclubs.screens.clubpage.EventTile
+import com.example.hobbyclubs.general.toDate
+import com.example.hobbyclubs.navigation.NavRoutes
+import com.example.hobbyclubs.screens.clubpage.EventTileRowItem
 import io.github.boguszpawlowski.composecalendar.SelectableCalendar
 import io.github.boguszpawlowski.composecalendar.day.DayState
 import io.github.boguszpawlowski.composecalendar.header.MonthState
 import io.github.boguszpawlowski.composecalendar.rememberSelectableCalendarState
+import io.github.boguszpawlowski.composecalendar.selection.DynamicSelectionState
 import io.github.boguszpawlowski.composecalendar.selection.SelectionMode
 import io.github.boguszpawlowski.composecalendar.selection.SelectionState
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.ZoneId
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CalendarScreen(navController: NavController, vm: CalendarScreenViewModel = viewModel()) {
     val state = rememberSelectableCalendarState(
-        initialSelection = listOf(LocalDate.now()),
         confirmSelectionChange = { vm.onSelectionChanged(it); true },
         initialSelectionMode = SelectionMode.Single,
     )
-
-    val events by vm.eventsFlow.collectAsState()
-    val selectedDayEvents by vm.selectedDayEvents.collectAsState(null)
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+
+    val allEvents by vm.allEvents.observeAsState(listOf())
+    val filteredEvents by vm.filteredEvents.observeAsState(listOf())
+
     DrawerScreen(
         navController = navController,
         drawerState = drawerState,
-        topBar = {  }) {
+        topBar = { MenuTopBar(drawerState = drawerState) }) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
             Column(modifier = Modifier.fillMaxHeight()) {
                 SelectableCalendar(
                     modifier = Modifier.padding(5.dp),
                     firstDayOfWeek = DayOfWeek.MONDAY,
                     calendarState = state,
-                    showAdjacentMonths = false,
+                    showAdjacentMonths = true,
                     dayContent = { dayState ->
-                        val likedEvents = events.filter { it.liked }
-                        val joinedEvents = events.filter { it.joined }
-                        DefaultDay(
+                        Day(
                             state = dayState,
-                            event = events.firstOrNull { it.date == dayState.date },
-                            likedEvent = likedEvents.firstOrNull { it.date == dayState.date },
-                            joinedEvent = joinedEvents.firstOrNull { it.date == dayState.date }
+                            event = allEvents.firstOrNull { it.date.toDate() == dayState.date.toDate() }
                         )
                     },
-                    monthHeader = {
-                        MonthHeader(monthState = state.monthState)
-                    }
+                    monthHeader = { MonthHeader(monthState = state.monthState) }
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -119,12 +121,16 @@ fun CalendarScreen(navController: NavController, vm: CalendarScreenViewModel = v
                     )
                     Text("Liked", fontSize = 12.sp)
                 }
-                if(selectedDayEvents?.isEmpty() == false) {
+                if(!filteredEvents.isEmpty()) {
                     LazyColumn(modifier = Modifier
                         .fillMaxHeight()
-                        .padding(horizontal = 2.dp, vertical = 5.dp), contentPadding = PaddingValues(5.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        items(selectedDayEvents!!) { event ->
-                            Event(event.name, event.date)
+                        .padding(horizontal = 2.dp, vertical = 5.dp),
+                        contentPadding = PaddingValues(5.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        items(filteredEvents) {
+                            EventTile(event = it, vm = vm, onClick = {
+                                navController.navigate(NavRoutes.EventScreen.route + "/${it.id}")
+                            })
                         }
                     }
                 }
@@ -134,59 +140,32 @@ fun CalendarScreen(navController: NavController, vm: CalendarScreenViewModel = v
 }
 
 @Composable
-fun MonthHeader(monthState: MonthState, modifier: Modifier = Modifier, ) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        IconButton(
-            onClick = { monthState.currentMonth = monthState.currentMonth.minusMonths(1) }
-        ) {
-            Image(
-                imageVector = Icons.Default.KeyboardArrowLeft,
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
-                contentDescription = "Previous",
-            )
-        }
-        Text(
-            text = monthState.currentMonth.month.toString(),
-            style = MaterialTheme.typography.headlineSmall,
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(text = monthState.currentMonth.year.toString(), style = MaterialTheme.typography.headlineSmall)
-        IconButton(
-            onClick = { monthState.currentMonth = monthState.currentMonth.plusMonths(1) }
-        ) {
-            Image(
-                imageVector = Icons.Default.KeyboardArrowRight,
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
-                contentDescription = "Next",
-            )
-        }
-    }
-}
-
-@Composable
-fun <T : SelectionState> DefaultDay(
-    state: DayState<T>,
-    modifier: Modifier = Modifier,
+fun Day(
+    state: DayState<DynamicSelectionState>,
     event: Event?,
-    likedEvent: Event?,
-    joinedEvent: Event?,
-    onClick: (LocalDate) -> Unit = {},
+    modifier: Modifier = Modifier,
 ) {
     val date = state.date
     val selectionState = state.selectionState
-
     val isSelected = selectionState.isDateSelected(date)
+
+    // temporary
+    val joinedStatus = false
+    val likedStatus = false
 
     Card(
         modifier = modifier
             .aspectRatio(1f)
             .padding(2.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = (if (state.isFromCurrentMonth) 4.dp else 1.dp)),
-        border = if(joinedEvent != null) BorderStroke(1.dp, joinedColor) else if(likedEvent != null) BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary) else if(event != null) BorderStroke(1.dp, MaterialTheme.colorScheme.primary) else null,
+        border =
+        if(joinedStatus)
+            BorderStroke(1.dp, joinedColor)
+        else if(likedStatus)
+            BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary)
+        else if(event != null)
+            BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+        else null,
         colors = CardDefaults.cardColors(
             contentColor = (if (state.isCurrentDay) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary),
             containerColor = if(isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
@@ -196,7 +175,7 @@ fun <T : SelectionState> DefaultDay(
             modifier = Modifier
                 .fillMaxSize()
                 .clickable {
-                    onClick(date)
+                    Log.d("ONSELECT", event.toString())
                     selectionState.onDateSelected(date)
                 },
             contentAlignment = Alignment.Center,
@@ -207,7 +186,13 @@ fun <T : SelectionState> DefaultDay(
 }
 
 @Composable
-fun Event(title: String, date: LocalDate) {
+fun EventTile(
+    modifier: Modifier = Modifier,
+    event: Event,
+    vm: CalendarScreenViewModel,
+    onClick: () -> Unit
+) {
+
     Card(
         shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -215,6 +200,7 @@ fun Event(title: String, date: LocalDate) {
         modifier = Modifier
             .fillMaxWidth()
             .height(175.dp)
+            .clickable { onClick() }
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             Box(
@@ -228,7 +214,7 @@ fun Event(title: String, date: LocalDate) {
                     contentScale = ContentScale.FillWidth
                 )
                 Text(
-                    text = "Ice Hockey Tournament",
+                    text = event.name,
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .padding(10.dp),
@@ -263,7 +249,7 @@ fun Event(title: String, date: LocalDate) {
                     .padding(vertical = 10.dp),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
-                RowItem(icon = Icons.Outlined.CalendarMonth, iconDesc = "Calendar Icon", content = date.toString() )
+                RowItem(icon = Icons.Outlined.CalendarMonth, iconDesc = "Calendar Icon", content = "16.11.2022" )
                 RowItem(icon = Icons.Outlined.Timer, iconDesc = "Timer Icon", content = "19:00")
                 RowItem(icon = Icons.Outlined.People, iconDesc = "People Icon", content = "5")
             }
@@ -278,5 +264,43 @@ fun RowItem(icon: ImageVector, iconDesc: String, content: String) {
         Icon(icon, iconDesc)
         Spacer(modifier = Modifier.width(5.dp))
         Text(text = content)
+    }
+}
+
+@Composable
+fun MonthHeader(monthState: MonthState, modifier: Modifier = Modifier, ) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        /*
+        IconButton(
+            onClick = { monthState.currentMonth = monthState.currentMonth.minusMonths(1) }
+        ) {
+            Image(
+                imageVector = Icons.Default.KeyboardArrowLeft,
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
+                contentDescription = "Previous",
+            )
+        }
+        */
+        Text(
+            text = monthState.currentMonth.month.toString(),
+            style = MaterialTheme.typography.headlineSmall,
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(text = monthState.currentMonth.year.toString(), style = MaterialTheme.typography.headlineSmall)
+        /*
+        IconButton(
+            onClick = { monthState.currentMonth = monthState.currentMonth.plusMonths(1) }
+        ) {
+            Image(
+                imageVector = Icons.Default.KeyboardArrowRight,
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
+                contentDescription = "Next",
+            )
+        }
+        */
     }
 }
