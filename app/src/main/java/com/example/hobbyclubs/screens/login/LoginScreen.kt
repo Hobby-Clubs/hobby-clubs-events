@@ -124,13 +124,15 @@ fun EmailPwdForm(vm: LoginViewModel) {
             modifier = Modifier.fillMaxWidth(),
             value = email,
             onValueChange = { vm.updateEmail(it) },
-            label = { Text(text = "Email") }
+            label = { Text(text = "Email") },
+            singleLine = true
         )
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
             value = pwd,
             onValueChange = { vm.updatePwd(it) },
-            label = { Text(text = "Password") }
+            label = { Text(text = "Password") },
+            singleLine = true
         )
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = {

@@ -287,8 +287,12 @@ class ClubCategory {
 
 data class User(
     var uid: String = "",
-    val fName: String = "",
-    val lName: String = "",
+    @get:PropertyName("fName")
+    @set:PropertyName("fName")
+    var fName: String = "",
+    @get:PropertyName("lName")
+    @set:PropertyName("lName")
+    var lName: String = "",
     val phone: String = "",
     val email: String = "",
     val interests: List<String> = listOf()

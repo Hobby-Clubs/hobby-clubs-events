@@ -18,10 +18,6 @@ class LoginViewModel : ViewModel() {
     val isLoggedIn = MutableLiveData(false)
     val authException = MutableLiveData<Exception>()
 
-    init {
-        isLoggedIn.value = FirebaseHelper.currentUser != null
-    }
-
     fun updateEmail(newVal: String) {
         email.value = newVal
     }

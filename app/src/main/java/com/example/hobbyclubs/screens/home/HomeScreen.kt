@@ -44,6 +44,8 @@ import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.clubs.ClubTile
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshState
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import kotlin.math.abs
 
@@ -571,6 +573,7 @@ fun FakeButtonForNavigationTest(destination: String, onClick: () -> Unit) {
 
 @Composable
 fun FakeNavigation(navController: NavController) {
+    val scope = rememberCoroutineScope()
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -595,8 +598,10 @@ fun FakeNavigation(navController: NavController) {
             navController.navigate(NavRoutes.CreateClub.route)
         }
         FakeButtonForNavigationTest(destination = "Log out") {
-            FirebaseHelper.logout()
-            navController.navigate(NavRoutes.LoginScreen.route)
+            scope.launch {
+                FirebaseHelper.logout()
+                navController.navigate(NavRoutes.LoginScreen.route)
+            }
         }
     }
 }
