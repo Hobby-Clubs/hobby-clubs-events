@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.example.hobbyclubs.api.*
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitAll
@@ -70,39 +71,50 @@ class ClubPageViewModel : ViewModel() {
     }
 
     fun getClubEvents(clubId: String) {
-        firebase.getAllEventsOfClub(clubId).orderBy("date", Query.Direction.ASCENDING).get()
-            .addOnSuccessListener { data ->
+        val now = Timestamp.now()
+//        firebase.getAllEventsOfClub(clubId).orderBy("date", Query.Direction.ASCENDING)
+//            .get()
+//            .addOnSuccessListener { data ->
+//                val fetchedEvents = data.toObjects(Event::class.java)
+//                fetchedEvents.let { listOfEvents.postValue(it) }
+//            }
+        firebase.getAllEventsOfClub(clubId).orderBy("date", Query.Direction.ASCENDING)
+            .addSnapshotListener { data, error ->
+                data ?: run {
+                    Log.e("ClubPageViewModel", "getClubEvents: ", error)
+                    return@addSnapshotListener
+                }
                 val fetchedEvents = data.toObjects(Event::class.java)
-                fetchedEvents.let { listOfEvents.postValue(it) }
+                listOfEvents.value = fetchedEvents.filter { it.date >= now }
             }
     }
 
-    fun joinEvent(event: Event) {
-        val updatedList = event.participants.toMutableList()
-        firebase.uid?.let {
-            updatedList.add(it)
-        }
-        firebase.addUserToEvent(eventId = event.id, updatedList)
-        getClubEvents(event.clubId)
-    }
-
-    fun likeEvent(event: Event) {
-        val updatedList = event.likers.toMutableList()
-        firebase.uid?.let {
-            updatedList.add(it)
-        }
-        firebase.addUserLikeToEvent(eventId = event.id, updatedList)
-        getClubEvents(event.clubId)
-    }
-
-    fun removeLikeOnEvent(event: Event) {
-        val updatedList = event.likers.toMutableList()
-        firebase.uid?.let {
-            updatedList.remove(it)
-        }
-        firebase.addUserLikeToEvent(eventId = event.id, updatedList)
-        getClubEvents(event.clubId)
-    }
+//    fun joinEvent(event: Event) {
+//        val updatedList = event.participants.toMutableList()
+//        firebase.uid?.let {
+//            updatedList.add(it)
+//        }
+//        firebase.addUserToEvent(eventId = event.id, updatedList)
+//        getClubEvents(event.clubId)
+//    }
+//
+//    fun likeEvent(event: Event) {
+//        val updatedList = event.likers.toMutableList()
+//        firebase.uid?.let {
+//            updatedList.add(it)
+//        }
+//        firebase.addUserLikeToEvent(eventId = event.id, updatedList)
+//        getClubEvents(event.clubId)
+//    }
+//
+//    fun removeLikeOnEvent(event: Event) {
+//        val updatedList = event.likers.toMutableList()
+//        firebase.uid?.let {
+//            updatedList.remove(it)
+//        }
+//        firebase.addUserLikeToEvent(eventId = event.id, updatedList)
+//        getClubEvents(event.clubId)
+//    }
 
     fun getEvent(eventId: String) = firebase.getEvent(eventId)
 

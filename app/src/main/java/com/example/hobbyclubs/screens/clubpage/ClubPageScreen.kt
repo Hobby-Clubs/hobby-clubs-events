@@ -273,14 +273,6 @@ fun ClubSchedule(vm: ClubPageViewModel, navController: NavController) {
                 EventTile(
                     event = event,
                     onClick = {},
-                    onJoin = { vm.joinEvent(event) },
-                    onLike = {
-                        if (event.likers.contains(FirebaseHelper.uid)) {
-                            vm.removeLikeOnEvent(event)
-                        } else {
-                            vm.likeEvent(event)
-                        }
-                    }
                 )
                 Spacer(modifier = Modifier.height(20.dp))
             }

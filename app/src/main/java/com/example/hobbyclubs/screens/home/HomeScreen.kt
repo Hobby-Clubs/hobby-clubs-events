@@ -248,7 +248,7 @@ fun SearchUI(vm: HomeScreenViewModel, navController: NavController) {
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     eventsFiltered.forEach {
-                        EventTile(event = it, onJoin = { }, onLike = { }) {
+                        EventTile(event = it) {
 
                         }
                     }
@@ -302,9 +302,8 @@ fun MainScreenContent(
             items(myEvents) {
                 EventTile(
                     event = it,
-                    onJoin = {},
-                    onLike = { vm.likeEvent(initialLikers = it.likers, eventId = it.id) },
-                    onClick = {})
+                    onClick = {}
+                )
             }
             stickyHeader {
                 LazyColumnHeader(text = "My News")
@@ -483,7 +482,7 @@ fun FAB(isExpanded: Boolean, navController: NavController, onClick: () -> Unit) 
     val actions = listOf(
         Pair("News") { },
         Pair("Event") { navController.navigate(NavRoutes.CreateEvent.route) },
-        Pair("Club") { }
+        Pair("Club") { navController.navigate(NavRoutes.CreateClub.route) }
     )
     Column(
         verticalArrangement = Arrangement.spacedBy(32.dp),

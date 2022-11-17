@@ -15,7 +15,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.*
@@ -26,29 +25,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusManager
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.Role.Companion.Image
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -314,8 +303,6 @@ fun CustomOutlinedTextField(
 fun EventTile(
     modifier: Modifier = Modifier,
     event: Event,
-    onJoin: () -> Unit,
-    onLike: () -> Unit,
     onClick: () -> Unit
 ) {
     var picUri: Uri? by remember { mutableStateOf(null) }
@@ -390,10 +377,14 @@ fun EventTile(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     JoinEventButton(isJoined = joined) {
-                        onJoin()
+                        if (!joined) {
+                            joinEvent(event)
+                        }
                     }
-                    LikeEventButton(isLiked = liked) {
-                        onLike()
+                    if (!joined) {
+                        LikeEventButton(isLiked = liked) {
+                            likeEvent(event)
+                        }
                     }
                 }
                 Text(
@@ -429,7 +420,7 @@ fun EventTile(
                     content = time
                 )
                 val participants = event.participants.size.toString() +
-                        if (event.participantLimit == -1) "/${event.participantLimit}" else ""
+                        if (event.participantLimit != -1) "/${event.participantLimit}" else ""
                 EventTileRowItem(
                     icon = Icons.Outlined.People,
                     iconDesc = "People Icon",

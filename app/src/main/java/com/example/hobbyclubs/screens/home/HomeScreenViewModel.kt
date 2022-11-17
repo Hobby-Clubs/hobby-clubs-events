@@ -124,18 +124,6 @@ class HomeScreenViewModel : ViewModel() {
             }
     }
 
-    fun likeEvent(initialLikers: List<String>, eventId: String) {
-        FirebaseHelper.uid?.let { uid ->
-            val liked = initialLikers.contains(uid)
-            val newLikers = if (liked) {
-                initialLikers.filter { it != uid }
-            } else {
-                initialLikers + listOf(uid)
-            }
-            FirebaseHelper.updateLikeEvent(updatedLikers = newLikers, eventId = eventId)
-        }
-    }
-
     fun getLogo(clubId: String) = FirebaseHelper.getFile("${CollectionName.clubs}/$clubId/logo")
     fun getBanner(clubId: String) = FirebaseHelper.getFile("${CollectionName.clubs}/$clubId/banner")
 
