@@ -3,38 +3,30 @@ package com.example.hobbyclubs.screens.clubpage
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -43,18 +35,16 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.compose.linkBlue
-import com.example.compose.nokiaBlue
 import com.example.compose.nokiaDarkBlue
-import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.Club
-import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.FirebaseHelper
+import com.example.hobbyclubs.api.Request
 import com.example.hobbyclubs.general.CustomOutlinedTextField
 import com.example.hobbyclubs.general.DividerLine
 import com.example.hobbyclubs.general.EventTile
 import com.example.hobbyclubs.general.SmallNewsTile
 import com.example.hobbyclubs.navigation.NavRoutes
-import java.text.SimpleDateFormat
+import com.google.firebase.Timestamp
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -128,6 +118,7 @@ fun ClubPageHeader(
     val hasJoinedClub by vm.hasJoinedClub.observeAsState(false)
     val isAdmin by vm.isAdmin.observeAsState(false)
     val clubIsPrivate by vm.clubIsPrivate.observeAsState(null)
+    val joinClubDialogText by vm.joinClubDialogText.observeAsState(TextFieldValue(""))
     var showJoinRequestDialog by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
@@ -137,7 +128,20 @@ fun ClubPageHeader(
         if (showJoinRequestDialog) {
             JoinClubDialog(
                 onConfirm = {
-                    vm.joinClub(clubId = club.ref)
+                    if(FirebaseHelper.uid != null && joinClubDialogText.text.isNotEmpty()) {
+                        val request = Request(
+                            userId = FirebaseHelper.uid!!,
+                            acceptedStatus = false,
+                            timeAccepted = null,
+                            message = joinClubDialogText.text,
+                            requestSent = Timestamp.now()
+                        )
+                        vm.sendJoinClubRequest(clubId = club.ref, request = request)
+                        Toast.makeText(context, "Request sent", Toast.LENGTH_LONG).show()
+                        showJoinRequestDialog = false
+                    } else {
+                        Toast.makeText(context, "Please fill text field", Toast.LENGTH_SHORT).show()
+                    }
                 },
                 onDismissRequest = {
                     showJoinRequestDialog = false
@@ -168,7 +172,7 @@ fun ClubPageHeader(
                     modifier = Modifier.padding(end = 20.dp)
                 )
                 TextButton(
-                    onClick = { navController.navigate(NavRoutes.MembersScreen.route + "/false/${club.ref}") },
+                    onClick = { navController.navigate(NavRoutes.ClubMembersScreen.route + "/${club.ref}") },
                     colors = ButtonDefaults.buttonColors(
                         contentColor = Color.Black,
                         containerColor = Color.Transparent

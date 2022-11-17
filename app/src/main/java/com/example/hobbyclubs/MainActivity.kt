@@ -17,7 +17,10 @@ import com.example.compose.HobbyClubsTheme
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.calendar.CalendarScreen
+import com.example.hobbyclubs.screens.clubmanagement.ClubAllEventsScreen
+import com.example.hobbyclubs.screens.clubmanagement.ClubAllNewsScreen
 import com.example.hobbyclubs.screens.clubmanagement.ClubManagementScreen
+import com.example.hobbyclubs.screens.clubmembers.ClubMemberRequestScreen
 import com.example.hobbyclubs.screens.clubpage.ClubPageScreen
 import com.example.hobbyclubs.screens.clubs.ClubsScreen
 import com.example.hobbyclubs.screens.home.HomeScreen
@@ -89,17 +92,43 @@ fun MyAppNavHost() {
             val clubId = it.arguments!!.getString("clubId")!!
             ClubManagementScreen(navController = navController, clubId = clubId)
         }
-        // ClubMembersScreen
-        composable(
-            NavRoutes.MembersScreen.route + "/{showRequests}/{clubId}",
+        // ClubAllNewsScreen
+        composable(NavRoutes.ClubAllNewsScreen.route + "/{clubId}",
             arguments = listOf(
-                navArgument("showRequests") { type = NavType.BoolType },
                 navArgument("clubId") { type = NavType.StringType }
             )
         ) {
-            val showRequests = it.arguments!!.getBoolean("showRequests")
             val clubId = it.arguments!!.getString("clubId")!!
-            ClubMembersScreen(navController = navController, showRequests = showRequests, clubId = clubId)
+            ClubAllNewsScreen(navController = navController, clubId = clubId)
+        }
+        // ClubAllEventsScreen
+        composable(NavRoutes.ClubAllEventsScreen.route + "/{clubId}",
+            arguments = listOf(
+                navArgument("clubId") { type = NavType.StringType }
+            )
+        ) {
+            val clubId = it.arguments!!.getString("clubId")!!
+            ClubAllEventsScreen(navController = navController, clubId = clubId)
+        }
+        // ClubMembersScreen
+        composable(
+            NavRoutes.ClubMembersScreen.route + "/{clubId}",
+            arguments = listOf(
+                navArgument("clubId") { type = NavType.StringType }
+            )
+        ) {
+            val clubId = it.arguments!!.getString("clubId")!!
+            ClubMembersScreen(navController = navController, clubId = clubId)
+        }
+        // ClubMemberRequestScreen
+        composable(
+            NavRoutes.ClubMemberRequestScreen.route + "/{clubId}",
+            arguments = listOf(
+                navArgument("clubId") { type = NavType.StringType }
+            )
+        ) {
+            val clubId = it.arguments!!.getString("clubId")!!
+            ClubMemberRequestScreen(navController = navController, clubId = clubId)
         }
         // NewsScreen
         composable(NavRoutes.NewsScreen.route) {

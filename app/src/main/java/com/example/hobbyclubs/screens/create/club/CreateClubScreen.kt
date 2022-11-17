@@ -33,6 +33,7 @@ import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.FirebaseHelper
+import com.example.hobbyclubs.general.CustomAlertDialog
 import com.example.hobbyclubs.general.CustomOutlinedTextField
 import com.example.hobbyclubs.general.Pill
 import com.example.hobbyclubs.navigation.NavRoutes
@@ -83,7 +84,10 @@ fun CreateClubScreen(
                 onConfirm = {
                     navController.navigateUp()
                     showLeaveDialog = false
-                }
+                },
+                title = "Leave?",
+                text = "Are you sure you want to leave? All information will be lost.",
+                confirmText = "Leave"
             )
         }
         BackHandler(enabled = true) {

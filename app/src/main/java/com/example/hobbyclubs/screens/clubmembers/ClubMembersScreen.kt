@@ -1,15 +1,16 @@
 package com.example.hobbyclubs.screens.clubmembers
 
+import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.outlined.TaskAlt
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,16 +31,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.compose.forestGreen
 import com.example.hobbyclubs.R
+import com.example.hobbyclubs.api.Club
+import com.example.hobbyclubs.api.CollectionName
+import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.User
+import com.example.hobbyclubs.screens.clubmanagement.ClubManagementSectionTitle
 import com.example.hobbyclubs.screens.clubpage.CustomButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClubMembersScreen(
     navController: NavController,
-    showRequests: Boolean,
     vm: ClubMembersViewModel = viewModel(),
     clubId: String
 ) {
@@ -48,71 +55,110 @@ fun ClubMembersScreen(
         vm.getClub(clubId)
     }
     club?.let {
-            Box() {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 20.dp),
-                    horizontalAlignment = Alignment.Start,
-                ) {
-                    Text(
-                        text = if (showRequests) "Member Requests" else "Members",
-                        fontSize = 32.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(top = 75.dp, bottom = 20.dp),
-                    )
-                    ListOfMembers(listOfMembers, showRequests, vm, clubId)
-                }
-                CenterAlignedTopAppBar(
-                    title = { Text(text = it.name, fontSize = 16.sp) },
-                    colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
-                    navigationIcon = {
-                        IconButton(onClick = { navController.navigateUp() }) {
-                            Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")
-                        }
-                    }
+        Box() {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 20.dp),
+                horizontalAlignment = Alignment.Start,
+            ) {
+                Text(
+                    text = "Club Members",
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(top = 75.dp, bottom = 20.dp),
                 )
+                ListOfClubMembers(listOfMembers, vm, it)
             }
+            CenterAlignedTopAppBar(
+                title = { Text(text = it.name, fontSize = 16.sp) },
+                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")
+                    }
+                }
+            )
+        }
     }
 }
 
 @Composable
-fun ListOfMembers(
+fun ListOfClubMembers(
     listOfMembers: List<User>,
-    showRequests: Boolean,
     vm: ClubMembersViewModel,
-    clubId: String
+    club: Club
 ) {
-    var selectedMemberIndex: Int? by remember { mutableStateOf(null) }
+    var selectedMemberUid: String? by remember { mutableStateOf(null) }
+    val listOfAdmins = listOfMembers.filter { club.admins.contains(it.uid) }
+    val listOfNormalMembers = listOfMembers.filter { !club.admins.contains(it.uid) }
+    Log.d("listOfMembers", "ListOfMembers: $listOfMembers")
 
     LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        itemsIndexed(listOfMembers) { index, member ->
+        item { ClubManagementSectionTitle(text = "Admins") }
+        items(listOfAdmins) { admin ->
+            MemberCard(
+                user = admin,
+                setSelectedMemberUid = {
+                    selectedMemberUid = if (selectedMemberUid == admin.uid) null else admin.uid
+                },
+                onPromote = {
+                    vm.promoteToAdmin(clubId = club.ref, admin.uid)
+                    selectedMemberUid = null
+                },
+                isSelected = selectedMemberUid == admin.uid,
+                vm = vm,
+                club = club
+            )
+        }
+        item { ClubManagementSectionTitle(text = "Members") }
+        items(listOfNormalMembers) { member ->
             MemberCard(
                 user = member,
-                showRequests = showRequests,
-                setSelectedMemberIndex = {
-                    selectedMemberIndex = if (selectedMemberIndex == index) null else index
+                setSelectedMemberUid = {
+                    selectedMemberUid =
+                        if (selectedMemberUid == member.uid) null else member.uid
                 },
-                isSelected = selectedMemberIndex == index,
+                onPromote = {
+                    vm.promoteToAdmin(clubId = club.ref, member.uid)
+                    selectedMemberUid = null
+                },
+                isSelected = selectedMemberUid == member.uid,
                 vm = vm,
-                clubId = clubId
+                club = club
             )
         }
     }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MemberCard(
     user: User,
-    showRequests: Boolean,
-    setSelectedMemberIndex: () -> Unit,
+    setSelectedMemberUid: () -> Unit,
+    onPromote: () -> Unit,
     isSelected: Boolean,
     vm: ClubMembersViewModel,
-    clubId: String
+    club: Club
 ) {
     val context = LocalContext.current
     var expandedState by remember { mutableStateOf(false) }
+    var picUri: Uri? by rememberSaveable { mutableStateOf(null) }
+    val isPromotable = !club.admins.contains(user.uid)
+    val isKickable = (user.uid != FirebaseHelper.uid && !club.admins.contains(user.uid))
+    LaunchedEffect(Unit) {
+        if (picUri == null) {
+            FirebaseHelper.getFile("${CollectionName.users}/${user.uid}")
+                .downloadUrl
+                .addOnSuccessListener {
+                    picUri = it
+                }
+                .addOnFailureListener {
+                    Log.e("getLogoUri", "SmallNewsTile: ", it)
+                }
+        }
+    }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -123,10 +169,9 @@ fun MemberCard(
                 )
             ),
         onClick = {
-            if (!showRequests) {
-                setSelectedMemberIndex()
-                expandedState = true
-            }
+            setSelectedMemberUid()
+            expandedState = true
+
         },
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -136,79 +181,59 @@ fun MemberCard(
                     .padding(horizontal = 15.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                MemberImage(avatarId = R.drawable.humanface)
+                MemberImage(uri = picUri)
                 Text(
                     text = "${user.fName} ${user.lName}", fontSize = 16.sp, modifier = Modifier
                         .weight(6f)
                         .padding(start = 30.dp)
                 )
-                if (showRequests) {
-                    Icon(
-                        Icons.Outlined.Cancel,
-                        "Decline",
-                        tint = Color.Red,
-                        modifier = Modifier
-                            .size(30.dp)
-                            .clickable {
-                                Toast
-                                    .makeText(context, "Declined", Toast.LENGTH_SHORT)
-                                    .show()
-                            }
-                    )
-                    Spacer(modifier = Modifier.width(5.dp))
-                    Icon(
-                        Icons.Outlined.TaskAlt,
-                        "Accept",
-                        tint = forestGreen,
-                        modifier = Modifier
-                            .size(30.dp)
-                            .clickable {
-                                Toast
-                                    .makeText(context, "Accepted", Toast.LENGTH_SHORT)
-                                    .show()
-                            }
-                    )
-                }
             }
             if (isSelected && expandedState) {
                 Spacer(modifier = Modifier.height(5.dp))
                 Row(modifier = Modifier.fillMaxWidth()) {
-                    CustomButton(
-                        onClick = {
-                            vm.promoteToAdmin(clubId = clubId, user.uid)
-                        },
-                        text = "Promote to admin",
-                    )
-                    CustomButton(
-                        onClick = {
-                            vm.kickUserFromClub(clubId, user.uid)
-                        },
-                        text = "Kick",
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Red,
-                            contentColor = Color.White
+                    if (isPromotable) {
+                        CustomButton(
+                            onClick = {
+                                onPromote()
+                            },
+                            text = "Promote to admin",
                         )
-                    )
+                    }
+                    if (isKickable) {
+                        CustomButton(
+                            onClick = {
+                                vm.kickUserFromClub(club.ref, user.uid)
+                            },
+                            text = "Kick",
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Red,
+                                contentColor = Color.White
+                            )
+                        )
+                    }
                 }
             }
-
         }
     }
 }
 
 @Composable
-fun MemberImage(avatarId: Int) {
+fun MemberImage(uri: Uri?) {
     Card(
         shape = CircleShape,
         border = BorderStroke(2.dp, Color.Black),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         modifier = Modifier.size(50.dp)
     ) {
-        Image(
-            painter = painterResource(avatarId),
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(uri)
+                .crossfade(true)
+                .build(),
             contentDescription = "avatar",
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier.fillMaxSize()
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize(),
+            error = painterResource(id = R.drawable.nokia_logo)
         )
     }
 }

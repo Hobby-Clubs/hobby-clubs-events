@@ -16,7 +16,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Newspaper
+import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -28,6 +31,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -467,12 +471,39 @@ fun UpcomingEvent(modifier: Modifier = Modifier, upcoming: Event?, onClick: () -
             Text(text = "No upcoming events", fontSize = 12.sp, fontWeight = FontWeight.Light)
         } else {
             val sdf = SimpleDateFormat("dd.MM.yyyy", java.util.Locale.ENGLISH)
+            val sdfTime = SimpleDateFormat("HH:mm", java.util.Locale.ENGLISH)
             val date = sdf.format(upcoming.date.toDate())
+            val time = sdfTime.format(upcoming.date.toDate())
             Text(text = "Upcoming event", fontSize = 12.sp, fontWeight = FontWeight.Light)
             Spacer(modifier = Modifier.height(12.dp))
             Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(text = upcoming.name, fontSize = 14.sp)
-                Text(text = date, fontSize = 12.sp, fontWeight = FontWeight.Light)
+                Text(text = upcoming.name, fontSize = 14.sp, overflow = TextOverflow.Ellipsis, maxLines = 1)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Outlined.CalendarMonth,
+                        null,
+                        modifier = Modifier
+                            .padding(end = 5.dp)
+                            .size(12.dp)
+                    )
+                    Text(text = date, fontSize = 12.sp, fontWeight = FontWeight.Light)
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Outlined.Schedule,
+                        null,
+                        modifier = Modifier
+                            .padding(end = 5.dp)
+                            .size(12.dp)
+                    )
+                    Text(text = time, fontSize = 12.sp, fontWeight = FontWeight.Light)
+                }
             }
         }
     }

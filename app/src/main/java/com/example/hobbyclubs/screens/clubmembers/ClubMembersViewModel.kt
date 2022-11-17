@@ -5,12 +5,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.FirebaseHelper
+import com.example.hobbyclubs.api.Request
 import com.example.hobbyclubs.api.User
 
 class ClubMembersViewModel : ViewModel() {
     val firebase = FirebaseHelper
     val selectedClub = MutableLiveData<Club>()
     val listOfMembers = MutableLiveData<List<User>>(listOf())
+    val listOfRequests = MutableLiveData<List<Request>>(listOf())
 
     private fun getClubMembers(clubMembers: List<String>) {
         listOfMembers.value = listOf()
@@ -19,7 +21,9 @@ class ClubMembersViewModel : ViewModel() {
                 .addOnSuccessListener {
                     Log.d("getMembers", it.toString())
                     val fetchedUser = it.toObject(User::class.java)
-                    fetchedUser?.let { user -> listOfMembers.value = listOfMembers.value?.plus(listOf(user)) }
+                    fetchedUser?.let { user ->
+                        listOfMembers.value = listOfMembers.value?.plus(listOf(user))
+                    }
                     Log.d("getMembers", listOfMembers.value.toString())
                 }
                 .addOnFailureListener { e ->
@@ -55,14 +59,40 @@ class ClubMembersViewModel : ViewModel() {
 //        updatedList?.remove(userId)
 //        firebase.updateUserAdminStatus(clubId = clubId, updatedList!!)
 //    }
-//
-//    fun checkIfUserIsAdmin() {
-//        isAdmin.value = selectedClub.value?.admins?.contains(currentUser.value!!.uid)
-//    }
 
     fun kickUserFromClub(clubId: String, userId: String) {
         val updatedList = selectedClub.value?.members?.toMutableList()
         updatedList?.remove(userId)
         firebase.updateUserInClub(clubId = clubId, updatedList!!)
+    }
+
+    fun getAllJoinRequests(clubId: String) {
+        firebase.getRequestsFromClub(clubId)
+            .addSnapshotListener { data, error ->
+                data ?: run {
+                    Log.e("getAllRequests", "RequestFetchFail: ", error)
+                    return@addSnapshotListener
+                }
+                val fetchedRequests = data.toObjects(Request::class.java)
+                Log.d("fetchNews", fetchedRequests.toString())
+                listOfRequests.value = fetchedRequests.filter { !it.acceptedStatus }
+            }
+    }
+
+    fun acceptJoinRequest(
+        clubId: String,
+        requestId: String,
+        memberListWithNewUser: List<String>,
+        changeMapForRequest: Map<String, Any>
+    ) {
+        firebase.acceptRequest(
+            clubId = clubId,
+            requestId = requestId,
+            memberListWithNewUser = memberListWithNewUser,
+            changeMapForRequest = changeMapForRequest
+        )
+    }
+    fun declineJoinRequest(clubId: String, requestId: String) {
+        firebase.declineRequest(clubId, requestId)
     }
 }

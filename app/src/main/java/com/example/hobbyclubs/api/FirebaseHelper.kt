@@ -39,7 +39,7 @@ object FirebaseHelper {
         return db.collection(CollectionName.users).document(uid)
     }
 
-    fun addClub(club: Club) : String {
+    fun addClub(club: Club): String {
         val ref = db.collection(CollectionName.clubs).document()
         val clubWithRef = club.apply { this.ref = ref.id }
         ref.set(clubWithRef)
@@ -103,6 +103,17 @@ object FirebaseHelper {
                 Log.e(TAG, "addEvent: ", e)
             }
         return ref.id
+    }
+
+    fun deleteEvent(eventId: String) {
+        val ref = db.collection(CollectionName.events).document(eventId)
+        ref.delete()
+            .addOnSuccessListener {
+                Log.d(TAG, "deleteEvent: $ref")
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "deleteEvent: ", e)
+            }
     }
 
     fun getEvent(eventId: String): DocumentReference {
@@ -210,6 +221,17 @@ object FirebaseHelper {
             }
     }
 
+    fun deleteNews(newsId: String) {
+        val ref = db.collection(CollectionName.news).document(newsId)
+        ref.delete()
+            .addOnSuccessListener {
+                Log.d(TAG, "deleteNews: $ref")
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "deleteNews: ", e)
+            }
+    }
+
     fun getAllNews() = db.collection(CollectionName.news)
 
     fun getAllNewsOfClub(clubId: String): Query {
@@ -223,6 +245,46 @@ object FirebaseHelper {
     }
 
     fun getAllUsers() = db.collection(CollectionName.users)
+
+    // Requests
+
+    fun getRequestsFromClub(clubId: String) =
+        db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.requests)
+
+    fun addRequest(clubId: String, request: Request) {
+        val ref = db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.requests).document()
+        val requestWithId = request.apply { id = ref.id }
+        ref.set(requestWithId)
+            .addOnSuccessListener {
+                Log.d(TAG, "addRequest: $ref")
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "addRequestFail: ", e)
+            }
+    }
+
+    fun acceptRequest(clubId: String, requestId: String, memberListWithNewUser: List<String>, changeMapForRequest: Map<String, Any>) {
+        val ref = db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.requests).document(requestId)
+        ref.update(changeMapForRequest)
+            .addOnSuccessListener {
+                Log.d(TAG, "acceptRequest: $ref")
+                updateUserInClub(clubId, memberListWithNewUser)
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "acceptRequestFail: ", e)
+            }
+    }
+
+    fun declineRequest(clubId: String, requestId: String) {
+        val ref = db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.requests).document(requestId)
+        ref.delete()
+            .addOnSuccessListener {
+                Log.d(TAG, "Request deleted: $ref")
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "RequestDeletionFail: ", e)
+            }
+    }
 
     // Auth
 
@@ -271,6 +333,7 @@ class CollectionName {
         const val events = "events"
         const val news = "news"
         const val users = "users"
+        const val requests = "requests"
     }
 }
 
@@ -339,3 +402,12 @@ data class News(
     val newsContent: String = "",
     val date: Timestamp = Timestamp.now(),
 ) : Serializable
+
+data class Request(
+    var id: String = "",
+    val userId: String = "",
+    val acceptedStatus: Boolean = false,
+    val timeAccepted: Timestamp? = null,
+    val message: String = "",
+    val requestSent: Timestamp = Timestamp.now()
+)

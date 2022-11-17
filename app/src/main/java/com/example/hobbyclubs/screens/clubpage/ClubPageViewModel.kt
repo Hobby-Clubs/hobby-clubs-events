@@ -89,33 +89,6 @@ class ClubPageViewModel : ViewModel() {
             }
     }
 
-//    fun joinEvent(event: Event) {
-//        val updatedList = event.participants.toMutableList()
-//        firebase.uid?.let {
-//            updatedList.add(it)
-//        }
-//        firebase.addUserToEvent(eventId = event.id, updatedList)
-//        getClubEvents(event.clubId)
-//    }
-//
-//    fun likeEvent(event: Event) {
-//        val updatedList = event.likers.toMutableList()
-//        firebase.uid?.let {
-//            updatedList.add(it)
-//        }
-//        firebase.addUserLikeToEvent(eventId = event.id, updatedList)
-//        getClubEvents(event.clubId)
-//    }
-//
-//    fun removeLikeOnEvent(event: Event) {
-//        val updatedList = event.likers.toMutableList()
-//        firebase.uid?.let {
-//            updatedList.remove(it)
-//        }
-//        firebase.addUserLikeToEvent(eventId = event.id, updatedList)
-//        getClubEvents(event.clubId)
-//    }
-
     fun getEvent(eventId: String) = firebase.getEvent(eventId)
 
     fun joinClub(clubId: String) {
@@ -134,5 +107,9 @@ class ClubPageViewModel : ViewModel() {
         }
         firebase.updateUserInClub(clubId = clubId, updatedList!!)
         getClub(clubId)
+    }
+
+    fun sendJoinClubRequest(clubId: String, request: Request) {
+        firebase.addRequest(clubId = clubId, request = request)
     }
 }

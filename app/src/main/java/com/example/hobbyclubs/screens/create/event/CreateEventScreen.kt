@@ -47,6 +47,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.compose.nokiaLighterBlue
 import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.Event
+import com.example.hobbyclubs.general.CustomAlertDialog
 import com.example.hobbyclubs.general.CustomOutlinedTextField
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.clubpage.CustomButton
@@ -98,7 +99,10 @@ fun CreateEventScreen(
                 onConfirm = {
                     navController.navigateUp()
                     showLeaveDialog = false
-                }
+                },
+                title = "Leave?",
+                text = "Are you sure you want to leave? All information will be lost.",
+                confirmText = "Leave"
             )
         }
         BackHandler(enabled = true) {
@@ -137,34 +141,6 @@ fun ProgressionBar(isMarked: Boolean, onClick: () -> Unit) {
         .clip(RoundedCornerShape(20.dp))
         .background(color = if (isMarked) nokiaLighterBlue else Color.LightGray)
         .clickable { onClick() }
-    )
-}
-
-@Composable
-fun CustomAlertDialog(
-    onDismissRequest: () -> Unit,
-    onConfirm: () -> Unit
-) {
-    AlertDialog(
-        title = { Text(text = "Leave?") },
-        text = { Text(text = "Are you sure you want to leave? All information will be lost.") },
-        onDismissRequest = onDismissRequest,
-        dismissButton = {
-            Button(onClick = { onDismissRequest() }) {
-                Text(text = "Cancel")
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = { onConfirm() },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Red,
-                    contentColor = Color.White
-                )
-            ) {
-                Text(text = "Leave")
-            }
-        }
     )
 }
 

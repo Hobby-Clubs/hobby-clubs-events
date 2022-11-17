@@ -497,6 +497,128 @@ fun EventTileRowItem(icon: ImageVector, iconDesc: String, content: String) {
 }
 
 @Composable
+fun SmallTileForClubManagement(
+    modifier: Modifier = Modifier,
+    data: Any,
+    onClick: () -> Unit,
+    onDelete: () -> Unit
+) {
+    val sdf = SimpleDateFormat("dd.MM.yyyy", java.util.Locale.ENGLISH)
+    val time = SimpleDateFormat("HH:mm", java.util.Locale.ENGLISH)
+    val isEvent = data is Event
+    var title = ""
+    var date = ""
+    var path = ""
+    if (isEvent) {
+        val event = data as Event
+        title = event.name
+        date = sdf.format(event.date.toDate()) + " at " + time.format(event.date.toDate())
+        path = "${CollectionName.events}/${event.id}/0.jpg"
+    } else {
+        val news = data as News
+        title = news.headline
+        date = sdf.format(news.date.toDate())
+        path = "${CollectionName.clubs}/${news.clubId}/logo"
+    }
+    var picUri: Uri? by rememberSaveable { mutableStateOf(null) }
+    LaunchedEffect(Unit) {
+        if (picUri == null) {
+            FirebaseHelper.getFile(path)
+                .downloadUrl
+                .addOnSuccessListener {
+                    picUri = it
+                }
+                .addOnFailureListener {
+                    Log.e("getLogoUri", "SmallNewsTile: ", it)
+                }
+        }
+    }
+    Card(
+        modifier = modifier
+            .aspectRatio(4.7f)
+            .clickable { onClick() },
+        colors = CardDefaults.cardColors(clubTileBg),
+        border = BorderStroke(1.dp, clubTileBorder),
+    ) {
+        Row(
+            Modifier
+                .fillMaxSize()
+                .padding(vertical = 16.dp)
+                .padding(start = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            AsyncImage(
+                modifier = Modifier
+                    .size(40.dp)
+                    .aspectRatio(1f)
+                    .clip(CircleShape),
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(picUri)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = "logo",
+                contentScale = ContentScale.Crop,
+                error = painterResource(id = R.drawable.nokia_logo)
+            )
+            Column(
+                Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .padding(end = 4.dp),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(text = title, fontWeight = FontWeight.Medium, fontSize = 16.sp)
+                Text(
+                    modifier = modifier.padding(end = 8.dp),
+                    text = date,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    fontWeight = FontWeight.Light,
+                    fontSize = 14.sp
+                )
+            }
+            IconButton(
+                onClick = { onDelete() }
+            ) {
+                Icon(Icons.Outlined.DeleteOutline, null)
+            }
+        }
+    }
+}
+
+@Composable
+fun CustomAlertDialog(
+    onDismissRequest: () -> Unit,
+    onConfirm: () -> Unit,
+    title: String,
+    text: String,
+    confirmText: String
+) {
+    AlertDialog(
+        title = { Text(text = title) },
+        text = { Text(text = text) },
+        onDismissRequest = onDismissRequest,
+        dismissButton = {
+            Button(onClick = { onDismissRequest() }) {
+                Text(text = "Cancel")
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { onConfirm() },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Red,
+                    contentColor = Color.White
+                )
+            ) {
+                Text(text = confirmText)
+            }
+        }
+    )
+}
+
+@Composable
 fun SmallNewsTile(modifier: Modifier = Modifier, news: News, onClick: () -> Unit) {
     var picUri: Uri? by rememberSaveable { mutableStateOf(null) }
     val sdf = SimpleDateFormat("dd.MM.yyyy", java.util.Locale.ENGLISH)

@@ -34,11 +34,13 @@ fun ClubManagementScreen(
     clubId: String
 ) {
     val club by vm.selectedClub.observeAsState(null)
+    val listOfRequests by vm.listOfRequests.observeAsState(listOf())
 
     LaunchedEffect(Unit) {
         vm.getClub(clubId)
         vm.getClubEvents(clubId)
         vm.getAllNews(clubId)
+        vm.getAllJoinRequests(clubId)
     }
     club?.let {
         Box() {
@@ -54,11 +56,11 @@ fun ClubManagementScreen(
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(top = 75.dp, bottom = 20.dp),
                 )
-                MembersSection(navController, clubId, it)
+                MembersSection(navController, clubId, it, listOfRequests.size)
                 Spacer(modifier = Modifier.height(10.dp))
-                NewsSection(vm)
+                NewsSection(navController, vm, clubId)
                 Spacer(modifier = Modifier.height(10.dp))
-                EventsSection(vm)
+                EventsSection(navController, vm, clubId)
                 Spacer(modifier = Modifier.height(10.dp))
                 PrivacySection(vm, clubId)
             }
@@ -111,7 +113,6 @@ fun ClubManagementRowCard(
             Icon(
                 icon, iconDesc, modifier = Modifier
                     .size(30.dp)
-                    .weight(1f)
             )
             Text(
                 text = title, fontSize = 16.sp, modifier = Modifier
@@ -121,16 +122,14 @@ fun ClubManagementRowCard(
             if (isMemberRequest) {
                 ClubManagementRowNumberCount(
                     modifier = Modifier
-                        .weight(1f)
-                        .size(30.dp),
+                        .size(24.dp),
                     numberOfItem = numberOfItem,
                     isMemberRequestSection = true
                 )
             } else {
                 ClubManagementRowNumberCount(
                     modifier = Modifier
-                        .weight(1f)
-                        .size(30.dp),
+                        .size(24.dp),
                     numberOfItem = numberOfItem
                 )
             }
@@ -148,12 +147,11 @@ fun ClubManagementRowNumberCount(
     Card(
         shape = CircleShape,
         colors = CardDefaults.cardColors(containerColor = if (isMemberRequestSection && numberOfItem > 0) Color.Red else Color.Transparent),
-        modifier = modifier
+        modifier = modifier.aspectRatio(1f)
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text(
                 text = numberOfItem.toString(),
-                modifier = Modifier.align(Alignment.Center),
                 fontSize = 16.sp,
                 color = if (isMemberRequestSection && numberOfItem > 0) Color.White else Color.Black,
                 maxLines = 1
@@ -269,7 +267,7 @@ fun PrivacyRowItem(
 }
 
 @Composable
-fun MembersSection(navController: NavController, clubId: String, club: Club) {
+fun MembersSection(navController: NavController, clubId: String, club: Club, requestsAmount: Int) {
     Column() {
         ClubManagementSectionTitle(text = "Members")
         ClubManagementRowCard(
@@ -277,22 +275,22 @@ fun MembersSection(navController: NavController, clubId: String, club: Club) {
             iconDesc = "People Icon",
             title = "Members",
             numberOfItem = club.members.size,
-            onClick = { navController.navigate(NavRoutes.MembersScreen.route + "/false/$clubId") }
+            onClick = { navController.navigate(NavRoutes.ClubMembersScreen.route + "/$clubId") }
         )
         Spacer(modifier = Modifier.height(10.dp))
         ClubManagementRowCard(
             icon = Icons.Outlined.PersonAddAlt,
             iconDesc = "Person add icon",
             title = "Member requests",
-            numberOfItem = 5,
+            numberOfItem = requestsAmount,
             isMemberRequest = true,
-            onClick = { navController.navigate(NavRoutes.MembersScreen.route + "/true/$clubId") }
+            onClick = { navController.navigate(NavRoutes.ClubMemberRequestScreen.route + "/$clubId") }
         )
     }
 }
 
 @Composable
-fun NewsSection(vm: ClubManagementViewModel) {
+fun NewsSection(navController: NavController, vm: ClubManagementViewModel, clubId: String) {
     val listOfNews by vm.listOfNews.observeAsState(null)
     Column() {
         ClubManagementSectionTitle(text = "News")
@@ -301,13 +299,13 @@ fun NewsSection(vm: ClubManagementViewModel) {
             iconDesc = "News feed",
             title = "News",
             numberOfItem = listOfNews?.size ?: 0,
-            onClick = { }
+            onClick = { navController.navigate(NavRoutes.ClubAllNewsScreen.route + "/$clubId")}
         )
     }
 }
 
 @Composable
-fun EventsSection(vm: ClubManagementViewModel) {
+fun EventsSection(navController: NavController, vm: ClubManagementViewModel, clubId: String) {
     val listOfEvents by vm.listOfEvents.observeAsState(null)
     Column() {
         ClubManagementSectionTitle(text = "Events")
@@ -316,7 +314,7 @@ fun EventsSection(vm: ClubManagementViewModel) {
             iconDesc = "Calendar",
             title = "Events",
             numberOfItem = listOfEvents?.size ?: 0,
-            onClick = { }
+            onClick = { navController.navigate(NavRoutes.ClubAllEventsScreen.route + "/$clubId") }
         )
     }
 }
