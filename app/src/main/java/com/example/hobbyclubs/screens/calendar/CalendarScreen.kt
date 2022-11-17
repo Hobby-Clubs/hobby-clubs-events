@@ -36,7 +36,9 @@ import com.example.hobbyclubs.R
 import com.example.compose.joinedColor
 import com.example.compose.nokiaBlue
 import com.example.hobbyclubs.api.Event
+import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.general.DrawerScreen
+import com.example.hobbyclubs.general.EventTile
 import com.example.hobbyclubs.general.MenuTopBar
 import com.example.hobbyclubs.general.toDate
 import com.example.hobbyclubs.navigation.NavRoutes
@@ -46,6 +48,7 @@ import io.github.boguszpawlowski.composecalendar.header.MonthState
 import io.github.boguszpawlowski.composecalendar.rememberSelectableCalendarState
 import io.github.boguszpawlowski.composecalendar.selection.DynamicSelectionState
 import io.github.boguszpawlowski.composecalendar.selection.SelectionMode
+import org.joda.time.DateTimeComparator
 import java.time.DayOfWeek
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,6 +62,7 @@ fun CalendarScreen(navController: NavController, vm: CalendarScreenViewModel = v
 
     val allEvents by vm.allEvents.observeAsState(listOf())
     val filteredEvents by vm.filteredEvents.observeAsState(listOf())
+    val dateTimeComparator = DateTimeComparator.getDateOnlyInstance()
 
     DrawerScreen(
         navController = navController,
@@ -74,7 +78,9 @@ fun CalendarScreen(navController: NavController, vm: CalendarScreenViewModel = v
                     dayContent = { dayState ->
                         Day(
                             state = dayState,
-                            event = allEvents.firstOrNull { it.date.toDate() == dayState.date.toDate() }
+                            event = allEvents.firstOrNull {
+                                (dateTimeComparator.compare(it.date.toDate(), dayState.date.toDate())) == 0
+                            }
                         )
                     },
                     monthHeader = { MonthHeader(monthState = state.monthState) }
@@ -112,6 +118,7 @@ fun CalendarScreen(navController: NavController, vm: CalendarScreenViewModel = v
                     )
                     Text("Liked", fontSize = 12.sp)
                 }
+
                 if(!filteredEvents.isEmpty()) {
                     LazyColumn(modifier = Modifier
                         .fillMaxHeight()
@@ -119,9 +126,22 @@ fun CalendarScreen(navController: NavController, vm: CalendarScreenViewModel = v
                         contentPadding = PaddingValues(5.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         items(filteredEvents) {
-                            EventTile(event = it, vm = vm, onClick = {
-                                navController.navigate(NavRoutes.EventScreen.route + "/${it.id}")
-                            })
+                            EventTile(
+                                event = it,
+                                onClick = {
+                                    navController.navigate(NavRoutes.EventScreen.route + "/${it.id}")
+                                },
+                                onJoin = {
+                                    vm.joinEvent(it)
+                                },
+                                onLike = {
+                                    if (it.likers.contains(FirebaseHelper.uid)) {
+                                        vm.removeLikeOnEvent(it)
+                                    } else {
+                                        vm.likeEvent(it)
+                                    }
+                                }
+                            )
                         }
                     }
                 }
@@ -173,88 +193,6 @@ fun Day(
         ) {
             Text(text = date.dayOfMonth.toString())
         }
-    }
-}
-
-@Composable
-fun EventTile(
-    modifier: Modifier = Modifier,
-    event: Event,
-    vm: CalendarScreenViewModel,
-    onClick: () -> Unit
-) {
-
-    Card(
-        shape = RoundedCornerShape(10.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(5.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(175.dp)
-            .clickable { onClick() }
-    ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(125.dp)
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.hockey),
-                    contentDescription = "Tile background",
-                    contentScale = ContentScale.FillWidth
-                )
-                Text(
-                    text = event.name,
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(10.dp),
-                    color = Color.White,
-                    style = TextStyle(
-                        fontSize = 18.sp,
-                        shadow = Shadow(
-                            color = Color.Black,
-                            offset = Offset.Zero,
-                            blurRadius = 5f
-                        )
-                    )
-                )
-                Card(
-                    shape = CircleShape,
-                    colors = CardDefaults.cardColors(containerColor = nokiaBlue),
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(5.dp)
-                ) {
-                    Icon(
-                        Icons.Outlined.FavoriteBorder,
-                        "Favourite icon",
-                        tint = Color.White,
-                        modifier = Modifier.padding(5.dp)
-                    )
-                }
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 10.dp),
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                RowItem(icon = Icons.Outlined.CalendarMonth, iconDesc = "Calendar Icon", content = "16.11.2022" )
-                RowItem(icon = Icons.Outlined.Timer, iconDesc = "Timer Icon", content = "19:00")
-                RowItem(icon = Icons.Outlined.People, iconDesc = "People Icon", content = "5")
-            }
-        }
-
-    }
-}
-
-@Composable
-fun RowItem(icon: ImageVector, iconDesc: String, content: String) {
-    Row() {
-        Icon(icon, iconDesc)
-        Spacer(modifier = Modifier.width(5.dp))
-        Text(text = content)
     }
 }
 

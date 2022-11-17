@@ -66,6 +66,8 @@ fun ClubPageScreen(
     val context = LocalContext.current
     val club by vm.selectedClub.observeAsState(null)
 
+    val screenWidth = LocalConfiguration.current.screenWidthDp
+
     LaunchedEffect(Unit) {
         vm.getClub(clubId)
         vm.getLogo(clubId)
@@ -82,15 +84,15 @@ fun ClubPageScreen(
                 horizontalAlignment = Alignment.Start,
             ) {
                 ClubPageHeader(navController, context, it, vm)
-                DividerLine()
+                DividerLine(width = (screenWidth * 0.9).dp)
                 ClubDescription(it.description)
-                DividerLine()
+                DividerLine(width = (screenWidth * 0.9).dp)
                 ClubSchedule(vm, navController)
-                DividerLine()
+                DividerLine(width = (screenWidth * 0.9).dp)
                 ClubNews(vm, navController)
-                DividerLine()
+                DividerLine(width = (screenWidth * 0.9).dp)
                 ClubLinks(context, linkList = it.socials)
-                DividerLine()
+                DividerLine(width = (screenWidth * 0.9).dp)
                 ClubContactInfo(
                     name = it.contactPerson,
                     phoneNumber = it.contactPhone,
@@ -260,7 +262,7 @@ fun ClubSchedule(vm: ClubPageViewModel, navController: NavController) {
             events.forEach { event ->
                 EventTile(
                     event = event,
-                    onClick = {},
+                    onClick = { navController.navigate(NavRoutes.EventScreen.route + "/${event.id}") },
                     onJoin = { vm.joinEvent(event) },
                     onLike = {
                         if (event.likers.contains(FirebaseHelper.uid)) {

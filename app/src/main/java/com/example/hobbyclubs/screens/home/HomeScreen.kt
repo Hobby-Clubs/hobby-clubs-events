@@ -97,7 +97,7 @@ fun HomeScreen(navController: NavController, vm: HomeScreenViewModel = viewModel
                         event = it,
                         onJoin = {},
                         onLike = { vm.likeEvent(initialLikers = it.likers, eventId = it.id) },
-                        onClick = {})
+                        onClick = { navController.navigate(NavRoutes.EventScreen.route + "/${it.id}") })
                 }
                 stickyHeader {
                     LazyColumnHeader(text = "My News")
