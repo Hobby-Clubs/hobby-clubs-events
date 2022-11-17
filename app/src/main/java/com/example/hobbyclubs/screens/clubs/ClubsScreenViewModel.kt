@@ -89,7 +89,7 @@ class ClubsScreenViewModel : ViewModel() {
 
     fun addMockClubs(amount: Int, club: Club, logoUri: Uri, bannerUri: Uri) {
         repeat(amount) {
-            FirebaseHelper.addClub(club, logoUri, bannerUri)
+            FirebaseHelper.addClub(club)
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.hobbyclubs
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -11,6 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import com.example.compose.HobbyClubsTheme
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.navigation.NavRoutes
@@ -21,6 +23,7 @@ import com.example.hobbyclubs.screens.clubs.ClubsScreen
 import com.example.hobbyclubs.screens.home.HomeScreen
 import com.example.hobbyclubs.screens.login.LoginScreen
 import com.example.hobbyclubs.screens.clubmembers.ClubMembersScreen
+import com.example.hobbyclubs.screens.create.club.CreateClubScreen
 import com.example.hobbyclubs.screens.create.event.CreateEventScreen
 import com.example.hobbyclubs.screens.news.NewsScreen
 
@@ -65,25 +68,38 @@ fun MyAppNavHost() {
         composable(
             NavRoutes.ClubPageScreen.route + "/{clubId}",
             arguments = listOf(
-                navArgument("clubId") {type = NavType.StringType}
+                navArgument("clubId") { type = NavType.StringType }
+            ),
+            deepLinks = listOf(
+                navDeepLink {
+                    uriPattern = "https://hobbyclubs.fi/{clubId}"
+                    action = Intent.ACTION_VIEW
+                }
             )
         ) {
             val clubId = it.arguments!!.getString("clubId")!!
             ClubPageScreen(navController = navController, clubId = clubId)
         }
         // ClubManagementScreen
-        composable(NavRoutes.ClubManagementScreen.route) {
-            ClubManagementScreen(navController = navController)
+        composable(NavRoutes.ClubManagementScreen.route + "/{clubId}",
+            arguments = listOf(
+                navArgument("clubId") { type = NavType.StringType }
+            )
+        ) {
+            val clubId = it.arguments!!.getString("clubId")!!
+            ClubManagementScreen(navController = navController, clubId = clubId)
         }
         // ClubMembersScreen
         composable(
-            NavRoutes.MembersScreen.route + "/{showRequests}",
+            NavRoutes.MembersScreen.route + "/{showRequests}/{clubId}",
             arguments = listOf(
-                navArgument("showRequests") { type = NavType.BoolType }
+                navArgument("showRequests") { type = NavType.BoolType },
+                navArgument("clubId") { type = NavType.StringType }
             )
         ) {
             val showRequests = it.arguments!!.getBoolean("showRequests")
-            ClubMembersScreen(navController = navController, showRequests = showRequests)
+            val clubId = it.arguments!!.getString("clubId")!!
+            ClubMembersScreen(navController = navController, showRequests = showRequests, clubId = clubId)
         }
         // NewsScreen
         composable(NavRoutes.NewsScreen.route) {
@@ -100,6 +116,10 @@ fun MyAppNavHost() {
         // CreateEventScreen
         composable(NavRoutes.CreateEvent.route) {
             CreateEventScreen(navController = navController)
+        }
+        // CreateClubScreen
+        composable(NavRoutes.CreateClub.route) {
+            CreateClubScreen(navController = navController)
         }
     }
 }

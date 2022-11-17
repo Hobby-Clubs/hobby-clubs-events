@@ -23,45 +23,57 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.navigation.NavRoutes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClubManagementScreen(
     navController: NavController,
-    vm: ClubManagementViewModel = viewModel()
+    vm: ClubManagementViewModel = viewModel(),
+    clubId: String
 ) {
-    Box() {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 20.dp),
-            horizontalAlignment = Alignment.Start,
-        ) {
-            Text(
-                text = "Manage club",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(top = 75.dp, bottom = 20.dp),
-            )
-            MembersSection(navController)
-            Spacer(modifier = Modifier.height(10.dp))
-            NewsSection()
-            Spacer(modifier = Modifier.height(10.dp))
-            EventsSection()
-            Spacer(modifier = Modifier.height(10.dp))
-            PrivacySection(vm)
-        }
-        CenterAlignedTopAppBar(
-            title = { Text(text = "Ice Hockey Club", fontSize = 16.sp) },
-            colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
-            navigationIcon = {
-                IconButton(onClick = { navController.navigateUp() }) {
-                    Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")
-                }
-            }
-        )
+    val club by vm.selectedClub.observeAsState(null)
+
+    LaunchedEffect(Unit) {
+        vm.getClub(clubId)
+        vm.getClubEvents(clubId)
+        vm.getAllNews(clubId)
     }
+    club?.let {
+        Box() {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 20.dp),
+                horizontalAlignment = Alignment.Start,
+            ) {
+                Text(
+                    text = "Manage club",
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(top = 75.dp, bottom = 20.dp),
+                )
+                MembersSection(navController, clubId, it)
+                Spacer(modifier = Modifier.height(10.dp))
+                NewsSection(vm)
+                Spacer(modifier = Modifier.height(10.dp))
+                EventsSection(vm)
+                Spacer(modifier = Modifier.height(10.dp))
+                PrivacySection(vm, clubId)
+            }
+            CenterAlignedTopAppBar(
+                title = { Text(text = it.name, fontSize = 16.sp) },
+                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")
+                    }
+                }
+            )
+        }
+    }
+
 }
 
 @Composable
@@ -156,6 +168,7 @@ fun ExpandablePrivacyCard(
     icon: ImageVector,
     iconDesc: String,
     title: String,
+    clubId: String,
     vm: ClubManagementViewModel,
 ) {
     var expandedState by remember { mutableStateOf(false) }
@@ -211,7 +224,7 @@ fun ExpandablePrivacyCard(
                 icon = Icons.Outlined.Public,
                 iconDesc = "Public", title = "Public",
                 onClick = {
-                    vm.updatePrivacy(false)
+                    vm.updatePrivacy(false, clubId = clubId)
                     expandedState = false
                 }
             )
@@ -220,7 +233,7 @@ fun ExpandablePrivacyCard(
                 icon = Icons.Outlined.Lock,
                 iconDesc = "Private", title = "Private",
                 onClick = {
-                    vm.updatePrivacy(true)
+                    vm.updatePrivacy(true, clubId = clubId)
                     expandedState = false
                 }
             )
@@ -256,15 +269,15 @@ fun PrivacyRowItem(
 }
 
 @Composable
-fun MembersSection(navController: NavController) {
+fun MembersSection(navController: NavController, clubId: String, club: Club) {
     Column() {
         ClubManagementSectionTitle(text = "Members")
         ClubManagementRowCard(
             icon = Icons.Outlined.People,
             iconDesc = "People Icon",
             title = "Members",
-            numberOfItem = 20,
-            onClick = { navController.navigate(NavRoutes.MembersScreen.route + "/false") }
+            numberOfItem = club.members.size,
+            onClick = { navController.navigate(NavRoutes.MembersScreen.route + "/false/$clubId") }
         )
         Spacer(modifier = Modifier.height(10.dp))
         ClubManagementRowCard(
@@ -273,41 +286,43 @@ fun MembersSection(navController: NavController) {
             title = "Member requests",
             numberOfItem = 5,
             isMemberRequest = true,
-            onClick = { navController.navigate(NavRoutes.MembersScreen.route + "/true") }
+            onClick = { navController.navigate(NavRoutes.MembersScreen.route + "/true/$clubId") }
         )
     }
 }
 
 @Composable
-fun NewsSection() {
+fun NewsSection(vm: ClubManagementViewModel) {
+    val listOfNews by vm.listOfNews.observeAsState(null)
     Column() {
         ClubManagementSectionTitle(text = "News")
         ClubManagementRowCard(
             icon = Icons.Outlined.Feed,
             iconDesc = "News feed",
             title = "News",
-            numberOfItem = 1,
+            numberOfItem = listOfNews?.size ?: 0,
             onClick = { }
         )
     }
 }
 
 @Composable
-fun EventsSection() {
+fun EventsSection(vm: ClubManagementViewModel) {
+    val listOfEvents by vm.listOfEvents.observeAsState(null)
     Column() {
         ClubManagementSectionTitle(text = "Events")
         ClubManagementRowCard(
             icon = Icons.Outlined.CalendarMonth,
             iconDesc = "Calendar",
             title = "Events",
-            numberOfItem = 2,
+            numberOfItem = listOfEvents?.size ?: 0,
             onClick = { }
         )
     }
 }
 
 @Composable
-fun PrivacySection(vm: ClubManagementViewModel, onClick: () -> Unit = {}) {
+fun PrivacySection(vm: ClubManagementViewModel, clubId: String) {
     val isPrivate by vm.isPrivate.observeAsState()
     Column(modifier = Modifier.fillMaxWidth()) {
         ClubManagementSectionTitle(text = "Privacy")
@@ -315,7 +330,8 @@ fun PrivacySection(vm: ClubManagementViewModel, onClick: () -> Unit = {}) {
             icon = if (isPrivate == true) Icons.Outlined.Lock else Icons.Outlined.Public,
             iconDesc = "privacy",
             title = if (isPrivate == true) "Private" else "Public",
-            vm = vm
+            vm = vm,
+            clubId = clubId
         )
     }
 }

@@ -8,6 +8,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.PropertyName
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -35,28 +36,39 @@ object FirebaseHelper {
     }
 
     fun getUser(uid: String): DocumentReference {
-        return db.collection("users").document(uid)
+        return db.collection(CollectionName.users).document(uid)
     }
 
-    fun addClub(club: Club, logoUri: Uri, bannerUri: Uri) {
+    fun addClub(club: Club) : String {
         val ref = db.collection(CollectionName.clubs).document()
         val clubWithRef = club.apply { this.ref = ref.id }
         ref.set(clubWithRef)
             .addOnSuccessListener {
-                addPic(logoUri, "${CollectionName.clubs}/${ref.id}/logo")
-                addPic(bannerUri, "${CollectionName.clubs}/${ref.id}/banner")
                 Log.d(TAG, "addClub: $ref")
             }
             .addOnFailureListener { e ->
                 Log.e(TAG, "addClub: ", e)
             }
+        return ref.id
     }
 
-    fun getClub(uid: String) : DocumentReference {
+    fun getClub(uid: String): DocumentReference {
         return db.collection(CollectionName.clubs).document(uid)
     }
 
     fun getAllClubs() = db.collection(CollectionName.clubs)
+
+    fun sendClubImage(imageName: String, clubId: String, imageBitmap: Bitmap) {
+        val storageRef =
+            Firebase.storage.reference.child("clubs").child(clubId).child(imageName)
+        val baos = ByteArrayOutputStream()
+        imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        val bytes = baos.toByteArray()
+        storageRef.putBytes(bytes)
+            .addOnSuccessListener {
+                Log.d(TAG, "sendImage: picture uploaded ($imageName)")
+            }
+    }
 
     fun updateClubNextEvent(clubId: String, date: Timestamp) {
         val ref = db.collection(CollectionName.clubs).document(clubId)
@@ -74,9 +86,7 @@ object FirebaseHelper {
 
     fun addEvent(event: Event): String {
         val ref = db.collection(CollectionName.events).document()
-        val eventWithId = event.apply {
-            id = ref.id
-        }
+        val eventWithId = event.apply { id = ref.id }
         ref.set(eventWithId)
             .addOnSuccessListener {
                 Log.d(TAG, "addEvent: $ref")
@@ -93,6 +103,65 @@ object FirebaseHelper {
                 Log.e(TAG, "addEvent: ", e)
             }
         return ref.id
+    }
+
+    fun getEvent(eventId: String): DocumentReference {
+        return db.collection(CollectionName.events).document(eventId)
+    }
+
+    fun addUserToEvent(eventId: String, membersListUpdated: List<String>) {
+        val userRef = db.collection(CollectionName.events).document(eventId)
+        userRef.update("participants", membersListUpdated)
+            .addOnSuccessListener {
+                Log.d(TAG, "addUser: " + "success (${userRef.id})")
+            }
+            .addOnFailureListener {
+                Log.e(TAG, "addUser: ", it)
+            }
+    }
+
+    fun addUserLikeToEvent(eventId: String, membersListUpdated: List<String>) {
+        val userRef = db.collection(CollectionName.events).document(eventId)
+        userRef.update("likers", membersListUpdated)
+            .addOnSuccessListener {
+                Log.d(TAG, "addUser: " + "success (${userRef.id})")
+            }
+            .addOnFailureListener {
+                Log.e(TAG, "addUser: ", it)
+            }
+    }
+
+    fun updateUserInClub(clubId: String, newList: List<String>) {
+        val userRef = db.collection(CollectionName.clubs).document(clubId)
+        userRef.update("members", newList)
+            .addOnSuccessListener {
+                Log.d(TAG, "UpdateUser: " + "success (${userRef.id})")
+            }
+            .addOnFailureListener {
+                Log.e(TAG, "UpdateUser: ", it)
+            }
+    }
+
+    fun updateUserAdminStatus(clubId: String, newList: List<String>) {
+        val userRef = db.collection(CollectionName.clubs).document(clubId)
+        userRef.update("admins", newList)
+            .addOnSuccessListener {
+                Log.d(TAG, "UpdateAdminStatus: " + "success (${userRef.id})")
+            }
+            .addOnFailureListener {
+                Log.e(TAG, "UpdateAdminStatus: ", it)
+            }
+    }
+
+    fun updatePrivacy(clubId: String, newValue: Boolean) {
+        val userRef = db.collection(CollectionName.clubs).document(clubId)
+        userRef.update("isPrivate", newValue)
+            .addOnSuccessListener {
+                Log.d(TAG, "UpdatePrivacy: " + "success (${userRef.id})")
+            }
+            .addOnFailureListener {
+                Log.e(TAG, "UpdatePrivacy: ", it)
+            }
     }
 
     fun getAllEvents() = db.collection(CollectionName.events)
@@ -143,7 +212,9 @@ object FirebaseHelper {
 
     fun getAllNews() = db.collection(CollectionName.news)
 
-    fun getAllNewsOfClub(clubId: String) = getAllNews().whereEqualTo("clubId", clubId)
+    fun getAllNewsOfClub(clubId: String): Query {
+        return getAllNews().whereEqualTo("clubId", clubId)
+    }
 
     // User
 
@@ -233,7 +304,9 @@ data class Club(
     val contactPhone: String = "050 554 9826",
     val contactEmail: String = "mikko.makela70@nokia.fi",
     val socials: Map<String, String> = mapOf(Pair("Facebook", "https://www.facebook.com")),
-    val isPrivate: Boolean = false,
+    @get:PropertyName("isPrivate")
+    @set:PropertyName("isPrivate")
+    var isPrivate: Boolean = false,
     val created: Timestamp = Timestamp.now(),
     val category: String = ClubCategory.other,
     val nextEvent: Timestamp? = null

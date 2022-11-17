@@ -589,14 +589,11 @@ fun FakeNavigation(navController: NavController) {
         FakeButtonForNavigationTest(destination = "Calendar") {
             navController.navigate(NavRoutes.CalendarScreen.route)
         }
-        FakeButtonForNavigationTest(destination = "Club Page") {
-            navController.navigate(NavRoutes.ClubPageScreen.route)
-        }
-        FakeButtonForNavigationTest(destination = "Clubs") {
-            navController.navigate(NavRoutes.ClubsScreen.route)
-        }
         FakeButtonForNavigationTest(destination = "Create event") {
             navController.navigate(NavRoutes.CreateEvent.route)
+        }
+        FakeButtonForNavigationTest(destination = "Create club") {
+            navController.navigate(NavRoutes.CreateClub.route)
         }
         FakeButtonForNavigationTest(destination = "Log out") {
             FirebaseHelper.logout()
