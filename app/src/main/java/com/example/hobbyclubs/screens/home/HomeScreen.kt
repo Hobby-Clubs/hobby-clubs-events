@@ -34,6 +34,9 @@ fun HomeScreen(navController: NavController) {
             FakeButtonForNavigationTest(destination = "Clubs") {
                 navController.navigate(NavRoutes.ClubsScreen.route)
             }
+            FakeButtonForNavigationTest(destination = "FirstTime") {
+                navController.navigate(NavRoutes.FirstTimeScreen.route)
+            }
         }
     }
 }

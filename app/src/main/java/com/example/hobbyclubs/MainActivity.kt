@@ -19,6 +19,7 @@ import com.example.hobbyclubs.screens.login.LoginScreen
 import com.example.hobbyclubs.screens.members.ClubMembersScreen
 import com.example.hobbyclubs.screens.news.NewsScreen
 import com.example.hobbyclubs.screens.clubs.ClubsScreen
+import com.example.hobbyclubs.screens.firstTime.FirstTimeScreen
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.S)
@@ -74,6 +75,11 @@ fun MyAppNavHost() {
         // ClubsScreen
         composable(NavRoutes.ClubsScreen.route) {
             ClubsScreen(navController = navController)
+        }
+        
+        // FirstTimeScreen
+        composable(NavRoutes.FirstTimeScreen.route) {
+            FirstTimeScreen(navController = navController)
         }
     }
 }
