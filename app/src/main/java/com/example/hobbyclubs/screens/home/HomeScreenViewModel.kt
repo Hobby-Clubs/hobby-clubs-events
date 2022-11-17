@@ -20,6 +20,7 @@ class HomeScreenViewModel : ViewModel() {
     val upcomingEvents = MutableLiveData<List<Event>>()
     val joinedEvents = MutableLiveData<List<Event>>()
     val likedEvents = MutableLiveData<List<Event>>()
+    val clubEvents = MutableLiveData<List<Event>>()
     val news = MutableLiveData<List<News>>()
     val isRefreshing = MutableLiveData(false)
     val searchInput = MutableLiveData("")
@@ -36,6 +37,21 @@ class HomeScreenViewModel : ViewModel() {
             delay(1500)
             isRefreshing.postValue(false)
         }
+    }
+
+    fun fetchEventsOfMyClubs(myClubs: List<Club>) {
+        FirebaseHelper.getAllEvents()
+            .get()
+            .addOnSuccessListener {
+                val events = it.toObjects(Event::class.java)
+                if (events.isEmpty()) {
+                    return@addOnSuccessListener
+                }
+                val filtered = events.filter { event ->
+                    myClubs.map { club -> club.ref }.contains(event.clubId)
+                }
+                clubEvents.value = filtered
+            }
     }
 
     fun fetchAllClubs() {

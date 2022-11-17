@@ -40,7 +40,6 @@ class ClubsScreenViewModel : ViewModel() {
                         .get()
                         .addOnSuccessListener listener@{ clubList ->
                             val fetchedClubs = clubList.toObjects(Club::class.java)
-                            println(fetchedClubs)
                             if (fetchedClubs.isEmpty()) {
                                 isRefreshing.postValue(false)
                                 return@listener

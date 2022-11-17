@@ -311,19 +311,28 @@ fun EventTile(
     onLike: () -> Unit,
     onClick: () -> Unit
 ) {
-    var picUri: Uri? by rememberSaveable { mutableStateOf(null) }
+    var picUri: Uri? by remember { mutableStateOf(null) }
     val joined = event.participants.contains(FirebaseHelper.uid)
     val liked = event.likers.contains(FirebaseHelper.uid)
+
+//    LaunchedEffect(picUri) {
+//        picUri?.let {
+//            Log.d("picUri", "${event.name} / ${event.id}: $it")
+//        }
+//    }
 
     LaunchedEffect(Unit) {
         if (picUri == null) {
             FirebaseHelper.getAllFiles("${CollectionName.events}/${event.id}")
                 .addOnSuccessListener { res ->
                     val items = res.items
+//                    Log.d("items", "${event.id}: $items")
+
                     if (items.isEmpty()) {
                         return@addOnSuccessListener
                     }
                     val bannerRef = items.find { it.name == "0.jpg" } ?: items.first()
+//                    Log.d("bannerRef", "${event.id}: $bannerRef")
                     bannerRef
                         .downloadUrl
                         .addOnSuccessListener {

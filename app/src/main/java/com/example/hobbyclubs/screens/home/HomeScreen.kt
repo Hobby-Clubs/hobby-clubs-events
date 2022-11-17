@@ -1,6 +1,7 @@
 package com.example.hobbyclubs.screens.home
 
 import android.net.Uri
+import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.tween
@@ -117,12 +118,18 @@ fun HomeScreen(navController: NavController, vm: HomeScreenViewModel = viewModel
 fun SearchUI(vm: HomeScreenViewModel, navController: NavController) {
     val allClubs by vm.allClubs.observeAsState(listOf())
     val searchInput by vm.searchInput.observeAsState("")
-    val joinedEvents by vm.joinedEvents.observeAsState(listOf())
-    val likedEvents by vm.likedEvents.observeAsState(listOf())
+    val joinedEvents: List<Event>? by vm.joinedEvents.observeAsState(null)
+    val likedEvents: List<Event>? by vm.likedEvents.observeAsState(null)
+    val myClubs by vm.myClubs.observeAsState(listOf())
+    val clubEvents: List<Event>? by vm.clubEvents.observeAsState(null)
     val myEvents by remember {
         derivedStateOf {
-            val combined = (joinedEvents + likedEvents).toSet().toList()
-            combined.sortedBy { it.date }
+            if (joinedEvents != null && likedEvents != null && clubEvents != null) {
+                val combined = (clubEvents!! + joinedEvents!! + likedEvents!!).toSet().toList()
+                combined.sortedBy { it.date }
+            } else {
+                listOf()
+            }
         }
     }
 
@@ -153,6 +160,11 @@ fun SearchUI(vm: HomeScreenViewModel, navController: NavController) {
         vm.fetchAllClubs()
         vm.fetchMyEvents()
     }
+    LaunchedEffect(myClubs) {
+        if (myClubs.isNotEmpty()) {
+            vm.fetchEventsOfMyClubs(myClubs)
+        }
+    }
 
     LazyColumn(
         Modifier
@@ -182,15 +194,31 @@ fun SearchUI(vm: HomeScreenViewModel, navController: NavController) {
             }
         }
         if (clubsExpanded) {
-            items(clubsFiltered) {
-                ClubTile(
-                    club = it,
-                    logoRef = vm.getLogo(it.ref),
-                    bannerRef = vm.getBanner(it.ref)
+            item {
+                Column(
+                    Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    navController.navigate(NavRoutes.ClubPageScreen.route + "/${it.ref}")
+                    clubsFiltered.forEach {
+                        ClubTile(
+                            club = it,
+                            logoRef = vm.getLogo(it.ref),
+                            bannerRef = vm.getBanner(it.ref)
+                        ) {
+                            navController.navigate(NavRoutes.ClubPageScreen.route + "/${it.ref}")
+                        }
+                    }
                 }
             }
+//            items(clubsFiltered) {
+//                ClubTile(
+//                    club = it,
+//                    logoRef = vm.getLogo(it.ref),
+//                    bannerRef = vm.getBanner(it.ref)
+//                ) {
+//                    navController.navigate(NavRoutes.ClubPageScreen.route + "/${it.ref}")
+//                }
+//            }
         }
         item {
             Row(
@@ -214,11 +242,24 @@ fun SearchUI(vm: HomeScreenViewModel, navController: NavController) {
             }
         }
         if (eventsExpanded) {
-            items(eventsFiltered) {
-                EventTile(event = it, onJoin = { }, onLike = { }) {
+            item {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    eventsFiltered.forEach {
+                        EventTile(event = it, onJoin = { }, onLike = { }) {
 
+                        }
+                    }
                 }
             }
+//            items(eventsFiltered) {
+//                Log.d("event", "SearchUI: ${it.id}")
+//                EventTile(event = it, onJoin = { }, onLike = { }) {
+//
+//                }
+//            }
         }
         item {
             Spacer(modifier = Modifier.height(32.dp))
@@ -462,7 +503,7 @@ fun FAB(isExpanded: Boolean, navController: NavController, onClick: () -> Unit) 
                         enter = scaleIn(
                             animationSpec = tween(
                                 durationMillis = 200,
-                                delayMillis = (-index + actions.size-1) * 20
+                                delayMillis = (-index + actions.size - 1) * 20
                             )
                         ),
                         exit = scaleOut(animationSpec = tween(durationMillis = 50))
