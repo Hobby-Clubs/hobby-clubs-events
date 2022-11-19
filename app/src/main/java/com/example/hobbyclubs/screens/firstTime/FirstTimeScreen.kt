@@ -1,5 +1,6 @@
 package com.example.hobbyclubs.screens.firstTime
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -55,10 +56,12 @@ fun FirstTimeScreen(navController: NavController) {
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
                                 .padding(bottom = 16.dp)
+                                .fillMaxWidth()
+                                .clickable { interest.interested.value = !interest.interested.value }
                         ) {
                             Checkbox(
                                 checked = interest.interested.value,
-                                onCheckedChange = { interest.interested.value = it },
+                                onCheckedChange = {},
                             )
                             Text(text = interest.name)
                         }
