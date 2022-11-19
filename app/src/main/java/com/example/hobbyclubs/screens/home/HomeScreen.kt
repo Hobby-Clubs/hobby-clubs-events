@@ -298,9 +298,16 @@ fun MainScreenContent(
                 LazyColumnHeader(text = "My Clubs")
             }
             items(myClubs) {
-                MyClubTile(club = it, vm = vm) {
-                    navController.navigate(NavRoutes.ClubPageScreen.route + "/${it.ref}")
-                }
+                MyClubTile(
+                    club = it,
+                    vm = vm,
+                    onClickNews = {
+//                        navController.navigate(NavRoutes.ClubAllNewsScreen.route + "/${it.ref}")
+                    },
+                    onClick = {
+                        navController.navigate(NavRoutes.ClubPageScreen.route + "/${it.ref}")
+                    }
+                )
             }
             stickyHeader {
                 LazyColumnHeader(text = "My Events")
@@ -331,7 +338,8 @@ fun MyClubTile(
     modifier: Modifier = Modifier,
     club: Club,
     vm: HomeScreenViewModel,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onClickNews: () -> Unit
 ) {
     var picUri: Uri? by rememberSaveable { mutableStateOf(null) }
     var nextEvent: Event? by remember { mutableStateOf(null) }
@@ -421,7 +429,7 @@ fun MyClubTile(
                             .weight(1f),
                         amount = newsAmount
                     ) {
-
+                        onClickNews()
                     }
                 }
             }
@@ -477,7 +485,12 @@ fun UpcomingEvent(modifier: Modifier = Modifier, upcoming: Event?, onClick: () -
             Text(text = "Upcoming event", fontSize = 12.sp, fontWeight = FontWeight.Light)
             Spacer(modifier = Modifier.height(12.dp))
             Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(text = upcoming.name, fontSize = 14.sp, overflow = TextOverflow.Ellipsis, maxLines = 1)
+                Text(
+                    text = upcoming.name,
+                    fontSize = 14.sp,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1
+                )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
