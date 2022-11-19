@@ -186,7 +186,7 @@ fun NewsCreationPage1(vm: CreateNewsViewModel) {
                     .fillMaxWidth()
             )
             Spacer(modifier = Modifier.padding(10.dp))
-            ClubSelectionDropdownMenu(clubs = clubList, onSelect = {
+            ClubSelectionDropdownMenu(clubList = clubList, onSelect = {
                 vm.updateSelectedClub(it.ref)
             })
         }
