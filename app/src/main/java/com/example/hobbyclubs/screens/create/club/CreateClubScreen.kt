@@ -163,7 +163,7 @@ fun ClubCreationPage1(vm: CreateClubViewModel) {
 fun ClubCreationPage2(vm: CreateClubViewModel) {
     val context = LocalContext.current
     val selectedImages by vm.selectedBannerImages.observeAsState(mutableListOf())
-    val selectedLogo by vm.selectedClubLogo.observeAsState(Uri.EMPTY)
+    val selectedLogo by vm.selectedClubLogo.observeAsState(null)
     val selectedImagesAsBitmap by vm.imagesAsBitmap.observeAsState(listOf())
     val selectedLogoAsBitmap by vm.logoAsBitmap.observeAsState(null)
     var showBannerImagesPreview by remember { mutableStateOf(false) }
