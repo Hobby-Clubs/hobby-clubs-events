@@ -52,7 +52,7 @@ object FirebaseHelper {
         return ref.id
     }
 
-    fun getClub(uid: String): DocumentReference {
+    fun getClub(uid: String) : DocumentReference {
         return db.collection(CollectionName.clubs).document(uid)
     }
 
@@ -177,6 +177,21 @@ object FirebaseHelper {
 
     fun getAllEvents() = db.collection(CollectionName.events)
 
+
+
+
+    fun sendNewsImage(imageId: String, newsId: String, imageBitmap: Bitmap) {
+        val storageRef = Firebase.storage.reference.child("news").child(newsId).child(imageId)
+        val baos = ByteArrayOutputStream()
+        imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        val bytes = baos.toByteArray()
+        storageRef.putBytes(bytes)
+            .addOnSuccessListener {
+                Log.d(TAG, "sendImage: picture uploaded ($imageId)")
+            }
+    }
+
+
     fun sendEventImage(imageId: String, eventId: String, imageBitmap: Bitmap) {
         val storageRef =
             Firebase.storage.reference.child("events").child(eventId).child(imageId)
@@ -210,15 +225,19 @@ object FirebaseHelper {
         return getAllEventsOfClub(clubId).orderBy("date", Query.Direction.ASCENDING).limit(1L)
     }
 
-    fun addNews(news: News) {
-        val ref = db.collection(CollectionName.news)
-        ref.add(news)
+    fun addNews(news: News) : String {
+        val ref = db.collection(CollectionName.news).document()
+        val newsId = news.apply {
+            id = ref.id
+        }
+        ref.set(newsId)
             .addOnSuccessListener {
                 Log.d(TAG, "addNews: $ref")
             }
             .addOnFailureListener { e ->
                 Log.e(TAG, "addNews: ", e)
             }
+        return ref.id
     }
 
     fun deleteNews(newsId: String) {
@@ -234,6 +253,10 @@ object FirebaseHelper {
 
     fun getAllNews() = db.collection(CollectionName.news)
 
+    fun getNews( newsId: String):DocumentReference{
+        val ref = db.collection(CollectionName.news)
+        return ref.document(newsId)
+    }
     fun getAllNewsOfClub(clubId: String): Query {
         return getAllNews().whereEqualTo("clubId", clubId)
     }
@@ -401,7 +424,8 @@ data class News(
     val headline: String = "",
     val newsContent: String = "",
     val date: Timestamp = Timestamp.now(),
-) : Serializable
+): Serializable
+
 
 data class Request(
     var id: String = "",
