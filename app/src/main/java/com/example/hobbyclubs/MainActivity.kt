@@ -20,22 +20,19 @@ import com.example.hobbyclubs.screens.calendar.CalendarScreen
 import com.example.hobbyclubs.screens.clubmanagement.ClubAllEventsScreen
 import com.example.hobbyclubs.screens.clubmanagement.ClubAllNewsScreen
 import com.example.hobbyclubs.screens.clubmanagement.ClubManagementScreen
-import com.example.hobbyclubs.screens.clubmembers.ClubMembersScreen
 import com.example.hobbyclubs.screens.clubmembers.ClubMemberRequestScreen
+import com.example.hobbyclubs.screens.clubmembers.ClubMembersScreen
 import com.example.hobbyclubs.screens.clubpage.ClubPageScreen
 import com.example.hobbyclubs.screens.clubs.ClubsScreen
-import com.example.hobbyclubs.screens.create.event.CreateEventScreen
-import com.example.hobbyclubs.screens.createnews.CreateNewsScreen
-import com.example.hobbyclubs.screens.home.HomeScreen
-import com.example.hobbyclubs.screens.login.LoginScreen
-import com.example.hobbyclubs.screens.clubmembers.ClubMembersScreen
 import com.example.hobbyclubs.screens.create.club.CreateClubScreen
 import com.example.hobbyclubs.screens.create.event.CreateEventScreen
+import com.example.hobbyclubs.screens.createnews.CreateNewsScreen
 import com.example.hobbyclubs.screens.event.EventScreen
+import com.example.hobbyclubs.screens.firstTime.FirstTimeScreen
+import com.example.hobbyclubs.screens.home.HomeScreen
+import com.example.hobbyclubs.screens.login.LoginScreen
 import com.example.hobbyclubs.screens.news.NewsScreen
 import com.example.hobbyclubs.screens.news.SingleNewsScreen
-import com.example.hobbyclubs.screens.clubs.ClubsScreen
-import com.example.hobbyclubs.screens.firstTime.FirstTimeScreen
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.S)
