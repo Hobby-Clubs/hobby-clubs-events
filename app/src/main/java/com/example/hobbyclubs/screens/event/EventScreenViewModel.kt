@@ -22,7 +22,7 @@ class EventScreenViewModel() : ViewModel() {
     }
 
     fun getEvent(eventId: String) {
-        firebase.getEvent(uid = eventId).get()
+        firebase.getEvent(eventId = eventId).get()
             .addOnSuccessListener { data ->
                 val fetchedEvent = data.toObject(Event::class.java)
                 fetchedEvent?.let {

@@ -2,6 +2,9 @@ package com.example.hobbyclubs.general
 
 import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.FirebaseHelper
+import java.time.LocalDate
+import java.time.ZoneId
+import java.util.*
 
 fun joinEvent(event: Event) {
     val updatedList = event.participants.toMutableList()
@@ -24,8 +27,6 @@ fun likeEvent(event: Event) {
     }
 }
 
-import java.time.LocalDate
-import java.time.ZoneId
-import java.util.*
+
 
 fun LocalDate.toDate(): Date = Date.from(this.atStartOfDay(ZoneId.systemDefault()).toInstant())

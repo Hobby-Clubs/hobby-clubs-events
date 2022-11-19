@@ -1,6 +1,5 @@
 package com.example.hobbyclubs.screens.calendar
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -121,16 +120,6 @@ fun CalendarScreen(navController: NavController, vm: CalendarScreenViewModel = v
                                 onClick = {
                                     navController.navigate(NavRoutes.EventScreen.route + "/${it.id}")
                                 },
-                                onJoin = {
-                                    vm.joinEvent(it)
-                                },
-                                onLike = {
-                                    if (it.likers.contains(FirebaseHelper.uid)) {
-                                        vm.removeLikeOnEvent(it)
-                                    } else {
-                                        vm.likeEvent(it)
-                                    }
-                                }
                             )
                         }
                     }
@@ -182,7 +171,7 @@ fun Day(
 }
 
 @Composable
-fun MonthHeader(monthState: MonthState, modifier: Modifier = Modifier, ) {
+fun MonthHeader(monthState: MonthState, modifier: Modifier = Modifier ) {
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,

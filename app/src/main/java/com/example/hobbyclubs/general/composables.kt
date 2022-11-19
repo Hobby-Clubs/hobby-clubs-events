@@ -49,6 +49,7 @@ import com.example.hobbyclubs.api.CollectionName
 import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.News
+import com.example.hobbyclubs.navigation.BottomBar
 import com.example.hobbyclubs.screens.home.FakeNavigation
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -152,6 +153,7 @@ fun DrawerScreen(
         drawerContent = { FakeNavigation(navController = navController) }) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
+            bottomBar = {BottomBar(navController)},
             topBar = { topBar(drawerState) },
             floatingActionButton = { fab() }
         ) { pad ->
