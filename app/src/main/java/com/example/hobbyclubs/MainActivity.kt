@@ -31,6 +31,7 @@ import com.example.hobbyclubs.screens.login.LoginScreen
 import com.example.hobbyclubs.screens.clubmembers.ClubMembersScreen
 import com.example.hobbyclubs.screens.create.club.CreateClubScreen
 import com.example.hobbyclubs.screens.create.event.CreateEventScreen
+import com.example.hobbyclubs.screens.event.EventScreen
 import com.example.hobbyclubs.screens.news.NewsScreen
 import com.example.hobbyclubs.screens.news.SingleNewsScreen
 
@@ -70,6 +71,16 @@ fun MyAppNavHost() {
         // HomeScreen
         composable(NavRoutes.HomeScreen.route) {
             HomeScreen(navController = navController)
+        }
+        // EventScreen
+        composable(
+            NavRoutes.EventScreen.route + "/{id}",
+            arguments = listOf(
+                navArgument("id") {type = NavType.StringType}
+            )
+        ) {
+            val id = it.arguments!!.getString("id")!!
+            EventScreen(navController = navController, eventId = id)
         }
         // ClubPageScreen
         composable(

@@ -74,6 +74,13 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
 
+    // Calendar
+    implementation "io.github.boguszpawlowski.composecalendar:composecalendar:1.0.1"
+    // Separate artifact with utilities for working with kotlinx-datetime
+    implementation "io.github.boguszpawlowski.composecalendar:kotlinx-datetime:1.0.1"
+    // Time
+    implementation 'joda-time:joda-time:2.9.9'
+
     //Firebase
     implementation platform('com.google.firebase:firebase-bom:30.4.1')
     implementation 'com.google.firebase:firebase-firestore-ktx'
