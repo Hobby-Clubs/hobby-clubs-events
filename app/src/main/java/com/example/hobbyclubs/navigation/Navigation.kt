@@ -56,4 +56,5 @@ object NavBarItems {
             icon = Icons.Default.EventNote
         )
     )
+    object FirstTimeScreen: NavRoutes("FirstTimeScreen")
 }

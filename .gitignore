@@ -27,9 +27,6 @@ render.experimental.xml
 *.jks
 *.keystore
 
-# Google Services (e.g. APIs or Firebase)
-app/google-services.json
-
 # Android Profiling
 *.hprof
 
@@ -43,6 +40,9 @@ gen-external-apklibs
 .idea
 **/node_modules/*
 **/.firebaserc
+
+#Google Services (e.g. APIs or Firebase)
+google-services.json
 
 ### Firebase Patch ###
 .runtimeconfig.json
@@ -166,7 +166,7 @@ proguard/
 /*/build/
 /*/local.properties
 /*/out
-/*/*/build
+/*/*/build/
 /*/*/production
 .navigation/
 *.ipr
