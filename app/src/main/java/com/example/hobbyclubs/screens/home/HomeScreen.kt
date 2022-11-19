@@ -313,10 +313,15 @@ fun MainScreenContent(
                 )
             }
             stickyHeader {
-                LazyColumnHeader(text = "My News")
+                LazyColumnHeader(
+                    modifier = Modifier.clickable { navController.navigate(NavRoutes.NewsScreen.route) },
+                    text = "My News"
+                )
             }
             items(news) {
-                SmallNewsTile(news = it) {
+                SmallNewsTile(
+                    news = it
+                ) {
 
                 }
             }
@@ -520,7 +525,7 @@ fun UpcomingEvent(modifier: Modifier = Modifier, upcoming: Event?, onClick: () -
 @Composable
 fun FAB(isExpanded: Boolean, navController: NavController, onClick: () -> Unit) {
     val actions = listOf(
-        Pair("News") { navController.navigate(NavRoutes.CreateNewsScreen.route)},
+        Pair("News") { navController.navigate(NavRoutes.CreateNewsScreen.route) },
         Pair("Event") { navController.navigate(NavRoutes.CreateEvent.route) },
         Pair("Club") { navController.navigate(NavRoutes.CreateClub.route) }
     )

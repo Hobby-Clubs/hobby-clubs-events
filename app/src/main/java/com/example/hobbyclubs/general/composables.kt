@@ -169,9 +169,9 @@ fun DrawerScreen(
 }
 
 @Composable
-fun LazyColumnHeader(text: String) {
+fun LazyColumnHeader(modifier: Modifier = Modifier, text: String) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .background(Color.White)
     ) {
