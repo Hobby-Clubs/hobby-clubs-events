@@ -57,11 +57,13 @@ fun FirstTimeScreen(navController: NavController) {
                             modifier = Modifier
                                 .padding(bottom = 16.dp)
                                 .fillMaxWidth()
-                                .clickable { interest.interested.value = !interest.interested.value }
+                                .clickable {
+                                    interest.interested.value = !interest.interested.value
+                                }
                         ) {
                             Checkbox(
                                 checked = interest.interested.value,
-                                onCheckedChange = {},
+                                onCheckedChange = { interest.interested.value = it },
                             )
                             Text(text = interest.name)
                         }

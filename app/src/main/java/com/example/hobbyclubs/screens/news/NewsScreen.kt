@@ -45,7 +45,6 @@ fun NewsScreen(
         }
     }
     Box {
-
         Column(modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 10.dp)) {

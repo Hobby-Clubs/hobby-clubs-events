@@ -50,6 +50,7 @@ import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.News
 import com.example.hobbyclubs.navigation.BottomBar
+import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.home.FakeNavigation
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -147,13 +148,20 @@ fun DrawerScreen(
     topBar: @Composable (DrawerState) -> Unit,
     content: @Composable () -> Unit,
 ) {
+    val scope = rememberCoroutineScope()
     ModalNavigationDrawer(
         modifier = Modifier.fillMaxSize(),
         drawerState = drawerState,
-        drawerContent = { FakeNavigation(navController = navController) }) {
+        drawerContent = {
+            MockDrawerContent(navToFirstTime = { navController.navigate(NavRoutes.FirstTimeScreen.route) }) {
+                scope.launch {
+                    drawerState.close()
+                }
+            }
+        }) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
-            bottomBar = {BottomBar(navController)},
+            bottomBar = { BottomBar(navController) },
             topBar = { topBar(drawerState) },
             floatingActionButton = { fab() }
         ) { pad ->
@@ -165,6 +173,41 @@ fun DrawerScreen(
                 content()
             }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MockDrawerContent(navToFirstTime: () -> Unit, onClick: () -> Unit) {
+    val items = listOf("Home", "Restaurant", "HobbyClubs", "Parking", "Settings", "Profile")
+    val selectedItem = remember { mutableStateOf(items[2]) }
+
+    ModalDrawerSheet {
+        Spacer(Modifier.height(12.dp))
+        items.forEach { item ->
+            NavigationDrawerItem(
+                label = { Text(item) },
+                selected = item == selectedItem.value,
+                onClick = {
+                    onClick()
+                },
+                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+            )
+        }
+        NavigationDrawerItem(
+            label = { Text(text = "First time") },
+            selected = false,
+            onClick = { navToFirstTime() })
+    }
+}
+
+@Composable
+fun FakeButtonForNavigationTest(destination: String, onClick: () -> Unit) {
+    Button(
+        onClick = { onClick() },
+        modifier = Modifier.padding(10.dp)
+    ) {
+        Text(text = destination)
     }
 }
 

@@ -41,7 +41,7 @@ object NavBarItems {
 
         BarItem(
             route = NavRoutes.HomeScreen.route,
-            title = "HOME",
+            title = "Home",
             icon = Icons.Default.Home
         ),
 

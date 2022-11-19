@@ -276,7 +276,9 @@ fun ClubSchedule(vm: ClubPageViewModel, navController: NavController) {
             events.forEach { event ->
                 EventTile(
                     event = event,
-                    onClick = {},
+                    onClick = {
+                        navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
+                    },
                 )
                 Spacer(modifier = Modifier.height(20.dp))
             }

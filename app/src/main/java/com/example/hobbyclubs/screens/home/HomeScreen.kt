@@ -249,7 +249,7 @@ fun SearchUI(vm: HomeScreenViewModel, navController: NavController) {
                 ) {
                     eventsFiltered.forEach {
                         EventTile(event = it) {
-
+                            navController.navigate(NavRoutes.EventScreen.route + "/${it.id}")
                         }
                     }
                 }
@@ -309,7 +309,10 @@ fun MainScreenContent(
             items(myEvents) {
                 EventTile(
                     event = it,
-                    onClick = {}
+                    onClick = {
+                        navController.navigate(NavRoutes.EventScreen.route + "/${it.id}")
+
+                    }
                 )
             }
             stickyHeader {
@@ -322,7 +325,7 @@ fun MainScreenContent(
                 SmallNewsTile(
                     news = it
                 ) {
-
+                    navController.navigate(NavRoutes.SingleNewsScreen.route + "/${it.id}")
                 }
             }
             item {
