@@ -34,6 +34,7 @@ import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.CollectionName
 import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.FirebaseHelper
+import com.example.hobbyclubs.general.DividerLine
 import com.example.hobbyclubs.general.JoinEventButton
 import com.example.hobbyclubs.general.LikeEventButton
 import com.example.hobbyclubs.screens.clubpage.ClubSectionTitle
@@ -65,37 +66,13 @@ fun EventScreen(
                 horizontalAlignment = Alignment.Start,
             ) {
                 EventHeader(navController, context, it, vm)
-                Box(
-                    modifier = Modifier
-                        .width((screenWidth * 0.8).dp)
-                        .height(0.5.dp)
-                        .background(color = Color.Gray)
-                        .align(Alignment.CenterHorizontally)
-                )
+                DividerLine()
                 EventDescription(it.description)
-                Box(
-                    modifier = Modifier
-                        .width((screenWidth * 0.8).dp)
-                        .height(0.5.dp)
-                        .background(color = Color.Gray)
-                        .align(Alignment.CenterHorizontally)
-                )
+                DividerLine()
                 EventLocation(it.address)
-                Box(
-                    modifier = Modifier
-                        .width((screenWidth * 0.8).dp)
-                        .height(0.5.dp)
-                        .background(color = Color.Gray)
-                        .align(Alignment.CenterHorizontally)
-                )
+                DividerLine()
                 EventLinks(context, it.linkArray)
-                Box(
-                    modifier = Modifier
-                        .width((screenWidth * 0.8).dp)
-                        .height(0.5.dp)
-                        .background(color = Color.Gray)
-                        .align(Alignment.CenterHorizontally)
-                )
+                DividerLine()
                 EventContactInfo(it.contactInfoName, it.contactInfoNumber, it.contactInfoEmail)
             }
             TopAppBar(
@@ -174,21 +151,6 @@ fun EventHeader(navController: NavController, context: Context, event: Event, vm
                         .height((screenHeight * 0.25).dp),
                     contentScale = ContentScale.FillWidth
                 )
-                Row(modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(15.dp)) {
-                    if(!hasLikedEvent) {
-                        LikeEventButton(isLiked = hasLikedEvent) {
-                            vm.likeEvent(event)
-                        }
-                    }
-
-                    if(hasLikedEvent) {
-                        LikeEventButton(isLiked = hasLikedEvent) {
-                            vm.removeLikeOnEvent(event)
-                        }
-                    }
-                }
             }
         }
         Column(
@@ -231,13 +193,23 @@ fun EventHeader(navController: NavController, context: Context, event: Event, vm
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 20.dp, bottom = 20.dp, top = 20.dp), horizontalArrangement = Arrangement.Start
+                    .padding(start = 20.dp, bottom = 20.dp, top = 20.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically
             ) {
                 JoinEventButton(isJoined = hasJoinedEvent) {
                     vm.joinEvent(event)
                 }
-            }
+                if(!hasLikedEvent) {
+                    LikeEventButton(isLiked = hasLikedEvent) {
+                        vm.likeEvent(event)
+                    }
+                }
 
+                if(hasLikedEvent) {
+                    LikeEventButton(isLiked = hasLikedEvent) {
+                        vm.removeLikeOnEvent(event)
+                    }
+                }
+            }
         }
     }
 }

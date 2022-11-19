@@ -84,15 +84,15 @@ fun ClubPageScreen(
                 horizontalAlignment = Alignment.Start,
             ) {
                 ClubPageHeader(navController, context, it, vm)
-                DividerLine(width = (screenWidth * 0.9).dp)
+                DividerLine()
                 ClubDescription(it.description)
-                DividerLine(width = (screenWidth * 0.9).dp)
+                DividerLine()
                 ClubSchedule(vm, navController)
-                DividerLine(width = (screenWidth * 0.9).dp)
+                DividerLine()
                 ClubNews(vm, navController)
-                DividerLine(width = (screenWidth * 0.9).dp)
+                DividerLine()
                 ClubLinks(context, linkList = it.socials)
-                DividerLine(width = (screenWidth * 0.9).dp)
+                DividerLine()
                 ClubContactInfo(
                     name = it.contactPerson,
                     phoneNumber = it.contactPhone,

@@ -2,39 +2,23 @@ package com.example.hobbyclubs.screens.calendar
 
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Crop169
-import androidx.compose.material.icons.outlined.CalendarMonth
-import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.outlined.People
-import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.hobbyclubs.R
 import com.example.compose.joinedColor
-import com.example.compose.nokiaBlue
 import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.general.DrawerScreen
@@ -80,6 +64,12 @@ fun CalendarScreen(navController: NavController, vm: CalendarScreenViewModel = v
                             state = dayState,
                             event = allEvents.firstOrNull {
                                 (dateTimeComparator.compare(it.date.toDate(), dayState.date.toDate())) == 0
+                            },
+                            joinedEvent = allEvents.firstOrNull {
+                                (dateTimeComparator.compare(it.date.toDate(), dayState.date.toDate())) == 0 && it.participants.contains(FirebaseHelper.uid)
+                            },
+                            likedEvent = allEvents.firstOrNull {
+                                (dateTimeComparator.compare(it.date.toDate(), dayState.date.toDate())) == 0 && it.likers.contains(FirebaseHelper.uid)
                             }
                         )
                     },
@@ -154,15 +144,13 @@ fun CalendarScreen(navController: NavController, vm: CalendarScreenViewModel = v
 fun Day(
     state: DayState<DynamicSelectionState>,
     event: Event?,
+    joinedEvent: Event?,
+    likedEvent: Event?,
     modifier: Modifier = Modifier,
 ) {
     val date = state.date
     val selectionState = state.selectionState
     val isSelected = selectionState.isDateSelected(date)
-
-    // temporary
-    val joinedStatus = false
-    val likedStatus = false
 
     Card(
         modifier = modifier
@@ -170,9 +158,9 @@ fun Day(
             .padding(2.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = (if (state.isFromCurrentMonth) 4.dp else 1.dp)),
         border =
-        if(joinedStatus)
+        if(joinedEvent != null)
             BorderStroke(1.dp, joinedColor)
-        else if(likedStatus)
+        else if(likedEvent != null)
             BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary)
         else if(event != null)
             BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
@@ -185,10 +173,7 @@ fun Day(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .clickable {
-                    Log.d("ONSELECT", event.toString())
-                    selectionState.onDateSelected(date)
-                },
+                .clickable { selectionState.onDateSelected(date) },
             contentAlignment = Alignment.Center,
         ) {
             Text(text = date.dayOfMonth.toString())
