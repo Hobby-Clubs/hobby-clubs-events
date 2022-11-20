@@ -51,15 +51,9 @@ import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.News
 import com.example.hobbyclubs.navigation.BottomBar
 import com.example.hobbyclubs.navigation.NavRoutes
-import com.example.hobbyclubs.screens.home.FakeNavigation
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
-
-@Composable
-fun BasicText(value: String) {
-    Text(text = value)
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -360,44 +354,12 @@ fun CustomOutlinedTextField(
 fun EventTile(
     modifier: Modifier = Modifier,
     event: Event,
-    onClick: () -> Unit
+    picUri: Uri? = null,
+    onClick: () -> Unit,
 ) {
-    var picUri: Uri? by remember { mutableStateOf(null) }
     val joined = event.participants.contains(FirebaseHelper.uid)
     val liked = event.likers.contains(FirebaseHelper.uid)
 
-//    LaunchedEffect(picUri) {
-//        picUri?.let {
-//            Log.d("picUri", "${event.name} / ${event.id}: $it")
-//        }
-//    }
-
-    LaunchedEffect(Unit) {
-        if (picUri == null) {
-            FirebaseHelper.getAllFiles("${CollectionName.events}/${event.id}")
-                .addOnSuccessListener { res ->
-                    val items = res.items
-//                    Log.d("items", "${event.id}: $items")
-
-                    if (items.isEmpty()) {
-                        return@addOnSuccessListener
-                    }
-                    val bannerRef = items.find { it.name == "0.jpg" } ?: items.first()
-//                    Log.d("bannerRef", "${event.id}: $bannerRef")
-                    bannerRef
-                        .downloadUrl
-                        .addOnSuccessListener {
-                            picUri = it
-                        }
-                        .addOnFailureListener {
-                            Log.e("getPicUri", "EventTile: ", it)
-                        }
-                }
-                .addOnFailureListener {
-                    Log.e("getAllFiles", "EventTile: ", it)
-                }
-        }
-    }
     Card(
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = clubTileBg),
@@ -420,6 +382,7 @@ fun EventTile(
                         .crossfade(true)
                         .build(),
                     contentDescription = "Tile background",
+                    error = painterResource(id = R.drawable.nokia_logo),
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxSize(),

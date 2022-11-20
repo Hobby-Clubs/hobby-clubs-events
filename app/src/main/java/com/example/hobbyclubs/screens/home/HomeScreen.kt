@@ -19,13 +19,13 @@ import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -38,6 +38,7 @@ import com.example.compose.clubTileBg
 import com.example.compose.clubTileBorder
 import com.example.compose.md_theme_light_error
 import com.example.compose.md_theme_light_primary
+import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.*
 import com.example.hobbyclubs.general.*
 import com.example.hobbyclubs.navigation.NavRoutes
@@ -49,7 +50,11 @@ import java.text.SimpleDateFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController, vm: HomeScreenViewModel = viewModel()) {
+fun HomeScreen(
+    navController: NavController,
+    vm: HomeScreenViewModel = viewModel(),
+    imageVm: ImageViewModel = viewModel()
+) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val myClubs by vm.myClubs.observeAsState(listOf())
     val isRefreshing by vm.isRefreshing.observeAsState(false)
@@ -111,6 +116,7 @@ fun HomeScreen(navController: NavController, vm: HomeScreenViewModel = viewModel
         if (!showSearch) {
             MainScreenContent(
                 vm = vm,
+                imageVm = imageVm,
                 isRefreshing = isRefreshing,
                 myClubs = myClubs,
                 navController = navController,
@@ -118,13 +124,13 @@ fun HomeScreen(navController: NavController, vm: HomeScreenViewModel = viewModel
                 news = news
             )
         } else {
-            SearchUI(vm = vm, navController = navController)
+            SearchUI(vm = vm, navController = navController, imageVm)
         }
     }
 }
 
 @Composable
-fun SearchUI(vm: HomeScreenViewModel, navController: NavController) {
+fun SearchUI(vm: HomeScreenViewModel, navController: NavController, imageVm: ImageViewModel) {
     val allClubs by vm.allClubs.observeAsState(listOf())
     val searchInput by vm.searchInput.observeAsState("")
     val joinedEvents: List<Event>? by vm.joinedEvents.observeAsState(null)
@@ -141,6 +147,7 @@ fun SearchUI(vm: HomeScreenViewModel, navController: NavController) {
             }
         }
     }
+
 
     val clubsFiltered by remember {
         derivedStateOf {
@@ -280,12 +287,23 @@ fun SearchUI(vm: HomeScreenViewModel, navController: NavController) {
 @Composable
 fun MainScreenContent(
     vm: HomeScreenViewModel,
+    imageVm: ImageViewModel,
     isRefreshing: Boolean,
     myClubs: List<Club>,
     navController: NavController,
     myEvents: List<Event>,
     news: List<News>
 ) {
+    val clubUris by imageVm.clubBannerUris.observeAsState()
+    val eventUris by imageVm.eventBannerUris.observeAsState()
+
+    if(myClubs.isNotEmpty()) {
+        imageVm.getClubUris(myClubs)
+    }
+    if(myEvents.isNotEmpty()) {
+        imageVm.getEventUris(myEvents)
+    }
+
     SwipeRefresh(
         state = SwipeRefreshState(isRefreshing = isRefreshing),
         onRefresh = { vm.refresh() },
@@ -300,30 +318,39 @@ fun MainScreenContent(
             stickyHeader {
                 LazyColumnHeader(text = "My Clubs")
             }
-            items(myClubs) {
-                MyClubTile(
-                    club = it,
-                    vm = vm,
-                    onClickNews = {
+            clubUris?.let { clubUris ->
+                items(myClubs) { club ->
+                    val uri = clubUris.find { it.first == club.ref }?.second
+                    MyClubTile(
+                        club = club,
+                        vm = vm,
+                        picUri = uri,
+                        onClickNews = {
 //                        navController.navigate(NavRoutes.ClubAllNewsScreen.route + "/${it.ref}")
-                    },
-                    onClick = {
-                        navController.navigate(NavRoutes.ClubPageScreen.route + "/${it.ref}")
-                    }
-                )
+                        },
+                        onClick = {
+                            navController.navigate(NavRoutes.ClubPageScreen.route + "/${club.ref}")
+                        }
+                    )
+                }
             }
+
             stickyHeader {
                 LazyColumnHeader(text = "My Events")
             }
-            items(myEvents) {
-                EventTile(
-                    event = it,
-                    onClick = {
-                        navController.navigate(NavRoutes.EventScreen.route + "/${it.id}")
-
-                    }
-                )
+            eventUris?.let { eventUris ->
+                items(myEvents) { event ->
+                    val uri = eventUris.find { it.first == event.id }?.second
+                    EventTile(
+                        event = event,
+                        picUri = uri,
+                        onClick = {
+                            navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
+                        }
+                    )
+                }
             }
+
             stickyHeader {
                 LazyColumnHeader(
                     modifier = Modifier.clickable { navController.navigate(NavRoutes.NewsScreen.route) },
@@ -348,22 +375,15 @@ fun MainScreenContent(
 fun MyClubTile(
     modifier: Modifier = Modifier,
     club: Club,
+    picUri: Uri?,
     vm: HomeScreenViewModel,
     onClick: () -> Unit,
     onClickNews: () -> Unit
 ) {
-    var picUri: Uri? by rememberSaveable { mutableStateOf(null) }
     var nextEvent: Event? by remember { mutableStateOf(null) }
     var newsAmount: Int? by remember { mutableStateOf(null) }
 
     LaunchedEffect(Unit) {
-        if (picUri == null) {
-            vm.getBanner(club.ref)
-                .downloadUrl
-                .addOnSuccessListener {
-                    picUri = it
-                }
-        }
         if (nextEvent == null) {
             vm.getNextEvent(club.ref)
                 .get()
@@ -401,6 +421,7 @@ fun MyClubTile(
                     .data(picUri)
                     .crossfade(true)
                     .build(),
+                error = painterResource(id = R.drawable.nokia_logo),
                 contentDescription = "banner",
                 contentScale = ContentScale.Crop
             )
@@ -612,51 +633,6 @@ fun FABAction(modifier: Modifier = Modifier, text: String, onClick: () -> Unit) 
                 fontWeight = FontWeight.Medium,
                 fontSize = 14.sp
             )
-        }
-    }
-}
-
-@Composable
-fun FakeButtonForNavigationTest(destination: String, onClick: () -> Unit) {
-    Button(
-        onClick = { onClick() },
-        modifier = Modifier.padding(10.dp)
-    ) {
-        Text(text = destination)
-    }
-}
-
-@Composable
-fun FakeNavigation(navController: NavController) {
-    val scope = rememberCoroutineScope()
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxSize(),
-    ) {
-        FakeButtonForNavigationTest(destination = "Home") {
-            navController.navigate(NavRoutes.HomeScreen.route)
-        }
-        FakeButtonForNavigationTest(destination = "Clubs") {
-            navController.navigate(NavRoutes.ClubsScreen.route)
-        }
-        FakeButtonForNavigationTest(destination = "News") {
-            navController.navigate(NavRoutes.NewsScreen.route)
-        }
-        FakeButtonForNavigationTest(destination = "Calendar") {
-            navController.navigate(NavRoutes.CalendarScreen.route)
-        }
-        FakeButtonForNavigationTest(destination = "Create event") {
-            navController.navigate(NavRoutes.CreateEvent.route)
-        }
-        FakeButtonForNavigationTest(destination = "Create club") {
-            navController.navigate(NavRoutes.CreateClub.route)
-        }
-        FakeButtonForNavigationTest(destination = "Log out") {
-            scope.launch {
-                FirebaseHelper.logout()
-                navController.navigate(NavRoutes.LoginScreen.route)
-            }
         }
     }
 }

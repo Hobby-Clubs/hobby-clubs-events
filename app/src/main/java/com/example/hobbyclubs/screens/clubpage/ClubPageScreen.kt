@@ -39,10 +39,7 @@ import com.example.compose.nokiaDarkBlue
 import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.Request
-import com.example.hobbyclubs.general.CustomOutlinedTextField
-import com.example.hobbyclubs.general.DividerLine
-import com.example.hobbyclubs.general.EventTile
-import com.example.hobbyclubs.general.SmallNewsTile
+import com.example.hobbyclubs.general.*
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.google.firebase.Timestamp
 import java.util.*
@@ -52,6 +49,7 @@ import java.util.*
 fun ClubPageScreen(
     navController: NavController,
     vm: ClubPageViewModel = viewModel(),
+    imageVm: ImageViewModel = viewModel(),
     clubId: String
 ) {
     val context = LocalContext.current
@@ -76,7 +74,7 @@ fun ClubPageScreen(
                 DividerLine()
                 ClubDescription(it.description)
                 DividerLine()
-                ClubSchedule(vm, navController)
+                ClubSchedule(vm, navController, imageVm)
                 DividerLine()
                 ClubNews(vm, navController)
                 DividerLine()
@@ -128,7 +126,7 @@ fun ClubPageHeader(
         if (showJoinRequestDialog) {
             JoinClubDialog(
                 onConfirm = {
-                    if(FirebaseHelper.uid != null && joinClubDialogText.text.isNotEmpty()) {
+                    if (FirebaseHelper.uid != null && joinClubDialogText.text.isNotEmpty()) {
                         val request = Request(
                             userId = FirebaseHelper.uid!!,
                             acceptedStatus = false,
@@ -266,16 +264,24 @@ fun ClubDescription(desc: String) {
 }
 
 @Composable
-fun ClubSchedule(vm: ClubPageViewModel, navController: NavController) {
-    val listOfEvents by vm.listOfEvents.observeAsState()
+fun ClubSchedule(vm: ClubPageViewModel, navController: NavController, imageVm: ImageViewModel) {
+    val listOfEvents by vm.listOfEvents.observeAsState(listOf())
+    val eventUris by imageVm.eventBannerUris.observeAsState()
+
+    if (listOfEvents.isNotEmpty()) {
+        imageVm.getEventUris(listOfEvents)
+    }
+
     Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 20.dp)) {
         ClubSectionTitle(text = "Schedule")
         Text(text = "Upcoming events", fontSize = 14.sp)
         Spacer(modifier = Modifier.height(20.dp))
-        listOfEvents?.let { events ->
-            events.forEach { event ->
+        eventUris?.let { eventUris ->
+            listOfEvents.forEach { event ->
+                val uri = eventUris.find { it.first == event.id }?.second
                 EventTile(
                     event = event,
+                    picUri = uri,
                     onClick = {
                         navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
                     },
