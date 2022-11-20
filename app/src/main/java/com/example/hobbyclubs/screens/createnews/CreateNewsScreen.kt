@@ -4,7 +4,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -34,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.hobbyclubs.api.News
 import com.example.hobbyclubs.navigation.NavRoutes
@@ -90,7 +90,8 @@ fun CustomOutlinedTextField(
     label: String,
     placeholder: String
 ) {
-    OutlinedTextField(value = value,
+    OutlinedTextField(
+        value = value,
         onValueChange = onValueChange,
         keyboardOptions = KeyboardOptions(
             imeAction = ImeAction.Done, keyboardType = keyboardType
@@ -108,18 +109,16 @@ fun PageProgression(numberOfLines: Int, vm: CreateNewsViewModel) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(5.dp),
-        horizontalArrangement = Arrangement.SpaceAround
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        ProgressionBar(isMarked = numberOfLines >= 1, onClick = { vm.changePageTo(1) })
-        ProgressionBar(isMarked = numberOfLines > 1, onClick = { vm.changePageTo(2) })
+        ProgressionBar(modifier = Modifier.weight(1f), isMarked = numberOfLines >= 1, onClick = { vm.changePageTo(1) })
+        ProgressionBar(Modifier.weight(1f), isMarked = numberOfLines > 1, onClick = { vm.changePageTo(2) })
     }
 }
 
 @Composable
-fun ProgressionBar(isMarked: Boolean, onClick: () -> Unit) {
-    val screenWidth = LocalConfiguration.current.screenWidthDp
-    Box(modifier = Modifier
-        .width((screenWidth * 0.21).dp)
+fun ProgressionBar(modifier: Modifier = Modifier, isMarked: Boolean, onClick: () -> Unit) {
+    Box(modifier = modifier
         .height(13.dp)
         .clip(RoundedCornerShape(20.dp))
         .background(color = if (isMarked) MaterialTheme.colorScheme.primary else Color.LightGray)
@@ -196,24 +195,14 @@ fun NewsCreationPage1(vm: CreateNewsViewModel) {
                 .padding(bottom = 75.dp)
         ) {
             PageProgression(numberOfLines = 1, vm)
-            Button(onClick = { vm.changePageTo(2) },
-                shape = RoundedCornerShape(
-                    topStartPercent = 25,
-                    bottomStartPercent = 25,
-                    topEndPercent = 25,
-                    bottomEndPercent = 25
-                ),) {
-                Text(
-                    text = "Next",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(60.dp)
-                        .wrapContentHeight(),
-                    textAlign = TextAlign.Center
-                )
-            }
+            CustomButton(
+                onClick = { vm.changePageTo(2) },
+                text = "Next",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp)
+            )
         }
-
     }
 }
 
@@ -234,30 +223,23 @@ fun NewsCreationPage2(vm: CreateNewsViewModel, navController: NavController) {
                 .padding(bottom = 75.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            ImagePicker(vm)
+            ImagePicker(modifier = Modifier.weight(1f), vm = vm)
             PageProgression(numberOfLines = 2, vm)
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly)
             {
-               Button(modifier = Modifier,
-                   onClick = { vm.changePageTo(1)
-               },
-                   shape = RoundedCornerShape(
-                       topStartPercent = 25,
-                   bottomStartPercent = 25
-               )) {
-                    Text(
-                        text = "Previous", modifier = Modifier
-                            .height(60.dp)
-                            .width(150.dp)
-                            .wrapContentHeight(),
-                        textAlign = TextAlign.Start
-                    )
-                }
-                Button(
-                    modifier = Modifier,
+                CustomButton(
+                    onClick = { vm.changePageTo(1) },
+                    text = "Previous",
+                    colors = ButtonDefaults.buttonColors(
+                        contentColor = Color.Black,
+                        containerColor = Color.LightGray
+                    ),
+                    modifier = Modifier
+                        .height(60.dp)
+                )
+                CustomButton(
                     onClick = {
-                        vm.convertUriToBitmap(selectImages!!, context)
-                        if (headline == null || newsContent == null || selectedClub == null || selectImageBitmap == null) {
+                        if (headline == null || newsContent == null || selectedClub == null) {
                             Log.d("imageStoring", "$headline\n$newsContent\n$selectImageBitmap")
                             Toast.makeText(
                                 context, "Please fill in all the fields", Toast.LENGTH_SHORT
@@ -270,63 +252,55 @@ fun NewsCreationPage2(vm: CreateNewsViewModel, navController: NavController) {
                                 date = Timestamp.now()
                             )
                             val newsId = vm.addNews(news)
-                            vm.storeNewsImage(bitmap = selectImageBitmap!!, newsId)
+                            selectImages?.let {
+                                vm.storeNewsImage(it, newsId)
+                            }
                             Toast.makeText(context, "News created.", Toast.LENGTH_SHORT).show()
                             navController.navigate(NavRoutes.HomeScreen.route)
                         }
                     },
-                    shape = RoundedCornerShape(
-                        topEndPercent = 25,
-                        bottomEndPercent = 25
-                    ),
+                    text = "Create News",
+                    modifier = Modifier
+                        .height(60.dp)
                 )
-                {
-                    Text(
-                        text = "Create News",
-                        modifier = Modifier
-                            .height(60.dp)
-                            .width(150.dp)
-                            .wrapContentHeight(),
-                        textAlign = TextAlign.End
-                    )
 
-                }
             }
         }
     }
 }
 
 @Composable
-fun ImagePicker(vm: CreateNewsViewModel) {
-
-    val selectImages by vm.selectedImage.observeAsState(null)
+fun ImagePicker(modifier: Modifier = Modifier, vm: CreateNewsViewModel) {
+    val selectedImage by vm.selectedImage.observeAsState(null)
 
     val galleryLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             vm.storeSelectedImage(uri)
         }
-        Column( modifier= Modifier
-            .height(400.dp)
+
+    Column(
+        modifier = modifier
             .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
-        ) {
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Top
+    ) {
+        AsyncImage(
+            model = selectedImage,
+            contentScale = ContentScale.FillWidth,
+            contentDescription = null,
+            modifier = Modifier
+                .padding(16.dp, 8.dp)
+                .size(400.dp)
+                .clickable {
 
-                    Image(
-                        painter = rememberAsyncImagePainter(selectImages),
-                        contentScale = ContentScale.FillWidth,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .padding(16.dp, 8.dp)
-                            .size(400.dp)
-                            .clickable {
-
-                            }
-                    )
-            }
-            Spacer(modifier = Modifier.padding(50.dp))
-    Row(modifier = Modifier.fillMaxWidth(),
-    horizontalArrangement = Arrangement.Center) {
+                }
+        )
+    }
+    Spacer(modifier = Modifier.padding(50.dp))
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
+    ) {
 
         CustomButton(
             onClick = { galleryLauncher.launch("image/*") },
@@ -337,6 +311,6 @@ fun ImagePicker(vm: CreateNewsViewModel) {
         )
     }
 
-        }
+}
 
 

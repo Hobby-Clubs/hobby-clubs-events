@@ -39,6 +39,18 @@ object FirebaseHelper {
         return db.collection(CollectionName.users).document(uid)
     }
 
+    fun updateUser(uid: String, changeMap: Map<String, Any>) {
+        val ref = db.collection("users").document(uid)
+            ref
+            .update(changeMap)
+            .addOnSuccessListener {
+                Log.d(TAG, "updateUser: $ref")
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "updateUser: ", e)
+            }
+    }
+
     fun addClub(club: Club): String {
         val ref = db.collection(CollectionName.clubs).document()
         val clubWithRef = club.apply { this.ref = ref.id }
@@ -360,6 +372,7 @@ class CollectionName {
     }
 }
 
+
 class ClubCategory {
     companion object {
         const val sports = "sports"
@@ -381,7 +394,8 @@ data class User(
     var lName: String = "",
     val phone: String = "",
     val email: String = "",
-    val interests: List<String> = listOf()
+    val interests: List<String> = listOf(),
+    val firstTime: Boolean = true,
 ) : Serializable
 
 data class Club(

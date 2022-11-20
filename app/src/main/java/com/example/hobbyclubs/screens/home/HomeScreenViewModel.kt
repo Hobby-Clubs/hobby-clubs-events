@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.hobbyclubs.api.*
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.ktx.toObject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -14,6 +15,7 @@ class HomeScreenViewModel : ViewModel() {
         const val TAG = "HomeScreenViewModel"
     }
 
+    val isFirstTimeUser = MutableLiveData<Boolean>()
     val allClubs = MutableLiveData<List<Club>>()
     val allEvents = MutableLiveData<List<Event>>()
     val myClubs = MutableLiveData<List<Club>>()
@@ -30,12 +32,26 @@ class HomeScreenViewModel : ViewModel() {
     }
 
     fun refresh() {
+        checkFirstTime()
         isRefreshing.value = true
         viewModelScope.launch {
             fetchMyClubs()
             fetchMyEvents()
             delay(1500)
             isRefreshing.postValue(false)
+        }
+    }
+
+    fun checkFirstTime() {
+        FirebaseHelper.uid?.let {
+            FirebaseHelper.getUser(it)
+                .get()
+                .addOnSuccessListener { data ->
+                    val currentUser = data.toObject(User::class.java)
+                    if (currentUser != null) {
+                        isFirstTimeUser.value = currentUser.firstTime
+                    }
+                }
         }
     }
 

@@ -153,7 +153,10 @@ fun DrawerScreen(
         modifier = Modifier.fillMaxSize(),
         drawerState = drawerState,
         drawerContent = {
-            MockDrawerContent(navToFirstTime = { navController.navigate(NavRoutes.FirstTimeScreen.route) }) {
+            MockDrawerContent(navToFirstTime = { navController.navigate(NavRoutes.FirstTimeScreen.route) }, logout = {
+                FirebaseHelper.logout()
+                navController.navigate(NavRoutes.LoginScreen.route)
+            }) {
                 scope.launch {
                     drawerState.close()
                 }
@@ -178,7 +181,7 @@ fun DrawerScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MockDrawerContent(navToFirstTime: () -> Unit, onClick: () -> Unit) {
+fun MockDrawerContent(navToFirstTime: () -> Unit, logout: () -> Unit, onClick: () -> Unit) {
     val items = listOf("Home", "Restaurant", "HobbyClubs", "Parking", "Settings", "Profile")
     val selectedItem = remember { mutableStateOf(items[2]) }
 
@@ -197,7 +200,16 @@ fun MockDrawerContent(navToFirstTime: () -> Unit, onClick: () -> Unit) {
         NavigationDrawerItem(
             label = { Text(text = "First time") },
             selected = false,
-            onClick = { navToFirstTime() })
+            onClick = { navToFirstTime() },
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+        )
+
+        NavigationDrawerItem(
+            label = { Text(text = "Logout") },
+            selected = false,
+            onClick = { logout() },
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+        )
     }
 }
 

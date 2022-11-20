@@ -9,13 +9,38 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.hobbyclubs.api.ClubCategory
+import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.navigation.NavRoutes
+import java.util.*
 
 @Composable
 fun FirstTimeScreen(navController: NavController) {
+    val interests: List<Interest> =
+        listOf(
+            Interest(ClubCategory.boardGames, remember { mutableStateOf(false) }),
+            Interest(ClubCategory.videoGames, remember { mutableStateOf(false) }),
+            Interest(ClubCategory.music, remember { mutableStateOf(false) }),
+            Interest(ClubCategory.movies, remember { mutableStateOf(false) }),
+            Interest(ClubCategory.sports, remember { mutableStateOf(false) }),
+            Interest(ClubCategory.other, remember { mutableStateOf(false) }),
+        )
+
+    fun onConfirm() {
+        val selection = interests.filter { it.interested.value }.map { it.name }
+        FirebaseHelper.uid?.let {
+            val changeMap = mapOf(
+                Pair("interests", selection),
+                Pair("firstTime", false)
+            )
+            FirebaseHelper.updateUser(it, changeMap)
+        }
+        navController.navigate(NavRoutes.HomeScreen.route)
+    }
 
     Surface {
         Column(
@@ -26,14 +51,7 @@ fun FirstTimeScreen(navController: NavController) {
                 .padding(horizontal = 30.dp)
                 .padding(top = 40.dp, bottom = 80.dp),
         ) {
-            val interests: List<Interest> =
-                listOf(
-                    Interest("Sports", remember { mutableStateOf(false) }),
-                    Interest("Games", remember { mutableStateOf(false) }),
-                    Interest("Mechanics", remember { mutableStateOf(false) }),
-                    Interest("Computers", remember { mutableStateOf(false) }),
-                    Interest("Chess", remember { mutableStateOf(false) }),
-                )
+
 
             Column {
                 Text(
@@ -65,13 +83,15 @@ fun FirstTimeScreen(navController: NavController) {
                                 checked = interest.interested.value,
                                 onCheckedChange = { interest.interested.value = it },
                             )
-                            Text(text = interest.name)
+                            Text(text = interest.name.replaceFirstChar { it.uppercase() })
                         }
                     }
                 }
             }
             Button(
-                onClick = { navController.navigate(NavRoutes.HomeScreen.route) },
+                onClick = {
+                    onConfirm()
+                },
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(text = "Confirm")

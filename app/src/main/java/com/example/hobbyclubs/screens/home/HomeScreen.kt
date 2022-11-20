@@ -66,6 +66,15 @@ fun HomeScreen(navController: NavController, vm: HomeScreenViewModel = viewModel
     var showSearch by remember { mutableStateOf(false) }
     val searchInput by vm.searchInput.observeAsState("")
     val focusManager = LocalFocusManager.current
+    val isFirst by vm.isFirstTimeUser.observeAsState()
+
+    LaunchedEffect(isFirst) {
+        isFirst?.let {
+            if (it) {
+                navController.navigate(NavRoutes.FirstTimeScreen.route)
+            }
+        }
+    }
 
     DrawerScreen(
         navController = navController,
