@@ -298,7 +298,7 @@ fun ClubNews(vm: ClubPageViewModel, navController: NavController) {
                 SmallNewsTile(
                     news = singleNews,
                     onClick = {
-                        // TODO: Navigate to that news page
+                        navController.navigate(NavRoutes.SingleNewsScreen.route + "/${singleNews.id}")
                     }
                 )
                 Spacer(modifier = Modifier.height(5.dp))

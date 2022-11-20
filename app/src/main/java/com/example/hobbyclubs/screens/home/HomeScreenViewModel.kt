@@ -125,13 +125,11 @@ class HomeScreenViewModel : ViewModel() {
     }
 
     fun fetchMyNews(myClubs: List<Club>) {
-        val now = Timestamp.now()
         FirebaseHelper.getAllNews()
             .get()
             .addOnSuccessListener {
                 val fetchedNews = it.toObjects(News::class.java)
                     .filter { news -> myClubs.map { it.ref }.contains(news.clubId) }
-                    .filter { news -> news.date >= now }
                     .sortedBy { news -> news.date }
                 news.value = fetchedNews
             }

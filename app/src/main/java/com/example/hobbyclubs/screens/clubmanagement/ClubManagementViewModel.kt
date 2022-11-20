@@ -50,9 +50,9 @@ class ClubManagementViewModel() : ViewModel() {
                     Log.e("getAllEvents", "EventFetchFail: ", error)
                     return@addSnapshotListener
                 }
-                Log.d("fetchEvents", "getClubEvents: ${data.documents[0].get("date")}")
+//                Log.d("fetchEvents", "getClubEvents: ${data.documents[0].get("date")}")
                 val fetchedEvents = data.toObjects(Event::class.java)
-                Log.d("fetchEvents", fetchedEvents.toString())
+//                Log.d("fetchEvents", fetchedEvents.toString())
                 listOfEvents.value = fetchedEvents.filter { it.clubId == clubId }
             }
     }
