@@ -6,10 +6,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.hobbyclubs.api.*
 
-class ImageViewModel: ViewModel() {
-    val clubLogoUris = MutableLiveData<List<Pair<String, Uri?>>>()
-    val eventBannerUris = MutableLiveData<List<Pair<String, Uri?>>>()
-    val clubBannerUris = MutableLiveData<List<Pair<String, Uri?>>>()
+class ImageViewModel : ViewModel() {
+    val clubLogoUris = MutableLiveData<List<Pair<String, Uri?>>>(listOf())
+    val eventBannerUris = MutableLiveData<List<Pair<String, Uri?>>>(listOf())
+    val clubBannerUris = MutableLiveData<List<Pair<String, Uri?>>>(listOf())
 
     fun getEventUris(listOfEvents: List<Event>) {
         val tempList = mutableListOf<Pair<String, Uri?>>()
@@ -43,6 +43,7 @@ class ImageViewModel: ViewModel() {
                 }
         }
     }
+
     fun getClubUris(listOfClubs: List<Club>) {
         val tempListLogo = mutableListOf<Pair<String, Uri?>>()
         val tempListBanner = mutableListOf<Pair<String, Uri?>>()

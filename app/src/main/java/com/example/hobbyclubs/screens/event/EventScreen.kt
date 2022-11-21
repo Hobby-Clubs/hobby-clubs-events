@@ -198,15 +198,17 @@ fun EventHeader(navController: NavController, context: Context, event: Event, vm
                 JoinEventButton(isJoined = hasJoinedEvent) {
                     vm.joinEvent(event)
                 }
-                if(!hasLikedEvent) {
-                    LikeEventButton(isLiked = hasLikedEvent) {
-                        vm.likeEvent(event)
+                if (!hasJoinedEvent) {
+                    if(!hasLikedEvent) {
+                        LikeEventButton(isLiked = hasLikedEvent) {
+                            vm.likeEvent(event)
+                        }
                     }
-                }
 
-                if(hasLikedEvent) {
-                    LikeEventButton(isLiked = hasLikedEvent) {
-                        vm.removeLikeOnEvent(event)
+                    if(hasLikedEvent) {
+                        LikeEventButton(isLiked = hasLikedEvent) {
+                            vm.removeLikeOnEvent(event)
+                        }
                     }
                 }
             }

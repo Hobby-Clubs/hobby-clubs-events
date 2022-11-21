@@ -147,10 +147,12 @@ fun DrawerScreen(
         modifier = Modifier.fillMaxSize(),
         drawerState = drawerState,
         drawerContent = {
-            MockDrawerContent(navToFirstTime = { navController.navigate(NavRoutes.FirstTimeScreen.route) }, logout = {
-                FirebaseHelper.logout()
-                navController.navigate(NavRoutes.LoginScreen.route)
-            }) {
+            MockDrawerContent(
+                navToFirstTime = { navController.navigate(NavRoutes.FirstTimeScreen.route) },
+                logout = {
+                    FirebaseHelper.logout()
+                    navController.navigate(NavRoutes.LoginScreen.route)
+                }) {
                 scope.launch {
                     drawerState.close()
                 }
@@ -354,7 +356,7 @@ fun CustomOutlinedTextField(
 fun EventTile(
     modifier: Modifier = Modifier,
     event: Event,
-    picUri: Uri? = null,
+    picUri: Uri?,
     onClick: () -> Unit,
 ) {
     val joined = event.participants.contains(FirebaseHelper.uid)
@@ -430,11 +432,13 @@ fun EventTile(
                 val dateFormatted = sdf.format(event.date.toDate())
                 val time = SimpleDateFormat("HH:mm", Locale.ENGLISH).format(event.date.toDate())
                 EventTileRowItem(
+                    modifier = Modifier.weight(1.3f),
                     icon = Icons.Outlined.CalendarMonth,
                     iconDesc = "Calendar Icon",
                     content = dateFormatted
                 )
                 EventTileRowItem(
+                    modifier = Modifier.weight(1f),
                     icon = Icons.Outlined.Schedule,
                     iconDesc = "Timer Icon",
                     content = time
@@ -442,6 +446,7 @@ fun EventTile(
                 val participants = event.participants.size.toString() +
                         if (event.participantLimit != -1) "/${event.participantLimit}" else ""
                 EventTileRowItem(
+                    modifier = Modifier.weight(0.5f),
                     icon = Icons.Outlined.People,
                     iconDesc = "People Icon",
                     content = participants
@@ -508,8 +513,13 @@ fun LikeEventButton(modifier: Modifier = Modifier, isLiked: Boolean, onClick: ()
 }
 
 @Composable
-fun EventTileRowItem(icon: ImageVector, iconDesc: String, content: String) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
+fun EventTileRowItem(
+    modifier: Modifier = Modifier,
+    icon: ImageVector,
+    iconDesc: String,
+    content: String
+) {
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         Icon(modifier = Modifier.size(24.dp), imageVector = icon, contentDescription = iconDesc)
         Spacer(modifier = Modifier.width(5.dp))
         Text(text = content, fontSize = 14.sp, color = md_theme_light_onSurfaceVariant)
@@ -640,6 +650,7 @@ fun CustomAlertDialog(
 
 @Composable
 fun SmallNewsTile(modifier: Modifier = Modifier, news: News, onClick: () -> Unit) {
+    val screenWidth = LocalConfiguration.current.screenWidthDp
     var picUri: Uri? by rememberSaveable { mutableStateOf(null) }
     val sdf = SimpleDateFormat("dd.MM.yyyy", java.util.Locale.ENGLISH)
     val date = sdf.format(news.date.toDate())
@@ -688,10 +699,18 @@ fun SmallNewsTile(modifier: Modifier = Modifier, news: News, onClick: () -> Unit
                     .weight(1f)
                     .fillMaxHeight()
                     .padding(end = 4.dp),
-                verticalArrangement = Arrangement.SpaceBetween
+                verticalArrangement = Arrangement.SpaceBetween,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(text = news.headline, fontWeight = FontWeight.Medium, fontSize = 16.sp)
+                    Text(
+                        text = news.headline,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 16.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.width((screenWidth * 0.5).dp)
+                    )
                     Text(text = date, fontWeight = FontWeight.Light, fontSize = 12.sp)
                 }
                 Text(

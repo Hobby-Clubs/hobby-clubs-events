@@ -266,7 +266,7 @@ fun ClubDescription(desc: String) {
 @Composable
 fun ClubSchedule(vm: ClubPageViewModel, navController: NavController, imageVm: ImageViewModel) {
     val listOfEvents by vm.listOfEvents.observeAsState(listOf())
-    val eventUris by imageVm.eventBannerUris.observeAsState()
+    val eventUris by imageVm.eventBannerUris.observeAsState(listOf())
 
     if (listOfEvents.isNotEmpty()) {
         imageVm.getEventUris(listOfEvents)
@@ -276,7 +276,7 @@ fun ClubSchedule(vm: ClubPageViewModel, navController: NavController, imageVm: I
         ClubSectionTitle(text = "Schedule")
         Text(text = "Upcoming events", fontSize = 14.sp)
         Spacer(modifier = Modifier.height(20.dp))
-        eventUris?.let { eventUris ->
+        if (eventUris.isNotEmpty()) {
             listOfEvents.forEach { event ->
                 val uri = eventUris.find { it.first == event.id }?.second
                 EventTile(

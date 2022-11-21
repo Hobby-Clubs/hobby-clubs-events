@@ -2,10 +2,10 @@ package com.example.hobbyclubs.screens.news
 
 import android.net.Uri
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.*
@@ -13,16 +13,16 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.compose.clubTileBg
+import com.example.compose.clubTileBorder
 import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.News
 import com.example.hobbyclubs.navigation.NavRoutes
@@ -42,7 +42,7 @@ fun NewsScreen(
     val allNews = vm.listOfNews.observeAsState(listOf())
     LaunchedEffect(Unit) {
         scope.launch(Dispatchers.IO) {
-            vm.getALlNews()
+            vm.getAllNews()
         }
     }
     Box {
@@ -52,7 +52,7 @@ fun NewsScreen(
                 .padding(horizontal = 10.dp)
         ) {
             CenterAlignedTopAppBar(
-                title = { },
+                title = { Text(text = "News") },
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
@@ -95,10 +95,8 @@ fun ImageCard(
     vm: NewsViewModel,
     onClick: () -> Unit
 ) {
-
     var newsUri: Uri? by rememberSaveable { mutableStateOf(null) }
-    var club: Club? by rememberSaveable { mutableStateOf(null) }
-    val screenWidth = LocalConfiguration.current.screenWidthDp
+    var club: Club? by remember { mutableStateOf(null) }
 
     LaunchedEffect(Unit) {
         if (newsUri == null) {
@@ -123,13 +121,14 @@ fun ImageCard(
                 }
         }
     }
-
     club?.let {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(10.dp)
                 .clickable { onClick() },
+            colors = CardDefaults.cardColors(clubTileBg),
+            border = BorderStroke(1.dp, clubTileBorder)
         ) {
             Column(
                 modifier = Modifier
@@ -142,8 +141,8 @@ fun ImageCard(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 15.dp)
-                        .aspectRatio(16f/9f)
+                        .padding(bottom = 10.dp)
+                        .aspectRatio(16f / 9f)
 
                 )
                 Column(
@@ -166,7 +165,6 @@ fun ImageCard(
                     val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH)
                     val dateFormatted = sdf.format(news.date.toDate())
                     Text(text = dateFormatted.toString())
-
                     Text(
                         text = news.newsContent,
                         maxLines = 2,

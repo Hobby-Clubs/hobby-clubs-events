@@ -12,10 +12,7 @@ class NewsViewModel: ViewModel() {
     val listOfNews = MutableLiveData<List<News>>()
     val news = MutableLiveData<News>()
 
-
-
-
-    fun getALlNews(){
+    fun getAllNews(){
       firebase.getAllNews().addSnapshotListener{ list,e ->
           list ?: run {
               Log.e("news","getAllNews: ", e)
@@ -25,7 +22,7 @@ class NewsViewModel: ViewModel() {
 
           val newsList = list.toObjects(News::class.java)
           Log.d("getAllNews", newsList.toString())
-          listOfNews.postValue(newsList)
+          listOfNews.value = newsList
       }
   }
     fun getClub(clubId: String) = firebase.getClub(uid = clubId)

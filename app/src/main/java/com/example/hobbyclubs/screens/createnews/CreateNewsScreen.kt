@@ -246,7 +246,7 @@ fun NewsCreationPage2(vm: CreateNewsViewModel, navController: NavController) {
                             ).show()
                         } else {
                             val news = News(
-                                clubId = selectedClub!!,
+                                clubId = selectedClub ?: "",
                                 headline = headline!!.text,
                                 newsContent = newsContent!!.text,
                                 date = Timestamp.now()

@@ -2,6 +2,8 @@ package com.example.hobbyclubs.screens.news
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,6 +17,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -22,23 +25,23 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.compose.clubTileBg
+import com.example.compose.clubTileBorder
 import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.News
 import java.text.SimpleDateFormat
 import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SingleNewsScreen(
     navController: NavController,
     vm: SingleScreenViewModel = viewModel(),
     newsId: String
-    ) {
-
-
+) {
     val context = LocalContext.current
     val news by vm.selectedNews.observeAsState(null)
     LaunchedEffect(Unit) {
@@ -46,46 +49,47 @@ fun SingleNewsScreen(
         vm.getImage(newsId)
     }
     news?.let {
-        Box() {
-            Column(
+        Box(Modifier.fillMaxSize()) {
+//            Column(
+//                modifier = Modifier
+//                    .fillMaxSize()
+//                    .verticalScroll(rememberScrollState()),
+//                horizontalAlignment = Alignment.Start,
+//            ) {
+//                TopAppBar(
+//                    title = {},
+//                    colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
+//                    navigationIcon = {
+//
+//                    }
+//                )
+//            }
+            NewsContent(vm, it)
+            IconButton(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.Start,
-            ) {
-
-                TopAppBar(
-                    title = {},
-                    colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
-                    navigationIcon = {
-                        IconButton(onClick = { navController.navigateUp() }) {
-                            Icon(
-                                Icons.Outlined.ArrowBack,
-                                contentDescription = "Back",
-                                tint = Color.Black
-                            )
-                        }
-                    }
+                    .align(Alignment.TopStart)
+                    .padding(8.dp),
+                onClick = { navController.navigateUp() }) {
+                Icon(
+                    Icons.Outlined.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color.White
                 )
-                NewsContent(context, vm, it)
             }
         }
-
     }
 }
 
 @Composable
 fun NewsContent(
-    context: Context,
     vm: SingleScreenViewModel = viewModel(),
     news: News
-){
-    val screenHeight = LocalConfiguration.current.screenHeightDp
+) {
     val getImage by vm.newsUri.observeAsState()
     var club: Club? by rememberSaveable { mutableStateOf(null) }
-    LaunchedEffect(Unit) {
 
-        if(club == null){
+    LaunchedEffect(Unit) {
+        if (club == null) {
             vm.getClub(news.clubId).get()
                 .addOnSuccessListener { data ->
                     val fetchedClub = data.toObject(Club::class.java)
@@ -97,60 +101,55 @@ fun NewsContent(
         }
     }
     club?.let {
-        Card(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp)
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
         ) {
+            AsyncImage(
+                model = getImage,
+                contentDescription = "news image",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
+                    .clip(RoundedCornerShape(12.dp))
+            )
             Column(
                 modifier = Modifier
-                    //.padding(10.dp)
-                    .fillMaxSize(),
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                AsyncImage(
-                    model = getImage,
-                    contentDescription = "news image",
-                    contentScale = ContentScale.Crop,
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 30.dp)
-                        .clip(RoundedCornerShape(16.dp))
-
-                )
+                        .fillMaxWidth(),
+                ) {
+                    Text(text = news.headline, fontSize = 20.sp)
+                    Spacer(modifier = Modifier.size(10.dp))
+                    Text(text = it.name, fontSize = 16.sp)
+                }
+                val sdf = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.ENGLISH)
+                val dateFormatted = sdf.format(news.date.toDate())
+                Text(text = dateFormatted, fontWeight = FontWeight.Light, fontSize = 12.sp)
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(10.dp)
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.End
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(text = news.headline, fontWeight = FontWeight.Bold)
-                        Text(text = it.name, fontWeight = FontWeight.Bold)
-                    }
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 5.dp)
-                    ) {
-                        val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH)
-                        val dateFormatted = sdf.format(news.date.toDate())
-                        Text(text = dateFormatted.toString())
-                    }
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp)
-                    ) {
-                        Text(
-                            text = news.newsContent,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
+                    Text(
+                        text = news.newsContent,
+                        fontWeight = FontWeight.Light,
+                        fontSize = 16.sp
+                    )
+                    Spacer(modifier = Modifier.size(32.dp))
+                    Text(
+                        text = "Published by someone",
+                        fontWeight = FontWeight.Light,
+                        fontSize = 12.sp
+                    )
                 }
-
             }
         }
     }

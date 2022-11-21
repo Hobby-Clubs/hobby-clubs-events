@@ -1,6 +1,7 @@
 package com.example.hobbyclubs.screens.home
 
 import android.net.Uri
+import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -45,7 +46,6 @@ import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.clubs.ClubTile
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshState
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,17 +56,16 @@ fun HomeScreen(
     imageVm: ImageViewModel = viewModel()
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val allClubs by vm.allClubs.observeAsState(listOf())
+    val allEvents by vm.allEvents.observeAsState(listOf())
     val myClubs by vm.myClubs.observeAsState(listOf())
-    val isRefreshing by vm.isRefreshing.observeAsState(false)
-    val joinedEvents by vm.joinedEvents.observeAsState(listOf())
-    val likedEvents by vm.likedEvents.observeAsState(listOf())
-    val myEvents by remember {
+    val myEvents by vm.myEvents.observeAsState(listOf())
+    val news by vm.allNews.observeAsState(listOf())
+    val myNews by remember {
         derivedStateOf {
-            val combined = (joinedEvents + likedEvents).toSet().toList()
-            combined.sortedBy { it.date }
+            news.filter { news -> myClubs.map { it.ref }.contains(news.clubId) }
         }
     }
-    val news by vm.news.observeAsState(listOf())
     var fabIsExpanded by remember { mutableStateOf(false) }
     var showSearch by remember { mutableStateOf(false) }
     val searchInput by vm.searchInput.observeAsState("")
@@ -78,6 +77,18 @@ fun HomeScreen(
             if (it) {
                 navController.navigate(NavRoutes.FirstTimeScreen.route)
             }
+        }
+    }
+
+    LaunchedEffect(allClubs) {
+        if (allClubs.isNotEmpty()) {
+            imageVm.getClubUris(allClubs)
+        }
+    }
+
+    LaunchedEffect(allEvents) {
+        if (allEvents.isNotEmpty()) {
+            imageVm.getEventUris(allEvents)
         }
     }
 
@@ -110,18 +121,13 @@ fun HomeScreen(
                     fabIsExpanded = !fabIsExpanded
                 }
             }
-
         }
     ) {
         if (!showSearch) {
             MainScreenContent(
                 vm = vm,
                 imageVm = imageVm,
-                isRefreshing = isRefreshing,
-                myClubs = myClubs,
                 navController = navController,
-                myEvents = myEvents,
-                news = news
             )
         } else {
             SearchUI(vm = vm, navController = navController, imageVm)
@@ -133,21 +139,14 @@ fun HomeScreen(
 fun SearchUI(vm: HomeScreenViewModel, navController: NavController, imageVm: ImageViewModel) {
     val allClubs by vm.allClubs.observeAsState(listOf())
     val searchInput by vm.searchInput.observeAsState("")
-    val joinedEvents: List<Event>? by vm.joinedEvents.observeAsState(null)
-    val likedEvents: List<Event>? by vm.likedEvents.observeAsState(null)
-    val myClubs by vm.myClubs.observeAsState(listOf())
-    val clubEvents: List<Event>? by vm.clubEvents.observeAsState(null)
-    val myEvents by remember {
+    val allEvents by vm.allEvents.observeAsState(listOf())
+    val myClubsEvents by remember {
         derivedStateOf {
-            if (joinedEvents != null && likedEvents != null && clubEvents != null) {
-                val combined = (clubEvents!! + joinedEvents!! + likedEvents!!).toSet().toList()
-                combined.sortedBy { it.date }
-            } else {
-                listOf()
+            allEvents.filter {
+                allClubs.map { club -> club.ref }.contains(it.clubId)
             }
         }
     }
-
 
     val clubsFiltered by remember {
         derivedStateOf {
@@ -162,25 +161,24 @@ fun SearchUI(vm: HomeScreenViewModel, navController: NavController, imageVm: Ima
     val eventsFiltered by remember {
         derivedStateOf {
             if (searchInput.isNotBlank()) {
-                myEvents.filter { event -> event.name.contains(searchInput, ignoreCase = true) }
+                myClubsEvents.filter { event ->
+                    event.name.contains(
+                        searchInput,
+                        ignoreCase = true
+                    )
+                }
             } else {
-                myEvents
+                myClubsEvents
             }
         }
     }
 
+    val eventBannerUris by imageVm.eventBannerUris.observeAsState(listOf())
+    val clubLogoUris by imageVm.clubLogoUris.observeAsState(listOf())
+    val clubBannerUris by imageVm.clubBannerUris.observeAsState(listOf())
+
     var clubsExpanded by remember { mutableStateOf(true) }
     var eventsExpanded by remember { mutableStateOf(true) }
-
-    LaunchedEffect(Unit) {
-        vm.fetchAllClubs()
-        vm.fetchMyEvents()
-    }
-    LaunchedEffect(myClubs) {
-        if (myClubs.isNotEmpty()) {
-            vm.fetchEventsOfMyClubs(myClubs)
-        }
-    }
 
     LazyColumn(
         Modifier
@@ -210,31 +208,19 @@ fun SearchUI(vm: HomeScreenViewModel, navController: NavController, imageVm: Ima
             }
         }
         if (clubsExpanded) {
-            item {
-                Column(
-                    Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    clubsFiltered.forEach {
-                        ClubTile(
-                            club = it,
-                            logoRef = vm.getLogo(it.ref),
-                            bannerRef = vm.getBanner(it.ref)
-                        ) {
-                            navController.navigate(NavRoutes.ClubPageScreen.route + "/${it.ref}")
-                        }
+            if (clubBannerUris.isNotEmpty() && clubLogoUris.isNotEmpty()) {
+                items(clubsFiltered) { club ->
+                    val logoUri = clubLogoUris.find { it.first == club.ref }?.second
+                    val bannerUri = clubBannerUris.find { it.first == club.ref }?.second
+                    ClubTile(
+                        club = club,
+                        logoUri = logoUri,
+                        bannerUri = bannerUri
+                    ) {
+                        navController.navigate(NavRoutes.ClubPageScreen.route + "/${club.ref}")
                     }
                 }
             }
-//            items(clubsFiltered) {
-//                ClubTile(
-//                    club = it,
-//                    logoRef = vm.getLogo(it.ref),
-//                    bannerRef = vm.getBanner(it.ref)
-//                ) {
-//                    navController.navigate(NavRoutes.ClubPageScreen.route + "/${it.ref}")
-//                }
-//            }
         }
         item {
             Row(
@@ -258,24 +244,14 @@ fun SearchUI(vm: HomeScreenViewModel, navController: NavController, imageVm: Ima
             }
         }
         if (eventsExpanded) {
-            item {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    eventsFiltered.forEach {
-                        EventTile(event = it) {
-                            navController.navigate(NavRoutes.EventScreen.route + "/${it.id}")
-                        }
+            if (eventBannerUris.isNotEmpty()) {
+                items(eventsFiltered) { event ->
+                    val picUri = eventBannerUris.find { it.first == event.id }?.second
+                    EventTile(event = event, picUri = picUri) {
+                        navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
                     }
                 }
             }
-//            items(eventsFiltered) {
-//                Log.d("event", "SearchUI: ${it.id}")
-//                EventTile(event = it, onJoin = { }, onLike = { }) {
-//
-//                }
-//            }
         }
         item {
             Spacer(modifier = Modifier.height(32.dp))
@@ -288,85 +264,79 @@ fun SearchUI(vm: HomeScreenViewModel, navController: NavController, imageVm: Ima
 fun MainScreenContent(
     vm: HomeScreenViewModel,
     imageVm: ImageViewModel,
-    isRefreshing: Boolean,
-    myClubs: List<Club>,
     navController: NavController,
-    myEvents: List<Event>,
-    news: List<News>
 ) {
+    val myClubs by vm.myClubs.observeAsState(listOf())
+    val myEvents by vm.myEvents.observeAsState(listOf())
+    val allNews by vm.allNews.observeAsState(listOf())
+    val myNews by remember {
+        derivedStateOf {
+            allNews.filter { myClubs.map { club -> club.ref }.contains(it.clubId) }
+        }
+    }
     val clubUris by imageVm.clubBannerUris.observeAsState()
     val eventUris by imageVm.eventBannerUris.observeAsState()
 
-    if(myClubs.isNotEmpty()) {
-        imageVm.getClubUris(myClubs)
-    }
-    if(myEvents.isNotEmpty()) {
-        imageVm.getEventUris(myEvents)
-    }
-
-    SwipeRefresh(
-        state = SwipeRefreshState(isRefreshing = isRefreshing),
-        onRefresh = { vm.refresh() },
-        refreshTriggerDistance = 50.dp
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            stickyHeader {
-                LazyColumnHeader(text = "My Clubs")
-            }
-            clubUris?.let { clubUris ->
-                items(myClubs) { club ->
-                    val uri = clubUris.find { it.first == club.ref }?.second
-                    MyClubTile(
-                        club = club,
-                        vm = vm,
-                        picUri = uri,
-                        onClickNews = {
+        stickyHeader {
+            LazyColumnHeader(text = "My Clubs")
+        }
+        clubUris?.let { clubUris ->
+            items(myClubs) { club ->
+                val uri = clubUris.find { it.first == club.ref }?.second
+                MyClubTile(
+                    club = club,
+                    vm = vm,
+                    picUri = uri,
+                    onClickNews = {
 //                        navController.navigate(NavRoutes.ClubAllNewsScreen.route + "/${it.ref}")
-                        },
-                        onClick = {
-                            navController.navigate(NavRoutes.ClubPageScreen.route + "/${club.ref}")
-                        }
-                    )
-                }
-            }
-
-            stickyHeader {
-                LazyColumnHeader(text = "My Events")
-            }
-            eventUris?.let { eventUris ->
-                items(myEvents) { event ->
-                    val uri = eventUris.find { it.first == event.id }?.second
-                    EventTile(
-                        event = event,
-                        picUri = uri,
-                        onClick = {
-                            navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
-                        }
-                    )
-                }
-            }
-
-            stickyHeader {
-                LazyColumnHeader(
-                    modifier = Modifier.clickable { navController.navigate(NavRoutes.NewsScreen.route) },
-                    text = "My News"
+                    },
+                    onClickUpcoming = {
+                        navController.navigate(NavRoutes.EventScreen.route + "/${it}")
+                    },
+                    onClick = {
+                        navController.navigate(NavRoutes.ClubPageScreen.route + "/${club.ref}")
+                    }
                 )
             }
-            items(news) {
-                SmallNewsTile(
-                    news = it
-                ) {
-                    navController.navigate(NavRoutes.SingleNewsScreen.route + "/${it.id}")
-                }
+        }
+
+        stickyHeader {
+            LazyColumnHeader(text = "My Events")
+        }
+        eventUris?.let { eventUris ->
+            items(myEvents) { event ->
+                val uri = eventUris.find { it.first == event.id }?.second
+                EventTile(
+                    event = event,
+                    picUri = uri,
+                    onClick = {
+                        navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
+                    }
+                )
             }
-            item {
-                Spacer(modifier = Modifier.height(32.dp))
+        }
+
+        stickyHeader {
+            LazyColumnHeader(
+                modifier = Modifier.clickable { navController.navigate(NavRoutes.NewsScreen.route) },
+                text = "My News"
+            )
+        }
+        items(myNews) {
+            SmallNewsTile(
+                news = it
+            ) {
+                navController.navigate(NavRoutes.SingleNewsScreen.route + "/${it.id}")
             }
+        }
+        item {
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
@@ -378,35 +348,32 @@ fun MyClubTile(
     picUri: Uri?,
     vm: HomeScreenViewModel,
     onClick: () -> Unit,
-    onClickNews: () -> Unit
+    onClickNews: () -> Unit,
+    onClickUpcoming: (String) -> Unit
 ) {
-    var nextEvent: Event? by remember { mutableStateOf(null) }
-    var newsAmount: Int? by remember { mutableStateOf(null) }
-
-    LaunchedEffect(Unit) {
-        if (nextEvent == null) {
-            vm.getNextEvent(club.ref)
-                .get()
-                .addOnSuccessListener {
-                    val next = it.toObjects(Event::class.java)
-                    if (next.size == 0) {
-                        return@addOnSuccessListener
-                    }
-                    nextEvent = next[0]
-                }
-        }
-        if (newsAmount == null) {
-            vm.getNews(club.ref)
-                .get()
-                .addOnSuccessListener {
-                    val news = it.toObjects(News::class.java)
-                    if (news.size == 0) {
-                        return@addOnSuccessListener
-                    }
-                    newsAmount = news.size
-                }
+    val allEvents by vm.allEvents.observeAsState(listOf())
+    val nextEvent by remember {
+        derivedStateOf {
+            val clubEvents = allEvents
+                .filter { it.clubId == club.ref }
+            if (clubEvents.isNotEmpty()) {
+                clubEvents.sortedBy { it.date }[0]
+            } else {
+                null
+            }
         }
     }
+    val allNews by vm.allNews.observeAsState(listOf())
+    val newsAmount by remember {
+        derivedStateOf {
+            if (allNews.isNotEmpty()) {
+                allNews.count { it.clubId == club.ref }
+            } else {
+                null
+            }
+        }
+    }
+
     Card(
         modifier = modifier
             .aspectRatio(2.125f)
@@ -448,7 +415,11 @@ fun MyClubTile(
                     UpcomingEvent(
                         modifier = Modifier.fillMaxHeight(),
                         upcoming = nextEvent,
-                        onClick = {})
+                        onClick = {
+                            nextEvent?.let {
+                                onClickUpcoming(it.id)
+                            }
+                        })
                     Spacer(
                         modifier = Modifier
                             .fillMaxHeight()

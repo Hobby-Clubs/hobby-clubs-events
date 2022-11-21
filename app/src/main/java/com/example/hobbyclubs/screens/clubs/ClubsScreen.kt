@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -28,9 +29,11 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.compose.clubTileBg
 import com.example.compose.clubTileBorder
+import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.general.DrawerScreen
+import com.example.hobbyclubs.general.ImageViewModel
 import com.example.hobbyclubs.general.LazyColumnHeader
 import com.example.hobbyclubs.general.MenuTopBar
 import com.example.hobbyclubs.navigation.NavRoutes
@@ -40,11 +43,23 @@ import com.google.firebase.storage.StorageReference
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun ClubsScreen(navController: NavController, vm: ClubsScreenViewModel = viewModel()) {
+fun ClubsScreen(
+    navController: NavController,
+    vm: ClubsScreenViewModel = viewModel(),
+    imageVm: ImageViewModel = viewModel()
+) {
     val suggestedClubs by vm.suggestedClubs.observeAsState(listOf())
     val allClubs by vm.clubs.observeAsState(listOf())
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val isRefreshing by vm.isRefreshing.observeAsState(false)
+    val clubLogoUris by imageVm.clubLogoUris.observeAsState(listOf())
+    val clubBannerUris by imageVm.clubBannerUris.observeAsState(listOf())
+
+    LaunchedEffect(allClubs) {
+        if (allClubs.isNotEmpty()) {
+            imageVm.getClubUris(allClubs)
+        }
+    }
 
     DrawerScreen(
         navController = navController,
@@ -64,26 +79,34 @@ fun ClubsScreen(navController: NavController, vm: ClubsScreenViewModel = viewMod
                 stickyHeader {
                     LazyColumnHeader(text = "Suggested Clubs")
                 }
-                items(suggestedClubs) {
-                    ClubTile(
-                        club = it,
-                        logoRef = vm.getLogo(it.ref),
-                        bannerRef = vm.getBanner(it.ref),
-                        onClick = {
-                            navController.navigate(NavRoutes.ClubPageScreen.route + "/${it.ref}")
-                        })
+                if (clubBannerUris.isNotEmpty() && clubLogoUris.isNotEmpty()) {
+                    items(suggestedClubs) { club ->
+                        val logoUri = clubLogoUris.find { it.first == club.ref }?.second
+                        val bannerUri = clubBannerUris.find { it.first == club.ref }?.second
+                        ClubTile(
+                            club = club,
+                            logoUri = logoUri,
+                            bannerUri = bannerUri
+                        ) {
+                            navController.navigate(NavRoutes.ClubPageScreen.route + "/${club.ref}")
+                        }
+                    }
                 }
                 stickyHeader {
                     LazyColumnHeader(text = "All Clubs")
                 }
-                items(allClubs) {
-                    ClubTile(
-                        club = it,
-                        logoRef = vm.getLogo(it.ref),
-                        bannerRef = vm.getBanner(it.ref),
-                        onClick = {
-                            navController.navigate(NavRoutes.ClubPageScreen.route + "/${it.ref}")
-                        })
+                if (clubBannerUris.isNotEmpty() && clubLogoUris.isNotEmpty()) {
+                    items(allClubs) { club ->
+                        val logoUri = clubLogoUris.find { it.first == club.ref }?.second
+                        val bannerUri = clubBannerUris.find { it.first == club.ref }?.second
+                        ClubTile(
+                            club = club,
+                            logoUri = logoUri,
+                            bannerUri = bannerUri
+                        ) {
+                            navController.navigate(NavRoutes.ClubPageScreen.route + "/${club.ref}")
+                        }
+                    }
                 }
                 item {
                     Spacer(modifier = Modifier.height(32.dp))
@@ -110,87 +133,61 @@ fun ClubsScreen(navController: NavController, vm: ClubsScreenViewModel = viewMod
 fun ClubTile(
     modifier: Modifier = Modifier,
     club: Club,
-    logoRef: StorageReference,
-    bannerRef: StorageReference,
+    logoUri: Uri?,
+    bannerUri: Uri?,
     onClick: () -> Unit
 ) {
-    var logoUri: Uri? by rememberSaveable { mutableStateOf(null) }
-    var bannerUri: Uri? by rememberSaveable { mutableStateOf(null) }
     val isJoined = club.members.contains(FirebaseHelper.uid)
-
-    LaunchedEffect(Unit) {
-        if (logoUri == null) {
-            logoRef
-                .downloadUrl
-                .addOnSuccessListener {
-                    logoUri = it
-                }
-                .addOnFailureListener {
-                    Log.e("getLogo", "ClubTile: ", it)
-                }
-        }
-        if (bannerUri == null) {
-            bannerRef
-                .downloadUrl
-                .addOnSuccessListener {
-                    bannerUri = it
-                }
-                .addOnFailureListener {
-                    Log.e("getLogo", "ClubTile: ", it)
-                }
-        }
-    }
-
-    if (logoUri != null && logoUri != null) {
-        Card(
-            modifier = modifier.clickable { onClick() },
-            shape = RoundedCornerShape(12.dp),
-            border = BorderStroke(1.dp, clubTileBorder),
-            colors = CardDefaults.cardColors(clubTileBg)
+    Card(
+        modifier = modifier.clickable { onClick() },
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, clubTileBorder),
+        colors = CardDefaults.cardColors(clubTileBg)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(4.3f),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(4.3f),
-                verticalAlignment = Alignment.CenterVertically
+                    .weight(1f)
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Row(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    AsyncImage(
-                        modifier = Modifier
-                            .size(50.dp)
-                            .aspectRatio(1f)
-                            .clip(CircleShape),
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(logoUri)
-                            .crossfade(true)
-                            .build(),
-                        contentDescription = "logo",
-                        contentScale = ContentScale.Crop
-                    )
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(text = club.name, fontWeight = FontWeight.Medium, fontSize = 16.sp)
-                        Text(text = if (isJoined) "Already joined" else "Join now!", fontSize = 14.sp)
-                    }
-                }
                 AsyncImage(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .size(50.dp)
+                        .aspectRatio(1f)
+                        .clip(CircleShape),
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data(bannerUri)
+                        .data(logoUri)
                         .crossfade(true)
                         .build(),
-                    contentDescription = "banner",
+                    contentDescription = "logo",
+                    error = painterResource(id = R.drawable.nokia_logo),
                     contentScale = ContentScale.Crop
                 )
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = club.name, fontWeight = FontWeight.Medium, fontSize = 16.sp)
+                    Text(text = if (isJoined) "Already joined" else "Join now!", fontSize = 14.sp)
+                }
             }
+            AsyncImage(
+                modifier = Modifier.weight(1f),
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(bannerUri)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = "banner",
+                error = painterResource(id = R.drawable.nokia_logo),
+                contentScale = ContentScale.Crop
+            )
         }
     }
 }

@@ -45,7 +45,7 @@ fun CalendarScreen(
     val dateTimeComparator = DateTimeComparator.getDateOnlyInstance()
     val allEvents by vm.allEvents.observeAsState(listOf())
     val selection by vm.selection.observeAsState()
-    val listOfUri by imageVm.eventBannerUris.observeAsState()
+    val listOfUri by imageVm.eventBannerUris.observeAsState(listOf())
     val filteredEvents by remember {
         derivedStateOf {
             selection?.let {
@@ -135,7 +135,7 @@ fun CalendarScreen(
                     Text("Liked", fontSize = 12.sp)
                 }
 
-                if (!filteredEvents.isEmpty() && listOfUri != null) {
+                if (filteredEvents.isNotEmpty() && listOfUri.isNotEmpty()) {
                     LazyColumn(modifier = Modifier
                         .fillMaxHeight()
                         .padding(horizontal = 2.dp, vertical = 5.dp),

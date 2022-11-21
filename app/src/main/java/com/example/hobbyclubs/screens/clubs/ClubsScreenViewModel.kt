@@ -46,8 +46,7 @@ class ClubsScreenViewModel : ViewModel() {
                             }
                             val suggestedCount = min(fetchedClubs.size, suggestedAmount)
                             val clubsByMembers =
-                                fetchedClubs.filter { club -> !club.members.contains(u.uid) }
-                                    .sortedByDescending { club -> club.members.size }
+                                fetchedClubs.sortedByDescending { club -> club.members.size }
                             clubs.value = clubsByMembers
 
                             val suggestedPool = if (clubsByMembers.size >= 2 * suggestedAmount) {
@@ -60,9 +59,14 @@ class ClubsScreenViewModel : ViewModel() {
 
                             suggestedClubs.value =
                                 if (u.interests.isEmpty()) {
-                                    suggestedPool.shuffled().take(suggestedCount)
+                                    suggestedPool
+                                        .filter { club -> !club.members.contains(u.uid) }
+                                        .shuffled()
+                                        .take(suggestedCount)
                                 } else {
-                                    suggestedPool.filter { club -> u.interests.contains(club.category) }
+                                    suggestedPool
+                                        .filter { club -> u.interests.contains(club.category) }
+                                        .filter { club -> !club.members.contains(u.uid) }
                                         .shuffled()
                                         .take(suggestedCount)
                                 }
@@ -80,12 +84,6 @@ class ClubsScreenViewModel : ViewModel() {
                 isRefreshing.postValue(false)
             }
     }
-
-    fun getLogo(clubRef: String) =
-        FirebaseHelper.getFile("${CollectionName.clubs}/$clubRef/logo")
-
-    fun getBanner(clubRef: String) =
-        FirebaseHelper.getFile("${CollectionName.clubs}/$clubRef/banner")
 
     fun addMockClubs(amount: Int, club: Club, logoUri: Uri, bannerUri: Uri) {
         repeat(amount) {
