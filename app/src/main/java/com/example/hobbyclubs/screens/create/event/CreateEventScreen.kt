@@ -58,7 +58,6 @@ import com.google.accompanist.pager.rememberPagerState
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.time.LocalDate
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -299,6 +298,8 @@ fun DateSelector(vm: CreateEventViewModel) {
     val selectedHour = remember { mutableStateOf(0) }
     val selectedMinute = remember { mutableStateOf(0) }
 
+
+
     val datePickerDialog = DatePickerDialog(
         context,
         { _: DatePicker, mYear: Int, mMonth: Int, dayOfMonth: Int ->
@@ -308,6 +309,8 @@ fun DateSelector(vm: CreateEventViewModel) {
         },
         year, month, day,
     )
+    datePickerDialog.datePicker .minDate = calendar.timeInMillis
+
 
     val timePickerDialog = TimePickerDialog(
         context,

@@ -1,8 +1,6 @@
-package com.example.hobbyclubs.screens.createnews
+package com.example.hobbyclubs.screens.create.news
 
-import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.ImageDecoder
 import android.net.Uri
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.MutableLiveData

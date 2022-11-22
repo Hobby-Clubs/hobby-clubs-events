@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.example.hobbyclubs.api.CollectionName
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.News
+import com.google.firebase.firestore.Query
 
 class NewsViewModel: ViewModel() {
     val firebase = FirebaseHelper
@@ -13,7 +14,7 @@ class NewsViewModel: ViewModel() {
     val news = MutableLiveData<News>()
 
     fun getAllNews(){
-      firebase.getAllNews().addSnapshotListener{ list,e ->
+      firebase.getAllNews().orderBy("date", Query.Direction.DESCENDING).addSnapshotListener{ list,e ->
           list ?: run {
               Log.e("news","getAllNews: ", e)
               return@addSnapshotListener
