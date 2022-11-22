@@ -1,17 +1,14 @@
 package com.example.hobbyclubs.screens.create.club
 
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
 import android.net.Uri
 import android.util.Log
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.hobbyclubs.api.Club
+import com.example.hobbyclubs.api.CollectionName
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.User
-import com.example.hobbyclubs.screens.create.event.notifyObserver
 
 class CreateClubViewModel : ViewModel() {
     val firebase = FirebaseHelper
@@ -33,29 +30,37 @@ class CreateClubViewModel : ViewModel() {
     fun changePageTo(page: Int) {
         currentCreationProgressPage.value = page
     }
+
     fun updateEventName(newVal: TextFieldValue) {
         clubName.value = newVal
     }
+
     fun updateEventDescription(newVal: TextFieldValue) {
         clubDescription.value = newVal
     }
+
     fun updateClubPrivacySelection(leftVal: Boolean, rightVal: Boolean) {
         leftSelected.value = leftVal
         rightSelected.value = rightVal
         clubIsPrivate.value = rightVal
     }
+
     fun updateContactInfoName(newVal: TextFieldValue) {
         contactInfoName.value = newVal
     }
+
     fun updateContactInfoEmail(newVal: TextFieldValue) {
         contactInfoEmail.value = newVal
     }
+
     fun updateContactInfoNumber(newVal: TextFieldValue) {
         contactInfoNumber.value = newVal
     }
+
     fun updateCurrentLinkName(newVal: TextFieldValue) {
         currentLinkName.value = newVal
     }
+
     fun updateCurrentLinkURL(newVal: TextFieldValue) {
         currentLinkURL.value = newVal
     }
@@ -70,48 +75,24 @@ class CreateClubViewModel : ViewModel() {
 
         }
     }
+
     fun clearLinkFields() {
         currentLinkName.value = null
         currentLinkURL.value = null
     }
-    val imagesAsBitmap = MutableLiveData<MutableList<Bitmap>>()
-    val logoAsBitmap = MutableLiveData<Bitmap>()
-    private val selectedImagesAsBitmaps = mutableListOf<Bitmap>()
-
-    fun convertUriToBitmap(bannerImages: List<Uri>? = null, logo: Uri? = null, context: Context) {
-        bannerImages?.let {
-            it.forEach { image ->
-            val source = ImageDecoder.createSource(context.contentResolver, image)
-            val bitmap = ImageDecoder.decodeBitmap(source)
-            selectedImagesAsBitmaps.add(bitmap)
-            Log.d("imageList", selectedImagesAsBitmaps.toString())
-        }
-            imagesAsBitmap.value = selectedImagesAsBitmaps
-            imagesAsBitmap.notifyObserver()
-        }
-        logo?.let {
-            val source = ImageDecoder.createSource(context.contentResolver, it)
-            val bitmap = ImageDecoder.decodeBitmap(source)
-            logoAsBitmap.value = bitmap
-        }
-    }
-    var count = 0
-    fun storeBitmapsOnFirebase(listToStore: List<Bitmap>, logo: Bitmap, clubId: String) {
-        listToStore.forEach { bitmap ->
-            firebase.sendClubImage(imageName = if (count == 0) "banner" else "$count.jpg", clubId = clubId, imageBitmap = bitmap)
+    private var count = 0
+    fun storeImagesOnFirebase(listToStore: List<Uri>, logo: Uri, clubId: String) {
+        listToStore.forEach { uri ->
+            val imageName = if (count == 0) "banner" else "$count.jpg"
+            firebase.addPic(uri, "${CollectionName.clubs}/$clubId/$imageName")
             count += 1
         }
-        firebase.sendClubImage("logo", clubId = clubId, imageBitmap = logo)
+        firebase.addPic(logo, "${CollectionName.clubs}/$clubId/logo")
     }
 
     fun temporarilyStoreImages(bannerUri: MutableList<Uri>? = null, logoUri: Uri? = null) {
         bannerUri?.let { selectedBannerImages.value = it }
         logoUri?.let { selectedClubLogo.value = it }
-    }
-
-    fun emptySelection(banner: Boolean? = null, logo: Boolean? = null) {
-        banner?.let { selectedBannerImages.value = mutableListOf() }
-        logo?.let { selectedClubLogo.value = Uri.EMPTY }
     }
 
     fun getCurrentUser() {
@@ -131,7 +112,7 @@ class CreateClubViewModel : ViewModel() {
         contactInfoNumber.value = TextFieldValue(user.phone)
     }
 
-    fun addClub(club: Club) : String {
-        return firebase.addClub(club,)
+    fun addClub(club: Club): String {
+        return firebase.addClub(club)
     }
 }

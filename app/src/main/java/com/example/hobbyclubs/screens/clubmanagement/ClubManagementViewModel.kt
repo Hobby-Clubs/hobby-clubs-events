@@ -1,15 +1,17 @@
 package com.example.hobbyclubs.screens.clubmanagement
 
+import android.net.Uri
 import android.util.Log
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.example.hobbyclubs.api.*
-import com.google.firebase.firestore.Query
 
 class ClubManagementViewModel() : ViewModel() {
 
     val firebase = FirebaseHelper
+    val currentUser = MutableLiveData<User>()
     val selectedClub = MutableLiveData<Club>()
     val selectedNewsId = MutableLiveData<String>()
     val selectedEventId = MutableLiveData<String>()
@@ -19,6 +21,84 @@ class ClubManagementViewModel() : ViewModel() {
     val listOfEvents = MutableLiveData<List<Event>>(listOf())
     val listOfNews = MutableLiveData<List<News>>(listOf())
     val listOfRequests = MutableLiveData<List<Request>>()
+
+    val clubName = MutableLiveData<TextFieldValue>()
+    val clubDescription = MutableLiveData<TextFieldValue>()
+    val contactInfoName = MutableLiveData<TextFieldValue>()
+    val contactInfoEmail = MutableLiveData<TextFieldValue>()
+    val contactInfoNumber = MutableLiveData<TextFieldValue>()
+    val currentLinkName = MutableLiveData<TextFieldValue>()
+    val currentLinkURL = MutableLiveData<TextFieldValue>()
+    val selectedBannerImages = MutableLiveData<MutableList<Uri>>()
+    val selectedClubLogo = MutableLiveData<Uri>()
+    val givenLinksLiveData = MutableLiveData<Map<String, String>>(mapOf())
+
+    fun fillPreviousClubData(club: Club) {
+        clubName.value = TextFieldValue(club.name)
+        clubDescription.value  = TextFieldValue(club.description)
+        contactInfoEmail.value  = TextFieldValue(club.contactEmail)
+        contactInfoNumber.value  = TextFieldValue(club.contactPhone)
+        contactInfoName.value  = TextFieldValue(club.contactPerson)
+        givenLinksLiveData.value = club.socials
+    }
+
+    fun updateClubDetails(clubId: String, changeMap: Map<String,Any>) {
+        firebase.updateClubDetails(clubId, changeMap)
+    }
+
+    fun deleteClub(clubId: String) {
+        firebase.deleteClub(clubId)
+    }
+
+    fun addLinkToList(pair: Pair<String, String>) {
+        givenLinksLiveData.value?.let {
+            val newMap = it.toMutableMap().apply { put(pair.first, pair.second) }
+            println(newMap)
+            givenLinksLiveData.value = newMap
+
+        }
+    }
+
+    fun updateCurrentLinkName(newVal: TextFieldValue) {
+        currentLinkName.value = newVal
+    }
+
+    fun updateCurrentLinkURL(newVal: TextFieldValue) {
+        currentLinkURL.value = newVal
+    }
+
+    fun updateContactInfoName(newVal: TextFieldValue) {
+        contactInfoName.value = newVal
+    }
+
+    fun updateContactInfoEmail(newVal: TextFieldValue) {
+        contactInfoEmail.value = newVal
+    }
+
+    fun updateContactInfoNumber(newVal: TextFieldValue) {
+        contactInfoNumber.value = newVal
+    }
+
+    fun clearLinkFields() {
+        currentLinkName.value = null
+        currentLinkURL.value = null
+    }
+
+    fun temporarilyStoreImages(bannerUri: MutableList<Uri>? = null, logoUri: Uri? = null) {
+        bannerUri?.let { selectedBannerImages.value = it }
+        logoUri?.let { selectedClubLogo.value = it }
+    }
+
+    fun replaceClubImages(clubId: String, newImages: List<Uri>, newLogo: Uri) {
+        firebase.updateClubImages(clubId, newImages, newLogo)
+    }
+
+    fun updateClubName(newVal: TextFieldValue) {
+        clubName.value = newVal
+    }
+    fun updateClubDescription(newVal: TextFieldValue) {
+        clubDescription.value = newVal
+    }
 
     fun updateSelection(newsId: String? = null, eventId: String? = null) {
         newsId?.let { selectedNewsId.value = it }

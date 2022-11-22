@@ -41,7 +41,7 @@ object FirebaseHelper {
 
     fun updateUser(uid: String, changeMap: Map<String, Any>) {
         val ref = db.collection("users").document(uid)
-            ref
+        ref
             .update(changeMap)
             .addOnSuccessListener {
                 Log.d(TAG, "updateUser: $ref")
@@ -64,7 +64,36 @@ object FirebaseHelper {
         return ref.id
     }
 
-    fun getClub(uid: String) : DocumentReference {
+    fun updateClubDetails(clubId: String, changeMap: Map<String, Any>) {
+        val ref = db.collection(CollectionName.clubs).document(clubId)
+        ref.update(changeMap)
+            .addOnSuccessListener {
+                Log.d(TAG, "updateClubDetails: $it")
+            }
+            .addOnFailureListener {
+                Log.e(TAG, "updateClubDetails: ", it)
+            }
+    }
+
+    fun deleteClub(clubId: String) {
+        val ref = db.collection(CollectionName.clubs).document(clubId)
+        ref.delete()
+            .addOnSuccessListener {
+                Log.d(TAG, "deleteClub: $it")
+                getAllFiles("${CollectionName.clubs}/$clubId")
+                    .addOnSuccessListener { list ->
+                        list.items.forEach { ref ->
+                            ref.delete()
+                            Log.d(TAG, "deleted: ${ref.name}")
+                        }
+                    }
+            }
+            .addOnFailureListener {
+                Log.e(TAG, "deleteClub: ", it)
+            }
+    }
+
+    fun getClub(uid: String): DocumentReference {
         return db.collection(CollectionName.clubs).document(uid)
     }
 
@@ -91,7 +120,6 @@ object FirebaseHelper {
             .addOnFailureListener {
                 Log.e(TAG, "updateClubNextEvent: ", it)
             }
-
     }
 
     // Events
@@ -190,8 +218,6 @@ object FirebaseHelper {
     fun getAllEvents() = db.collection(CollectionName.events)
 
 
-
-
     fun sendNewsImage(imageId: String, newsId: String, imageBitmap: Bitmap) {
         val storageRef = Firebase.storage.reference.child("news").child(newsId).child(imageId)
         val baos = ByteArrayOutputStream()
@@ -237,7 +263,7 @@ object FirebaseHelper {
         return getAllEventsOfClub(clubId).orderBy("date", Query.Direction.ASCENDING).limit(1L)
     }
 
-    fun addNews(news: News) : String {
+    fun addNews(news: News): String {
         val ref = db.collection(CollectionName.news).document()
         val newsId = news.apply {
             id = ref.id
@@ -265,10 +291,11 @@ object FirebaseHelper {
 
     fun getAllNews() = db.collection(CollectionName.news)
 
-    fun getNews( newsId: String):DocumentReference{
+    fun getNews(newsId: String): DocumentReference {
         val ref = db.collection(CollectionName.news)
         return ref.document(newsId)
     }
+
     fun getAllNewsOfClub(clubId: String): Query {
         return getAllNews().whereEqualTo("clubId", clubId)
     }
@@ -287,7 +314,9 @@ object FirebaseHelper {
         db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.requests)
 
     fun addRequest(clubId: String, request: Request) {
-        val ref = db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.requests).document()
+        val ref =
+            db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.requests)
+                .document()
         val requestWithId = request.apply { id = ref.id }
         ref.set(requestWithId)
             .addOnSuccessListener {
@@ -298,8 +327,15 @@ object FirebaseHelper {
             }
     }
 
-    fun acceptRequest(clubId: String, requestId: String, memberListWithNewUser: List<String>, changeMapForRequest: Map<String, Any>) {
-        val ref = db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.requests).document(requestId)
+    fun acceptRequest(
+        clubId: String,
+        requestId: String,
+        memberListWithNewUser: List<String>,
+        changeMapForRequest: Map<String, Any>
+    ) {
+        val ref =
+            db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.requests)
+                .document(requestId)
         ref.update(changeMapForRequest)
             .addOnSuccessListener {
                 Log.d(TAG, "acceptRequest: $ref")
@@ -311,7 +347,9 @@ object FirebaseHelper {
     }
 
     fun declineRequest(clubId: String, requestId: String) {
-        val ref = db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.requests).document(requestId)
+        val ref =
+            db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.requests)
+                .document(requestId)
         ref.delete()
             .addOnSuccessListener {
                 Log.d(TAG, "Request deleted: $ref")
@@ -351,6 +389,27 @@ object FirebaseHelper {
             .addOnFailureListener {
                 Log.e(TAG, "addPic: ", it)
             }
+    }
+
+    fun updateClubImages(clubId: String, newImages: List<Uri>, newLogo: Uri) {
+        var count = 0
+        getAllFiles("${CollectionName.clubs}/$clubId")
+            .addOnSuccessListener { list ->
+                list.items.forEach { ref ->
+                    ref.delete()
+                    Log.d(TAG, "deleted: ${ref.name}")
+                }
+                newImages.forEach { imageUri ->
+                    val imageName = if (count == 0) "banner" else "$count.jpg"
+                    addPic(imageUri, "${CollectionName.clubs}/$clubId/$imageName")
+                    count += 1
+                }
+                addPic(newLogo, "${CollectionName.clubs}/$clubId/logo")
+            }
+            .addOnFailureListener {
+                Log.e(TAG, "deleteImagesFail: ", it)
+            }
+
     }
 
     fun getFile(path: String): StorageReference {
@@ -438,7 +497,7 @@ data class News(
     val headline: String = "",
     val newsContent: String = "",
     val date: Timestamp = Timestamp.now(),
-): Serializable
+) : Serializable
 
 
 data class Request(

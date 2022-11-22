@@ -67,6 +67,11 @@ fun ClubManagementScreen(
             CenterAlignedTopAppBar(
                 title = { Text(text = it.name, fontSize = 16.sp) },
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
+                actions = {
+                    IconButton(onClick = { navController.navigate(NavRoutes.ClubSettingsScreen.route + "/$clubId") }) {
+                        Icon(Icons.Outlined.Settings, null, modifier = Modifier.padding(end = 10.dp))
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")

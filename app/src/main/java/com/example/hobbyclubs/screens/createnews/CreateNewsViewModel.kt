@@ -27,11 +27,7 @@ class CreateNewsViewModel : ViewModel() {
     init {
         getJoinedClubs()
     }
-//    fun convertUriToBitmap(image: Uri, context: Context){
-//        val source = ImageDecoder.createSource(context.contentResolver, image)
-//        val bitmap = ImageDecoder.decodeBitmap(source)
-//        selectedImageBitmap.value= bitmap
-//    }
+
     fun storeSelectedImage(uri: Uri?){
         selectedImage.value = uri
     }
