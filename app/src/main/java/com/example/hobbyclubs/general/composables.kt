@@ -534,8 +534,8 @@ fun SmallTileForClubManagement(
     onClick: () -> Unit,
     onDelete: () -> Unit
 ) {
-    val sdf = SimpleDateFormat("dd.MM.yyyy", java.util.Locale.ENGLISH)
-    val time = SimpleDateFormat("HH:mm", java.util.Locale.ENGLISH)
+    val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH)
+    val time = SimpleDateFormat("HH:mm", Locale.ENGLISH)
     val isEvent = data is Event
     var title = ""
     var date = ""
@@ -653,7 +653,7 @@ fun CustomAlertDialog(
 fun SmallNewsTile(modifier: Modifier = Modifier, news: News, onClick: () -> Unit) {
     val screenWidth = LocalConfiguration.current.screenWidthDp
     var picUri: Uri? by rememberSaveable { mutableStateOf(null) }
-    val sdf = SimpleDateFormat("dd.MM.yyyy", java.util.Locale.ENGLISH)
+    val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH)
     val date = sdf.format(news.date.toDate())
     LaunchedEffect(Unit) {
         if (picUri == null && news.clubId.isNotEmpty()) {
