@@ -28,17 +28,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
+import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.News
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.example.hobbyclubs.screens.create.event.ClubSelectionDropdownMenu
+import com.example.hobbyclubs.screens.create.news.CreateNewsViewModel
 import com.google.firebase.Timestamp
 import java.util.*
 
@@ -247,6 +247,7 @@ fun NewsCreationPage2(vm: CreateNewsViewModel, navController: NavController) {
                         } else {
                             val news = News(
                                 clubId = selectedClub ?: "",
+                                publisherId = FirebaseHelper.uid!!,
                                 headline = headline!!.text,
                                 newsContent = newsContent!!.text,
                                 date = Timestamp.now()

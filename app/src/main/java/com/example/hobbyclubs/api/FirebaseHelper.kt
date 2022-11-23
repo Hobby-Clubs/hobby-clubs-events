@@ -412,6 +412,31 @@ object FirebaseHelper {
 
     }
 
+    fun updateNewsImage(newsId: String, newBanner: Uri) {
+        getAllFiles("${CollectionName.news}/$newsId")
+            .addOnSuccessListener { list ->
+                list.items.forEach { ref ->
+                    ref.delete()
+                    Log.d(TAG, "deleted: ${ref.name}")
+                }
+                addPic(newBanner, "${CollectionName.news}/$newsId/newsImage.jpg")
+            }
+            .addOnFailureListener {
+                Log.e(TAG, "deleteImagesFail: ", it)
+            }
+    }
+
+    fun updateNewsDetails(newsId: String, changeMap: Map<String, Any>) {
+        val ref = db.collection(CollectionName.news).document(newsId)
+        ref.update(changeMap)
+            .addOnSuccessListener {
+                Log.d(TAG, "updateClubDetails: $it")
+            }
+            .addOnFailureListener {
+                Log.e(TAG, "updateClubDetails: ", it)
+            }
+    }
+
     fun getFile(path: String): StorageReference {
         return storage.reference.child(path)
     }
@@ -494,6 +519,7 @@ data class Event(
 data class News(
     var id: String = "",
     val clubId: String = "",
+    val publisherId: String = "",
     val headline: String = "",
     val newsContent: String = "",
     val date: Timestamp = Timestamp.now(),

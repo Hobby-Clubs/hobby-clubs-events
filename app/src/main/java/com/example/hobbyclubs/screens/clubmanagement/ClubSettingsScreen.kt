@@ -295,17 +295,13 @@ fun LogoAndBannerSheet(vm: ClubManagementViewModel, clubId: String, onSave: () -
     val screenHeight = LocalConfiguration.current.screenHeightDp
     val selectedImages by vm.selectedBannerImages.observeAsState(mutableListOf())
     val selectedLogo by vm.selectedClubLogo.observeAsState(null)
-    var showBannerImagesPreview by remember { mutableStateOf(false) }
-    var showLogoPreview by remember { mutableStateOf(false) }
     val galleryLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uriList ->
             vm.temporarilyStoreImages(bannerUri = uriList.toMutableList())
-            showBannerImagesPreview = true
         }
     val galleryLauncherLogo =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             vm.temporarilyStoreImages(logoUri = uri)
-            showLogoPreview = true
         }
 
     Box(
