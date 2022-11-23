@@ -457,9 +457,17 @@ fun EventTile(
 }
 
 @Composable
-fun JoinEventButton(modifier: Modifier = Modifier, isJoined: Boolean, onClick: () -> Unit) {
-    val icon = if (isJoined) Icons.Outlined.Check else Icons.Outlined.PersonAddAlt
-    val text = if (isJoined) "Joined" else "Join"
+fun JoinEventButton(modifier: Modifier = Modifier, isJoined: Boolean, onEventPage: Boolean = false, onClick: () -> Unit) {
+    val icon: ImageVector
+    val text: String
+    if (onEventPage) {
+        icon = if (isJoined) Icons.Outlined.Close else Icons.Outlined.PersonAddAlt
+        text = if (isJoined) "Cancel" else "Join"
+    } else {
+        icon = if (isJoined) Icons.Outlined.Check else Icons.Outlined.PersonAddAlt
+        text = if (isJoined) "Joined" else "Join"
+    }
+
     Card(
         shape = RoundedCornerShape(100.dp),
         colors = CardDefaults.cardColors(containerColor = md_theme_light_surfaceTint),

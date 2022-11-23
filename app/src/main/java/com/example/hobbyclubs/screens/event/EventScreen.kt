@@ -206,8 +206,12 @@ fun EventHeader(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                JoinEventButton(isJoined = hasJoinedEvent) {
-                    vm.joinEvent(event)
+                JoinEventButton(isJoined = hasJoinedEvent, onEventPage = true) {
+                    if(!hasJoinedEvent) {
+                        vm.joinEvent(event)
+                    } else {
+                        vm.cancelEventJoin(event)
+                    }
                 }
                 if (!hasJoinedEvent) {
                     if (!hasLikedEvent) {

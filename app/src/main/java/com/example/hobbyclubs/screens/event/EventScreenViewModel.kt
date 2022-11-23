@@ -50,16 +50,16 @@ class EventScreenViewModel() : ViewModel() {
         firebase.uid?.let {
             updatedList.add(it)
         }
-        firebase.addUserToEvent(eventId = event.id, updatedList)
+        firebase.updateUserInEvent(eventId = event.id, updatedList)
         getEvent(event.id)
     }
 
-    fun leaveEvent(event: Event) {
+    fun cancelEventJoin(event: Event) {
         val updatedList = event.participants.toMutableList()
         firebase.uid?.let {
             updatedList.remove(it)
         }
-        firebase.addUserToEvent(eventId = event.id, updatedList)
+        firebase.updateUserInEvent(eventId = event.id, updatedList)
         getEvent(event.id)
     }
 
