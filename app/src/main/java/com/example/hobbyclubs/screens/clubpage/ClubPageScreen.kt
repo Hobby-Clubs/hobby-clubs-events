@@ -322,7 +322,13 @@ fun ClubLinks(context: Context, linkList: Map<String, String>) {
             linkList.forEach { (name, url) ->
                 ClubLinkRow(
                     link = name,
-                    onClick = { Toast.makeText(context, name, Toast.LENGTH_SHORT).show() }
+                    onClick = {
+                        val urlIntent = Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse(url)
+                        )
+                        context.startActivity(urlIntent)
+                    }
                 )
             }
         }
