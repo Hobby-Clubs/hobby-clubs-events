@@ -1,6 +1,5 @@
 package com.example.hobbyclubs.screens.create.news
 
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -148,11 +147,13 @@ fun CustomAlertDialog(
 
 @Composable
 fun NewsCreationPage1(vm: CreateNewsViewModel) {
+    val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val screenHeight = LocalConfiguration.current.screenHeightDp
     val headline by vm.headline.observeAsState(null)
     val newsContent by vm.newsContent.observeAsState(null)
     val clubList by vm.clubsJoined.observeAsState(listOf())
+    val selectedClub by vm.selectedClub.observeAsState(null)
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -167,8 +168,8 @@ fun NewsCreationPage1(vm: CreateNewsViewModel) {
                 onValueChange = { vm.updateHeadline(it) },
                 focusManager = focusManager,
                 keyboardType = KeyboardType.Text,
-                label = "Headline",
-                placeholder = "Give your news a headline",
+                label = "Headline *",
+                placeholder = "Give your news a headline *",
                 modifier = Modifier.fillMaxWidth()
             )
             CustomOutlinedTextField(
@@ -176,8 +177,8 @@ fun NewsCreationPage1(vm: CreateNewsViewModel) {
                 onValueChange = { vm.updateNewsContent(it) },
                 focusManager = focusManager,
                 keyboardType = KeyboardType.Text,
-                label = "News Content",
-                placeholder = "News Content",
+                label = "News Content *",
+                placeholder = "News Content *",
                 modifier = Modifier
                     .height((screenHeight * 0.4).dp)
                     .fillMaxWidth()
@@ -194,11 +195,17 @@ fun NewsCreationPage1(vm: CreateNewsViewModel) {
         ) {
             PageProgression(numberOfLines = 1, vm)
             CustomButton(
-                onClick = { vm.changePageTo(2) },
+                onClick = {
+                if (headline == null || newsContent == null || selectedClub == null) {
+                    Toast.makeText(context, "Please fill in all the fields", Toast.LENGTH_SHORT
+                    ).show()
+                } else
+                { vm.changePageTo(2) }
+                },
                 text = "Next",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(60.dp)
+                    .height(60.dp),
             )
         }
     }
@@ -237,12 +244,6 @@ fun NewsCreationPage2(vm: CreateNewsViewModel, navController: NavController) {
                 )
                 CustomButton(
                     onClick = {
-                        if (headline == null || newsContent == null || selectedClub == null) {
-                            Log.d("imageStoring", "$headline\n$newsContent\n$selectImageBitmap")
-                            Toast.makeText(
-                                context, "Please fill in all the fields", Toast.LENGTH_SHORT
-                            ).show()
-                        } else {
                             val news = News(
                                 clubId = selectedClub ?: "",
                                 headline = headline!!.text,
@@ -255,8 +256,7 @@ fun NewsCreationPage2(vm: CreateNewsViewModel, navController: NavController) {
                             }
                             Toast.makeText(context, "News created.", Toast.LENGTH_SHORT).show()
                             navController.navigate(NavRoutes.HomeScreen.route)
-                        }
-                    },
+                        },
                     text = "Create News",
                     modifier = Modifier
                         .height(60.dp)

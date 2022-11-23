@@ -13,10 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -334,21 +331,24 @@ fun CustomOutlinedTextField(
     focusManager: FocusManager,
     keyboardType: KeyboardType,
     label: String,
-    placeholder: String
-) {
+    singleLine : Boolean = false,
+    placeholder: String,
+    ) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         keyboardOptions = KeyboardOptions(
             imeAction = ImeAction.Done,
-            keyboardType = keyboardType
+            keyboardType = keyboardType,
+
         ),
         keyboardActions = KeyboardActions(
             onDone = { focusManager.clearFocus() }
         ),
         label = { Text(text = label) },
         placeholder = { Text(text = placeholder) },
-        modifier = modifier
+        singleLine = singleLine,
+        modifier = modifier,
     )
 }
 
@@ -533,8 +533,8 @@ fun SmallTileForClubManagement(
     onClick: () -> Unit,
     onDelete: () -> Unit
 ) {
-    val sdf = SimpleDateFormat("dd.MM.yyyy", java.util.Locale.ENGLISH)
-    val time = SimpleDateFormat("HH:mm", java.util.Locale.ENGLISH)
+    val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH)
+    val time = SimpleDateFormat("HH:mm", Locale.ENGLISH)
     val isEvent = data is Event
     var title = ""
     var date = ""
@@ -652,7 +652,7 @@ fun CustomAlertDialog(
 fun SmallNewsTile(modifier: Modifier = Modifier, news: News, onClick: () -> Unit) {
     val screenWidth = LocalConfiguration.current.screenWidthDp
     var picUri: Uri? by rememberSaveable { mutableStateOf(null) }
-    val sdf = SimpleDateFormat("dd.MM.yyyy", java.util.Locale.ENGLISH)
+    val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH)
     val date = sdf.format(news.date.toDate())
     LaunchedEffect(Unit) {
         if (picUri == null && news.clubId.isNotEmpty()) {
