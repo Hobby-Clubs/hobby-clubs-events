@@ -446,7 +446,7 @@ fun EventTile(
                 val participants = event.participants.size.toString() +
                         if (event.participantLimit != -1) "/${event.participantLimit}" else ""
                 EventTileRowItem(
-                    modifier = Modifier.weight(0.5f),
+                    modifier = Modifier.weight(0.6f),
                     icon = Icons.Outlined.People,
                     iconDesc = "People Icon",
                     content = participants
