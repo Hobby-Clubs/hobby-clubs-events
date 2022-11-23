@@ -415,7 +415,7 @@ fun EventTile(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .padding(20.dp),
-                    color = colorScheme.onPrimary,
+                    color = Color.White,
                     fontWeight = FontWeight.Medium,
                     fontSize = 16.sp,
                     letterSpacing = 0.15.sp
