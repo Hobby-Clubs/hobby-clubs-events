@@ -1,7 +1,6 @@
 package com.example.hobbyclubs.screens.home
 
 import android.net.Uri
-import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -18,6 +17,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -35,17 +35,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.example.compose.clubTileBg
-import com.example.compose.clubTileBorder
-import com.example.compose.md_theme_light_error
-import com.example.compose.md_theme_light_primary
 import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.*
 import com.example.hobbyclubs.general.*
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.clubs.ClubTile
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.SwipeRefreshState
 import java.text.SimpleDateFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -378,8 +372,8 @@ fun MyClubTile(
         modifier = modifier
             .aspectRatio(2.125f)
             .clickable { onClick() },
-        colors = CardDefaults.cardColors(clubTileBg),
-        border = BorderStroke(1.dp, clubTileBorder),
+        colors = CardDefaults.cardColors(colorScheme.surface),
+        border = BorderStroke(1.dp, colorScheme.outlineVariant),
     ) {
         Row(Modifier.fillMaxSize()) {
             AsyncImage(
@@ -404,7 +398,7 @@ fun MyClubTile(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(1.dp)
-                        .background(clubTileBorder)
+                        .background(colorScheme.outlineVariant)
                 )
                 Row(
                     Modifier
@@ -424,7 +418,7 @@ fun MyClubTile(
                         modifier = Modifier
                             .fillMaxHeight()
                             .width(1.dp)
-                            .background(clubTileBorder)
+                            .background(colorScheme.outlineVariant)
                     )
                     NewsIconSection(
                         modifier = Modifier
@@ -453,7 +447,7 @@ fun NewsIconSection(modifier: Modifier = Modifier, amount: Int?, onClick: () -> 
                 Card(
                     modifier = Modifier.align(Alignment.TopEnd),
                     shape = CircleShape,
-                    colors = CardDefaults.cardColors(md_theme_light_error)
+                    colors = CardDefaults.cardColors(colorScheme.error)
                 ) {
                     Box(modifier = Modifier.size(20.dp), contentAlignment = Alignment.Center) {
                         Text(
@@ -566,14 +560,14 @@ fun FAB(isExpanded: Boolean, navController: NavController, onClick: () -> Unit) 
             elevation = CardDefaults.cardElevation(4.dp),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
-                clubTileBg
+                colorScheme.surface
             ),
         ) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Icon(
                     imageVector = if (isExpanded) Icons.Filled.Close else Icons.Filled.Add,
                     contentDescription = "add",
-                    tint = md_theme_light_primary
+                    tint = colorScheme.primary
                 )
             }
         }
@@ -589,7 +583,7 @@ fun FABAction(modifier: Modifier = Modifier, text: String, onClick: () -> Unit) 
         elevation = CardDefaults.cardElevation(4.dp),
         shape = RoundedCornerShape(100.dp),
         colors = CardDefaults.cardColors(
-            clubTileBg
+            colorScheme.surface
         )
     ) {
         Box(
@@ -600,7 +594,7 @@ fun FABAction(modifier: Modifier = Modifier, text: String, onClick: () -> Unit) 
         ) {
             Text(
                 text = text,
-                color = md_theme_light_primary,
+                color = colorScheme.primary,
                 fontWeight = FontWeight.Medium,
                 fontSize = 14.sp
             )
