@@ -63,7 +63,7 @@ val md_theme_dark_surfaceTint = Color(0xFFB0C6FF)
 val md_theme_dark_outlineVariant = Color(0xFF44464F)
 val md_theme_dark_scrim = Color(0xFF000000)
 
-
+val suggestedEventColor = Color(0xFF006A60)
 val nokiaBlue = Color(0xFF124191)
 val nokiaDarkBlue = Color(0xFF253991)
 val nokiaLighterBlue = Color(0xFF4895F8)

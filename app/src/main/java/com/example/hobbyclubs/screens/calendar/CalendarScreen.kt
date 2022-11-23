@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Crop169
 import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -17,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.compose.joinedColor
+import com.example.compose.suggestedEventColor
 import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.general.*
@@ -109,16 +111,7 @@ fun CalendarScreen(
                     Icon(
                         imageVector = Icons.Filled.Crop169,
                         contentDescription = "color",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier
-                            .width(30.dp)
-                            .height(30.dp)
-                    )
-                    Text("Suggested", fontSize = 12.sp)
-                    Icon(
-                        imageVector = Icons.Filled.Crop169,
-                        contentDescription = "color",
-                        tint = joinedColor,
+                        tint = colorScheme.primary,
                         modifier = Modifier
                             .width(30.dp)
                             .height(30.dp)
@@ -127,12 +120,21 @@ fun CalendarScreen(
                     Icon(
                         imageVector = Icons.Filled.Crop169,
                         contentDescription = "color",
-                        tint = MaterialTheme.colorScheme.tertiary,
+                        tint = colorScheme.tertiary,
                         modifier = Modifier
                             .width(30.dp)
                             .height(30.dp)
                     )
                     Text("Liked", fontSize = 12.sp)
+                    Icon(
+                        imageVector = Icons.Filled.Crop169,
+                        contentDescription = "color",
+                        tint = suggestedEventColor,
+                        modifier = Modifier
+                            .width(30.dp)
+                            .height(30.dp)
+                    )
+                    Text("Suggested", fontSize = 12.sp)
                 }
 
                 if (filteredEvents.isNotEmpty() && listOfUri.isNotEmpty()) {
@@ -177,15 +179,15 @@ fun Day(
         elevation = CardDefaults.cardElevation(defaultElevation = (if (state.isFromCurrentMonth) 4.dp else 1.dp)),
         border =
         if (joinedEvent != null)
-            BorderStroke(1.dp, joinedColor)
+            BorderStroke(1.dp, colorScheme.primary)
         else if (likedEvent != null)
-            BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary)
+            BorderStroke(1.dp, colorScheme.tertiary)
         else if (event != null)
-            BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+            BorderStroke(1.dp, suggestedEventColor)
         else null,
         colors = CardDefaults.cardColors(
-            contentColor = (if (state.isCurrentDay) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary),
-            containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
+            contentColor = (if (state.isCurrentDay) colorScheme.primary else colorScheme.onSurface),
+            containerColor = if (isSelected) colorScheme.primaryContainer else colorScheme.surface
         ),
     ) {
         Box(
