@@ -1,6 +1,7 @@
 package com.example.hobbyclubs.screens.event
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
@@ -93,7 +94,12 @@ fun EventScreen(
 }
 
 @Composable
-fun EventHeader(navController: NavController, context: Context, event: Event, vm: EventScreenViewModel) {
+fun EventHeader(
+    navController: NavController,
+    context: Context,
+    event: Event,
+    vm: EventScreenViewModel
+) {
     val screenHeight = LocalConfiguration.current.screenHeightDp
     val screenWidth = LocalConfiguration.current.screenWidthDp
     val hasJoinedEvent by vm.hasJoinedEvent.observeAsState(false)
@@ -157,7 +163,10 @@ fun EventHeader(navController: NavController, context: Context, event: Event, vm
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(start = 20.dp, top = 20.dp, end = 20.dp)
         ) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Column(modifier = Modifier.width((screenWidth * 0.5).dp)) {
                     Text(
                         text = event.name,
@@ -193,19 +202,21 @@ fun EventHeader(navController: NavController, context: Context, event: Event, vm
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 20.dp, bottom = 20.dp, top = 20.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically
+                    .padding(start = 20.dp, bottom = 20.dp, top = 20.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 JoinEventButton(isJoined = hasJoinedEvent) {
                     vm.joinEvent(event)
                 }
                 if (!hasJoinedEvent) {
-                    if(!hasLikedEvent) {
+                    if (!hasLikedEvent) {
                         LikeEventButton(isLiked = hasLikedEvent) {
                             vm.likeEvent(event)
                         }
                     }
 
-                    if(hasLikedEvent) {
+                    if (hasLikedEvent) {
                         LikeEventButton(isLiked = hasLikedEvent) {
                             vm.removeLikeOnEvent(event)
                         }
@@ -242,7 +253,13 @@ fun EventLinks(context: Context, links: Map<String, String>) {
             links.forEach { (name, url) ->
                 EventLinkRow(
                     link = name,
-                    onClick = { Toast.makeText(context, name, Toast.LENGTH_SHORT).show() }
+                    onClick = {
+                        val urlIntent = Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse(url)
+                        )
+                        context.startActivity(urlIntent)
+                    }
                 )
             }
         }
