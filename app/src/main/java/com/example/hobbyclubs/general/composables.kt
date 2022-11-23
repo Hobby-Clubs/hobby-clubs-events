@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -224,7 +225,7 @@ fun LazyColumnHeader(modifier: Modifier = Modifier, text: String) {
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color.White)
+            .background(colorScheme.background)
     ) {
         Text(
             modifier = Modifier.padding(vertical = 16.dp),
@@ -300,7 +301,7 @@ fun Pill(
     }
 
     val color =
-        if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+        if (isSelected) colorScheme.primary else colorScheme.secondary
 
     Card(
         shape = shape,
@@ -321,7 +322,7 @@ fun DividerLine() {
             .fillMaxWidth()
             .height(1.dp)
             .padding(horizontal = 50.dp)
-            .background(color = Color.Gray)
+            .background(color = colorScheme.outlineVariant)
     )
 }
 
@@ -364,8 +365,8 @@ fun EventTile(
 
     Card(
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = clubTileBg),
-        border = BorderStroke(1.dp, clubTileBorder),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
+        border = BorderStroke(1.dp, colorScheme.outlineVariant),
         elevation = CardDefaults.cardElevation(0.dp),
         modifier = modifier
             .fillMaxWidth()
@@ -414,7 +415,7 @@ fun EventTile(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .padding(20.dp),
-                    color = Color.White,
+                    color = colorScheme.onPrimary,
                     fontWeight = FontWeight.Medium,
                     fontSize = 16.sp,
                     letterSpacing = 0.15.sp
@@ -462,7 +463,7 @@ fun JoinEventButton(modifier: Modifier = Modifier, isJoined: Boolean, onClick: (
     val text = if (isJoined) "Joined" else "Join"
     Card(
         shape = RoundedCornerShape(100.dp),
-        colors = CardDefaults.cardColors(containerColor = md_theme_light_surfaceTint),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.primary),
         modifier = modifier
             .clickable { onClick() }
     ) {
@@ -477,14 +478,14 @@ fun JoinEventButton(modifier: Modifier = Modifier, isJoined: Boolean, onClick: (
             Icon(
                 icon,
                 "Join icon",
-                tint = Color.White,
+                tint = colorScheme.onPrimary,
                 modifier = Modifier
                     .padding(end = 8.dp)
                     .width(18.dp)
             )
             Text(
                 text = text,
-                color = Color.White,
+                color = colorScheme.onPrimary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
             )
@@ -497,14 +498,14 @@ fun LikeEventButton(modifier: Modifier = Modifier, isLiked: Boolean, onClick: ()
     val icon = if (isLiked) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder
     Card(
         shape = CircleShape,
-        colors = CardDefaults.cardColors(containerColor = clubTileBg),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
         modifier = modifier
             .clickable { onClick() }
     ) {
         Icon(
             icon,
             "Favourite icon",
-            tint = liked,
+            tint = colorScheme.tertiary,
             modifier = Modifier
                 .padding(4.dp)
                 .width(24.dp)
@@ -522,7 +523,7 @@ fun EventTileRowItem(
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         Icon(modifier = Modifier.size(24.dp), imageVector = icon, contentDescription = iconDesc)
         Spacer(modifier = Modifier.width(5.dp))
-        Text(text = content, fontSize = 14.sp, color = md_theme_light_onSurfaceVariant)
+        Text(text = content, fontSize = 14.sp, color = colorScheme.onSurfaceVariant)
     }
 }
 
@@ -567,8 +568,8 @@ fun SmallTileForClubManagement(
         modifier = modifier
             .aspectRatio(4.7f)
             .clickable { onClick() },
-        colors = CardDefaults.cardColors(clubTileBg),
-        border = BorderStroke(1.dp, clubTileBorder),
+        colors = CardDefaults.cardColors(colorScheme.surface),
+        border = BorderStroke(1.dp, colorScheme.outlineVariant),
     ) {
         Row(
             Modifier
@@ -638,8 +639,8 @@ fun CustomAlertDialog(
             Button(
                 onClick = { onConfirm() },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Red,
-                    contentColor = Color.White
+                    containerColor = colorScheme.error,
+                    contentColor = colorScheme.onError
                 )
             ) {
                 Text(text = confirmText)
@@ -670,8 +671,8 @@ fun SmallNewsTile(modifier: Modifier = Modifier, news: News, onClick: () -> Unit
         modifier = modifier
             .aspectRatio(4.7f)
             .clickable { onClick() },
-        colors = CardDefaults.cardColors(clubTileBg),
-        border = BorderStroke(1.dp, clubTileBorder),
+        colors = CardDefaults.cardColors(colorScheme.surface),
+        border = BorderStroke(1.dp, colorScheme.outlineVariant),
     ) {
         Row(
             Modifier
