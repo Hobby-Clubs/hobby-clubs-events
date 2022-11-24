@@ -13,6 +13,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -28,13 +29,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
 import com.example.hobbyclubs.api.News
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.clubpage.CustomButton
@@ -121,7 +120,7 @@ fun ProgressionBar(modifier: Modifier = Modifier, isMarked: Boolean, onClick: ()
     Box(modifier = modifier
         .height(13.dp)
         .clip(RoundedCornerShape(20.dp))
-        .background(color = if (isMarked) MaterialTheme.colorScheme.primary else Color.LightGray)
+        .background(color = if (isMarked) colorScheme.primary else colorScheme.surfaceVariant)
         .clickable { onClick() })
 }
 
@@ -140,7 +139,7 @@ fun CustomAlertDialog(
         confirmButton = {
             Button(
                 onClick = { onConfirm() }, colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Red, contentColor = Color.White
+                    containerColor = colorScheme.error, contentColor = colorScheme.onError
                 )
             ) {
                 Text(text = "Leave")
@@ -231,8 +230,8 @@ fun NewsCreationPage2(vm: CreateNewsViewModel, navController: NavController) {
                     onClick = { vm.changePageTo(1) },
                     text = "Previous",
                     colors = ButtonDefaults.buttonColors(
-                        contentColor = Color.Black,
-                        containerColor = Color.LightGray
+                        contentColor = colorScheme.onSurfaceVariant,
+                        containerColor = colorScheme.surfaceVariant
                     ),
                     modifier = Modifier
                         .height(60.dp)
