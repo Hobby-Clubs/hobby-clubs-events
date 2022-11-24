@@ -63,46 +63,45 @@ fun ClubPageScreen(
         vm.getAllNews(clubId)
     }
     club?.let { club ->
-        Box() {
-            Scaffold {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(it),
-                    horizontalAlignment = Alignment.Start,
-                ) {
-                    ClubPageHeader(navController, context, club, vm)
-                    DividerLine()
-                    ClubDescription(club.description)
-                    DividerLine()
-                    ClubSchedule(vm, navController, imageVm)
-                    DividerLine()
-                    ClubNews(vm, navController)
-                    DividerLine()
-                    ClubLinks(context, linkList = club.socials)
-                    DividerLine()
-                    ClubContactInfo(
-                        name = club.contactPerson,
-                        phoneNumber = club.contactPhone,
-                        email = club.contactEmail
-                    )
-                }
-                TopAppBar(
-                    title = {},
-                    colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
-                    navigationIcon = {
-                        IconButton(onClick = { navController.navigateUp() }) {
-                            Icon(
-                                Icons.Outlined.ArrowBack,
-                                contentDescription = "Back",
-                                tint = Color.White
-                            )
-                        }
-                    }
+        Scaffold {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(it),
+                horizontalAlignment = Alignment.Start,
+            ) {
+                ClubPageHeader(navController, context, club, vm)
+                DividerLine()
+                ClubDescription(club.description)
+                DividerLine()
+                ClubSchedule(vm, navController, imageVm)
+                DividerLine()
+                ClubNews(vm, navController)
+                DividerLine()
+                ClubLinks(context, linkList = club.socials)
+                DividerLine()
+                ClubContactInfo(
+                    name = club.contactPerson,
+                    phoneNumber = club.contactPhone,
+                    email = club.contactEmail
                 )
             }
+            TopAppBar(
+                title = {},
+                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(
+                            Icons.Outlined.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color.White
+                        )
+                    }
+                }
+            )
         }
+
     }
 }
 

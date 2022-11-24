@@ -54,45 +54,53 @@ fun EventScreen(
     }
 
     event?.let { club ->
-        Box() {
-            Scaffold() {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(it),
-                    horizontalAlignment = Alignment.Start,
-                ) {
-                    EventHeader(navController, context, club, vm)
-                    DividerLine()
-                    EventDescription(club.description)
-                    DividerLine()
-                    EventLocation(club.address)
-                    DividerLine()
-                    EventLinks(context, club.linkArray)
-                    DividerLine()
-                    EventContactInfo(club.contactInfoName, club.contactInfoNumber, club.contactInfoEmail)
-                }
-                TopAppBar(
-                    title = {},
-                    colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
-                    navigationIcon = {
-                        IconButton(onClick = { navController.navigateUp() }) {
-                            Icon(
-                                Icons.Outlined.ArrowBack,
-                                contentDescription = "Back",
-                                tint = colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
+        Scaffold() {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(it),
+                horizontalAlignment = Alignment.Start,
+            ) {
+                EventHeader(navController, context, club, vm)
+                DividerLine()
+                EventDescription(club.description)
+                DividerLine()
+                EventLocation(club.address)
+                DividerLine()
+                EventLinks(context, club.linkArray)
+                DividerLine()
+                EventContactInfo(
+                    club.contactInfoName,
+                    club.contactInfoNumber,
+                    club.contactInfoEmail
                 )
             }
+            TopAppBar(
+                title = {},
+                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(
+                            Icons.Outlined.ArrowBack,
+                            contentDescription = "Back",
+                            tint = colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            )
         }
+
     }
 }
 
 @Composable
-fun EventHeader(navController: NavController, context: Context, event: Event, vm: EventScreenViewModel) {
+fun EventHeader(
+    navController: NavController,
+    context: Context,
+    event: Event,
+    vm: EventScreenViewModel
+) {
     val screenHeight = LocalConfiguration.current.screenHeightDp
     val screenWidth = LocalConfiguration.current.screenWidthDp
     val hasJoinedEvent by vm.hasJoinedEvent.observeAsState(false)
@@ -156,7 +164,10 @@ fun EventHeader(navController: NavController, context: Context, event: Event, vm
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(start = 20.dp, top = 20.dp, end = 20.dp)
         ) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Column(modifier = Modifier.width((screenWidth * 0.5).dp)) {
                     Text(
                         text = event.name,
@@ -192,19 +203,21 @@ fun EventHeader(navController: NavController, context: Context, event: Event, vm
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 20.dp, bottom = 20.dp, top = 20.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically
+                    .padding(start = 20.dp, bottom = 20.dp, top = 20.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 JoinEventButton(isJoined = hasJoinedEvent) {
                     vm.joinEvent(event)
                 }
                 if (!hasJoinedEvent) {
-                    if(!hasLikedEvent) {
+                    if (!hasLikedEvent) {
                         LikeEventButton(isLiked = hasLikedEvent) {
                             vm.likeEvent(event)
                         }
                     }
 
-                    if(hasLikedEvent) {
+                    if (hasLikedEvent) {
                         LikeEventButton(isLiked = hasLikedEvent) {
                             vm.removeLikeOnEvent(event)
                         }
