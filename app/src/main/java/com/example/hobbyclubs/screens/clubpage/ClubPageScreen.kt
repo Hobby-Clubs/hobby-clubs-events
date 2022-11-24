@@ -62,43 +62,46 @@ fun ClubPageScreen(
         vm.getClubEvents(clubId)
         vm.getAllNews(clubId)
     }
-    club?.let {
+    club?.let { club ->
         Box() {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.Start,
-            ) {
-                ClubPageHeader(navController, context, it, vm)
-                DividerLine()
-                ClubDescription(it.description)
-                DividerLine()
-                ClubSchedule(vm, navController, imageVm)
-                DividerLine()
-                ClubNews(vm, navController)
-                DividerLine()
-                ClubLinks(context, linkList = it.socials)
-                DividerLine()
-                ClubContactInfo(
-                    name = it.contactPerson,
-                    phoneNumber = it.contactPhone,
-                    email = it.contactEmail
+            Scaffold {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(it),
+                    horizontalAlignment = Alignment.Start,
+                ) {
+                    ClubPageHeader(navController, context, club, vm)
+                    DividerLine()
+                    ClubDescription(club.description)
+                    DividerLine()
+                    ClubSchedule(vm, navController, imageVm)
+                    DividerLine()
+                    ClubNews(vm, navController)
+                    DividerLine()
+                    ClubLinks(context, linkList = club.socials)
+                    DividerLine()
+                    ClubContactInfo(
+                        name = club.contactPerson,
+                        phoneNumber = club.contactPhone,
+                        email = club.contactEmail
+                    )
+                }
+                TopAppBar(
+                    title = {},
+                    colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
+                    navigationIcon = {
+                        IconButton(onClick = { navController.navigateUp() }) {
+                            Icon(
+                                Icons.Outlined.ArrowBack,
+                                contentDescription = "Back",
+                                tint = Color.White
+                            )
+                        }
+                    }
                 )
             }
-            TopAppBar(
-                title = {},
-                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(
-                            Icons.Outlined.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color.Black
-                        )
-                    }
-                }
-            )
         }
     }
 }
