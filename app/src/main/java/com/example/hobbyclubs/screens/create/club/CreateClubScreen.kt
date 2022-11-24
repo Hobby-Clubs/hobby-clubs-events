@@ -1,8 +1,6 @@
 package com.example.hobbyclubs.screens.create.club
 
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -12,6 +10,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -31,7 +30,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.Club
-import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.general.CustomAlertDialog
 import com.example.hobbyclubs.general.CustomOutlinedTextField
@@ -43,7 +41,6 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.rememberPagerState
-import com.google.firebase.Timestamp
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -280,8 +277,8 @@ fun ClubCreationPage2(vm: CreateClubViewModel) {
                     onClick = { vm.changePageTo(1) },
                     text = "Previous",
                     colors = ButtonDefaults.buttonColors(
-                        contentColor = Color.Black,
-                        containerColor = Color.LightGray
+                        contentColor = colorScheme.onSurfaceVariant,
+                        containerColor = colorScheme.surfaceVariant
                     ),
                     modifier = Modifier
                         .height(60.dp)
@@ -415,8 +412,8 @@ fun ClubCreationPage3(vm: CreateClubViewModel) {
                     onClick = { vm.changePageTo(2) },
                     text = "Previous",
                     colors = ButtonDefaults.buttonColors(
-                        contentColor = Color.Black,
-                        containerColor = Color.LightGray
+                        contentColor = colorScheme.onSurfaceVariant,
+                        containerColor = colorScheme.surfaceVariant
                     ),
                     modifier = Modifier
                         .height(60.dp)
@@ -530,8 +527,8 @@ fun ClubCreationPage4(vm: CreateClubViewModel, navController: NavController) {
                     onClick = { vm.changePageTo(3) },
                     text = "Previous",
                     colors = ButtonDefaults.buttonColors(
-                        contentColor = Color.Black,
-                        containerColor = Color.LightGray
+                        contentColor = colorScheme.onSurfaceVariant,
+                        containerColor = colorScheme.surfaceVariant
                     ),
                     modifier = Modifier
                         .height(60.dp)
