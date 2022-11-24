@@ -53,37 +53,40 @@ fun EventScreen(
         vm.getEvent(eventId)
     }
 
-    event?.let {
+    event?.let { club ->
         Box() {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.Start,
-            ) {
-                EventHeader(navController, context, it, vm)
-                DividerLine()
-                EventDescription(it.description)
-                DividerLine()
-                EventLocation(it.address)
-                DividerLine()
-                EventLinks(context, it.linkArray)
-                DividerLine()
-                EventContactInfo(it.contactInfoName, it.contactInfoNumber, it.contactInfoEmail)
-            }
-            TopAppBar(
-                title = {},
-                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(
-                            Icons.Outlined.ArrowBack,
-                            contentDescription = "Back",
-                            tint = colorScheme.onSurfaceVariant
-                        )
-                    }
+            Scaffold() {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(it),
+                    horizontalAlignment = Alignment.Start,
+                ) {
+                    EventHeader(navController, context, club, vm)
+                    DividerLine()
+                    EventDescription(club.description)
+                    DividerLine()
+                    EventLocation(club.address)
+                    DividerLine()
+                    EventLinks(context, club.linkArray)
+                    DividerLine()
+                    EventContactInfo(club.contactInfoName, club.contactInfoNumber, club.contactInfoEmail)
                 }
-            )
+                TopAppBar(
+                    title = {},
+                    colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
+                    navigationIcon = {
+                        IconButton(onClick = { navController.navigateUp() }) {
+                            Icon(
+                                Icons.Outlined.ArrowBack,
+                                contentDescription = "Back",
+                                tint = colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                )
+            }
         }
     }
 }
