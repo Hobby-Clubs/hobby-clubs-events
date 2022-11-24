@@ -84,7 +84,7 @@ fun EventScreen(
                         Icon(
                             Icons.Outlined.ArrowBack,
                             contentDescription = "Back",
-                            tint = colorScheme.onSurfaceVariant
+                            tint = Color.White
                         )
                     }
                 }

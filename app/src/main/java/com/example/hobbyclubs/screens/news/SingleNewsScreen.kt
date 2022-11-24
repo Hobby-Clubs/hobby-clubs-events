@@ -34,6 +34,7 @@ import com.example.hobbyclubs.api.News
 import java.text.SimpleDateFormat
 import java.util.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SingleNewsScreen(
     navController: NavController,
@@ -46,8 +47,17 @@ fun SingleNewsScreen(
         vm.getNews(newsId)
         vm.getImage(newsId)
     }
-    news?.let {
-        Box(Modifier.fillMaxSize()) {
+    news?.let { news ->
+        Scaffold() {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(it),
+                horizontalAlignment = Alignment.Start,
+            ) {
+                NewsContent(vm, news)
+
+
 //            Column(
 //                modifier = Modifier
 //                    .fillMaxSize()
@@ -62,18 +72,21 @@ fun SingleNewsScreen(
 //                    }
 //                )
 //            }
-            NewsContent(vm, it)
-            IconButton(
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(8.dp),
-                onClick = { navController.navigateUp() }) {
-                Icon(
-                    Icons.Outlined.ArrowBack,
-                    contentDescription = "Back",
-                    tint = Color.White
-                )
+
             }
+            TopAppBar(
+                title = {},
+                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(
+                            Icons.Outlined.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color.White
+                        )
+                    }
+                }
+            )
         }
     }
 }
