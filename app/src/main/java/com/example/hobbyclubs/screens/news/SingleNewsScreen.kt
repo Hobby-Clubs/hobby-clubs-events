@@ -29,8 +29,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.example.compose.clubTileBg
-import com.example.compose.clubTileBorder
 import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.News
 import java.text.SimpleDateFormat
