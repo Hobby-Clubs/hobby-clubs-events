@@ -48,6 +48,7 @@ import com.example.hobbyclubs.screens.create.event.ClubSelectionDropdownMenu
 import com.example.hobbyclubs.screens.create.event.SelectedImageItem
 import com.example.hobbyclubs.screens.createnews.CustomOutlinedTextField
 import com.example.hobbyclubs.screens.createnews.PageProgression
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -169,99 +170,120 @@ fun EditNewsSheet(vm: SingleScreenViewModel, newsId: String, onSave: () -> Unit)
     val headline by vm.headline.observeAsState(TextFieldValue(""))
     val newsContent by vm.newsContent.observeAsState(TextFieldValue(""))
     val selectedImage by vm.selectedImage.observeAsState(null)
+    val loading by vm.loading.observeAsState(false)
+    val scope = rememberCoroutineScope()
 
     val newsImageGallery =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             vm.temporarilyStoreImage(newsUri = uri)
         }
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = (screenHeight * 0.95).dp, max = (screenHeight * 0.95).dp)
-            .padding(20.dp)
-    ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Text(
-                text = "Edit News",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(bottom = 20.dp)
-            )
-            CustomOutlinedTextField(
-                value = headline ?: TextFieldValue(""),
-                onValueChange = { vm.updateHeadline(it) },
-                focusManager = focusManager,
-                keyboardType = KeyboardType.Text,
-                label = "Headline",
-                placeholder = "Give your news a headline",
-                modifier = Modifier.fillMaxWidth()
-            )
-            CustomOutlinedTextField(
-                value = newsContent ?: TextFieldValue(""),
-                onValueChange = { vm.updateNewsContent(it) },
-                focusManager = focusManager,
-                keyboardType = KeyboardType.Text,
-                label = "News Content",
-                placeholder = "News Content",
-                modifier = Modifier
-                    .height((screenHeight * 0.2).dp)
-                    .fillMaxWidth()
-            )
-            Column(modifier = Modifier.fillMaxWidth()) {
+    if (!loading) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = (screenHeight * 0.95).dp, max = (screenHeight * 0.95).dp)
+                .padding(20.dp)
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
                 Text(
-                    text = "Change news image",
+                    text = "Edit News",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(bottom = 10.dp)
+                    modifier = Modifier.padding(bottom = 20.dp)
                 )
-                CustomButton(
-                    onClick = { newsImageGallery.launch("image/*") },
-                    text = "Choose banner from gallery",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(0.dp)
+                CustomOutlinedTextField(
+                    value = headline ?: TextFieldValue(""),
+                    onValueChange = { vm.updateHeadline(it) },
+                    focusManager = focusManager,
+                    keyboardType = KeyboardType.Text,
+                    label = "Headline",
+                    placeholder = "Give your news a headline",
+                    modifier = Modifier.fillMaxWidth()
                 )
-                Column(
+                CustomOutlinedTextField(
+                    value = newsContent ?: TextFieldValue(""),
+                    onValueChange = { vm.updateNewsContent(it) },
+                    focusManager = focusManager,
+                    keyboardType = KeyboardType.Text,
+                    label = "News Content",
+                    placeholder = "News Content",
                     modifier = Modifier
+                        .height((screenHeight * 0.2).dp)
                         .fillMaxWidth()
-                        .padding(vertical = 10.dp)
-                ) {
+                )
+                Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
-                        text = "Saved logo",
-                        fontSize = 16.sp,
+                        text = "Change news image",
+                        fontSize = 24.sp,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(bottom = 10.dp)
                     )
-                    if (selectedImage != null) {
-                        SelectedImageItem(uri = selectedImage)
-                    } else {
-                        Box(modifier = Modifier.size(100.dp))
+                    CustomButton(
+                        onClick = { newsImageGallery.launch("image/*") },
+                        text = "Choose banner from gallery",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(0.dp)
+                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp)
+                    ) {
+                        Text(
+                            text = "Saved logo",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.padding(bottom = 10.dp)
+                        )
+                        if (selectedImage != null) {
+                            SelectedImageItem(uri = selectedImage)
+                        } else {
+                            Box(modifier = Modifier.size(100.dp))
+                        }
                     }
                 }
             }
-        }
-        CustomButton(
-            onClick = {
-                if (headline.text.isNotEmpty() && newsContent.text.isNotEmpty()) {
-                    val changeMap = mapOf(
-                        Pair("headline", headline!!.text),
-                        Pair("newsContent", newsContent!!.text),
-                    )
-                    vm.updateNews(newsId = newsId, changeMap = changeMap)
-                    selectedImage?.let {
-                        vm.updateNewsImage(picUri = it, newsId = newsId)
+            CustomButton(
+                onClick = {
+                    if (headline.text.isNotEmpty() && newsContent.text.isNotEmpty()) {
+                        val changeMap = mapOf(
+                            Pair("headline", headline!!.text),
+                            Pair("newsContent", newsContent!!.text),
+                        )
+                        vm.updateNews(newsId = newsId, changeMap = changeMap)
+                        selectedImage?.let {
+                            vm.updateNewsImage(picUri = it, newsId = newsId)
+                        }
+                        scope.launch {
+                            vm.updateLoadingStatus(true)
+                            delay(1500)
+                            vm.getImage(newsId)
+                            vm.updateLoadingStatus(false)
+                            onSave()
+                        }
                     }
-                    onSave()
-                }
-            },
-            text = "Save",
+                },
+                text = "Save",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp)
+                    .align(Alignment.BottomCenter)
+            )
+        }
+    } else {
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(60.dp)
-                .align(Alignment.BottomCenter)
-        )
+                .heightIn(min = (screenHeight * 0.95).dp, max = (screenHeight * 0.95).dp)
+                .padding(20.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(modifier = Modifier.size(100.dp))
+        }
     }
+
 }
 
 @Composable
@@ -325,22 +347,22 @@ fun NewsContent(
                         .fillMaxWidth()
                         .padding(top = 16.dp)
                 ) {
+                    Text(
+                        text = news.newsContent,
+                        fontWeight = FontWeight.Light,
+                        fontSize = 16.sp,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Start
+                    )
+                    Spacer(modifier = Modifier.height(32.dp))
+                    publisher?.let {
                         Text(
-                            text = news.newsContent,
+                            text = "Published by ${it.fName} ${it.lName}",
                             fontWeight = FontWeight.Light,
-                            fontSize = 16.sp,
+                            fontSize = 12.sp,
                             modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.Start
+                            textAlign = TextAlign.End
                         )
-                        Spacer(modifier = Modifier.height(32.dp))
-                        publisher?.let {
-                            Text(
-                                text = "Published by ${it.fName} ${it.lName}",
-                                fontWeight = FontWeight.Light,
-                                fontSize = 12.sp,
-                                modifier = Modifier.fillMaxWidth(),
-                                textAlign = TextAlign.End
-                            )
                     }
                 }
             }

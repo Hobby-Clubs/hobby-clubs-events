@@ -2,6 +2,7 @@ package com.example.hobbyclubs.api
 
 import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Parcelable
 import android.util.Log
 import com.google.android.gms.tasks.Task
 import com.google.firebase.Timestamp
@@ -15,6 +16,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ListResult
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
+import kotlinx.parcelize.Parcelize
 import java.io.ByteArrayOutputStream
 import java.io.Serializable
 
@@ -468,6 +470,7 @@ class ClubCategory {
     }
 }
 
+@Parcelize
 data class User(
     var uid: String = "",
     @get:PropertyName("fName")
@@ -480,8 +483,9 @@ data class User(
     val email: String = "",
     val interests: List<String> = listOf(),
     val firstTime: Boolean = true,
-) : Serializable
+) : Parcelable
 
+@Parcelize
 data class Club(
     var ref: String = "0",
     val name: String = "Club name",
@@ -498,8 +502,9 @@ data class Club(
     val created: Timestamp = Timestamp.now(),
     val category: String = ClubCategory.other,
     val nextEvent: Timestamp? = null
-) : Serializable
+) : Parcelable
 
+@Parcelize
 data class Event(
     var id: String = "",
     val clubId: String = "",
@@ -514,8 +519,9 @@ data class Event(
     val contactInfoNumber: String = "",
     val participants: List<String> = listOf(),
     val likers: List<String> = listOf()
-) : Serializable
+) : Parcelable
 
+@Parcelize
 data class News(
     var id: String = "",
     val clubId: String = "",
@@ -523,9 +529,9 @@ data class News(
     val headline: String = "",
     val newsContent: String = "",
     val date: Timestamp = Timestamp.now(),
-) : Serializable
+) : Parcelable
 
-
+@Parcelize
 data class Request(
     var id: String = "",
     val userId: String = "",
@@ -533,4 +539,4 @@ data class Request(
     val timeAccepted: Timestamp? = null,
     val message: String = "",
     val requestSent: Timestamp = Timestamp.now()
-)
+) : Parcelable

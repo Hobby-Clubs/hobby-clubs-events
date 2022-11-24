@@ -20,6 +20,11 @@ class SingleScreenViewModel : ViewModel() {
         it.publisherId == firebase.uid
     }
     val selectedImage = MutableLiveData<Uri>()
+    val loading = MutableLiveData<Boolean>()
+
+    fun updateLoadingStatus(newVal: Boolean) {
+        loading.value = newVal
+    }
 
     fun updateHeadline(newVal: TextFieldValue) {
         headline.value = newVal
