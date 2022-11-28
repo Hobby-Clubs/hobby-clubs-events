@@ -22,6 +22,7 @@ import com.example.hobbyclubs.general.CustomAlertDialog
 import com.example.hobbyclubs.general.EventTile
 import com.example.hobbyclubs.general.SmallNewsTile
 import com.example.hobbyclubs.general.SmallTileForClubManagement
+import com.example.hobbyclubs.navigation.NavRoutes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,12 +38,12 @@ fun ClubAllEventsScreen(
         vm.getClub(clubId)
         vm.getClubEvents(clubId)
     }
-    club?.let { club ->
-        Scaffold() {
+    club?.let {
+        Scaffold() { padding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = it.calculateBottomPadding(), vertical = 20.dp),
+                    .padding(horizontal = 20.dp, vertical = padding.calculateBottomPadding()),
                 horizontalAlignment = Alignment.Start,
             ) {
                 Text(
@@ -52,11 +53,17 @@ fun ClubAllEventsScreen(
                     modifier = Modifier.padding(top = 75.dp, bottom = 20.dp),
                 )
                 listOfEvents?.let {
-                    ListOfEvents(it, vm)
+                    ListOfEvents(
+                        list = it,
+                        vm = vm,
+                        onClick = { eventId ->
+                            navController.navigate(NavRoutes.EventScreen.route + "/$eventId")
+                        }
+                    )
                 }
             }
             CenterAlignedTopAppBar(
-                title = { Text(text = club.name, fontSize = 16.sp) },
+                title = { Text(text = it.name, fontSize = 16.sp) },
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
@@ -69,7 +76,7 @@ fun ClubAllEventsScreen(
 }
 
 @Composable
-fun ListOfEvents(list: List<Event>, vm: ClubManagementViewModel) {
+fun ListOfEvents(list: List<Event>, vm: ClubManagementViewModel, onClick: (String) -> Unit) {
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     LazyColumn {
@@ -77,7 +84,7 @@ fun ListOfEvents(list: List<Event>, vm: ClubManagementViewModel) {
             SmallTileForClubManagement(
                 data = event,
                 onClick = {
-                    // TODO navigate to news page
+                    onClick(event.id)
                 },
                 onDelete = {
                     vm.updateSelection(eventId = event.id)

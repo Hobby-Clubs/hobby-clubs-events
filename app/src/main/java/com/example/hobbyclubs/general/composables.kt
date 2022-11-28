@@ -669,7 +669,13 @@ fun SmallTileForClubManagement(
                     .padding(end = 4.dp),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = title, fontWeight = FontWeight.Medium, fontSize = 16.sp)
+                Text(
+                    text = title,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 16.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
                 Text(
                     modifier = modifier.padding(end = 8.dp),
                     text = date,

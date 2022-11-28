@@ -19,6 +19,7 @@ import androidx.navigation.NavController
 import com.example.hobbyclubs.api.News
 import com.example.hobbyclubs.general.CustomAlertDialog
 import com.example.hobbyclubs.general.SmallTileForClubManagement
+import com.example.hobbyclubs.navigation.NavRoutes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,12 +35,12 @@ fun ClubAllNewsScreen(
         vm.getClub(clubId)
         vm.getAllNews(clubId)
     }
-    club?.let { club ->
-        Scaffold() {
+    club?.let {
+        Scaffold() { padding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = it.calculateBottomPadding(), vertical = 20.dp),
+                    .padding(horizontal = 20.dp, vertical = padding.calculateBottomPadding()),
                 horizontalAlignment = Alignment.Start,
             ) {
                 Text(
@@ -49,11 +50,17 @@ fun ClubAllNewsScreen(
                     modifier = Modifier.padding(top = 75.dp, bottom = 20.dp),
                 )
                 listOfNews?.let {
-                    ListOfNews(it, vm)
+                    ListOfNews(
+                        list = it,
+                        vm = vm,
+                        onClick = { newsId ->
+                            navController.navigate(NavRoutes.SingleNewsScreen.route + "/$newsId")
+                        }
+                    )
                 }
             }
             CenterAlignedTopAppBar(
-                title = { Text(text = club.name, fontSize = 16.sp) },
+                title = { Text(text = it.name, fontSize = 16.sp) },
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
@@ -66,7 +73,7 @@ fun ClubAllNewsScreen(
 }
 
 @Composable
-fun ListOfNews(list: List<News>, vm: ClubManagementViewModel) {
+fun ListOfNews(list: List<News>, vm: ClubManagementViewModel, onClick: (String) -> Unit) {
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     LazyColumn {
@@ -74,7 +81,7 @@ fun ListOfNews(list: List<News>, vm: ClubManagementViewModel) {
             SmallTileForClubManagement(
                 data = news,
                 onClick = {
-                    // TODO navigate to news page
+                    onClick(news.id)
                 },
                 onDelete = {
                     vm.updateSelection(newsId = news.id)

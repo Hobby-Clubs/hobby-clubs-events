@@ -43,12 +43,12 @@ fun ClubManagementScreen(
         vm.getAllNews(clubId)
         vm.getAllJoinRequests(clubId)
     }
-    club?.let { club ->
-        Scaffold() {
+    club?.let {
+        Scaffold() { padding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = it.calculateBottomPadding(), vertical = 20.dp),
+                    .padding(horizontal = 20.dp, vertical = padding.calculateBottomPadding()),
                 horizontalAlignment = Alignment.Start,
             ) {
                 Text(
@@ -57,7 +57,7 @@ fun ClubManagementScreen(
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(top = 75.dp, bottom = 20.dp),
                 )
-                MembersSection(navController, clubId, club, listOfRequests.size)
+                MembersSection(navController, clubId, it, listOfRequests.size)
                 Spacer(modifier = Modifier.height(10.dp))
                 NewsSection(navController, vm, clubId)
                 Spacer(modifier = Modifier.height(10.dp))
@@ -66,7 +66,7 @@ fun ClubManagementScreen(
                 PrivacySection(vm, clubId)
             }
             CenterAlignedTopAppBar(
-                title = { Text(text = club.name, fontSize = 16.sp) },
+                title = { Text(text = it.name, fontSize = 16.sp) },
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
                 actions = {
                     IconButton(onClick = { navController.navigate(NavRoutes.ClubSettingsScreen.route + "/$clubId") }) {
