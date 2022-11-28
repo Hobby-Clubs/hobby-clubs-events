@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.compose.joinedColor
 import com.example.compose.md_theme_dark_outline
 import com.example.hobbyclubs.screens.clubmanagement.ClubManagementSectionTitle
 
@@ -285,21 +284,21 @@ fun DropDownTile(text: String, onClick: () -> Unit) {
     }
 }
 
-@Composable
-fun DropDownCheckTile(text: String, isChecked: Boolean, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(horizontal = 20.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            imageVector = Icons.Outlined.CheckCircle,
-            contentDescription = null,
-            tint = if (isChecked) joinedColor else Color.Transparent,
-            modifier = Modifier.padding(end = 16.dp)
-        )
-        Text(text = text)
-    }
-}
+//@Composable
+//fun DropDownCheckTile(text: String, isChecked: Boolean, onClick: () -> Unit) {
+//    Row(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .clickable { onClick() }
+//            .padding(horizontal = 20.dp),
+//        verticalAlignment = Alignment.CenterVertically
+//    ) {
+//        Icon(
+//            imageVector = Icons.Outlined.CheckCircle,
+//            contentDescription = null,
+//            tint = if (isChecked) joinedColor else Color.Transparent,
+//            modifier = Modifier.padding(end = 16.dp)
+//        )
+//        Text(text = text)
+//    }
+//}
