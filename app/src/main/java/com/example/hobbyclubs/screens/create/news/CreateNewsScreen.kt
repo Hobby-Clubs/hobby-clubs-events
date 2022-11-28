@@ -35,6 +35,8 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.News
+import com.example.hobbyclubs.general.CustomAlertDialog
+import com.example.hobbyclubs.general.CustomOutlinedTextField
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.example.hobbyclubs.screens.create.event.ClubSelectionDropdownMenu
@@ -71,36 +73,18 @@ fun CreateNewsScreen(
                 }
             })
         if (showLeaveDialog) {
-            CustomAlertDialog(onDismissRequest = { showLeaveDialog = false }, onConfirm = {
-                navController.navigateUp()
-                showLeaveDialog = false
-            })
+            CustomAlertDialog(
+                onDismissRequest = { showLeaveDialog = false },
+                onConfirm = {
+                    navController.navigateUp()
+                    showLeaveDialog = false
+                },
+                title = "Leave?",
+                text = "Are you sure you want to leave? All information will be lost.",
+                confirmText = "Leave"
+            )
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CustomOutlinedTextField(
-    modifier: Modifier = Modifier,
-    value: TextFieldValue,
-    onValueChange: (TextFieldValue) -> Unit,
-    focusManager: FocusManager,
-    keyboardType: KeyboardType,
-    label: String,
-    placeholder: String
-) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        keyboardOptions = KeyboardOptions(
-            imeAction = ImeAction.Done, keyboardType = keyboardType
-        ),
-        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-        label = { Text(text = label) },
-        placeholder = { Text(text = placeholder) },
-        modifier = modifier
-    )
 }
 
 @Composable
@@ -111,8 +95,14 @@ fun PageProgression(numberOfLines: Int, vm: CreateNewsViewModel) {
             .padding(5.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        ProgressionBar(modifier = Modifier.weight(1f), isMarked = numberOfLines >= 1, onClick = { vm.changePageTo(1) })
-        ProgressionBar(Modifier.weight(1f), isMarked = numberOfLines > 1, onClick = { vm.changePageTo(2) })
+        ProgressionBar(
+            modifier = Modifier.weight(1f),
+            isMarked = numberOfLines >= 1,
+            onClick = { vm.changePageTo(1) })
+        ProgressionBar(
+            Modifier.weight(1f),
+            isMarked = numberOfLines > 1,
+            onClick = { vm.changePageTo(2) })
     }
 }
 
@@ -123,29 +113,6 @@ fun ProgressionBar(modifier: Modifier = Modifier, isMarked: Boolean, onClick: ()
         .clip(RoundedCornerShape(20.dp))
         .background(color = if (isMarked) colorScheme.primary else colorScheme.surfaceVariant)
         .clickable { onClick() })
-}
-
-@Composable
-fun CustomAlertDialog(
-    onDismissRequest: () -> Unit, onConfirm: () -> Unit
-) {
-    AlertDialog(title = { Text(text = "Leave?") },
-        text = { Text(text = "Are you sure you want to leave? All information will be lost.") },
-        onDismissRequest = onDismissRequest,
-        dismissButton = {
-            Button(onClick = { onDismissRequest() }) {
-                Text(text = "Cancel")
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = { onConfirm() }, colors = ButtonDefaults.buttonColors(
-                    containerColor = colorScheme.error, contentColor = colorScheme.onError
-                )
-            ) {
-                Text(text = "Leave")
-            }
-        })
 }
 
 @Composable
@@ -173,6 +140,7 @@ fun NewsCreationPage1(vm: CreateNewsViewModel) {
                 focusManager = focusManager,
                 keyboardType = KeyboardType.Text,
                 label = "Headline *",
+                singleLine = true,
                 placeholder = "Give your news a headline *",
                 modifier = Modifier.fillMaxWidth()
             )
@@ -200,11 +168,13 @@ fun NewsCreationPage1(vm: CreateNewsViewModel) {
             PageProgression(numberOfLines = 1, vm)
             CustomButton(
                 onClick = {
-                if (headline == null || newsContent == null || selectedClub == null) {
-                    Toast.makeText(context, "Please fill in all the fields", Toast.LENGTH_SHORT
-                    ).show()
-                } else
-                { vm.changePageTo(2) }
+                    if (headline == null || newsContent == null || selectedClub == null) {
+                        Toast.makeText(
+                            context, "Please fill in all the fields", Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        vm.changePageTo(2)
+                    }
                 },
                 text = "Next",
                 modifier = Modifier

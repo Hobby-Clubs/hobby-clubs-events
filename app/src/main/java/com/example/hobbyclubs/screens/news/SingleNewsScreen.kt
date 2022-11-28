@@ -7,7 +7,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
@@ -15,7 +14,6 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -23,7 +21,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -40,14 +37,10 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.News
-import com.example.hobbyclubs.general.CustomAlertDialog
-import com.example.hobbyclubs.navigation.NavRoutes
+import com.example.hobbyclubs.general.CustomOutlinedTextField
 import com.example.hobbyclubs.screens.clubmanagement.*
 import com.example.hobbyclubs.screens.clubpage.CustomButton
-import com.example.hobbyclubs.screens.create.event.ClubSelectionDropdownMenu
 import com.example.hobbyclubs.screens.create.event.SelectedImageItem
-import com.example.hobbyclubs.screens.createnews.CustomOutlinedTextField
-import com.example.hobbyclubs.screens.createnews.PageProgression
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -198,6 +191,7 @@ fun EditNewsSheet(vm: SingleScreenViewModel, newsId: String, onSave: () -> Unit)
                     focusManager = focusManager,
                     keyboardType = KeyboardType.Text,
                     label = "Headline",
+                    singleLine = true,
                     placeholder = "Give your news a headline",
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -232,7 +226,7 @@ fun EditNewsSheet(vm: SingleScreenViewModel, newsId: String, onSave: () -> Unit)
                             .padding(vertical = 10.dp)
                     ) {
                         Text(
-                            text = "Saved logo",
+                            text = "Saved image",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.padding(bottom = 10.dp)
