@@ -15,7 +15,9 @@ import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import com.example.compose.HobbyClubsTheme
 import com.example.hobbyclubs.api.FirebaseHelper
+import com.example.hobbyclubs.database.EventAlarmDBHelper
 import com.example.hobbyclubs.navigation.NavRoutes
+import com.example.hobbyclubs.notifications.AlarmReceiver
 import com.example.hobbyclubs.screens.calendar.CalendarScreen
 import com.example.hobbyclubs.screens.clubmanagement.ClubAllEventsScreen
 import com.example.hobbyclubs.screens.clubmanagement.ClubAllNewsScreen
@@ -34,11 +36,15 @@ import com.example.hobbyclubs.screens.home.HomeScreen
 import com.example.hobbyclubs.screens.login.LoginScreen
 import com.example.hobbyclubs.screens.news.NewsScreen
 import com.example.hobbyclubs.screens.news.SingleNewsScreen
+import com.example.hobbyclubs.screens.settings.SettingsScreen
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        AlarmReceiver.createNotificationChannel(this)
+        val eventAlarmDBHelper = EventAlarmDBHelper(this)
+        eventAlarmDBHelper.updateAlarms()
         setContent {
             HobbyClubsTheme {
                 MyAppNavHost()
@@ -74,12 +80,14 @@ fun MyAppNavHost() {
         }
         // EventScreen
         composable(
-            NavRoutes.EventScreen.route + "/{id}",
-            arguments = listOf(
-                navArgument("id") {type = NavType.StringType}
-            )
+            NavRoutes.EventScreen.route + "/{eventId}",
+            arguments = listOf(navArgument("eventId") {type = NavType.StringType}),
+            deepLinks = listOf(navDeepLink {
+                uriPattern = "https://hobbyclubs.fi/eventId={eventId}"
+                action = Intent.ACTION_VIEW
+            })
         ) {
-            val id = it.arguments!!.getString("id")!!
+            val id = it.arguments!!.getString("eventId")!!
             EventScreen(navController = navController, eventId = id)
         }
         // ClubPageScreen
@@ -90,7 +98,7 @@ fun MyAppNavHost() {
             ),
             deepLinks = listOf(
                 navDeepLink {
-                    uriPattern = "https://hobbyclubs.fi/{clubId}"
+                    uriPattern = "https://hobbyclubs.fi/clubId={clubId}"
                     action = Intent.ACTION_VIEW
                 }
             )
@@ -192,6 +200,10 @@ fun MyAppNavHost() {
         // CreateClubScreen
         composable(NavRoutes.CreateClub.route) {
             CreateClubScreen(navController = navController)
+        }
+        // SettingsScreen
+        composable(NavRoutes.SettingsScreen.route) {
+            SettingsScreen(navController = navController)
         }
     }
 }

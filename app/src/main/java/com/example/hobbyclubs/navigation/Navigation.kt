@@ -28,8 +28,8 @@ sealed class NavRoutes(val route: String) {
     object CreateClub: NavRoutes("CreateClub")
     object SingleNewsScreen: NavRoutes("SingleNews")
     object FirstTimeScreen: NavRoutes("FirstTimeScreen")
+    object SettingsScreen: NavRoutes("SettingsScreen")
 }
-
 
 data class BarItem(
     val title: String,

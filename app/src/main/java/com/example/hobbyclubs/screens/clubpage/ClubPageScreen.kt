@@ -241,7 +241,7 @@ fun ClubPageHeader(
 fun ShareButton(text: String, clubId: String) {
     val sendIntent: Intent = Intent().apply {
         action = Intent.ACTION_SEND
-        putExtra(Intent.EXTRA_TEXT, "https://hobbyclubs.fi/$clubId")
+        putExtra(Intent.EXTRA_TEXT, "https://hobbyclubs.fi/clubId=$clubId")
         type = "text/plain"
     }
     val shareIntent = Intent.createChooser(sendIntent, null)
