@@ -160,6 +160,17 @@ object FirebaseHelper {
         return db.collection(CollectionName.events).document(eventId)
     }
 
+    fun updateEventDetails(eventId: String, changeMap: Map<String, Any>) {
+        val ref = db.collection(CollectionName.events).document(eventId)
+        ref.update(changeMap)
+            .addOnSuccessListener {
+                Log.d(TAG, "updateEventDetails: $it")
+            }
+            .addOnFailureListener {
+                Log.e(TAG, "updateEventDetails: ", it)
+            }
+    }
+
     fun addUserToEvent(eventId: String, membersListUpdated: List<String>) {
         val userRef = db.collection(CollectionName.events).document(eventId)
         userRef.update("participants", membersListUpdated)
@@ -412,6 +423,26 @@ object FirebaseHelper {
 
     }
 
+    fun updateEventImages(eventId: String, newImages: List<Uri>) {
+        var count = 0
+        getAllFiles("${CollectionName.events}/$eventId")
+            .addOnSuccessListener { list ->
+                list.items.forEach { ref ->
+                    ref.delete()
+                    Log.d(TAG, "deleted: ${ref.name}")
+                }
+                newImages.forEach { imageUri ->
+                    val imageName = "$count.jpg"
+                    addPic(imageUri, "${CollectionName.events}/$eventId/$imageName")
+                    count += 1
+                }
+            }
+            .addOnFailureListener {
+                Log.e(TAG, "deleteImagesFail: ", it)
+            }
+
+    }
+
     fun getFile(path: String): StorageReference {
         return storage.reference.child(path)
     }
@@ -487,6 +518,8 @@ data class Event(
     val contactInfoName: String = "",
     val contactInfoEmail: String = "",
     val contactInfoNumber: String = "",
+    var isPrivate: Boolean = false,
+    val admins: List<String> = listOf(),
     val participants: List<String> = listOf(),
     val likers: List<String> = listOf()
 ) : Serializable

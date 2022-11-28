@@ -14,6 +14,14 @@ fun joinEvent(event: Event) {
     FirebaseHelper.addUserToEvent(eventId = event.id, updatedList)
 }
 
+fun leaveEvent(event: Event) {
+    val updatedList = event.participants.toMutableList()
+    FirebaseHelper.uid?.let {
+        updatedList.remove(it)
+    }
+    FirebaseHelper.addUserToEvent(eventId = event.id, updatedList)
+}
+
 fun likeEvent(event: Event) {
     val initialLikers = event.likers
     FirebaseHelper.uid?.let { uid ->

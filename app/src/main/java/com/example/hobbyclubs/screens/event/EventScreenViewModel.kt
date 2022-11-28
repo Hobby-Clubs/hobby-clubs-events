@@ -13,6 +13,10 @@ class EventScreenViewModel() : ViewModel() {
     val selectedEvent = MutableLiveData<Event>()
     val selectedEventHostClub = MutableLiveData<Club>()
 
+    val isAdmin = Transformations.map(selectedEvent) {
+        it.admins.contains(firebase.uid)
+    }
+
     val hasJoinedEvent = Transformations.map(selectedEvent) {
         it.participants.contains(firebase.uid)
     }
