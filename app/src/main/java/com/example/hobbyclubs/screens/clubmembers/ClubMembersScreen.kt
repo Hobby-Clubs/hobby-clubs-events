@@ -35,6 +35,7 @@ import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.CollectionName
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.User
+import com.example.hobbyclubs.general.ImageViewModel
 import com.example.hobbyclubs.screens.clubmanagement.ClubManagementSectionTitle
 import com.example.hobbyclubs.screens.clubpage.CustomButton
 
@@ -43,6 +44,7 @@ import com.example.hobbyclubs.screens.clubpage.CustomButton
 fun ClubMembersScreen(
     navController: NavController,
     vm: ClubMembersViewModel = viewModel(),
+    imageVm: ImageViewModel = viewModel(),
     clubId: String
 ) {
     val club by vm.selectedClub.observeAsState(null)
@@ -50,12 +52,12 @@ fun ClubMembersScreen(
     LaunchedEffect(Unit) {
         vm.getClub(clubId)
     }
-    club?.let { club ->
-        Scaffold() {
+    club?.let {
+        Scaffold() { padding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(vertical = it.calculateBottomPadding(), horizontal = 20.dp),
+                    .padding(vertical = padding.calculateBottomPadding(), horizontal = 20.dp),
                 horizontalAlignment = Alignment.Start,
             ) {
                 Text(
@@ -64,10 +66,10 @@ fun ClubMembersScreen(
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(top = 75.dp, bottom = 20.dp),
                 )
-                ListOfClubMembers(listOfMembers, vm, club)
+                ListOfClubMembers(listOfMembers, vm, it, imageVm)
             }
             CenterAlignedTopAppBar(
-                title = { Text(text = club.name, fontSize = 16.sp) },
+                title = { Text(text = it.name, fontSize = 16.sp) },
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
@@ -83,16 +85,25 @@ fun ClubMembersScreen(
 fun ListOfClubMembers(
     listOfMembers: List<User>,
     vm: ClubMembersViewModel,
-    club: Club
+    club: Club,
+    imageVm: ImageViewModel
 ) {
     var selectedMemberUid: String? by remember { mutableStateOf(null) }
     val listOfAdmins = listOfMembers.filter { club.admins.contains(it.uid) }
     val listOfNormalMembers = listOfMembers.filter { !club.admins.contains(it.uid) }
-    Log.d("listOfMembers", "ListOfMembers: $listOfMembers")
+    val profilePicUris by imageVm.clubMemberProfilePicUris.observeAsState(listOf())
+
+    if (listOfAdmins.isNotEmpty()) {
+        imageVm.getUserProfileUris(listOfAdmins)
+    }
+    if (listOfNormalMembers.isNotEmpty()) {
+        imageVm.getUserProfileUris(listOfMembers)
+    }
 
     LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         item { ClubManagementSectionTitle(text = "Admins") }
         items(listOfAdmins) { admin ->
+            val uri = profilePicUris.find { it.first == admin.uid }?.second
             MemberCard(
                 user = admin,
                 setSelectedMemberUid = {
@@ -104,11 +115,13 @@ fun ListOfClubMembers(
                 },
                 isSelected = selectedMemberUid == admin.uid,
                 vm = vm,
-                club = club
+                club = club,
+                picUri = uri
             )
         }
         item { ClubManagementSectionTitle(text = "Members") }
         items(listOfNormalMembers) { member ->
+            val uri = profilePicUris.find { it.first == member.uid }?.second
             MemberCard(
                 user = member,
                 setSelectedMemberUid = {
@@ -121,7 +134,8 @@ fun ListOfClubMembers(
                 },
                 isSelected = selectedMemberUid == member.uid,
                 vm = vm,
-                club = club
+                club = club,
+                picUri = uri
             )
         }
     }
@@ -136,25 +150,14 @@ fun MemberCard(
     onPromote: () -> Unit,
     isSelected: Boolean,
     vm: ClubMembersViewModel,
-    club: Club
+    club: Club,
+    picUri: Uri?
 ) {
     val context = LocalContext.current
     var expandedState by remember { mutableStateOf(false) }
-    var picUri: Uri? by rememberSaveable { mutableStateOf(null) }
     val isPromotable = !club.admins.contains(user.uid)
     val isKickable = (user.uid != FirebaseHelper.uid && !club.admins.contains(user.uid))
-    LaunchedEffect(Unit) {
-        if (picUri == null) {
-            FirebaseHelper.getFile("${CollectionName.users}/${user.uid}")
-                .downloadUrl
-                .addOnSuccessListener {
-                    picUri = it
-                }
-                .addOnFailureListener {
-                    Log.e("getLogoUri", "SmallNewsTile: ", it)
-                }
-        }
-    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -229,7 +232,7 @@ fun MemberImage(uri: Uri?) {
             contentDescription = "avatar",
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize(),
-            error = painterResource(id = R.drawable.ic_launcher)
+            error = painterResource(id = R.drawable.nokia_logo)
         )
     }
 }

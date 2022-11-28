@@ -17,10 +17,14 @@ import okhttp3.internal.wait
 class ClubPageViewModel : ViewModel() {
     val firebase = FirebaseHelper
     val selectedClub = MutableLiveData<Club>()
+    val clubsRequests = MutableLiveData<List<Request>>()
     val logoUri = MutableLiveData<Uri>()
     val bannerUri = MutableLiveData<Uri>()
     val hasJoinedClub = Transformations.map(selectedClub) {
         it.members.contains(firebase.uid)
+    }
+    val hasRequested = Transformations.map(clubsRequests) { list ->
+        list.any { it.userId == firebase.uid && !it.acceptedStatus }
     }
     val isAdmin = Transformations.map(selectedClub) {
         it.admins.contains(firebase.uid)
@@ -37,13 +41,14 @@ class ClubPageViewModel : ViewModel() {
     }
 
     fun getClub(clubId: String) {
-        firebase.getClub(uid = clubId).get()
-            .addOnSuccessListener { data ->
+        firebase.getClub(uid = clubId)
+            .addSnapshotListener { data, error ->
+                data ?: run {
+                    Log.e("getClub", "getClub: ", error)
+                    return@addSnapshotListener
+                }
                 val fetchedClub = data.toObject(Club::class.java)
                 fetchedClub?.let { selectedClub.postValue(fetchedClub) }
-            }
-            .addOnFailureListener {
-                Log.e("FetchClub", "getClubFail: ", it)
             }
     }
 
@@ -63,7 +68,7 @@ class ClubPageViewModel : ViewModel() {
             .addOnSuccessListener { data ->
                 val fetchedNews = data.toObjects(News::class.java)
                 Log.d("fetchNews", fetchedNews.toString())
-                fetchedNews.let { listOfNews.postValue(it) }
+                listOfNews.value = fetchedNews
             }
             .addOnFailureListener { e ->
                 Log.e("fetchNews", "fetchNewsFail: ", e)
@@ -72,12 +77,6 @@ class ClubPageViewModel : ViewModel() {
 
     fun getClubEvents(clubId: String) {
         val now = Timestamp.now()
-//        firebase.getAllEventsOfClub(clubId).orderBy("date", Query.Direction.ASCENDING)
-//            .get()
-//            .addOnSuccessListener { data ->
-//                val fetchedEvents = data.toObjects(Event::class.java)
-//                fetchedEvents.let { listOfEvents.postValue(it) }
-//            }
         firebase.getAllEventsOfClub(clubId).orderBy("date", Query.Direction.ASCENDING)
             .addSnapshotListener { data, error ->
                 data ?: run {
@@ -111,5 +110,18 @@ class ClubPageViewModel : ViewModel() {
 
     fun sendJoinClubRequest(clubId: String, request: Request) {
         firebase.addRequest(clubId = clubId, request = request)
+    }
+
+    fun getAllJoinRequests(clubId: String) {
+        firebase.getRequestsFromClub(clubId)
+            .addSnapshotListener { data, error ->
+                data ?: run {
+                    Log.e("getAllRequests", "RequestFetchFail: ", error)
+                    return@addSnapshotListener
+                }
+                val fetchedRequests = data.toObjects(Request::class.java)
+                Log.d("fetchNews", fetchedRequests.toString())
+                clubsRequests.value = fetchedRequests.filter { !it.acceptedStatus }
+            }
     }
 }

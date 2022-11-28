@@ -1,12 +1,6 @@
 package com.example.hobbyclubs.screens.home
 
-import android.app.Activity
-import android.app.AlarmManager
-import android.content.Context
 import android.net.Uri
-import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
@@ -44,7 +38,6 @@ import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.*
 import com.example.hobbyclubs.general.*
 import com.example.hobbyclubs.navigation.NavRoutes
-import com.example.hobbyclubs.notifications.AlarmReceiver
 import com.example.hobbyclubs.screens.clubs.ClubTile
 import java.text.SimpleDateFormat
 
@@ -59,6 +52,7 @@ fun HomeScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val allClubs by vm.allClubs.observeAsState(listOf())
     val allEvents by vm.allEvents.observeAsState(listOf())
+    val allNews by vm.allNews.observeAsState(listOf())
     var fabIsExpanded by remember { mutableStateOf(false) }
     var showSearch by remember { mutableStateOf(false) }
     val searchInput by vm.searchInput.observeAsState("")
@@ -82,6 +76,11 @@ fun HomeScreen(
     LaunchedEffect(allEvents) {
         if (allEvents.isNotEmpty()) {
             imageVm.getEventUris(allEvents)
+        }
+    }
+    LaunchedEffect(allNews) {
+        if (allNews.isNotEmpty()) {
+            imageVm.getNewsUris(allNews, isSmallTile = true)
         }
     }
 
@@ -272,10 +271,14 @@ fun MainScreenContent(
 ) {
     val myClubs by vm.myClubs.observeAsState(listOf())
     val myEvents by vm.myEvents.observeAsState(listOf())
-    val allNews by vm.allNews.observeAsState(listOf())
-    val myNews by remember {
+    val myNews by vm.myNews.observeAsState(listOf())
+
+    val newsUris by imageVm.newsBannerUris.observeAsState()
+    val myNewsUris by remember {
         derivedStateOf {
-            allNews.filter { myClubs.map { club -> club.ref }.contains(it.clubId) }
+            newsUris?.let {
+                it.filter { pair -> myClubs.map { club -> club.ref }.contains(pair.first) }
+            }
         }
     }
     val clubUris by imageVm.clubBannerUris.observeAsState()
@@ -350,13 +353,20 @@ fun MainScreenContent(
                 text = "My News"
             )
         }
-        items(myNews) {
-            SmallNewsTile(
-                news = it
-            ) {
-                navController.navigate(NavRoutes.SingleNewsScreen.route + "/${it.id}")
+        newsUris?.let { newsUris ->
+            if (myNewsUris?.size == myNews.size) {
+                items(myNews) { singleNews ->
+                    val uri = newsUris.find { it.first == singleNews.clubId }?.second
+                    SmallNewsTile(
+                        news = singleNews,
+                        picUri = uri,
+                    ) {
+                        navController.navigate(NavRoutes.SingleNewsScreen.route + "/${singleNews.id}")
+                    }
+                }
             }
         }
+
         item {
             Spacer(modifier = Modifier.height(32.dp))
         }

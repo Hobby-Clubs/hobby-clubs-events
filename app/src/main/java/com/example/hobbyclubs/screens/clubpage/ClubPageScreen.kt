@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -61,6 +62,7 @@ fun ClubPageScreen(
         vm.getBanner(clubId)
         vm.getClubEvents(clubId)
         vm.getAllNews(clubId)
+        vm.getAllJoinRequests(clubId)
     }
     club?.let { club ->
         Scaffold {
@@ -77,7 +79,7 @@ fun ClubPageScreen(
                 DividerLine()
                 ClubSchedule(vm, navController, imageVm)
                 DividerLine()
-                ClubNews(vm, navController)
+                ClubNews(vm, navController, imageVm)
                 DividerLine()
                 ClubLinks(context, linkList = club.socials)
                 DividerLine()
@@ -113,10 +115,12 @@ fun ClubPageHeader(
     vm: ClubPageViewModel
 ) {
     val screenHeight = LocalConfiguration.current.screenHeightDp
+    val screenWidth = LocalConfiguration.current.screenWidthDp
     val bannerUri by vm.bannerUri.observeAsState()
     val logoUri by vm.logoUri.observeAsState()
     val hasJoinedClub by vm.hasJoinedClub.observeAsState(false)
     val isAdmin by vm.isAdmin.observeAsState(false)
+    val hasRequested by vm.hasRequested.observeAsState(false)
     val clubIsPrivate by vm.clubIsPrivate.observeAsState(null)
     val joinClubDialogText by vm.joinClubDialogText.observeAsState(TextFieldValue(""))
     var showJoinRequestDialog by remember { mutableStateOf(false) }
@@ -161,22 +165,26 @@ fun ClubPageHeader(
                 contentScale = ContentScale.FillWidth
             )
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
+                horizontalAlignment = Alignment.Start,
                 modifier = Modifier
                     .padding(start = 20.dp, top = 20.dp)
             ) {
                 Text(
                     text = club.name,
-                    fontSize = 24.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(end = 20.dp)
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.width((screenWidth * 0.45).dp)
                 )
                 TextButton(
                     onClick = { navController.navigate(NavRoutes.ClubMembersScreen.route + "/${club.ref}") },
                     colors = ButtonDefaults.buttonColors(
                         contentColor = colorScheme.onBackground,
                         containerColor = Color.Transparent
-                    )
+                    ),
+                    contentPadding = PaddingValues(0.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(text = "${club.members.size} " + if (club.members.size == 1) "member" else "members")
@@ -199,13 +207,20 @@ fun ClubPageHeader(
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 20.dp), horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            if (!hasJoinedClub && clubIsPrivate == true) {
+            if (!hasJoinedClub && clubIsPrivate == true && !hasRequested) {
                 CustomButton(
                     text = "Join",
                     onClick = {
                         showJoinRequestDialog = true
                     },
                     icon = Icons.Outlined.PersonAddAlt
+                )
+            }
+            if (clubIsPrivate == true && hasRequested) {
+                CustomButton(
+                    text = "Pending",
+                    onClick = { },
+                    icon = Icons.Outlined.Pending
                 )
             }
             if (!hasJoinedClub && clubIsPrivate == false) {
@@ -296,15 +311,23 @@ fun ClubSchedule(vm: ClubPageViewModel, navController: NavController, imageVm: I
 
 
 @Composable
-fun ClubNews(vm: ClubPageViewModel, navController: NavController) {
-    val listOfNews by vm.listOfNews.observeAsState()
+fun ClubNews(vm: ClubPageViewModel, navController: NavController, imageVm: ImageViewModel) {
+    val listOfNews by vm.listOfNews.observeAsState(listOf())
+    val newsUri by imageVm.newsBannerUris.observeAsState(listOf())
+
+    if (listOfNews.isNotEmpty()) {
+        imageVm.getNewsUris(listOfNews, isSmallTile = true)
+    }
+
     Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 20.dp)) {
         ClubSectionTitle(text = "News")
         Spacer(modifier = Modifier.height(20.dp))
         listOfNews?.let { news ->
             news.forEach { singleNews ->
+                val uri = newsUri.find { it.first == singleNews.clubId }?.second
                 SmallNewsTile(
                     news = singleNews,
+                    picUri = uri,
                     onClick = {
                         navController.navigate(NavRoutes.SingleNewsScreen.route + "/${singleNews.id}")
                     }

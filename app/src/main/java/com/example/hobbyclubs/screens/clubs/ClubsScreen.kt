@@ -163,7 +163,7 @@ fun ClubTile(
                         .crossfade(true)
                         .build(),
                     contentDescription = "logo",
-                    error = painterResource(id = R.drawable.ic_launcher),
+                    error = painterResource(id = R.drawable.nokia_logo),
                     contentScale = ContentScale.Crop
                 )
                 Column(
@@ -181,7 +181,7 @@ fun ClubTile(
                     .crossfade(true)
                     .build(),
                 contentDescription = "banner",
-                error = painterResource(id = R.drawable.ic_launcher),
+                error = painterResource(id = R.drawable.nokia_logo),
                 contentScale = ContentScale.Crop
             )
         }

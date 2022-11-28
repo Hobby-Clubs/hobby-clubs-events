@@ -429,7 +429,7 @@ fun EventTile(
                         .crossfade(true)
                         .build(),
                     contentDescription = "Tile background",
-                    error = painterResource(id = R.drawable.ic_launcher),
+                    error = painterResource(id = R.drawable.nokia_logo),
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxSize(),
@@ -704,7 +704,7 @@ fun SmallTileForClubManagement(
                     .build(),
                 contentDescription = "logo",
                 contentScale = ContentScale.Crop,
-                error = painterResource(id = R.drawable.ic_launcher)
+                error = painterResource(id = R.drawable.nokia_logo)
             )
             Column(
                 Modifier
@@ -770,23 +770,16 @@ fun CustomAlertDialog(
 }
 
 @Composable
-fun SmallNewsTile(modifier: Modifier = Modifier, news: News, onClick: () -> Unit) {
+fun SmallNewsTile(
+    modifier: Modifier = Modifier,
+    news: News,
+    picUri: Uri?,
+    onClick: () -> Unit
+) {
     val screenWidth = LocalConfiguration.current.screenWidthDp
-    var picUri: Uri? by rememberSaveable { mutableStateOf(null) }
     val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH)
     val date = sdf.format(news.date.toDate())
-    LaunchedEffect(Unit) {
-        if (picUri == null && news.clubId.isNotEmpty()) {
-            FirebaseHelper.getFile("${CollectionName.clubs}/${news.clubId}/logo")
-                .downloadUrl
-                .addOnSuccessListener {
-                    picUri = it
-                }
-                .addOnFailureListener {
-                    Log.e("getLogoUri", "SmallNewsTile: ", it)
-                }
-        }
-    }
+
     Card(
         modifier = modifier
             .aspectRatio(4.7f)
@@ -813,7 +806,7 @@ fun SmallNewsTile(modifier: Modifier = Modifier, news: News, onClick: () -> Unit
                     .build(),
                 contentDescription = "logo",
                 contentScale = ContentScale.Crop,
-                error = painterResource(id = R.drawable.ic_launcher)
+                error = painterResource(id = R.drawable.nokia_logo)
             )
             Column(
                 Modifier

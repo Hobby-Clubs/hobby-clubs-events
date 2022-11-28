@@ -24,13 +24,19 @@ class HomeScreenViewModel : ViewModel() {
     val myEvents = Transformations.map(allEvents) { events ->
         events
             .filter { event ->
-            event.participants.contains(FirebaseHelper.uid)
-                    || event.likers.contains(FirebaseHelper.uid)
+                event.participants.contains(FirebaseHelper.uid)
+                        || event.likers.contains(FirebaseHelper.uid)
             }
             .sortedBy { it.date }
     }
 
     val allNews = MutableLiveData<List<News>>()
+    val myNews = Transformations.map(allNews) { news ->
+        myClubs.value?.let { clubList ->
+            news.filter { clubList.map { club -> club.ref }.contains(it.clubId) }
+        }
+    }
+
     val searchInput = MutableLiveData("")
 
     init {

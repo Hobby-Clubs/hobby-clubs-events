@@ -113,13 +113,14 @@ class ClubManagementViewModel() : ViewModel() {
     }
 
     fun getClub(clubId: String) {
-        firebase.getClub(uid = clubId).get()
-            .addOnSuccessListener { data ->
+        firebase.getClub(uid = clubId)
+            .addSnapshotListener() { data, error ->
+                data ?: run {
+                    Log.e("getClub", "getClub: ", error)
+                    return@addSnapshotListener
+                }
                 val fetchedClub = data.toObject(Club::class.java)
                 fetchedClub?.let { selectedClub.postValue(fetchedClub) }
-            }
-            .addOnFailureListener {
-                Log.e("FetchClub", "getClubFail: ", it)
             }
     }
 

@@ -9,7 +9,9 @@ import com.example.hobbyclubs.api.*
 class ImageViewModel : ViewModel() {
     val clubLogoUris = MutableLiveData<List<Pair<String, Uri?>>>(listOf())
     val eventBannerUris = MutableLiveData<List<Pair<String, Uri?>>>(listOf())
+    val newsBannerUris = MutableLiveData<List<Pair<String, Uri?>>>(listOf())
     val clubBannerUris = MutableLiveData<List<Pair<String, Uri?>>>(listOf())
+    val clubMemberProfilePicUris = MutableLiveData<List<Pair<String, Uri?>>>(listOf())
 
     fun getEventUris(listOfEvents: List<Event>) {
         val tempList = mutableListOf<Pair<String, Uri?>>()
@@ -89,6 +91,59 @@ class ImageViewModel : ViewModel() {
                 }
                 .addOnFailureListener {
                     Log.e("getAllFiles", "ClubTile: ", it)
+                }
+        }
+    }
+
+    fun getUserProfileUrisFromRequest(listOfRequests: List<Request>) {
+        val tempListProfile = mutableListOf<Pair<String, Uri?>>()
+
+        listOfRequests.forEach { request ->
+            FirebaseHelper.getFile("${CollectionName.users}/${request.userId}")
+                .downloadUrl
+                .addOnSuccessListener {
+                    tempListProfile.add(Pair(request.userId, it))
+                    if (tempListProfile.size == listOfRequests.size) {
+                        clubMemberProfilePicUris.value = tempListProfile.toList()
+                    }
+                }
+                .addOnFailureListener {
+                    Log.e("getPicUri", "getUserProfileUris: ", it)
+                }
+        }
+    }
+    fun getUserProfileUris(listOfUsers: List<User>) {
+        val tempListProfile = mutableListOf<Pair<String, Uri?>>()
+
+        listOfUsers.forEach { user ->
+            FirebaseHelper.getFile("${CollectionName.users}/${user.uid}")
+                .downloadUrl
+                .addOnSuccessListener {
+                    tempListProfile.add(Pair(user.uid, it))
+                    if (tempListProfile.size == listOfUsers.size) {
+                        clubMemberProfilePicUris.value = tempListProfile.toList()
+                    }
+                }
+                .addOnFailureListener {
+                    Log.e("getPicUri", "getUserProfileUris: ", it)
+                }
+        }
+    }
+    fun getNewsUris(listOfNews: List<News>, isSmallTile: Boolean) {
+        val tempListProfile = mutableListOf<Pair<String, Uri?>>()
+
+        listOfNews.forEach { news ->
+            val path = if (isSmallTile) "${CollectionName.clubs}/${news.clubId}/logo" else "${CollectionName.news}/${news.id}/newsImage.jpg"
+            FirebaseHelper.getFile(path)
+                .downloadUrl
+                .addOnSuccessListener {
+                    tempListProfile.add(Pair(news.clubId, it))
+                    if (tempListProfile.size == listOfNews.size) {
+                        newsBannerUris.value = tempListProfile.toList()
+                    }
+                }
+                .addOnFailureListener {
+                    Log.e("getPicUri", "getNewsBannerUris: ", it)
                 }
         }
     }
