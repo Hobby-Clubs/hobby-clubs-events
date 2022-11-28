@@ -48,7 +48,7 @@ fun ClubManagementScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(bottom = it.calculateBottomPadding(), start = 20.dp, end = 20.dp),
+                    .padding(horizontal = it.calculateBottomPadding(), vertical = 20.dp),
                 horizontalAlignment = Alignment.Start,
             ) {
                 Text(

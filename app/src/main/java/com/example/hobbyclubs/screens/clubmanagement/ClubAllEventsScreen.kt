@@ -42,7 +42,7 @@ fun ClubAllEventsScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(it),
+                    .padding(horizontal = it.calculateBottomPadding(), vertical = 20.dp),
                 horizontalAlignment = Alignment.Start,
             ) {
                 Text(
