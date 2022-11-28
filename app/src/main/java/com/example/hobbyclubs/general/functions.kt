@@ -19,7 +19,7 @@ fun leaveEvent(event: Event) {
     FirebaseHelper.uid?.let {
         updatedList.remove(it)
     }
-    FirebaseHelper.addUserToEvent(eventId = event.id, updatedList)
+    FirebaseHelper.updateUserInEvent(eventId = event.id, updatedList)
 }
 
 fun likeEvent(event: Event) {

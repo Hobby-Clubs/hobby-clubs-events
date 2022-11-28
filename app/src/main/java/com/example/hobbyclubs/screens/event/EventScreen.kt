@@ -164,13 +164,23 @@ fun EventHeader(
                 )
                 if (!hasJoinedEvent) {
                     if (!hasLikedEvent) {
-                        LikeEventButton(modifier = Modifier.align(Alignment.BottomEnd).padding(15.dp), isLiked = hasLikedEvent) {
+                        LikeEventButton(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(15.dp),
+                            isLiked = hasLikedEvent
+                        ) {
                             vm.likeEvent(event)
                         }
                     }
 
                     if (hasLikedEvent) {
-                        LikeEventButton(modifier = Modifier.align(Alignment.BottomEnd).padding(15.dp), isLiked = hasLikedEvent) {
+                        LikeEventButton(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(15.dp),
+                            isLiked = hasLikedEvent
+                        ) {
                             vm.removeLikeOnEvent(event)
                         }
                     }
@@ -209,9 +219,11 @@ fun EventHeader(
                         )
                     }
                     Row(
-                        modifier = Modifier.clickable {
-                            navController.navigate(NavRoutes.EventParticipantsScreen.route + "/${event.id}")
-                        }.fillMaxWidth(),
+                        modifier = Modifier
+                            .clickable {
+                                navController.navigate(NavRoutes.EventParticipantsScreen.route + "/${event.id}")
+                            }
+                            .fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.End
                     ) {
@@ -237,14 +249,16 @@ fun EventHeader(
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                JoinEventButton(isJoined = hasJoinedEvent, modifier = Modifier.padding(end = 40.dp)) {
-                    if(!hasJoinedEvent) {
+                JoinEventButton(
+                    isJoined = hasJoinedEvent,
+                    modifier = Modifier.padding(end = 40.dp),
+                    onJoinEvent = {
                         vm.joinEvent(event)
-                    } else if (hasJoinedEvent) {
-                        vm.leaveEvent(event)
-                    }
-                }
-                if(isAdmin) {
+                    },
+                    onLeaveEvent = {
+                        vm.cancelEventJoin(event)
+                    })
+                if (isAdmin) {
                     ManageEventButton() {
                         navController.navigate(NavRoutes.EventManagementScreen.route + "/${event.id}")
                     }

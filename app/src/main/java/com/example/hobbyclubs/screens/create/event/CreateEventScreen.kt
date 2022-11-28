@@ -839,9 +839,9 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
                             return@CustomButton
                         } else {
                             val timestamp = Timestamp(selectedDate!!)
-                            val listWithYouAsAdminAndParticipant = mutableListOf<String>()
+                            val listWithYouAsAdmin = mutableListOf<String>()
                             FirebaseHelper.uid?.let {
-                                listWithYouAsAdminAndParticipant.add(it)
+                                listWithYouAsAdmin.add(it)
                             }
                             val privacy = currentlySelectedClub?.isPrivate ?: false
 
@@ -851,9 +851,8 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
                                 description = eventDescription!!.text,
                                 date = timestamp,
                                 address = eventLocation!!.text,
-                                admins = listWithYouAsAdminAndParticipant,
+                                admins = listWithYouAsAdmin,
                                 isPrivate = privacy,
-                                participants = listWithYouAsAdminAndParticipant,
                                 participantLimit = if (eventParticipantLimit == null || eventParticipantLimit!!.text.isBlank()) -1 else eventParticipantLimit!!.text.toInt(),
                                 linkArray = if (linkArray == null || linkArray!!.isEmpty()) mapOf() else linkArray!!,
                                 contactInfoName = contactInfoName!!.text,

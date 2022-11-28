@@ -398,14 +398,15 @@ fun EventTile(
                     verticalAlignment = Alignment.Top,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    JoinEventButton(isJoined = joined) {
-                        if (!joined) {
+                    JoinEventButton(
+                        isJoined = joined,
+                        onJoinEvent = {
                             joinEvent(event)
-                        }
-                        if (joined) {
+                        },
+                        onLeaveEvent = {
                             leaveEvent(event)
                         }
-                    }
+                    )
                     if (!joined) {
                         LikeEventButton(isLiked = liked) {
                             likeEvent(event)
@@ -460,22 +461,46 @@ fun EventTile(
 }
 
 @Composable
-fun JoinEventButton(modifier: Modifier = Modifier, isJoined: Boolean, onEventPage: Boolean = false, onClick: () -> Unit) {
+fun JoinEventButton(
+    modifier: Modifier = Modifier,
+    isJoined: Boolean,
+    onJoinEvent: () -> Unit,
+    onLeaveEvent: () -> Unit
+) {
     val icon: ImageVector
     val text: String
-    if (onEventPage) {
-        icon = if (isJoined) Icons.Outlined.Close else Icons.Outlined.PersonAddAlt
-        text = if (isJoined) "Cancel" else "Join"
+    if (isJoined) {
+        icon = Icons.Outlined.Close
+        text = "Cancel"
     } else {
-        icon = if (isJoined) Icons.Outlined.Check else Icons.Outlined.PersonAddAlt
-        text = if (isJoined) "Joined" else "Join"
+        icon = Icons.Outlined.PersonAddAlt
+        text = "Join"
     }
+    var showLeaveEventDialog by remember { mutableStateOf(false) }
 
+    if (showLeaveEventDialog) {
+        CustomAlertDialog(
+            onDismissRequest = { showLeaveEventDialog = false },
+            onConfirm = {
+                onLeaveEvent()
+                showLeaveEventDialog = false
+            },
+            title = "Leave event?",
+            text = "Are you sure you want to leave this event?",
+            confirmText = "Leave"
+        )
+    }
     Card(
         shape = RoundedCornerShape(100.dp),
         colors = CardDefaults.cardColors(containerColor = md_theme_light_surfaceTint),
         modifier = modifier
-            .clickable { onClick() }
+            .clickable {
+                if (!isJoined) {
+                    onJoinEvent()
+                } else {
+                    showLeaveEventDialog = true
+                }
+            }
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
