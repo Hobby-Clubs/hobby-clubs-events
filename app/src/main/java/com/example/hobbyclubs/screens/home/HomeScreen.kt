@@ -1,6 +1,12 @@
 package com.example.hobbyclubs.screens.home
 
+import android.app.Activity
+import android.app.AlarmManager
+import android.content.Context
 import android.net.Uri
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -15,7 +21,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.Feed
 import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
@@ -39,6 +47,7 @@ import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.*
 import com.example.hobbyclubs.general.*
 import com.example.hobbyclubs.navigation.NavRoutes
+import com.example.hobbyclubs.notifications.AlarmReceiver
 import com.example.hobbyclubs.screens.clubs.ClubTile
 import java.text.SimpleDateFormat
 
@@ -49,17 +58,10 @@ fun HomeScreen(
     vm: HomeScreenViewModel = viewModel(),
     imageVm: ImageViewModel = viewModel()
 ) {
+    val context = LocalContext.current
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val allClubs by vm.allClubs.observeAsState(listOf())
     val allEvents by vm.allEvents.observeAsState(listOf())
-    val myClubs by vm.myClubs.observeAsState(listOf())
-    val myEvents by vm.myEvents.observeAsState(listOf())
-    val news by vm.allNews.observeAsState(listOf())
-    val myNews by remember {
-        derivedStateOf {
-            news.filter { news -> myClubs.map { it.ref }.contains(news.clubId) }
-        }
-    }
     var fabIsExpanded by remember { mutableStateOf(false) }
     var showSearch by remember { mutableStateOf(false) }
     val searchInput by vm.searchInput.observeAsState("")
@@ -90,23 +92,34 @@ fun HomeScreen(
         navController = navController,
         topBar = {
             MenuTopBar(
-                drawerState = drawerState
-            ) {
-                TopSearchBar(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    input = searchInput,
-                    onTextChange = {
-                        showSearch = it.isNotBlank()
-                        vm.updateInput(it)
-                    },
-                    onCancel = {
-                        vm.updateInput("")
-                        showSearch = false
-                        focusManager.clearFocus()
+                drawerState = drawerState,
+                searchBar = {
+                    TopSearchBar(
+                        modifier = Modifier,
+                        input = searchInput,
+                        onTextChange = {
+                            showSearch = it.isNotBlank()
+                            vm.updateInput(it)
+                        },
+                        onCancel = {
+                            vm.updateInput("")
+                            showSearch = false
+                            focusManager.clearFocus()
+                        }
+                    )
+                },
+                settingsIcon = {
+                    IconButton(onClick = {
+                        navController.navigate(NavRoutes.SettingsScreen.route)
+                    }) {
+                        Icon(
+                            Icons.Outlined.Settings,
+                            null,
+                            modifier = Modifier.padding(end = 10.dp)
+                        )
                     }
-                )
-            }
+                }
+            )
         },
         drawerState = drawerState,
         fab = {
@@ -269,7 +282,21 @@ fun MainScreenContent(
         }
     }
     val clubUris by imageVm.clubBannerUris.observeAsState()
+    val myClubsUris by remember {
+        derivedStateOf {
+            clubUris?.let {
+                it.filter { pair -> myClubs.map { club -> club.ref }.contains(pair.first) }
+            }
+        }
+    }
     val eventUris by imageVm.eventBannerUris.observeAsState()
+    val myEventsUris by remember {
+        derivedStateOf {
+            eventUris?.let {
+                it.filter { pair -> myEvents.map { event -> event.id }.contains(pair.first) }
+            }
+        }
+    }
 
     LazyColumn(
         modifier = Modifier
@@ -281,22 +308,24 @@ fun MainScreenContent(
             LazyColumnHeader(text = "My Clubs")
         }
         clubUris?.let { clubUris ->
-            items(myClubs) { club ->
-                val uri = clubUris.find { it.first == club.ref }?.second
-                MyClubTile(
-                    club = club,
-                    vm = vm,
-                    picUri = uri,
-                    onClickNews = {
+            if (myClubsUris?.size == myClubs.size) {
+                items(myClubs) { club ->
+                    val uri = clubUris.find { it.first == club.ref }?.second
+                    MyClubTile(
+                        club = club,
+                        vm = vm,
+                        picUri = uri,
+                        onClickNews = {
 //                        navController.navigate(NavRoutes.ClubAllNewsScreen.route + "/${it.ref}")
-                    },
-                    onClickUpcoming = {
-                        navController.navigate(NavRoutes.EventScreen.route + "/${it}")
-                    },
-                    onClick = {
-                        navController.navigate(NavRoutes.ClubPageScreen.route + "/${club.ref}")
-                    }
-                )
+                        },
+                        onClickUpcoming = {
+                            navController.navigate(NavRoutes.EventScreen.route + "/${it}")
+                        },
+                        onClick = {
+                            navController.navigate(NavRoutes.ClubPageScreen.route + "/${club.ref}")
+                        }
+                    )
+                }
             }
         }
 
@@ -304,15 +333,17 @@ fun MainScreenContent(
             LazyColumnHeader(text = "My Events")
         }
         eventUris?.let { eventUris ->
-            items(myEvents) { event ->
-                val uri = eventUris.find { it.first == event.id }?.second
-                EventTile(
-                    event = event,
-                    picUri = uri,
-                    onClick = {
-                        navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
-                    }
-                )
+            if (myEventsUris?.size == myEvents.size) {
+                items(myEvents) { event ->
+                    val uri = eventUris.find { it.first == event.id }?.second
+                    EventTile(
+                        event = event,
+                        picUri = uri,
+                        onClick = {
+                            navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
+                        }
+                    )
+                }
             }
         }
 
@@ -440,7 +471,7 @@ fun NewsIconSection(modifier: Modifier = Modifier, amount: Int?, onClick: () -> 
         Box(modifier = Modifier.size(47.dp)) {
             Icon(
                 modifier = Modifier.size(40.dp),
-                imageVector = Icons.Filled.Newspaper,
+                imageVector = Icons.Outlined.Feed,
                 contentDescription = "news"
             )
             if (amount != null) {

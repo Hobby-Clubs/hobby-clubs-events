@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'com.google.gms.google-services'
     id("kotlin-parcelize")
+    id 'kotlin-kapt'
 }
 
 android {
@@ -82,13 +83,19 @@ dependencies {
     // Time
     implementation 'joda-time:joda-time:2.9.9'
 
-    //Firebase
+    // Firebase
     implementation platform('com.google.firebase:firebase-bom:30.4.1')
     implementation 'com.google.firebase:firebase-firestore-ktx'
     implementation 'com.google.firebase:firebase-storage-ktx'
     implementation 'com.firebaseui:firebase-ui-auth:8.0.2'
     implementation 'com.google.firebase:firebase-auth-ktx'
 
-    //SwipeRefresh
+    // SwipeRefresh
     implementation "com.google.accompanist:accompanist-swiperefresh:0.27.0"
+
+    // Room
+    implementation 'androidx.room:room-runtime:2.4.3'
+    kapt 'androidx.room:room-compiler:2.4.3'
+    implementation 'androidx.room:room-ktx:2.4.3'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
 }

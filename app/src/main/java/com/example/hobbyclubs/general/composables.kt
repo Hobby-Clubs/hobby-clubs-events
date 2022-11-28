@@ -1,5 +1,9 @@
 package com.example.hobbyclubs.general
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -41,6 +45,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.getSystemService
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -52,6 +57,8 @@ import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.News
 import com.example.hobbyclubs.navigation.BottomBar
 import com.example.hobbyclubs.navigation.NavRoutes
+import com.example.hobbyclubs.notifications.AlarmReceiver
+import com.example.hobbyclubs.notifications.EventNotificationInfo
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -60,15 +67,16 @@ import java.util.*
 @Composable
 fun MenuTopBar(
     drawerState: DrawerState,
-    searchBar: (@Composable () -> Unit)? = null
+    searchBar: (@Composable () -> Unit)? = null,
+    settingsIcon: (@Composable () -> Unit)? = null,
 ) {
     val scope = rememberCoroutineScope()
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp)
             .height(72.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         BurgerMenuButton {
             if (drawerState.isClosed) {
@@ -78,6 +86,9 @@ fun MenuTopBar(
             }
         }
         searchBar?.let {
+            it()
+        }
+        settingsIcon?.let {
             it()
         }
     }
@@ -181,6 +192,7 @@ fun DrawerScreen(
 fun MockDrawerContent(navToFirstTime: () -> Unit, logout: () -> Unit, onClick: () -> Unit) {
     val items = listOf("Home", "Restaurant", "HobbyClubs", "Parking", "Settings", "Profile")
     val selectedItem = remember { mutableStateOf(items[2]) }
+    val context = LocalContext.current
 
     ModalDrawerSheet {
         Spacer(Modifier.height(12.dp))
@@ -205,6 +217,37 @@ fun MockDrawerContent(navToFirstTime: () -> Unit, logout: () -> Unit, onClick: (
             label = { Text(text = "Logout") },
             selected = false,
             onClick = { logout() },
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+        )
+
+        NavigationDrawerItem(
+            label = { Text(text = "Test alarm") },
+            selected = false,
+            onClick = {
+                val alarmTime = Calendar.getInstance().timeInMillis + 3000
+                val intent = Intent(context, AlarmReceiver::class.java)
+                    .apply {
+                        val info = EventNotificationInfo(
+                            id = 1L,
+                            eventId = "9ssrdprFCTrYUeIyoU98",
+                            eventTime = alarmTime + (3600000),
+                            eventName = "Test event"
+                        )
+                        putExtra("data", info)
+                    }
+                val pending = PendingIntent.getBroadcast(
+                    context,
+                    65786,
+                    intent,
+                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                )
+                val manager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                manager.setAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    alarmTime,
+                    pending
+                )
+            },
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
     }
@@ -362,6 +405,7 @@ fun EventTile(
 ) {
     val joined = event.participants.contains(FirebaseHelper.uid)
     val liked = event.likers.contains(FirebaseHelper.uid)
+    val context = LocalContext.current
 
     Card(
         shape = RoundedCornerShape(12.dp),
@@ -402,15 +446,15 @@ fun EventTile(
                     JoinEventButton(
                         isJoined = joined,
                         onJoinEvent = {
-                            joinEvent(event)
+                            joinEvent(event, context)
                         },
                         onLeaveEvent = {
-                            leaveEvent(event)
+                            leaveEvent(event, context)
                         }
                     )
                     if (!joined) {
                         LikeEventButton(isLiked = liked) {
-                            likeEvent(event)
+                            likeEvent(event, context)
                         }
                     }
                 }
