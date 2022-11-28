@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -35,7 +36,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.compose.linkBlue
-import com.example.compose.nokiaDarkBlue
 import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.Request
@@ -172,7 +172,7 @@ fun ClubPageHeader(
                 TextButton(
                     onClick = { navController.navigate(NavRoutes.ClubMembersScreen.route + "/${club.ref}") },
                     colors = ButtonDefaults.buttonColors(
-                        contentColor = Color.Black,
+                        contentColor = colorScheme.onBackground,
                         containerColor = Color.Transparent
                     )
                 ) {
@@ -434,8 +434,8 @@ fun JoinClubDialog(
 fun ClubLogo(modifier: Modifier, uri: Uri?) {
     Card(
         shape = CircleShape,
-        border = BorderStroke(2.dp, Color.Black),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(4.0.dp),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
         modifier = modifier
     ) {
         AsyncImage(
@@ -453,8 +453,8 @@ fun CustomButton(
     onClick: () -> Unit,
     text: String,
     colors: ButtonColors = ButtonDefaults.buttonColors(
-        containerColor = nokiaDarkBlue,
-        contentColor = Color.White,
+        containerColor = colorScheme.primary,
+        contentColor = colorScheme.onPrimary,
     ),
     icon: ImageVector? = null
 ) {

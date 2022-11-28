@@ -1,7 +1,6 @@
 package com.example.hobbyclubs.screens.clubs
 
 import android.net.Uri
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
@@ -11,9 +10,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,8 +26,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.example.compose.clubTileBg
-import com.example.compose.clubTileBorder
 import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.FirebaseHelper
@@ -39,7 +36,6 @@ import com.example.hobbyclubs.general.MenuTopBar
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import com.google.firebase.storage.StorageReference
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -141,8 +137,8 @@ fun ClubTile(
     Card(
         modifier = modifier.clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, clubTileBorder),
-        colors = CardDefaults.cardColors(clubTileBg)
+        border = BorderStroke(1.dp, colorScheme.outlineVariant),
+        colors = CardDefaults.cardColors(colorScheme.surface)
     ) {
         Row(
             modifier = Modifier

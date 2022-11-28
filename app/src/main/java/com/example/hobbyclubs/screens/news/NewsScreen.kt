@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -21,8 +22,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.example.compose.clubTileBg
-import com.example.compose.clubTileBorder
 import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.News
 import com.example.hobbyclubs.navigation.NavRoutes
@@ -127,8 +126,8 @@ fun ImageCard(
                 .fillMaxWidth()
                 .padding(10.dp)
                 .clickable { onClick() },
-            colors = CardDefaults.cardColors(clubTileBg),
-            border = BorderStroke(1.dp, clubTileBorder)
+            colors = CardDefaults.cardColors(colorScheme.surface),
+            border = BorderStroke(1.dp, colorScheme.outlineVariant)
         ) {
             Column(
                 modifier = Modifier

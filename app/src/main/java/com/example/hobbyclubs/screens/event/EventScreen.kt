@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -20,10 +21,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -31,8 +30,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.compose.linkBlue
-import com.example.compose.nokiaDarkBlue
-import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.CollectionName
 import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.FirebaseHelper
@@ -42,7 +39,6 @@ import com.example.hobbyclubs.general.LikeEventButton
 import com.example.hobbyclubs.general.ManageEventButton
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.clubpage.ClubSectionTitle
-import com.example.hobbyclubs.screens.clubpage.CustomButton
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -88,7 +84,7 @@ fun EventScreen(
                         Icon(
                             Icons.Outlined.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color.Black
+                            tint = colorScheme.onSurfaceVariant
                         )
                     }
                 }

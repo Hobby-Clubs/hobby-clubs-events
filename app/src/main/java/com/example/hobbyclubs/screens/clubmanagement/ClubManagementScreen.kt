@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -151,14 +152,14 @@ fun ClubManagementRowNumberCount(
 ) {
     Card(
         shape = CircleShape,
-        colors = CardDefaults.cardColors(containerColor = if (isMemberRequestSection && numberOfItem > 0) Color.Red else Color.Transparent),
+        colors = CardDefaults.cardColors(containerColor = if (isMemberRequestSection && numberOfItem > 0) colorScheme.error else Color.Transparent),
         modifier = modifier.aspectRatio(1f)
     ) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text(
                 text = numberOfItem.toString(),
                 fontSize = 16.sp,
-                color = if (isMemberRequestSection && numberOfItem > 0) Color.White else Color.Black,
+                color = if (isMemberRequestSection && numberOfItem > 0) colorScheme.onError else colorScheme.onSurface,
                 maxLines = 1
             )
         }
@@ -219,7 +220,7 @@ fun ExpandablePrivacyCard(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.Gray)
+                    .background(colorScheme.outlineVariant)
                     .height(1.dp)
             )
             Spacer(modifier = Modifier.height(5.dp))

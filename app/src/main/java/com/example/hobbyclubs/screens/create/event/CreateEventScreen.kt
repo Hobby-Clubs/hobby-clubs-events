@@ -19,6 +19,7 @@ import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -44,7 +45,6 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.example.compose.nokiaLighterBlue
 import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.FirebaseHelper
@@ -139,7 +139,7 @@ fun ProgressionBar(isMarked: Boolean, onClick: () -> Unit) {
         .width((screenWidth * 0.21).dp)
         .height(13.dp)
         .clip(RoundedCornerShape(20.dp))
-        .background(color = if (isMarked) nokiaLighterBlue else Color.LightGray)
+        .background(color = if (isMarked) colorScheme.primary else colorScheme.surfaceVariant)
         .clickable { onClick() }
     )
 }
@@ -157,7 +157,7 @@ fun SelectedImagesDialog(
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Card(
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
             modifier = Modifier.padding(horizontal = 10.dp)
         ) {
             Box(
@@ -199,8 +199,8 @@ fun SelectedImagesDialog(
                             onClick = { onDismissRequest() },
                             text = "Cancel",
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.LightGray,
-                                contentColor = Color.Black
+                                containerColor = colorScheme.onSurfaceVariant,
+                                contentColor = colorScheme.surfaceVariant
                             )
                         )
                         CustomButton(onClick = { onConfirm() }, text = "Save Selection")
@@ -263,7 +263,7 @@ fun ClubSelectionDropdownMenu(clubList: List<Club>, onSelect: (Club) -> Unit) {
             onDismissRequest = { expanded = false },
             modifier = Modifier
                 .fillMaxWidth(0.9f)
-                .background(Color.White)
+                .background(colorScheme.surface)
         ) {
             clubList.forEachIndexed { index, club ->
                 DropdownMenuItem(
@@ -568,8 +568,8 @@ fun EventCreationPage2(vm: CreateEventViewModel) {
                     onClick = { vm.changePageTo(1) },
                     text = "Previous",
                     colors = ButtonDefaults.buttonColors(
-                        contentColor = Color.Black,
-                        containerColor = Color.LightGray
+                        contentColor = colorScheme.onSurfaceVariant,
+                        containerColor = colorScheme.surfaceVariant
                     ),
                     modifier = Modifier
                         .height(60.dp)
@@ -693,8 +693,8 @@ fun EventCreationPage3(vm: CreateEventViewModel) {
                     onClick = { vm.changePageTo(2) },
                     text = "Previous",
                     colors = ButtonDefaults.buttonColors(
-                        contentColor = Color.Black,
-                        containerColor = Color.LightGray
+                        contentColor = colorScheme.onSurfaceVariant,
+                        containerColor = colorScheme.surfaceVariant
                     ),
                     modifier = Modifier
                         .height(60.dp)
@@ -813,8 +813,8 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
                     onClick = { vm.changePageTo(3) },
                     text = "Previous",
                     colors = ButtonDefaults.buttonColors(
-                        contentColor = Color.Black,
-                        containerColor = Color.LightGray
+                        contentColor = colorScheme.onSurfaceVariant,
+                        containerColor = colorScheme.surfaceVariant
                     ),
                     modifier = Modifier
                         .height(60.dp)
