@@ -15,6 +15,7 @@ import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import com.example.compose.HobbyClubsTheme
 import com.example.hobbyclubs.api.FirebaseHelper
+import com.example.hobbyclubs.screens.eventmanagement.EventManagementScreen
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.calendar.CalendarScreen
 import com.example.hobbyclubs.screens.clubmanagement.ClubAllEventsScreen
@@ -29,6 +30,7 @@ import com.example.hobbyclubs.screens.create.club.CreateClubScreen
 import com.example.hobbyclubs.screens.create.event.CreateEventScreen
 import com.example.hobbyclubs.screens.createnews.CreateNewsScreen
 import com.example.hobbyclubs.screens.event.EventScreen
+import com.example.hobbyclubs.screens.eventparticipants.EventParticipantsScreen
 import com.example.hobbyclubs.screens.firstTime.FirstTimeScreen
 import com.example.hobbyclubs.screens.home.HomeScreen
 import com.example.hobbyclubs.screens.login.LoginScreen
@@ -81,6 +83,26 @@ fun MyAppNavHost() {
         ) {
             val id = it.arguments!!.getString("id")!!
             EventScreen(navController = navController, eventId = id)
+        }
+        // EventParticipantsScreen
+        composable(
+            NavRoutes.EventParticipantsScreen.route + "/{eventId}",
+            arguments = listOf(
+                navArgument("eventId") { type = NavType.StringType }
+            )
+        ) {
+            val eventId = it.arguments!!.getString("eventId")!!
+            EventParticipantsScreen(navController = navController, eventId = eventId)
+        }
+        // EventManagementScreen
+        composable(
+            NavRoutes.EventManagementScreen.route + "/{eventId}",
+            arguments = listOf(
+                navArgument("eventId") { type = NavType.StringType }
+            )
+        ) {
+            val eventId = it.arguments!!.getString("eventId")!!
+            EventManagementScreen(navController = navController, eventId = eventId)
         }
         // ClubPageScreen
         composable(

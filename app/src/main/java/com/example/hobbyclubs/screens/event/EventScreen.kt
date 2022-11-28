@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -38,6 +39,8 @@ import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.general.DividerLine
 import com.example.hobbyclubs.general.JoinEventButton
 import com.example.hobbyclubs.general.LikeEventButton
+import com.example.hobbyclubs.general.ManageEventButton
+import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.clubpage.ClubSectionTitle
 import com.example.hobbyclubs.screens.clubpage.CustomButton
 import java.text.SimpleDateFormat
@@ -52,6 +55,7 @@ fun EventScreen(
 ) {
     val context = LocalContext.current
     val event by vm.selectedEvent.observeAsState(null)
+    val isAdmin by vm.isAdmin.observeAsState(false)
     val screenWidth = LocalConfiguration.current.screenWidthDp
 
     LaunchedEffect(Unit) {
@@ -66,7 +70,7 @@ fun EventScreen(
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.Start,
             ) {
-                EventHeader(navController, context, it, vm)
+                EventHeader(navController, context, it, isAdmin, vm)
                 DividerLine()
                 EventDescription(it.description)
                 DividerLine()
@@ -98,6 +102,7 @@ fun EventHeader(
     navController: NavController,
     context: Context,
     event: Event,
+    isAdmin: Boolean,
     vm: EventScreenViewModel
 ) {
     val screenHeight = LocalConfiguration.current.screenHeightDp
@@ -157,6 +162,19 @@ fun EventHeader(
                         .height((screenHeight * 0.25).dp),
                     contentScale = ContentScale.FillWidth
                 )
+                if (!hasJoinedEvent) {
+                    if (!hasLikedEvent) {
+                        LikeEventButton(modifier = Modifier.align(Alignment.BottomEnd).padding(15.dp), isLiked = hasLikedEvent) {
+                            vm.likeEvent(event)
+                        }
+                    }
+
+                    if (hasLikedEvent) {
+                        LikeEventButton(modifier = Modifier.align(Alignment.BottomEnd).padding(15.dp), isLiked = hasLikedEvent) {
+                            vm.removeLikeOnEvent(event)
+                        }
+                    }
+                }
             }
         }
         Column(
@@ -190,40 +208,45 @@ fun EventHeader(
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
-                    Text(
-                        text = "${event.participants.size} participants",
-                        fontSize = 14.sp,
-                        textAlign = TextAlign.End,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    Row(
+                        modifier = Modifier.clickable {
+                            navController.navigate(NavRoutes.EventParticipantsScreen.route + "/${event.id}")
+                        }.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Text(
+                            text = "${event.participants.size} participants",
+                            fontSize = 14.sp,
+                        )
+                        Icon(
+                            Icons.Filled.NavigateNext,
+                            contentDescription = "arrow right",
+                            modifier = Modifier.size(16.dp),
+                            tint = Color.Black
+                        )
+                    }
+
                 }
             }
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 20.dp, bottom = 20.dp, top = 20.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                    .padding(start = 10.dp, bottom = 20.dp, top = 20.dp),
+                horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                JoinEventButton(isJoined = hasJoinedEvent, onEventPage = true) {
+                JoinEventButton(isJoined = hasJoinedEvent, modifier = Modifier.padding(end = 40.dp)) {
                     if(!hasJoinedEvent) {
                         vm.joinEvent(event)
-                    } else {
-                        vm.cancelEventJoin(event)
+                    } else if (hasJoinedEvent) {
+                        vm.leaveEvent(event)
                     }
                 }
-                if (!hasJoinedEvent) {
-                    if (!hasLikedEvent) {
-                        LikeEventButton(isLiked = hasLikedEvent) {
-                            vm.likeEvent(event)
-                        }
-                    }
-
-                    if (hasLikedEvent) {
-                        LikeEventButton(isLiked = hasLikedEvent) {
-                            vm.removeLikeOnEvent(event)
-                        }
+                if(isAdmin) {
+                    ManageEventButton() {
+                        navController.navigate(NavRoutes.EventManagementScreen.route + "/${event.id}")
                     }
                 }
             }

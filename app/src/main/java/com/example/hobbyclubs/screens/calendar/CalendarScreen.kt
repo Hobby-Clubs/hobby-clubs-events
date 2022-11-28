@@ -5,8 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Crop169
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -17,6 +15,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.compose.joinedColor
+import com.example.compose.liked
 import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.general.*
@@ -41,23 +40,50 @@ fun CalendarScreen(
         confirmSelectionChange = { vm.onSelectionChanged(it); true },
         initialSelectionMode = SelectionMode.Single,
     )
+
+    val allIsChecked = remember { mutableStateOf(true) }
+    val joinedIsChecked = remember { mutableStateOf(true) }
+    val likedIsChecked = remember { mutableStateOf(true) }
+
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val dateTimeComparator = DateTimeComparator.getDateOnlyInstance()
     val allEvents by vm.allEvents.observeAsState(listOf())
     val selection by vm.selection.observeAsState()
+
     val listOfUri by imageVm.eventBannerUris.observeAsState(listOf())
-    val filteredEvents by remember {
+    val eventsFromSelectedDay by remember {
         derivedStateOf {
             selection?.let {
                 allEvents.filter { event ->
-                    (dateTimeComparator.compare(
-                        event.date.toDate(),
-                        it.first().toDate()
-                    )) == 0
+                    (dateTimeComparator.compare(event.date.toDate(), it.first().toDate())) == 0
                 }
             } ?: listOf()
         }
     }
+
+    val filteredEvents by remember {
+        derivedStateOf {
+            if(allIsChecked.value) {
+                eventsFromSelectedDay
+            } else if(joinedIsChecked.value && likedIsChecked.value) {
+                eventsFromSelectedDay.filter { event ->
+                    event.participants.contains(FirebaseHelper.uid) || event.likers.contains(FirebaseHelper.uid)
+                }
+            }  else if(joinedIsChecked.value) {
+                eventsFromSelectedDay.filter { event ->
+                    event.participants.contains(FirebaseHelper.uid)
+                }
+            } else if(likedIsChecked.value) {
+                eventsFromSelectedDay.filter { event ->
+                    event.likers.contains(FirebaseHelper.uid)
+                }
+            } else {
+                listOf()
+            }
+        }
+    }
+
+
 
     LaunchedEffect(allEvents) {
         if (allEvents.isNotEmpty()) {
@@ -83,20 +109,22 @@ fun CalendarScreen(
                                 (dateTimeComparator.compare(
                                     it.date.toDate(),
                                     dayState.date.toDate()
-                                )) == 0
+                                )) == 0 && (allIsChecked.value)
                             },
                             joinedEvent = allEvents.firstOrNull {
                                 (dateTimeComparator.compare(
                                     it.date.toDate(),
                                     dayState.date.toDate()
                                 )) == 0 && it.participants.contains(FirebaseHelper.uid)
+                                        && (allIsChecked.value || joinedIsChecked.value)
                             },
                             likedEvent = allEvents.firstOrNull {
                                 (dateTimeComparator.compare(
                                     it.date.toDate(),
                                     dayState.date.toDate()
                                 )) == 0 && it.likers.contains(FirebaseHelper.uid)
-                            }
+                                        && (allIsChecked.value || likedIsChecked.value)
+                            },
                         )
                     },
                     monthHeader = { MonthHeader(monthState = state.monthState) }
@@ -106,6 +134,7 @@ fun CalendarScreen(
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    /*
                     Icon(
                         imageVector = Icons.Filled.Crop169,
                         contentDescription = "color",
@@ -114,7 +143,18 @@ fun CalendarScreen(
                             .width(30.dp)
                             .height(30.dp)
                     )
-                    Text("Suggested", fontSize = 12.sp)
+                    */
+                    Checkbox(
+                        checked = allIsChecked.value,
+                        onCheckedChange = {
+                            allIsChecked.value = it
+
+                        },
+                        colors = CheckboxDefaults.colors(MaterialTheme.colorScheme.primary),
+
+                    )
+                    Text("All", fontSize = 12.sp)
+                    /*
                     Icon(
                         imageVector = Icons.Filled.Crop169,
                         contentDescription = "color",
@@ -123,7 +163,19 @@ fun CalendarScreen(
                             .width(30.dp)
                             .height(30.dp)
                     )
+                    */
+                    Checkbox(
+                        checked = joinedIsChecked.value,
+                        onCheckedChange = {
+                            joinedIsChecked.value = it
+
+                        },
+                        colors = CheckboxDefaults.colors(MaterialTheme.colorScheme.secondary),
+                        enabled = (!allIsChecked.value)
+
+                    )
                     Text("Joined", fontSize = 12.sp)
+                    /*
                     Icon(
                         imageVector = Icons.Filled.Crop169,
                         contentDescription = "color",
@@ -132,10 +184,17 @@ fun CalendarScreen(
                             .width(30.dp)
                             .height(30.dp)
                     )
+                    */
+                    Checkbox(
+                        checked = likedIsChecked.value,
+                        onCheckedChange = { likedIsChecked.value = it },
+                        colors = CheckboxDefaults.colors(MaterialTheme.colorScheme.tertiary),
+                        enabled = (!allIsChecked.value)
+                    )
                     Text("Liked", fontSize = 12.sp)
                 }
 
-                if (filteredEvents.isNotEmpty() && listOfUri.isNotEmpty()) {
+                if (eventsFromSelectedDay.isNotEmpty() && listOfUri.isNotEmpty()) {
                     LazyColumn(modifier = Modifier
                         .fillMaxHeight()
                         .padding(horizontal = 2.dp, vertical = 5.dp),
@@ -157,6 +216,7 @@ fun CalendarScreen(
         }
     }
 }
+
 
 @Composable
 fun Day(

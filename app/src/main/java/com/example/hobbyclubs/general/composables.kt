@@ -402,6 +402,9 @@ fun EventTile(
                         if (!joined) {
                             joinEvent(event)
                         }
+                        if (joined) {
+                            leaveEvent(event)
+                        }
                     }
                     if (!joined) {
                         LikeEventButton(isLiked = liked) {
@@ -492,6 +495,40 @@ fun JoinEventButton(modifier: Modifier = Modifier, isJoined: Boolean, onEventPag
             )
             Text(
                 text = text,
+                color = Color.White,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
+    }
+}
+
+@Composable
+fun ManageEventButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Card(
+        shape = RoundedCornerShape(100.dp),
+        colors = CardDefaults.cardColors(containerColor = md_theme_light_surfaceTint),
+        modifier = modifier
+            .clickable { onClick() }
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .padding(vertical = 12.dp)
+                .padding(horizontal = 16.dp)
+                .padding(end = 4.dp)
+        ) {
+            Icon(
+                Icons.Outlined.Settings,
+                "Settings icon",
+                tint = Color.White,
+                modifier = Modifier
+                    .padding(end = 8.dp)
+                    .width(18.dp)
+            )
+            Text(
+                text = "Manage",
                 color = Color.White,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium

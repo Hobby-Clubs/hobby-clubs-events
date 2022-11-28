@@ -47,6 +47,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.compose.nokiaLighterBlue
 import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.Event
+import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.general.CustomAlertDialog
 import com.example.hobbyclubs.general.CustomOutlinedTextField
 import com.example.hobbyclubs.navigation.NavRoutes
@@ -58,7 +59,6 @@ import com.google.accompanist.pager.rememberPagerState
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.time.LocalDate
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -724,6 +724,7 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
     val eventParticipantLimit by vm.eventParticipantLimit.observeAsState(null)
     val linkArray by vm.givenLinksLiveData.observeAsState(null)
     val currentUser by vm.currentUser.observeAsState()
+    val currentlySelectedClub by vm.currentlySelectedClub.observeAsState(null)
 
     val selectedImages by vm.imagesAsBitmap.observeAsState()
 
@@ -838,12 +839,21 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
                             return@CustomButton
                         } else {
                             val timestamp = Timestamp(selectedDate!!)
+                            val listWithYouAsAdminAndParticipant = mutableListOf<String>()
+                            FirebaseHelper.uid?.let {
+                                listWithYouAsAdminAndParticipant.add(it)
+                            }
+                            val privacy = currentlySelectedClub?.isPrivate ?: false
+
                             val event = Event(
                                 clubId = selectedClub!!,
                                 name = eventName!!.text,
                                 description = eventDescription!!.text,
                                 date = timestamp,
                                 address = eventLocation!!.text,
+                                admins = listWithYouAsAdminAndParticipant,
+                                isPrivate = privacy,
+                                participants = listWithYouAsAdminAndParticipant,
                                 participantLimit = if (eventParticipantLimit == null || eventParticipantLimit!!.text.isBlank()) -1 else eventParticipantLimit!!.text.toInt(),
                                 linkArray = if (linkArray == null || linkArray!!.isEmpty()) mapOf() else linkArray!!,
                                 contactInfoName = contactInfoName!!.text,

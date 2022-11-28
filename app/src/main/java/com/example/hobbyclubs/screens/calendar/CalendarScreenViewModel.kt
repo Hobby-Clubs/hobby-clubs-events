@@ -18,6 +18,7 @@ class CalendarScreenViewModel() : ViewModel() {
     val allEvents = MutableLiveData<List<Event>>()
     val filteredEvents = MutableLiveData<List<Event>>()
     val selection = MutableLiveData<List<LocalDate>>()
+
     val listOfUri = MutableLiveData<List<Pair<String, Uri?>>>()
 
     init {

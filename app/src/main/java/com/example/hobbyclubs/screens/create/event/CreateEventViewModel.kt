@@ -37,6 +37,8 @@ class CreateEventViewModel : ViewModel() {
     val selectedImages = MutableLiveData<MutableList<Uri>>()
     val joinedClubs = MutableLiveData<List<Club>>()
 
+    val currentlySelectedClub = MutableLiveData<Club>()
+
     init {
         getJoinedClubs()
     }
@@ -49,6 +51,17 @@ class CreateEventViewModel : ViewModel() {
     }
     fun updateSelectedClub(newVal: String) {
         selectedClub.value = newVal
+        getSelectedClub(newVal)
+    }
+    fun getSelectedClub(clubId: String) {
+        firebase.getClub(uid = clubId).get()
+            .addOnSuccessListener { data ->
+                val fetchedClub = data.toObject(Club::class.java)
+                fetchedClub?.let { currentlySelectedClub.postValue(fetchedClub) }
+            }
+            .addOnFailureListener {
+                Log.e("FetchClub", "getClubFail: ", it)
+            }
     }
     fun updateSelectedDate(years: Int, month: Int, day: Int, hour: Int, minutes: Int) {
         selectedDate.value = Date(years, month, day, hour,minutes)
