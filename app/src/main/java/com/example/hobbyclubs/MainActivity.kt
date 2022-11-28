@@ -30,7 +30,7 @@ import com.example.hobbyclubs.screens.clubpage.ClubPageScreen
 import com.example.hobbyclubs.screens.clubs.ClubsScreen
 import com.example.hobbyclubs.screens.create.club.CreateClubScreen
 import com.example.hobbyclubs.screens.create.event.CreateEventScreen
-import com.example.hobbyclubs.screens.createnews.CreateNewsScreen
+import com.example.hobbyclubs.screens.create.news.CreateNewsScreen
 import com.example.hobbyclubs.screens.event.EventScreen
 import com.example.hobbyclubs.screens.eventparticipants.EventParticipantsScreen
 import com.example.hobbyclubs.screens.firstTime.FirstTimeScreen

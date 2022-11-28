@@ -229,7 +229,7 @@ fun MemberImage(uri: Uri?) {
             contentDescription = "avatar",
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize(),
-            error = painterResource(id = R.drawable.nokia_logo)
+            error = painterResource(id = R.drawable.ic_launcher)
         )
     }
 }

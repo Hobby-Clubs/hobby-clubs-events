@@ -299,6 +299,8 @@ fun DateSelector(vm: CreateEventViewModel) {
     val selectedHour = remember { mutableStateOf(0) }
     val selectedMinute = remember { mutableStateOf(0) }
 
+
+
     val datePickerDialog = DatePickerDialog(
         context,
         { _: DatePicker, mYear: Int, mMonth: Int, dayOfMonth: Int ->
@@ -308,6 +310,8 @@ fun DateSelector(vm: CreateEventViewModel) {
         },
         year, month, day,
     )
+    datePickerDialog.datePicker .minDate = calendar.timeInMillis
+
 
     val timePickerDialog = TimePickerDialog(
         context,
@@ -400,6 +404,9 @@ fun DateSelector(vm: CreateEventViewModel) {
 
 @Composable
 fun EventCreationPage1(vm: CreateEventViewModel) {
+    val context = LocalContext.current
+    val selectedClub by vm.selectedClub.observeAsState(null)
+    val selectedDate by vm.selectedDate.observeAsState(null)
     val focusManager = LocalFocusManager.current
     val screenHeight = LocalConfiguration.current.screenHeightDp
     val eventName by vm.eventName.observeAsState(null)
@@ -407,7 +414,6 @@ fun EventCreationPage1(vm: CreateEventViewModel) {
     val eventLocation by vm.eventLocation.observeAsState(null)
     val eventParticipantLimit by vm.eventParticipantLimit.observeAsState(null)
     val joinedClubs by vm.joinedClubs.observeAsState(listOf())
-
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
             Text(
@@ -424,8 +430,9 @@ fun EventCreationPage1(vm: CreateEventViewModel) {
                 onValueChange = { vm.updateEventName(it) },
                 focusManager = focusManager,
                 keyboardType = KeyboardType.Text,
-                label = "Name",
-                placeholder = "Give your event a name",
+                label = "Name *",
+                placeholder = "Give your event a name *",
+                singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
             )
@@ -434,8 +441,8 @@ fun EventCreationPage1(vm: CreateEventViewModel) {
                 onValueChange = { vm.updateEventDescription(it) },
                 focusManager = focusManager,
                 keyboardType = KeyboardType.Text,
-                label = "Description",
-                placeholder = "Describe your event",
+                label = "Description *",
+                placeholder = "Describe your event *",
                 modifier = Modifier
                     .height((screenHeight * 0.2).dp)
                     .fillMaxWidth()
@@ -445,8 +452,9 @@ fun EventCreationPage1(vm: CreateEventViewModel) {
                 onValueChange = { vm.updateEventLocation(it) },
                 focusManager = focusManager,
                 keyboardType = KeyboardType.Text,
-                label = "Location",
-                placeholder = "Give the address of the event",
+                label = "Location *",
+                placeholder = "Give the address of the event *",
+                singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
             )
@@ -477,7 +485,23 @@ fun EventCreationPage1(vm: CreateEventViewModel) {
                 onClick4 = { vm.changePageTo(4) },
             )
             CustomButton(
-                onClick = { vm.changePageTo(2) },
+                onClick = {
+                if (
+                    selectedClub == null ||
+                    selectedDate == null ||
+                    eventName == null ||
+                    eventDescription == null ||
+                    eventLocation == null
+
+                ) {
+                    Toast.makeText(
+                        context,
+                        "Please fill in all the fields",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    vm.changePageTo(2)
+                } },
                 text = "Next",
                 modifier = Modifier
                     .fillMaxWidth()

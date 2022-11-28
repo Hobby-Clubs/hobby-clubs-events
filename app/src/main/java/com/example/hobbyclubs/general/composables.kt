@@ -17,10 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -378,21 +375,24 @@ fun CustomOutlinedTextField(
     focusManager: FocusManager,
     keyboardType: KeyboardType,
     label: String,
-    placeholder: String
-) {
+    singleLine : Boolean = false,
+    placeholder: String,
+    ) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         keyboardOptions = KeyboardOptions(
             imeAction = ImeAction.Done,
-            keyboardType = keyboardType
+            keyboardType = keyboardType,
+
         ),
         keyboardActions = KeyboardActions(
             onDone = { focusManager.clearFocus() }
         ),
         label = { Text(text = label) },
         placeholder = { Text(text = placeholder) },
-        modifier = modifier
+        singleLine = singleLine,
+        modifier = modifier,
     )
 }
 
@@ -429,7 +429,7 @@ fun EventTile(
                         .crossfade(true)
                         .build(),
                     contentDescription = "Tile background",
-                    error = painterResource(id = R.drawable.nokia_logo),
+                    error = painterResource(id = R.drawable.ic_launcher),
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxSize(),
@@ -704,7 +704,7 @@ fun SmallTileForClubManagement(
                     .build(),
                 contentDescription = "logo",
                 contentScale = ContentScale.Crop,
-                error = painterResource(id = R.drawable.nokia_logo)
+                error = painterResource(id = R.drawable.ic_launcher)
             )
             Column(
                 Modifier
@@ -813,7 +813,7 @@ fun SmallNewsTile(modifier: Modifier = Modifier, news: News, onClick: () -> Unit
                     .build(),
                 contentDescription = "logo",
                 contentScale = ContentScale.Crop,
-                error = painterResource(id = R.drawable.nokia_logo)
+                error = painterResource(id = R.drawable.ic_launcher)
             )
             Column(
                 Modifier

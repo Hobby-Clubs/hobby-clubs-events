@@ -1,6 +1,7 @@
 package com.example.hobbyclubs.screens.create.club
 
 import android.net.Uri
+import android.graphics.BitmapFactory
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -98,6 +99,8 @@ fun ClubCreationPage1(vm: CreateClubViewModel) {
     val screenHeight = LocalConfiguration.current.screenHeightDp
     val clubName by vm.clubName.observeAsState(null)
     val clubDescription by vm.clubDescription.observeAsState(null)
+    val context = LocalContext.current
+    val clubIsPrivate by vm.clubIsPrivate.observeAsState(false)
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -112,8 +115,9 @@ fun ClubCreationPage1(vm: CreateClubViewModel) {
                 onValueChange = { vm.updateEventName(it) },
                 focusManager = focusManager,
                 keyboardType = KeyboardType.Text,
-                label = "Name",
-                placeholder = "Give your club a name",
+                label = "Name *",
+                placeholder = "Give your club a name *",
+                singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
             )
@@ -122,8 +126,8 @@ fun ClubCreationPage1(vm: CreateClubViewModel) {
                 onValueChange = { vm.updateEventDescription(it) },
                 focusManager = focusManager,
                 keyboardType = KeyboardType.Text,
-                label = "Description",
-                placeholder = "Describe your club",
+                label = "Description *",
+                placeholder = "Describe your club *",
                 modifier = Modifier
                     .height((screenHeight * 0.3).dp)
                     .fillMaxWidth()
@@ -144,7 +148,20 @@ fun ClubCreationPage1(vm: CreateClubViewModel) {
                 onClick4 = { vm.changePageTo(4) },
             )
             CustomButton(
-                onClick = { vm.changePageTo(2) },
+                onClick = {
+                    if (
+                        clubName == null ||
+                        clubDescription == null ||
+                        clubIsPrivate == null
+                    ) {
+                        Toast.makeText(
+                            context,
+                            "Please fill in all the fields",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        vm.changePageTo(2)
+                    } },
                 text = "Next",
                 modifier = Modifier
                     .fillMaxWidth()
