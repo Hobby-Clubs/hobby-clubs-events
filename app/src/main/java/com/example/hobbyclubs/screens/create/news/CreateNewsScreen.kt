@@ -154,6 +154,7 @@ fun NewsCreationPage1(vm: CreateNewsViewModel) {
     val newsContent by vm.newsContent.observeAsState(null)
     val clubList by vm.clubsJoined.observeAsState(listOf())
     val selectedClub by vm.selectedClub.observeAsState(null)
+    val mMaxLength = 5
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -244,6 +245,11 @@ fun NewsCreationPage2(vm: CreateNewsViewModel, navController: NavController) {
                 )
                 CustomButton(
                     onClick = {
+                        if (headline == null || newsContent == null || selectedClub == null) {
+                            Toast.makeText(
+                                context, "Please fill in all the fields", Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
                             val news = News(
                                 clubId = selectedClub ?: "",
                                 headline = headline!!.text,
@@ -256,7 +262,8 @@ fun NewsCreationPage2(vm: CreateNewsViewModel, navController: NavController) {
                             }
                             Toast.makeText(context, "News created.", Toast.LENGTH_SHORT).show()
                             navController.navigate(NavRoutes.HomeScreen.route)
-                        },
+                        }
+                    },
                     text = "Create News",
                     modifier = Modifier
                         .height(60.dp)

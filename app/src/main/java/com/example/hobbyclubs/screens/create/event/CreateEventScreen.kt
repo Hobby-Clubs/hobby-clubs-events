@@ -844,7 +844,11 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
                 CustomButton(
                     onClick = {
                         if (
-
+                            selectedClub == null ||
+                            selectedDate == null ||
+                            eventName == null ||
+                            eventDescription == null ||
+                            eventLocation == null ||
                             contactInfoName == null ||
                             contactInfoEmail == null ||
                             contactInfoNumber == null
