@@ -583,7 +583,7 @@ fun ClubCreationPage4(vm: CreateClubViewModel, navController: NavController) {
                             val clubId = vm.addClub(club)
                             vm.storeBitmapsOnFirebase(
                                 listToStore = selectedImages?.toList() ?: listOf(),
-                                logo = selectedLogoAsBitmap ?: BitmapFactory.decodeResource(context.resources, R.drawable.nokia_logo),
+                                logo = selectedLogoAsBitmap ?: BitmapFactory.decodeResource(context.resources, R.drawable.ic_launcher),
                                 clubId = clubId
                             )
                             Toast.makeText(context, "Event created.", Toast.LENGTH_SHORT).show()

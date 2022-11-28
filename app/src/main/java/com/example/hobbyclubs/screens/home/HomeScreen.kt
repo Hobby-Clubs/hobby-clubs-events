@@ -1,7 +1,6 @@
 package com.example.hobbyclubs.screens.home
 
 import android.net.Uri
-import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -44,8 +43,6 @@ import com.example.hobbyclubs.api.*
 import com.example.hobbyclubs.general.*
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.clubs.ClubTile
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.SwipeRefreshState
 import java.text.SimpleDateFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -388,7 +385,7 @@ fun MyClubTile(
                     .data(picUri)
                     .crossfade(true)
                     .build(),
-                error = painterResource(id = R.drawable.nokia_logo),
+                error = painterResource(id = R.drawable.ic_launcher),
                 contentDescription = "banner",
                 contentScale = ContentScale.Crop
             )

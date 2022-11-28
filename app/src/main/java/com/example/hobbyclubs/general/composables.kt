@@ -384,7 +384,7 @@ fun EventTile(
                         .crossfade(true)
                         .build(),
                     contentDescription = "Tile background",
-                    error = painterResource(id = R.drawable.nokia_logo),
+                    error = painterResource(id = R.drawable.ic_launcher),
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxSize(),
@@ -589,7 +589,7 @@ fun SmallTileForClubManagement(
                     .build(),
                 contentDescription = "logo",
                 contentScale = ContentScale.Crop,
-                error = painterResource(id = R.drawable.nokia_logo)
+                error = painterResource(id = R.drawable.ic_launcher)
             )
             Column(
                 Modifier
@@ -692,7 +692,7 @@ fun SmallNewsTile(modifier: Modifier = Modifier, news: News, onClick: () -> Unit
                     .build(),
                 contentDescription = "logo",
                 contentScale = ContentScale.Crop,
-                error = painterResource(id = R.drawable.nokia_logo)
+                error = painterResource(id = R.drawable.ic_launcher)
             )
             Column(
                 Modifier

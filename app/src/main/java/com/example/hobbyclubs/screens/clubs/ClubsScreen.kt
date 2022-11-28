@@ -1,7 +1,6 @@
 package com.example.hobbyclubs.screens.clubs
 
 import android.net.Uri
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
@@ -13,7 +12,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,7 +37,6 @@ import com.example.hobbyclubs.general.MenuTopBar
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import com.google.firebase.storage.StorageReference
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -167,7 +164,7 @@ fun ClubTile(
                         .crossfade(true)
                         .build(),
                     contentDescription = "logo",
-                    error = painterResource(id = R.drawable.nokia_logo),
+                    error = painterResource(id = R.drawable.ic_launcher),
                     contentScale = ContentScale.Crop
                 )
                 Column(
@@ -185,7 +182,7 @@ fun ClubTile(
                     .crossfade(true)
                     .build(),
                 contentDescription = "banner",
-                error = painterResource(id = R.drawable.nokia_logo),
+                error = painterResource(id = R.drawable.ic_launcher),
                 contentScale = ContentScale.Crop
             )
         }
