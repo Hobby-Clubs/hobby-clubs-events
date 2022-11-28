@@ -51,11 +51,11 @@ fun CreateNewsScreen(
 ) {
     val currentNewsCreationPage by vm.currentCreationProgressPage.observeAsState(1)
     var showLeaveDialog by remember { mutableStateOf(false) }
-    Box {
+    Scaffold() {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 20.dp),
+                .padding(horizontal = 20.dp, vertical = it.calculateBottomPadding()),
             horizontalAlignment = Alignment.Start,
         ) {
             Spacer(modifier = Modifier.height(75.dp))

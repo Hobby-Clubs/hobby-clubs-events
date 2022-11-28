@@ -44,11 +44,11 @@ fun NewsScreen(
             vm.getAllNews()
         }
     }
-    Box {
+    Scaffold {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 10.dp)
+                .padding(it)
         ) {
             CenterAlignedTopAppBar(
                 title = { Text(text = "News") },

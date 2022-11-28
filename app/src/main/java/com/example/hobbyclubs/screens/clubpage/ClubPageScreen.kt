@@ -62,28 +62,29 @@ fun ClubPageScreen(
         vm.getClubEvents(clubId)
         vm.getAllNews(clubId)
     }
-    club?.let {
-        Box() {
+    club?.let { club ->
+        Scaffold {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
+                    .verticalScroll(rememberScrollState())
+                    .padding(it),
                 horizontalAlignment = Alignment.Start,
             ) {
-                ClubPageHeader(navController, context, it, vm)
+                ClubPageHeader(navController, context, club, vm)
                 DividerLine()
-                ClubDescription(it.description)
+                ClubDescription(club.description)
                 DividerLine()
                 ClubSchedule(vm, navController, imageVm)
                 DividerLine()
                 ClubNews(vm, navController)
                 DividerLine()
-                ClubLinks(context, linkList = it.socials)
+                ClubLinks(context, linkList = club.socials)
                 DividerLine()
                 ClubContactInfo(
-                    name = it.contactPerson,
-                    phoneNumber = it.contactPhone,
-                    email = it.contactEmail
+                    name = club.contactPerson,
+                    phoneNumber = club.contactPhone,
+                    email = club.contactEmail
                 )
             }
             TopAppBar(
@@ -94,12 +95,13 @@ fun ClubPageScreen(
                         Icon(
                             Icons.Outlined.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color.Black
+                            tint = Color.White
                         )
                     }
                 }
             )
         }
+
     }
 }
 

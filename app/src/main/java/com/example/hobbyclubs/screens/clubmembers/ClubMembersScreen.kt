@@ -50,12 +50,12 @@ fun ClubMembersScreen(
     LaunchedEffect(Unit) {
         vm.getClub(clubId)
     }
-    club?.let {
-        Box() {
+    club?.let { club ->
+        Scaffold() {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 20.dp),
+                    .padding(vertical = it.calculateBottomPadding(), horizontal = 20.dp),
                 horizontalAlignment = Alignment.Start,
             ) {
                 Text(
@@ -64,10 +64,10 @@ fun ClubMembersScreen(
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(top = 75.dp, bottom = 20.dp),
                 )
-                ListOfClubMembers(listOfMembers, vm, it)
+                ListOfClubMembers(listOfMembers, vm, club)
             }
             CenterAlignedTopAppBar(
-                title = { Text(text = it.name, fontSize = 16.sp) },
+                title = { Text(text = club.name, fontSize = 16.sp) },
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {

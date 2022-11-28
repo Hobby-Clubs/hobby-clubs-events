@@ -58,23 +58,24 @@ fun EventScreen(
         vm.getEvent(eventId)
     }
 
-    event?.let {
-        Box() {
+    event?.let { event ->
+        Scaffold() { padding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
+                    .verticalScroll(rememberScrollState())
+                    .padding(padding),
                 horizontalAlignment = Alignment.Start,
             ) {
-                EventHeader(navController, context, it, isAdmin, vm)
+                EventHeader(navController, context, event, isAdmin, vm)
                 DividerLine()
-                EventDescription(it.description)
+                EventDescription(event.description)
                 DividerLine()
-                EventLocation(it.address)
+                EventLocation(event.address)
                 DividerLine()
-                EventLinks(context, it.linkArray)
+                EventLinks(context, event.linkArray)
                 DividerLine()
-                EventContactInfo(it.contactInfoName, it.contactInfoNumber, it.contactInfoEmail)
+                EventContactInfo(event.contactInfoName, event.contactInfoNumber, event.contactInfoEmail)
             }
             TopAppBar(
                 title = {},
@@ -84,7 +85,7 @@ fun EventScreen(
                         Icon(
                             Icons.Outlined.ArrowBack,
                             contentDescription = "Back",
-                            tint = colorScheme.onSurfaceVariant
+                            tint = Color.White
                         )
                     }
                 }

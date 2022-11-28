@@ -34,12 +34,12 @@ fun ClubAllNewsScreen(
         vm.getClub(clubId)
         vm.getAllNews(clubId)
     }
-    club?.let {
-        Box() {
+    club?.let { club ->
+        Scaffold() {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 20.dp),
+                    .padding(horizontal = it.calculateBottomPadding(), vertical = 20.dp),
                 horizontalAlignment = Alignment.Start,
             ) {
                 Text(
@@ -53,7 +53,7 @@ fun ClubAllNewsScreen(
                 }
             }
             CenterAlignedTopAppBar(
-                title = { Text(text = it.name, fontSize = 16.sp) },
+                title = { Text(text = club.name, fontSize = 16.sp) },
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
