@@ -18,14 +18,15 @@ class HomeScreenViewModel : ViewModel() {
     val isFirstTimeUser = MutableLiveData<Boolean>()
     val allClubs = MutableLiveData<List<Club>>()
     val myClubs = Transformations.map(allClubs) { clubs ->
-        clubs.filter { it.members.contains(FirebaseHelper.uid) }
+        clubs.filterIndexed { index, club -> club.members.contains(FirebaseHelper.uid) && index < 3 }
     }
     val allEvents = MutableLiveData<List<Event>>()
     val myEvents = Transformations.map(allEvents) { events ->
         events
-            .filter { event ->
-                event.participants.contains(FirebaseHelper.uid)
-                        || event.likers.contains(FirebaseHelper.uid)
+            .filterIndexed { index, event ->
+                (event.participants.contains(FirebaseHelper.uid)
+                        || event.likers.contains(FirebaseHelper.uid))
+                        && index < 3
             }
             .sortedBy { it.date }
     }
@@ -33,7 +34,7 @@ class HomeScreenViewModel : ViewModel() {
     val allNews = MutableLiveData<List<News>>()
     val myNews = Transformations.map(allNews) { news ->
         myClubs.value?.let { clubList ->
-            news.filter { clubList.map { club -> club.ref }.contains(it.clubId) }
+            news.filterIndexed { index, singleNews -> clubList.map { club -> club.ref }.contains(singleNews.clubId) }
         }
     }
 
