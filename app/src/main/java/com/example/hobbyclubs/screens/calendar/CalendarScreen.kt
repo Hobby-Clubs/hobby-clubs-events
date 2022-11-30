@@ -76,11 +76,15 @@ fun CalendarScreen(
                 eventsFromSelectedDay
             } else if (suggestedIsChecked.value && joinedIsChecked.value) {
                 eventsFromSelectedDay.filter { event ->
-                    event.participants.contains(FirebaseHelper.uid) || !event.likers.contains(FirebaseHelper.uid)
+                    event.participants.contains(FirebaseHelper.uid) || !event.likers.contains(
+                        FirebaseHelper.uid
+                    )
                 }
             } else if (suggestedIsChecked.value && likedIsChecked.value) {
-                eventsFromSelectedDay.filterNot { event ->
-                    event.participants.contains(FirebaseHelper.uid) || !event.likers.contains(FirebaseHelper.uid)
+                eventsFromSelectedDay.filter { event ->
+                    !event.participants.contains(FirebaseHelper.uid) || (event.likers.contains(
+                        FirebaseHelper.uid
+                    ) && !event.participants.contains(FirebaseHelper.uid))
                 }
             } else if (joinedIsChecked.value && likedIsChecked.value) {
                 eventsFromSelectedDay.filter { event ->
@@ -89,8 +93,10 @@ fun CalendarScreen(
                     )
                 }
             } else if (suggestedIsChecked.value) {
-                eventsFromSelectedDay.filterNot { event ->
-                    event.participants.contains(FirebaseHelper.uid)
+                eventsFromSelectedDay.filter { event ->
+                    !event.participants.contains(FirebaseHelper.uid) && !event.likers.contains(
+                        FirebaseHelper.uid
+                    )
                 }
             } else if (joinedIsChecked.value) {
                 eventsFromSelectedDay.filter { event ->
@@ -98,7 +104,9 @@ fun CalendarScreen(
                 }
             } else if (likedIsChecked.value) {
                 eventsFromSelectedDay.filter { event ->
-                    event.likers.contains(FirebaseHelper.uid) && !event.participants.contains(FirebaseHelper.uid)
+                    event.likers.contains(FirebaseHelper.uid) && !event.participants.contains(
+                        FirebaseHelper.uid
+                    )
                 }
             } else {
                 listOf()
@@ -161,7 +169,9 @@ fun CalendarScreen(
                                 (dateTimeComparator.compare(
                                     it.date.toDate(),
                                     dayState.date.toDate()
-                                )) == 0 && it.likers.contains(FirebaseHelper.uid) && !it.participants.contains(FirebaseHelper.uid)
+                                )) == 0 && it.likers.contains(FirebaseHelper.uid) && !it.participants.contains(
+                                    FirebaseHelper.uid
+                                )
                                         && likedIsChecked.value
                             },
                         )
