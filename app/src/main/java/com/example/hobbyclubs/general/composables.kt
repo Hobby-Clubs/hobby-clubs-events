@@ -42,7 +42,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.getSystemService
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -152,6 +151,9 @@ fun DrawerScreen(
     content: @Composable () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
+    val selectedItem by remember {
+        mutableStateOf(0)
+    }
     ModalNavigationDrawer(
         modifier = Modifier.fillMaxSize(),
         drawerState = drawerState,
@@ -169,7 +171,7 @@ fun DrawerScreen(
         }) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
-            bottomBar = { BottomBar(navController) },
+            bottomBar = { BottomBar(navController = navController) },
             topBar = { topBar(drawerState) },
             floatingActionButton = { fab() }
         ) { pad ->
@@ -375,9 +377,9 @@ fun CustomOutlinedTextField(
     focusManager: FocusManager,
     keyboardType: KeyboardType,
     label: String,
-    singleLine : Boolean = false,
+    singleLine: Boolean = false,
     placeholder: String,
-    ) {
+) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
@@ -385,7 +387,7 @@ fun CustomOutlinedTextField(
             imeAction = ImeAction.Done,
             keyboardType = keyboardType,
 
-        ),
+            ),
         keyboardActions = KeyboardActions(
             onDone = { focusManager.clearFocus() }
         ),
