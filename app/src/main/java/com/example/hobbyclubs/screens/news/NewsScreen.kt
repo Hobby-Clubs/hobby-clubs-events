@@ -1,6 +1,5 @@
 package com.example.hobbyclubs.screens.news
 
-import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -26,10 +25,7 @@ import coil.compose.AsyncImage
 import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.News
-import com.example.hobbyclubs.general.ImageViewModel
 import com.example.hobbyclubs.navigation.NavRoutes
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -38,7 +34,6 @@ import java.util.*
 fun NewsScreen(
     navController: NavController,
     vm: NewsViewModel = viewModel(),
-    imageVm: ImageViewModel = viewModel()
 ) {
     val allNews = vm.listOfNews.observeAsState(listOf())
     LaunchedEffect(Unit) {
@@ -61,7 +56,7 @@ fun NewsScreen(
                 }
             )
             if (allNews.value.isNotEmpty()) {
-                Dashboard(newsList = allNews.value, navController, imageVm)
+                Dashboard(newsList = allNews.value, navController)
             }
 
         }
@@ -69,29 +64,19 @@ fun NewsScreen(
 }
 
 @Composable
-fun Dashboard(newsList: List<News>, navController: NavController, imageVm: ImageViewModel) {
-    val newsUris by imageVm.newsBannerUris.observeAsState()
-    LaunchedEffect(newsList) {
-        if (newsList.isNotEmpty()){
-            imageVm.getNewsUris(listOfNews = newsList, isSmallTile = false)
-        }
-    }
+fun Dashboard(newsList: List<News>, navController: NavController) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(1.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        newsUris?.let { newsUris ->
-            items(newsList) { singleNews ->
-                val uri = newsUris.find { it.first == singleNews.clubId }?.second
-                ImageCard(
-                    news = singleNews,
-                    vm = NewsViewModel(),
-                    picUri = uri
-                ) {
-                    navController.navigate(NavRoutes.SingleNewsScreen.route + "/${singleNews.id}")
-                }
+        items(newsList) { singleNews ->
+            ImageCard(
+                news = singleNews,
+                vm = NewsViewModel(),
+            ) {
+                navController.navigate(NavRoutes.SingleNewsScreen.route + "/${singleNews.id}")
             }
         }
     }
@@ -101,7 +86,6 @@ fun Dashboard(newsList: List<News>, navController: NavController, imageVm: Image
 fun ImageCard(
     news: News,
     vm: NewsViewModel,
-    picUri: Uri?,
     onClick: () -> Unit
 ) {
     var club: Club? by remember { mutableStateOf(null) }
@@ -132,7 +116,7 @@ fun ImageCard(
                     .fillMaxSize(),
             ) {
                 AsyncImage(
-                    model = picUri,
+                    model = news.newsImageUri,
                     contentDescription = "news image",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier

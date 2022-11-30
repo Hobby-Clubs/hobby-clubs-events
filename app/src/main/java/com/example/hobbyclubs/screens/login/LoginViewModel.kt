@@ -1,6 +1,7 @@
 package com.example.hobbyclubs.screens.login
 
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.hobbyclubs.api.CollectionName
@@ -80,4 +81,15 @@ class LoginViewModel : ViewModel() {
 
     fun addProfilePic(uri: Uri, uid: String) =
         FirebaseHelper.addPic(uri, "${CollectionName.users}/$uid")
+            .addOnSuccessListener {
+                it.storage.downloadUrl.addOnSuccessListener { downloadUrl ->
+                    val changeMap = mapOf(
+                        Pair("profilePicUri", downloadUrl)
+                    )
+                    FirebaseHelper.updateUser(uid, changeMap)
+                }
+            }
+            .addOnFailureListener {
+                Log.e(FirebaseHelper.TAG, "addPic: ", it)
+            }
 }

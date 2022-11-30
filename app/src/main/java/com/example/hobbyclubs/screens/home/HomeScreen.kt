@@ -1,6 +1,5 @@
 package com.example.hobbyclubs.screens.home
 
-import android.net.Uri
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
@@ -46,13 +45,8 @@ import java.text.SimpleDateFormat
 fun HomeScreen(
     navController: NavController,
     vm: HomeScreenViewModel = viewModel(),
-    imageVm: ImageViewModel = viewModel()
 ) {
-    val context = LocalContext.current
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val allClubs by vm.allClubs.observeAsState(listOf())
-    val allEvents by vm.allEvents.observeAsState(listOf())
-    val allNews by vm.allNews.observeAsState(listOf())
     var fabIsExpanded by remember { mutableStateOf(false) }
     var showSearch by remember { mutableStateOf(false) }
     val searchInput by vm.searchInput.observeAsState("")
@@ -64,23 +58,6 @@ fun HomeScreen(
             if (it) {
                 navController.navigate(NavRoutes.FirstTimeScreen.route)
             }
-        }
-    }
-
-    LaunchedEffect(allClubs) {
-        if (allClubs.isNotEmpty()) {
-            imageVm.getClubUris(allClubs)
-        }
-    }
-
-    LaunchedEffect(allEvents) {
-        if (allEvents.isNotEmpty()) {
-            imageVm.getEventUris(allEvents)
-        }
-    }
-    LaunchedEffect(allNews) {
-        if (allNews.isNotEmpty()) {
-            imageVm.getNewsUris(allNews, isSmallTile = true)
         }
     }
 
@@ -129,17 +106,16 @@ fun HomeScreen(
         if (!showSearch) {
             MainScreenContent(
                 vm = vm,
-                imageVm = imageVm,
                 navController = navController,
             )
         } else {
-            SearchUI(vm = vm, navController = navController, imageVm)
+            SearchUI(vm = vm, navController = navController)
         }
     }
 }
 
 @Composable
-fun SearchUI(vm: HomeScreenViewModel, navController: NavController, imageVm: ImageViewModel) {
+fun SearchUI(vm: HomeScreenViewModel, navController: NavController) {
     val allClubs by vm.allClubs.observeAsState(listOf())
     val searchInput by vm.searchInput.observeAsState("")
     val allEvents by vm.allEvents.observeAsState(listOf())
@@ -176,10 +152,6 @@ fun SearchUI(vm: HomeScreenViewModel, navController: NavController, imageVm: Ima
         }
     }
 
-    val eventBannerUris by imageVm.eventBannerUris.observeAsState(listOf())
-    val clubLogoUris by imageVm.clubLogoUris.observeAsState(listOf())
-    val clubBannerUris by imageVm.clubBannerUris.observeAsState(listOf())
-
     var clubsExpanded by remember { mutableStateOf(true) }
     var eventsExpanded by remember { mutableStateOf(true) }
 
@@ -211,17 +183,9 @@ fun SearchUI(vm: HomeScreenViewModel, navController: NavController, imageVm: Ima
             }
         }
         if (clubsExpanded) {
-            if (clubBannerUris.isNotEmpty() && clubLogoUris.isNotEmpty()) {
-                items(clubsFiltered) { club ->
-                    val logoUri = clubLogoUris.find { it.first == club.ref }?.second
-                    val bannerUri = clubBannerUris.find { it.first == club.ref }?.second
-                    ClubTile(
-                        club = club,
-                        logoUri = logoUri,
-                        bannerUri = bannerUri
-                    ) {
-                        navController.navigate(NavRoutes.ClubPageScreen.route + "/${club.ref}")
-                    }
+            items(clubsFiltered) { club ->
+                ClubTile(club = club) {
+                    navController.navigate(NavRoutes.ClubPageScreen.route + "/${club.ref}")
                 }
             }
         }
@@ -247,12 +211,9 @@ fun SearchUI(vm: HomeScreenViewModel, navController: NavController, imageVm: Ima
             }
         }
         if (eventsExpanded) {
-            if (eventBannerUris.isNotEmpty()) {
-                items(eventsFiltered) { event ->
-                    val picUri = eventBannerUris.find { it.first == event.id }?.second
-                    EventTile(event = event, picUri = picUri) {
-                        navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
-                    }
+            items(eventsFiltered) { event ->
+                EventTile(event = event) {
+                    navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
                 }
             }
         }
@@ -266,37 +227,11 @@ fun SearchUI(vm: HomeScreenViewModel, navController: NavController, imageVm: Ima
 @Composable
 fun MainScreenContent(
     vm: HomeScreenViewModel,
-    imageVm: ImageViewModel,
     navController: NavController,
 ) {
     val myClubs by vm.myClubs.observeAsState(listOf())
     val myEvents by vm.myEvents.observeAsState(listOf())
     val myNews by vm.myNews.observeAsState(listOf())
-
-    val newsUris by imageVm.newsBannerUris.observeAsState()
-    val myNewsUris by remember {
-        derivedStateOf {
-            newsUris?.let {
-                it.filter { pair -> myClubs.map { club -> club.ref }.contains(pair.first) }
-            }
-        }
-    }
-    val clubUris by imageVm.clubBannerUris.observeAsState()
-    val myClubsUris by remember {
-        derivedStateOf {
-            clubUris?.let {
-                it.filter { pair -> myClubs.map { club -> club.ref }.contains(pair.first) }
-            }
-        }
-    }
-    val eventUris by imageVm.eventBannerUris.observeAsState()
-    val myEventsUris by remember {
-        derivedStateOf {
-            eventUris?.let {
-                it.filter { pair -> myEvents.map { event -> event.id }.contains(pair.first) }
-            }
-        }
-    }
 
     LazyColumn(
         modifier = Modifier
@@ -304,47 +239,43 @@ fun MainScreenContent(
             .padding(horizontal = 8.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+//        item {
+//            CustomButton(
+//                onClick = {
+//                          vm.updateExisting()
+//                },
+//                text = "Update"
+//            )
+//        }
         stickyHeader {
             LazyColumnHeader(text = "My Clubs")
         }
-        clubUris?.let { clubUris ->
-            if (myClubsUris?.size == myClubs.size) {
-                items(myClubs) { club ->
-                    val uri = clubUris.find { it.first == club.ref }?.second
-                    MyClubTile(
-                        club = club,
-                        vm = vm,
-                        picUri = uri,
-                        onClickNews = {
+        items(myClubs.take(5)) { club ->
+            MyClubTile(
+                club = club,
+                vm = vm,
+                onClickNews = {
 //                        navController.navigate(NavRoutes.ClubAllNewsScreen.route + "/${it.ref}")
-                        },
-                        onClickUpcoming = {
-                            navController.navigate(NavRoutes.EventScreen.route + "/${it}")
-                        },
-                        onClick = {
-                            navController.navigate(NavRoutes.ClubPageScreen.route + "/${club.ref}")
-                        }
-                    )
+                },
+                onClickUpcoming = {
+                    navController.navigate(NavRoutes.EventScreen.route + "/${it}")
+                },
+                onClick = {
+                    navController.navigate(NavRoutes.ClubPageScreen.route + "/${club.ref}")
                 }
-            }
+            )
         }
 
         stickyHeader {
             LazyColumnHeader(text = "My Events")
         }
-        eventUris?.let { eventUris ->
-            if (myEventsUris?.size == myEvents.size) {
-                items(myEvents) { event ->
-                    val uri = eventUris.find { it.first == event.id }?.second
-                    EventTile(
-                        event = event,
-                        picUri = uri,
-                        onClick = {
-                            navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
-                        }
-                    )
+        items(myEvents.take(5)) { event ->
+            EventTile(
+                event = event,
+                onClick = {
+                    navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
                 }
-            }
+            )
         }
 
         stickyHeader {
@@ -353,17 +284,11 @@ fun MainScreenContent(
                 text = "My News"
             )
         }
-        newsUris?.let { newsUris ->
-            if (myNewsUris?.size == myNews.size) {
-                items(myNews) { singleNews ->
-                    val uri = newsUris.find { it.first == singleNews.clubId }?.second
-                    SmallNewsTile(
-                        news = singleNews,
-                        picUri = uri,
-                    ) {
-                        navController.navigate(NavRoutes.SingleNewsScreen.route + "/${singleNews.id}")
-                    }
-                }
+        items(myNews.take(5)) { singleNews ->
+            SmallNewsTile(
+                news = singleNews,
+            ) {
+                navController.navigate(NavRoutes.SingleNewsScreen.route + "/${singleNews.id}")
             }
         }
 
@@ -377,7 +302,6 @@ fun MainScreenContent(
 fun MyClubTile(
     modifier: Modifier = Modifier,
     club: Club,
-    picUri: Uri?,
     vm: HomeScreenViewModel,
     onClick: () -> Unit,
     onClickNews: () -> Unit,
@@ -417,7 +341,7 @@ fun MyClubTile(
             AsyncImage(
                 modifier = Modifier.aspectRatio(0.75f),
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(picUri)
+                    .data(club.bannerUri)
                     .crossfade(true)
                     .build(),
                 error = painterResource(id = R.drawable.nokia_logo),

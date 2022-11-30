@@ -2,6 +2,7 @@ package com.example.hobbyclubs.screens.create.news
 
 import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Log
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -26,26 +27,55 @@ class CreateNewsViewModel : ViewModel() {
         getJoinedClubs()
     }
 
-    fun storeSelectedImage(uri: Uri?){
+    fun storeSelectedImage(uri: Uri?) {
         selectedImage.value = uri
     }
 
     fun changePageTo(page: Int) {
         currentCreationProgressPage.value = page
     }
+
     fun updateHeadline(newVal: TextFieldValue) {
         headline.value = newVal
     }
+
     fun updateNewsContent(newVal: TextFieldValue) {
         newsContent.value = newVal
     }
-    fun storeNewsImage(picUri: Uri, newsId: String){
+
+    fun storeNewsImage(picUri: Uri, newsId: String) {
         firebase.addPic(picUri, "${CollectionName.news}/$newsId/newsImage.jpg")
+            .addOnSuccessListener {
+                it.storage.downloadUrl.addOnSuccessListener { downloadUrl ->
+                    val changeMap = mapOf(
+                        Pair("newsImageUri", downloadUrl)
+                    )
+                    firebase.updateNewsDetails(newsId, changeMap)
+                }
+            }
+            .addOnFailureListener {
+                Log.e(FirebaseHelper.TAG, "addPic: ", it)
+            }
     }
+
+    fun updateSingleNewsWithClubImageUri(clubId: String, newsId: String) {
+        firebase.getClub(clubId).get()
+            .addOnSuccessListener {
+                val fetchedClub = it.toObject(Club::class.java)
+                fetchedClub?.let { club ->
+                    val changeMap = mapOf(
+                        Pair("clubImageUri", club.logoUri)
+                    )
+                    firebase.updateNewsDetails(newsId, changeMap)
+                }
+            }
+    }
+
     fun updateSelectedClub(newVal: String) {
         selectedClub.value = newVal
     }
-    fun getJoinedClubs(){
+
+    fun getJoinedClubs() {
         firebase.uid?.let {
             firebase.getAllClubs().whereArrayContains("members", it)
                 .get()
@@ -56,8 +86,8 @@ class CreateNewsViewModel : ViewModel() {
         }
     }
 
-    fun addNews(news: News)  : String{
-      return  firebase.addNews(news)
+    fun addNews(news: News): String {
+        return firebase.addNews(news)
     }
 }
 

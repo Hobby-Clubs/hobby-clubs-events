@@ -9,10 +9,6 @@ import androidx.lifecycle.ViewModel
 import com.example.hobbyclubs.api.*
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.Query
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.withContext
-import okhttp3.internal.wait
 
 class ClubPageViewModel : ViewModel() {
     val firebase = FirebaseHelper
@@ -52,26 +48,16 @@ class ClubPageViewModel : ViewModel() {
             }
     }
 
-    fun getLogo(clubRef: String) =
-        FirebaseHelper.getFile("${CollectionName.clubs}/$clubRef/logo").downloadUrl
-            .addOnSuccessListener { logoUri.value = it }
-
-    fun getBanner(clubRef: String) =
-        FirebaseHelper.getFile("${CollectionName.clubs}/$clubRef/banner").downloadUrl
-            .addOnSuccessListener { bannerUri.value = it }
-
-    fun getEventBackground(eventId: String) =
-        FirebaseHelper.getFile("${CollectionName.events}/$eventId/0.jpg")
-
     fun getAllNews(clubId: String) {
-        firebase.getAllNewsOfClub(clubId).orderBy("date", Query.Direction.ASCENDING).get()
-            .addOnSuccessListener { data ->
+        firebase.getAllNewsOfClub(clubId).orderBy("date", Query.Direction.ASCENDING)
+            .addSnapshotListener { data, error ->
+                data ?: run {
+                    Log.e("getAllNews", "getAllNews: ", error)
+                    return@addSnapshotListener
+                }
                 val fetchedNews = data.toObjects(News::class.java)
                 Log.d("fetchNews", fetchedNews.toString())
                 listOfNews.value = fetchedNews
-            }
-            .addOnFailureListener { e ->
-                Log.e("fetchNews", "fetchNewsFail: ", e)
             }
     }
 
@@ -110,6 +96,19 @@ class ClubPageViewModel : ViewModel() {
 
     fun sendJoinClubRequest(clubId: String, request: Request) {
         firebase.addRequest(clubId = clubId, request = request)
+    }
+
+    fun updateUserWithProfilePicUri(userId: String) {
+        firebase.getUser(userId).get()
+            .addOnSuccessListener {
+                val fetchedUser = it.toObject(User::class.java)
+                fetchedUser?.let { user ->
+                    val changeMap = mapOf(
+                        Pair("profilePicUri", user.profilePicUri)
+                    )
+                    firebase.updateUser(user.uid, changeMap)
+                }
+            }
     }
 
     fun getAllJoinRequests(clubId: String) {

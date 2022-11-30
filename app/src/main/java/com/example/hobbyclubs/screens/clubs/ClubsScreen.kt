@@ -1,6 +1,5 @@
 package com.example.hobbyclubs.screens.clubs
 
-import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
@@ -11,7 +10,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme.colorScheme
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,7 +30,6 @@ import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.general.DrawerScreen
-import com.example.hobbyclubs.general.ImageViewModel
 import com.example.hobbyclubs.general.LazyColumnHeader
 import com.example.hobbyclubs.general.MenuTopBar
 import com.example.hobbyclubs.navigation.NavRoutes
@@ -42,20 +41,11 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 fun ClubsScreen(
     navController: NavController,
     vm: ClubsScreenViewModel = viewModel(),
-    imageVm: ImageViewModel = viewModel()
 ) {
     val suggestedClubs by vm.suggestedClubs.observeAsState(listOf())
     val allClubs by vm.clubs.observeAsState(listOf())
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val isRefreshing by vm.isRefreshing.observeAsState(false)
-    val clubLogoUris by imageVm.clubLogoUris.observeAsState(listOf())
-    val clubBannerUris by imageVm.clubBannerUris.observeAsState(listOf())
-
-    LaunchedEffect(allClubs) {
-        if (allClubs.isNotEmpty()) {
-            imageVm.getClubUris(allClubs)
-        }
-    }
 
     DrawerScreen(
         navController = navController,
@@ -75,33 +65,21 @@ fun ClubsScreen(
                 stickyHeader {
                     LazyColumnHeader(text = "Suggested Clubs")
                 }
-                if (clubBannerUris.isNotEmpty() && clubLogoUris.isNotEmpty()) {
-                    items(suggestedClubs) { club ->
-                        val logoUri = clubLogoUris.find { it.first == club.ref }?.second
-                        val bannerUri = clubBannerUris.find { it.first == club.ref }?.second
-                        ClubTile(
-                            club = club,
-                            logoUri = logoUri,
-                            bannerUri = bannerUri
-                        ) {
-                            navController.navigate(NavRoutes.ClubPageScreen.route + "/${club.ref}")
-                        }
+                items(suggestedClubs) { club ->
+                    ClubTile(
+                        club = club,
+                    ) {
+                        navController.navigate(NavRoutes.ClubPageScreen.route + "/${club.ref}")
                     }
                 }
                 stickyHeader {
                     LazyColumnHeader(text = "All Clubs")
                 }
-                if (clubBannerUris.isNotEmpty() && clubLogoUris.isNotEmpty()) {
-                    items(allClubs) { club ->
-                        val logoUri = clubLogoUris.find { it.first == club.ref }?.second
-                        val bannerUri = clubBannerUris.find { it.first == club.ref }?.second
-                        ClubTile(
-                            club = club,
-                            logoUri = logoUri,
-                            bannerUri = bannerUri
-                        ) {
-                            navController.navigate(NavRoutes.ClubPageScreen.route + "/${club.ref}")
-                        }
+                items(allClubs) { club ->
+                    ClubTile(
+                        club = club,
+                    ) {
+                        navController.navigate(NavRoutes.ClubPageScreen.route + "/${club.ref}")
                     }
                 }
                 item {
@@ -129,8 +107,6 @@ fun ClubsScreen(
 fun ClubTile(
     modifier: Modifier = Modifier,
     club: Club,
-    logoUri: Uri?,
-    bannerUri: Uri?,
     onClick: () -> Unit
 ) {
     val isJoined = club.members.contains(FirebaseHelper.uid)
@@ -159,7 +135,7 @@ fun ClubTile(
                         .aspectRatio(1f)
                         .clip(CircleShape),
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data(logoUri)
+                        .data(club.logoUri)
                         .crossfade(true)
                         .build(),
                     contentDescription = "logo",
@@ -177,7 +153,7 @@ fun ClubTile(
             AsyncImage(
                 modifier = Modifier.weight(1f),
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(bannerUri)
+                    .data(club.bannerUri)
                     .crossfade(true)
                     .build(),
                 contentDescription = "banner",

@@ -1,7 +1,5 @@
 package com.example.hobbyclubs.screens.clubmembers
 
-import android.net.Uri
-import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -16,7 +14,6 @@ import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,10 +29,8 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.Club
-import com.example.hobbyclubs.api.CollectionName
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.User
-import com.example.hobbyclubs.general.ImageViewModel
 import com.example.hobbyclubs.screens.clubmanagement.ClubManagementSectionTitle
 import com.example.hobbyclubs.screens.clubpage.CustomButton
 
@@ -44,7 +39,6 @@ import com.example.hobbyclubs.screens.clubpage.CustomButton
 fun ClubMembersScreen(
     navController: NavController,
     vm: ClubMembersViewModel = viewModel(),
-    imageVm: ImageViewModel = viewModel(),
     clubId: String
 ) {
     val club by vm.selectedClub.observeAsState(null)
@@ -66,7 +60,7 @@ fun ClubMembersScreen(
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(top = 75.dp, bottom = 20.dp),
                 )
-                ListOfClubMembers(listOfMembers, vm, it, imageVm)
+                ListOfClubMembers(listOfMembers, vm, it)
             }
             CenterAlignedTopAppBar(
                 title = { Text(text = it.name, fontSize = 16.sp) },
@@ -86,24 +80,14 @@ fun ListOfClubMembers(
     listOfMembers: List<User>,
     vm: ClubMembersViewModel,
     club: Club,
-    imageVm: ImageViewModel
 ) {
     var selectedMemberUid: String? by remember { mutableStateOf(null) }
     val listOfAdmins = listOfMembers.filter { club.admins.contains(it.uid) }
     val listOfNormalMembers = listOfMembers.filter { !club.admins.contains(it.uid) }
-    val profilePicUris by imageVm.clubMemberProfilePicUris.observeAsState(listOf())
-
-    if (listOfAdmins.isNotEmpty()) {
-        imageVm.getUserProfileUris(listOfAdmins)
-    }
-    if (listOfNormalMembers.isNotEmpty()) {
-        imageVm.getUserProfileUris(listOfMembers)
-    }
 
     LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         item { ClubManagementSectionTitle(text = "Admins") }
         items(listOfAdmins) { admin ->
-            val uri = profilePicUris.find { it.first == admin.uid }?.second
             MemberCard(
                 user = admin,
                 setSelectedMemberUid = {
@@ -116,12 +100,10 @@ fun ListOfClubMembers(
                 isSelected = selectedMemberUid == admin.uid,
                 vm = vm,
                 club = club,
-                picUri = uri
             )
         }
         item { ClubManagementSectionTitle(text = "Members") }
         items(listOfNormalMembers) { member ->
-            val uri = profilePicUris.find { it.first == member.uid }?.second
             MemberCard(
                 user = member,
                 setSelectedMemberUid = {
@@ -135,7 +117,6 @@ fun ListOfClubMembers(
                 isSelected = selectedMemberUid == member.uid,
                 vm = vm,
                 club = club,
-                picUri = uri
             )
         }
     }
@@ -151,9 +132,7 @@ fun MemberCard(
     isSelected: Boolean,
     vm: ClubMembersViewModel,
     club: Club,
-    picUri: Uri?
 ) {
-    val context = LocalContext.current
     var expandedState by remember { mutableStateOf(false) }
     val isPromotable = !club.admins.contains(user.uid)
     val isKickable = (user.uid != FirebaseHelper.uid && !club.admins.contains(user.uid))
@@ -180,7 +159,7 @@ fun MemberCard(
                     .padding(horizontal = 15.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                MemberImage(uri = picUri)
+                MemberImage(uri = user.profilePicUri)
                 Text(
                     text = "${user.fName} ${user.lName}", fontSize = 16.sp, modifier = Modifier
                         .weight(6f)
@@ -217,7 +196,7 @@ fun MemberCard(
 }
 
 @Composable
-fun MemberImage(uri: Uri?) {
+fun MemberImage(uri: String?) {
     Card(
         shape = CircleShape,
         border = BorderStroke(2.dp, Color.Black),

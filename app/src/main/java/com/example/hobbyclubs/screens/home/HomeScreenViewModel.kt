@@ -4,11 +4,8 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.hobbyclubs.api.*
 import com.google.firebase.Timestamp
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 class HomeScreenViewModel : ViewModel() {
     companion object {
@@ -18,15 +15,14 @@ class HomeScreenViewModel : ViewModel() {
     val isFirstTimeUser = MutableLiveData<Boolean>()
     val allClubs = MutableLiveData<List<Club>>()
     val myClubs = Transformations.map(allClubs) { clubs ->
-        clubs.filterIndexed { index, club -> club.members.contains(FirebaseHelper.uid) && index < 3 }
+        clubs.filter { club -> club.members.contains(FirebaseHelper.uid) }
     }
     val allEvents = MutableLiveData<List<Event>>()
     val myEvents = Transformations.map(allEvents) { events ->
         events
-            .filterIndexed { index, event ->
+            .filter { event ->
                 (event.participants.contains(FirebaseHelper.uid)
                         || event.likers.contains(FirebaseHelper.uid))
-                        && index < 3
             }
             .sortedBy { it.date }
     }
@@ -34,7 +30,9 @@ class HomeScreenViewModel : ViewModel() {
     val allNews = MutableLiveData<List<News>>()
     val myNews = Transformations.map(allNews) { news ->
         myClubs.value?.let { clubList ->
-            news.filterIndexed { index, singleNews -> clubList.map { club -> club.ref }.contains(singleNews.clubId) }
+            news.filter { singleNews ->
+                clubList.map { club -> club.ref }.contains(singleNews.clubId)
+            }
         }
     }
 
@@ -46,7 +44,30 @@ class HomeScreenViewModel : ViewModel() {
         fetchAllEvents()
         fetchAllNews()
     }
-
+//
+//    fun updateExisting() {
+//        FirebaseHelper.getAllNews().get()
+//            .addOnSuccessListener {
+//                val fetched = it.toObjects(News::class.java)
+//                fetched.forEach { news ->
+//                    update(news)
+//                }
+//            }
+//    }
+//    fun update(news: News) {
+//        FirebaseHelper.getClub(news.clubId).get()
+//            .addOnSuccessListener {
+//                FirebaseHelper.getFile("${CollectionName.clubs}/${news.clubId}/logo")
+//                    .downloadUrl
+//                    .addOnSuccessListener { uri ->
+//                        Log.d(TAG, "update: $uri")
+//                        val changeMap = mapOf(
+//                            Pair("clubImageUri", uri)
+//                        )
+//                        FirebaseHelper.updateNewsDetails(news.id, changeMap)
+//                    }
+//            }
+//    }
     fun checkFirstTime() {
         FirebaseHelper.uid?.let {
             FirebaseHelper.getUser(it)
@@ -145,9 +166,6 @@ class HomeScreenViewModel : ViewModel() {
                 allNews.value = fetchedNews
             }
     }
-
-    fun getLogo(clubId: String) = FirebaseHelper.getFile("${CollectionName.clubs}/$clubId/logo")
-    fun getBanner(clubId: String) = FirebaseHelper.getFile("${CollectionName.clubs}/$clubId/banner")
     fun updateInput(newVal: String) {
         searchInput.value = newVal
     }

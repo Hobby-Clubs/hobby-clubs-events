@@ -1,6 +1,5 @@
 package com.example.hobbyclubs.screens.clubmembers
 
-import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,7 +21,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.hobbyclubs.api.*
-import com.example.hobbyclubs.general.ImageViewModel
 import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.google.firebase.Timestamp
 
@@ -32,7 +30,6 @@ fun ClubMemberRequestScreen(
     navController: NavHostController,
     clubId: String,
     vm: ClubMembersViewModel = viewModel(),
-    imageVm: ImageViewModel = viewModel()
 ) {
     val club by vm.selectedClub.observeAsState(null)
     val listOfRequests by vm.listOfRequests.observeAsState(listOf())
@@ -54,7 +51,7 @@ fun ClubMemberRequestScreen(
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(top = 75.dp, bottom = 20.dp),
                 )
-                ListOfMemberRequests(listOfRequests, vm, it, imageVm = imageVm)
+                ListOfMemberRequests(listOfRequests, vm, it)
             }
             CenterAlignedTopAppBar(
                 title = { Text(text = it.name, fontSize = 16.sp) },
@@ -74,43 +71,33 @@ fun ListOfMemberRequests(
     listOfRequests: List<Request>,
     vm: ClubMembersViewModel,
     club: Club,
-    imageVm: ImageViewModel
 ) {
     val context = LocalContext.current
-    val profilePicUris by imageVm.clubMemberProfilePicUris.observeAsState(listOf())
-
-    if (listOfRequests.isNotEmpty()) {
-        imageVm.getUserProfileUrisFromRequest(listOfRequests)
-    }
 
     LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        if (profilePicUris.isNotEmpty()) {
-            items(listOfRequests) { request ->
-                val uri = profilePicUris.find { it.first == request.userId }?.second
-                RequestCard(
-                    request = request,
-                    onAccept = {
-                        val newListOfMembers = club.members.toMutableList()
-                        newListOfMembers.add(request.userId)
-                        val changeMap = mapOf(
-                            Pair("acceptedStatus", true),
-                            Pair("timeAccepted", Timestamp.now())
-                        )
-                        vm.acceptJoinRequest(
-                            clubId = club.ref,
-                            requestId = request.id,
-                            memberListWithNewUser = newListOfMembers,
-                            changeMapForRequest = changeMap
-                        )
-                        Toast.makeText(context, "Accepted", Toast.LENGTH_SHORT).show()
-                    },
-                    onReject = {
-                        vm.declineJoinRequest(club.ref, request.id)
-                        Toast.makeText(context, "Rejected", Toast.LENGTH_SHORT).show()
-                    },
-                    picUri = uri,
-                )
-            }
+        items(listOfRequests) { request ->
+            RequestCard(
+                request = request,
+                onAccept = {
+                    val newListOfMembers = club.members.toMutableList()
+                    newListOfMembers.add(request.userId)
+                    val changeMap = mapOf(
+                        Pair("acceptedStatus", true),
+                        Pair("timeAccepted", Timestamp.now())
+                    )
+                    vm.acceptJoinRequest(
+                        clubId = club.ref,
+                        requestId = request.id,
+                        memberListWithNewUser = newListOfMembers,
+                        changeMapForRequest = changeMap
+                    )
+                    Toast.makeText(context, "Accepted", Toast.LENGTH_SHORT).show()
+                },
+                onReject = {
+                    vm.declineJoinRequest(club.ref, request.id)
+                    Toast.makeText(context, "Rejected", Toast.LENGTH_SHORT).show()
+                },
+            )
         }
     }
 
@@ -121,7 +108,6 @@ fun RequestCard(
     request: Request,
     onAccept: () -> Unit,
     onReject: () -> Unit,
-    picUri: Uri?,
 ) {
     var user: User? by rememberSaveable { mutableStateOf(null) }
     LaunchedEffect(Unit) {
@@ -145,7 +131,7 @@ fun RequestCard(
                         .padding(horizontal = 15.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    MemberImage(uri = picUri)
+                    MemberImage(uri = it.profilePicUri)
                     Text(
                         text = "${it.fName} ${it.lName}", fontSize = 16.sp, modifier = Modifier
                             .weight(6f)

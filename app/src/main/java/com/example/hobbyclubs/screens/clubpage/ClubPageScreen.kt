@@ -24,6 +24,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -37,6 +38,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.compose.linkBlue
+import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.Request
@@ -50,21 +52,18 @@ import java.util.*
 fun ClubPageScreen(
     navController: NavController,
     vm: ClubPageViewModel = viewModel(),
-    imageVm: ImageViewModel = viewModel(),
     clubId: String
 ) {
     val context = LocalContext.current
-    val club by vm.selectedClub.observeAsState(null)
+    val selectedClub by vm.selectedClub.observeAsState(null)
 
     LaunchedEffect(Unit) {
         vm.getClub(clubId)
-        vm.getLogo(clubId)
-        vm.getBanner(clubId)
         vm.getClubEvents(clubId)
         vm.getAllNews(clubId)
         vm.getAllJoinRequests(clubId)
     }
-    club?.let { club ->
+    selectedClub?.let { club ->
         Scaffold {
             Column(
                 modifier = Modifier
@@ -77,9 +76,9 @@ fun ClubPageScreen(
                 DividerLine()
                 ClubDescription(club.description)
                 DividerLine()
-                ClubSchedule(vm, navController, imageVm)
+                ClubSchedule(vm, navController)
                 DividerLine()
-                ClubNews(vm, navController, imageVm)
+                ClubNews(vm, navController)
                 DividerLine()
                 ClubLinks(context, linkList = club.socials)
                 DividerLine()
@@ -116,8 +115,6 @@ fun ClubPageHeader(
 ) {
     val screenHeight = LocalConfiguration.current.screenHeightDp
     val screenWidth = LocalConfiguration.current.screenWidthDp
-    val bannerUri by vm.bannerUri.observeAsState()
-    val logoUri by vm.logoUri.observeAsState()
     val hasJoinedClub by vm.hasJoinedClub.observeAsState(false)
     val isAdmin by vm.isAdmin.observeAsState(false)
     val hasRequested by vm.hasRequested.observeAsState(false)
@@ -141,6 +138,7 @@ fun ClubPageHeader(
                             requestSent = Timestamp.now()
                         )
                         vm.sendJoinClubRequest(clubId = club.ref, request = request)
+                        vm.updateUserWithProfilePicUri(FirebaseHelper.uid!!)
                         Toast.makeText(context, "Request sent", Toast.LENGTH_LONG).show()
                         showJoinRequestDialog = false
                     } else {
@@ -157,7 +155,7 @@ fun ClubPageHeader(
             modifier = Modifier.fillMaxWidth(),
         ) {
             AsyncImage(
-                model = bannerUri,
+                model = club.bannerUri,
                 contentDescription = "background image",
                 modifier = Modifier
                     .fillMaxWidth()
@@ -198,7 +196,20 @@ fun ClubPageHeader(
             }
         }
         Row(modifier = Modifier.align(Alignment.CenterEnd)) {
-            ClubLogo(modifier = Modifier.size(150.dp), logoUri)
+            Card(
+                shape = CircleShape,
+                elevation = CardDefaults.cardElevation(4.0.dp),
+                colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
+                modifier = Modifier.size(150.dp)
+            ) {
+                AsyncImage(
+                    model = club.logoUri,
+                    contentDescription = "avatar",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize(),
+                    error = painterResource(id = R.drawable.nokia_logo)
+                )
+            }
             Spacer(modifier = Modifier.width(30.dp))
         }
         Row(
@@ -281,53 +292,37 @@ fun ClubDescription(desc: String) {
 }
 
 @Composable
-fun ClubSchedule(vm: ClubPageViewModel, navController: NavController, imageVm: ImageViewModel) {
+fun ClubSchedule(vm: ClubPageViewModel, navController: NavController) {
     val listOfEvents by vm.listOfEvents.observeAsState(listOf())
-    val eventUris by imageVm.eventBannerUris.observeAsState(listOf())
-
-    if (listOfEvents.isNotEmpty()) {
-        imageVm.getEventUris(listOfEvents)
-    }
 
     Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 20.dp)) {
         ClubSectionTitle(text = "Schedule")
         Text(text = "Upcoming events", fontSize = 14.sp)
         Spacer(modifier = Modifier.height(20.dp))
-        if (eventUris.isNotEmpty()) {
-            listOfEvents.forEach { event ->
-                val uri = eventUris.find { it.first == event.id }?.second
-                EventTile(
-                    event = event,
-                    picUri = uri,
-                    onClick = {
-                        navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
-                    },
-                )
-                Spacer(modifier = Modifier.height(20.dp))
-            }
+        listOfEvents.forEach { event ->
+            EventTile(
+                event = event,
+                onClick = {
+                    navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
+                },
+            )
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }
 
 
 @Composable
-fun ClubNews(vm: ClubPageViewModel, navController: NavController, imageVm: ImageViewModel) {
+fun ClubNews(vm: ClubPageViewModel, navController: NavController) {
     val listOfNews by vm.listOfNews.observeAsState(listOf())
-    val newsUri by imageVm.newsBannerUris.observeAsState(listOf())
-
-    if (listOfNews.isNotEmpty()) {
-        imageVm.getNewsUris(listOfNews, isSmallTile = true)
-    }
 
     Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 20.dp)) {
         ClubSectionTitle(text = "News")
         Spacer(modifier = Modifier.height(20.dp))
         listOfNews?.let { news ->
             news.forEach { singleNews ->
-                val uri = newsUri.find { it.first == singleNews.clubId }?.second
                 SmallNewsTile(
                     news = singleNews,
-                    picUri = uri,
                     onClick = {
                         navController.navigate(NavRoutes.SingleNewsScreen.route + "/${singleNews.id}")
                     }
@@ -450,25 +445,7 @@ fun JoinClubDialog(
                     CustomButton(onClick = { onConfirm() }, text = "Send")
                 }
             }
-
         }
-    }
-}
-
-@Composable
-fun ClubLogo(modifier: Modifier, uri: Uri?) {
-    Card(
-        shape = CircleShape,
-        elevation = CardDefaults.cardElevation(4.0.dp),
-        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
-        modifier = modifier
-    ) {
-        AsyncImage(
-            model = uri,
-            contentDescription = "avatar",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
     }
 }
 
