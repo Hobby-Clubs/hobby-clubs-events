@@ -1,9 +1,6 @@
 package com.example.hobbyclubs.screens.calendar
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,6 +13,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,6 +42,10 @@ fun CalendarScreen(
     vm: CalendarScreenViewModel = viewModel(),
     imageVm: ImageViewModel = viewModel()
 ) {
+    LaunchedEffect(Unit) {
+        vm.onSelectionChanged(listOf(LocalDate.now()))
+    }
+
     val state = rememberSelectableCalendarState(
         confirmSelectionChange = { vm.onSelectionChanged(it); true },
         initialSelectionMode = SelectionMode.Single,
@@ -295,6 +297,13 @@ fun Day(
         surface3dark
     }
     val isColored = joinedEvent != null || likedEvent != null || event != null
+    val textColorToday = if (isSelected && !isColored) {
+        colorScheme.primary
+    } else if (isColored) {
+        md_theme_dark_onSurface
+    } else {
+        colorScheme.onSurface
+    }
 
     Card(
         modifier = modifier
@@ -305,7 +314,7 @@ fun Day(
             BorderStroke(1.dp, colorScheme.primary)
         else null,
         colors = CardDefaults.cardColors(
-            contentColor = (if (isSelected && !isColored) colorScheme.primary else if (isColored) md_theme_dark_onSurface else colorScheme.onSurface),
+            contentColor = textColorToday,
             containerColor =
             if (joinedEvent != null)
                 md_theme_light_primary
@@ -324,6 +333,16 @@ fun Day(
                 .clickable { selectionState.selection = listOf(date) },
             contentAlignment = Alignment.Center,
         ) {
+            if (state.isCurrentDay) {
+                Card(
+                    modifier = Modifier.size(25.dp),
+                    shape = CircleShape,
+                    border = BorderStroke(1.dp, textColorToday),
+                    colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+                ) {}
+            } else {
+                null
+            }
             Text(
                 text = date.dayOfMonth.toString(),
                 style = if (isColored || isSelected) MaterialTheme.typography.labelMedium else MaterialTheme.typography.bodySmall
