@@ -6,6 +6,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
@@ -14,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -186,16 +190,6 @@ fun CalendarScreen(
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    /*
-                    Icon(
-                        imageVector = Icons.Filled.Crop169,
-                        contentDescription = "color",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier
-                            .width(30.dp)
-                            .height(30.dp)
-                    )
-                    */
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -208,16 +202,6 @@ fun CalendarScreen(
                         )
                         Text("Suggested", fontSize = 12.sp)
                     }
-                    /*
-                    Icon(
-                        imageVector = Icons.Filled.Crop169,
-                        contentDescription = "color",
-                        tint = joinedColor,
-                        modifier = Modifier
-                            .width(30.dp)
-                            .height(30.dp)
-                    )
-                    */
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -230,16 +214,6 @@ fun CalendarScreen(
                         )
                         Text("Joined", fontSize = 12.sp)
                     }
-                    /*
-                    Icon(
-                        imageVector = Icons.Filled.Crop169,
-                        contentDescription = "color",
-                        tint = MaterialTheme.colorScheme.tertiary,
-                        modifier = Modifier
-                            .width(30.dp)
-                            .height(30.dp)
-                    )
-                    */
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -360,17 +334,15 @@ fun MonthHeader(monthState: MonthState, modifier: Modifier = Modifier) {
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        /*
         IconButton(
             onClick = { monthState.currentMonth = monthState.currentMonth.minusMonths(1) }
         ) {
             Image(
                 imageVector = Icons.Default.KeyboardArrowLeft,
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
+                colorFilter = ColorFilter.tint(colorScheme.onSurface),
                 contentDescription = "Previous",
             )
         }
-        */
         Text(
             text = monthState.currentMonth.month.toString().lowercase()
                 .replaceFirstChar { it.uppercase() },
@@ -381,17 +353,17 @@ fun MonthHeader(monthState: MonthState, modifier: Modifier = Modifier) {
             text = monthState.currentMonth.year.toString(),
             style = MaterialTheme.typography.titleLarge
         )
-        /*
+
         IconButton(
             onClick = { monthState.currentMonth = monthState.currentMonth.plusMonths(1) }
         ) {
             Image(
                 imageVector = Icons.Default.KeyboardArrowRight,
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
+                colorFilter = ColorFilter.tint(colorScheme.onSurface),
                 contentDescription = "Next",
             )
         }
-        */
+
     }
 }
 
