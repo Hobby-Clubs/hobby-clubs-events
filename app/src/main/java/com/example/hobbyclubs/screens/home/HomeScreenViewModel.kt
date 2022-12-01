@@ -44,31 +44,8 @@ class HomeScreenViewModel : ViewModel() {
         fetchAllEvents()
         fetchAllNews()
     }
-//
-//    fun updateExisting() {
-//        FirebaseHelper.getAllNews().get()
-//            .addOnSuccessListener {
-//                val fetched = it.toObjects(News::class.java)
-//                fetched.forEach { news ->
-//                    update(news)
-//                }
-//            }
-//    }
-//    fun update(news: News) {
-//        FirebaseHelper.getClub(news.clubId).get()
-//            .addOnSuccessListener {
-//                FirebaseHelper.getFile("${CollectionName.clubs}/${news.clubId}/logo")
-//                    .downloadUrl
-//                    .addOnSuccessListener { uri ->
-//                        Log.d(TAG, "update: $uri")
-//                        val changeMap = mapOf(
-//                            Pair("clubImageUri", uri)
-//                        )
-//                        FirebaseHelper.updateNewsDetails(news.id, changeMap)
-//                    }
-//            }
-//    }
-    fun checkFirstTime() {
+
+    private fun checkFirstTime() {
         FirebaseHelper.uid?.let {
             FirebaseHelper.getUser(it)
                 .get()
@@ -81,7 +58,7 @@ class HomeScreenViewModel : ViewModel() {
         }
     }
 
-    fun fetchAllEvents() {
+    private fun fetchAllEvents() {
         val now = Timestamp.now()
         FirebaseHelper.getAllEvents()
             .addSnapshotListener { data, error ->
@@ -97,7 +74,7 @@ class HomeScreenViewModel : ViewModel() {
             }
     }
 
-    fun fetchAllClubs() {
+    private fun fetchAllClubs() {
         FirebaseHelper.getAllClubs()
             .addSnapshotListener { data, error ->
                 data ?: run {
@@ -154,7 +131,7 @@ class HomeScreenViewModel : ViewModel() {
 //        }
 //    }
 
-    fun fetchAllNews() {
+    private fun fetchAllNews() {
         FirebaseHelper.getAllNews()
             .addSnapshotListener { data, error ->
                 data ?: run {

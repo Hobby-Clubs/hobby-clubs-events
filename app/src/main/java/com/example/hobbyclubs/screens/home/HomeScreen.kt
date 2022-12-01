@@ -239,16 +239,14 @@ fun MainScreenContent(
             .padding(horizontal = 8.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-//        item {
-//            CustomButton(
-//                onClick = {
-//                          vm.updateExisting()
-//                },
-//                text = "Update"
-//            )
-//        }
         stickyHeader {
-            LazyColumnHeader(text = "My Clubs")
+            LazyColumnHeader(
+                text = "My Clubs",
+                onHomeScreen = true,
+                onClick = {
+                    navController.navigate(NavRoutes.AllMyScreen.route + "/club")
+                }
+            )
         }
         items(myClubs.take(5)) { club ->
             MyClubTile(
@@ -267,7 +265,10 @@ fun MainScreenContent(
         }
 
         stickyHeader {
-            LazyColumnHeader(text = "My Events")
+            LazyColumnHeader(
+                text = "My Events",
+                onHomeScreen = true,
+                onClick = { navController.navigate(NavRoutes.AllMyScreen.route + "/event") })
         }
         items(myEvents.take(5)) { event ->
             EventTile(
@@ -280,8 +281,11 @@ fun MainScreenContent(
 
         stickyHeader {
             LazyColumnHeader(
-                modifier = Modifier.clickable { navController.navigate(NavRoutes.NewsScreen.route) },
-                text = "My News"
+                text = "My News",
+                onHomeScreen = true,
+                onClick = {
+                    navController.navigate(NavRoutes.AllMyScreen.route + "/news")
+                }
             )
         }
         items(myNews.take(5)) { singleNews ->

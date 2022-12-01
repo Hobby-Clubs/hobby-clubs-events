@@ -248,18 +248,30 @@ fun MockDrawerContent(navToFirstTime: () -> Unit, logout: () -> Unit, onClick: (
 }
 
 @Composable
-fun LazyColumnHeader(modifier: Modifier = Modifier, text: String) {
+fun LazyColumnHeader(modifier: Modifier = Modifier, text: String, onHomeScreen: Boolean = false, onClick: () -> Unit = {}) {
     Box(
         modifier = modifier
             .fillMaxWidth()
             .background(colorScheme.background)
+            .clickable {
+                onClick()
+            }
     ) {
-        Text(
-            modifier = Modifier.padding(vertical = 16.dp),
-            text = text,
-            fontWeight = FontWeight.Light,
-            fontSize = 24.sp
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(end = 20.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                modifier = Modifier.padding(vertical = 16.dp),
+                text = text,
+                fontWeight = FontWeight.Light,
+                fontSize = 24.sp
+            )
+            if (onHomeScreen) Icon(Icons.Outlined.NavigateNext, null, modifier = Modifier.size(24.dp))
+        }
     }
 }
 

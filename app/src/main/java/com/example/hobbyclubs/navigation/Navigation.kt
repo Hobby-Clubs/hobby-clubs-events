@@ -31,6 +31,7 @@ sealed class NavRoutes(val route: String) {
     object SingleNewsScreen: NavRoutes("SingleNews")
     object FirstTimeScreen: NavRoutes("FirstTimeScreen")
     object SettingsScreen: NavRoutes("SettingsScreen")
+    object AllMyScreen: NavRoutes("AllMyScreen")
 }
 
 data class BarItem(
