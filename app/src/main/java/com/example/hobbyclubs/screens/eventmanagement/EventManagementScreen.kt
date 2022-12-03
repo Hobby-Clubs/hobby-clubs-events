@@ -12,6 +12,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
@@ -24,7 +25,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -39,10 +39,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.general.CustomOutlinedTextField
 import com.example.hobbyclubs.navigation.NavRoutes
-import com.example.hobbyclubs.screens.clubmanagement.ClubManagementRowNumberCount
 import com.example.hobbyclubs.screens.clubmanagement.EmptySurface
 import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.example.hobbyclubs.screens.create.event.SelectedImageItem
@@ -63,6 +61,7 @@ fun EventManagementScreen(
     eventId: String
 ) {
     val event by vm.selectedEvent.observeAsState(null)
+    val listOfRequests by vm.listOfRequests.observeAsState(listOf())
     val sheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
         confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded }
@@ -82,6 +81,7 @@ fun EventManagementScreen(
     ) {
         LaunchedEffect(Unit) {
             vm.getEvent(eventId)
+            vm.getAllJoinRequests(eventId)
         }
         LaunchedEffect(event) {
             event?.let {
@@ -103,7 +103,7 @@ fun EventManagementScreen(
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(top = 75.dp, bottom = 20.dp),
                     )
-                    ParticipantsSection(navController = navController, eventId = eventId)
+                    ParticipantsSection(navController = navController, eventId = eventId, participantAmount = event!!.participants.size, requestAmount = listOfRequests.size)
                     Spacer(modifier = Modifier.height(10.dp))
                     EventManagementSectionTitle(text = "Edit event details")
                     EventManagementRowItem(text = "Name and description") {
@@ -218,7 +218,7 @@ fun EventManagementRowItem(text: String, onClick: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ParticipantsSection(navController: NavController, eventId: String) {
+fun ParticipantsSection(navController: NavController, eventId: String, participantAmount: Int, requestAmount: Int) {
     Column() {
         EventManagementSectionTitle(text = "Participants")
         Card(
@@ -242,7 +242,64 @@ fun ParticipantsSection(navController: NavController, eventId: String) {
                         .weight(6f)
                         .padding(start = 30.dp)
                 )
+                EventManagementRowNumberCount(
+                    modifier = Modifier
+                        .size(24.dp),
+                    numberOfItem = participantAmount
+                )
             }
+        }
+        Spacer(modifier = Modifier.height(10.dp))
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+            onClick = { navController.navigate(NavRoutes.EventParticipantRequestScreen.route + "/$eventId") },
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 15.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.Outlined.PersonAddAlt, "Person add Icon", modifier = Modifier
+                        .size(30.dp)
+                )
+                Text(
+                    text = "Participant Requests", fontSize = 16.sp, modifier = Modifier
+                        .weight(6f)
+                        .padding(start = 30.dp)
+                )
+                EventManagementRowNumberCount(
+                    modifier = Modifier
+                        .size(24.dp),
+                    numberOfItem = requestAmount,
+                    isParticipantRequestSection = true
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun EventManagementRowNumberCount(
+    modifier: Modifier,
+    numberOfItem: Int,
+    isParticipantRequestSection: Boolean = false
+) {
+    Card(
+        shape = CircleShape,
+        colors = CardDefaults.cardColors(containerColor = if (isParticipantRequestSection && numberOfItem > 0) MaterialTheme.colorScheme.error else Color.Transparent),
+        modifier = modifier.aspectRatio(1f)
+    ) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(
+                text = numberOfItem.toString(),
+                fontSize = 16.sp,
+                color = if (isParticipantRequestSection && numberOfItem > 0) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.onSurface,
+                maxLines = 1
+            )
         }
     }
 }

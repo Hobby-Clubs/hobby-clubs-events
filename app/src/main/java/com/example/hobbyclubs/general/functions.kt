@@ -1,9 +1,13 @@
 package com.example.hobbyclubs.general
 
 import android.content.Context
+import android.widget.Toast
+import com.example.hobbyclubs.api.ClubRequest
 import com.example.hobbyclubs.api.Event
+import com.example.hobbyclubs.api.EventRequest
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.database.EventAlarmDBHelper
+import com.google.firebase.Timestamp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -23,6 +27,17 @@ fun joinEvent(event: Event, context: Context) {
         delay(1000)
         helper.updateAlarms()
     }
+}
+fun createEventRequest(event: Event, context: Context) {
+    val request = EventRequest(
+        userId = FirebaseHelper.uid!!,
+        acceptedStatus = false,
+        timeAccepted = null,
+        message = "",
+        requestSent = Timestamp.now()
+    )
+    FirebaseHelper.addEventRequest(eventId = event.id, request = request)
+    Toast.makeText(context, "Request sent", Toast.LENGTH_LONG).show()
 }
 fun leaveEvent(event: Event, context: Context) {
     val updatedList = event.participants.toMutableList()

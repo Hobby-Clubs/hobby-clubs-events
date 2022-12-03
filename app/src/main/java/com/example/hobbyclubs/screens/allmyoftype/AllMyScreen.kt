@@ -111,7 +111,7 @@ fun ListOfSelectedType(
         }
         events?.let {
             items(it) { event ->
-                EventTile(event = event) {
+                EventTile(event = event, navController = navController) {
                     navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
                 }
             }

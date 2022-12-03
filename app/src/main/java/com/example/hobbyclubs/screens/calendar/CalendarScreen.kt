@@ -195,7 +195,7 @@ fun CalendarScreen(
                                 event = event,
                                 onClick = {
                                     navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
-                                },
+                                }, navController = navController
                             )
                         }
                     }

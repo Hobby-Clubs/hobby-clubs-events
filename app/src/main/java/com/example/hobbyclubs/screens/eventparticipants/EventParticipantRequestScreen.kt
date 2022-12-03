@@ -1,4 +1,4 @@
-package com.example.hobbyclubs.screens.clubmembers
+package com.example.hobbyclubs.screens.eventparticipants
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -19,25 +18,28 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
 import com.example.hobbyclubs.api.*
+import com.example.hobbyclubs.screens.clubmembers.MemberImage
 import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.google.firebase.Timestamp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ClubMemberRequestScreen(
-    navController: NavHostController,
-    clubId: String,
-    vm: ClubMembersViewModel = viewModel(),
+fun EventParticipantRequestScreen(
+    navController: NavController,
+    vm: EventParticipantsViewModel = viewModel(),
+    eventId: String
 ) {
-    val club by vm.selectedClub.observeAsState(null)
+    val event by vm.selectedEvent.observeAsState(null)
     val listOfRequests by vm.listOfRequests.observeAsState(listOf())
+
     LaunchedEffect(Unit) {
-        vm.getClub(clubId)
-        vm.getAllJoinRequests(clubId)
+        vm.getEvent(eventId)
+        vm.getAllJoinRequests(eventId)
     }
-    club?.let {
+
+    event?.let {
         Scaffold() { padding ->
             Column(
                 modifier = Modifier
@@ -46,12 +48,12 @@ fun ClubMemberRequestScreen(
                 horizontalAlignment = Alignment.Start,
             ) {
                 Text(
-                    text = "Member Requests",
+                    text = "Participant Requests",
                     fontSize = 32.sp,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(top = 75.dp, bottom = 20.dp),
                 )
-                ListOfMemberRequests(listOfRequests, vm, it)
+                ListOfParticipantRequests(listOfRequests, vm, it)
             }
             CenterAlignedTopAppBar(
                 title = { Text(text = it.name, fontSize = 16.sp) },
@@ -67,26 +69,26 @@ fun ClubMemberRequestScreen(
 }
 
 @Composable
-fun ListOfMemberRequests(
-    listOfRequests: List<ClubRequest>,
-    vm: ClubMembersViewModel,
-    club: Club,
+fun ListOfParticipantRequests(
+    listOfRequests: List<EventRequest>,
+    vm: EventParticipantsViewModel,
+    event: Event,
 ) {
     val context = LocalContext.current
 
     LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         items(listOfRequests) { request ->
-            RequestCard(
+            EventRequestCard(
                 request = request,
                 onAccept = {
-                    val newListOfMembers = club.members.toMutableList()
+                    val newListOfMembers = event.participants.toMutableList()
                     newListOfMembers.add(request.userId)
                     val changeMap = mapOf(
                         Pair("acceptedStatus", true),
                         Pair("timeAccepted", Timestamp.now())
                     )
                     vm.acceptJoinRequest(
-                        clubId = club.ref,
+                        eventId = event.id,
                         requestId = request.id,
                         memberListWithNewUser = newListOfMembers,
                         changeMapForRequest = changeMap
@@ -94,7 +96,7 @@ fun ListOfMemberRequests(
                     Toast.makeText(context, "Accepted", Toast.LENGTH_SHORT).show()
                 },
                 onReject = {
-                    vm.declineJoinRequest(club.ref, request.id)
+                    vm.declineJoinRequest(event.id, request.id)
                     Toast.makeText(context, "Rejected", Toast.LENGTH_SHORT).show()
                 },
             )
@@ -104,8 +106,8 @@ fun ListOfMemberRequests(
 }
 
 @Composable
-fun RequestCard(
-    request: ClubRequest,
+fun EventRequestCard(
+    request: EventRequest,
     onAccept: () -> Unit,
     onReject: () -> Unit,
 ) {
@@ -151,8 +153,8 @@ fun RequestCard(
                         },
                         text = "Decline",
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = colorScheme.error,
-                            contentColor = colorScheme.onError
+                            containerColor = MaterialTheme.colorScheme.error,
+                            contentColor = MaterialTheme.colorScheme.onError
                         )
                     )
                     CustomButton(

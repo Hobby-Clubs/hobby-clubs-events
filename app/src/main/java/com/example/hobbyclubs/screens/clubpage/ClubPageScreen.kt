@@ -41,7 +41,7 @@ import com.example.compose.linkBlue
 import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.FirebaseHelper
-import com.example.hobbyclubs.api.Request
+import com.example.hobbyclubs.api.ClubRequest
 import com.example.hobbyclubs.general.*
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.google.firebase.Timestamp
@@ -130,7 +130,7 @@ fun ClubPageHeader(
             JoinClubDialog(
                 onConfirm = {
                     if (FirebaseHelper.uid != null && joinClubDialogText.text.isNotEmpty()) {
-                        val request = Request(
+                        val request = ClubRequest(
                             userId = FirebaseHelper.uid!!,
                             acceptedStatus = false,
                             timeAccepted = null,
@@ -304,7 +304,7 @@ fun ClubSchedule(vm: ClubPageViewModel, navController: NavController) {
                 event = event,
                 onClick = {
                     navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
-                },
+                }, navController = navController
             )
             Spacer(modifier = Modifier.height(20.dp))
         }

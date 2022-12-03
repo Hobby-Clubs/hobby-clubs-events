@@ -29,6 +29,7 @@ fun EventParticipantsScreen(
 ) {
     val event by vm.selectedEvent.observeAsState(null)
     val listOfParticipants by vm.listOfParticipants.observeAsState(listOf())
+    val listOfAdmins by vm.listOfAdmins.observeAsState(listOf())
 
     LaunchedEffect(Unit) {
         vm.getEvent(eventId)
@@ -48,7 +49,7 @@ fun EventParticipantsScreen(
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(top = 75.dp, bottom = 20.dp),
                 )
-                ListOfEventParticipants(listOfParticipants, vm, it)
+                ListOfEventParticipants(listOfParticipants, listOfAdmins, vm, it)
             }
             CenterAlignedTopAppBar(
                 title = { Text(text = it.name, fontSize = 16.sp) },
@@ -66,10 +67,10 @@ fun EventParticipantsScreen(
 @Composable
 fun ListOfEventParticipants(
     participants: List<User>,
+    listOfAdmins: List<User>,
     vm: EventParticipantsViewModel,
     event: Event
 ) {
-    val listOfAdmins = participants.filter { event.admins.contains(it.uid) }
     val listOfParticipants = participants.filter { !event.admins.contains(it.uid) }
 
     LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {

@@ -9,6 +9,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.ExitToApp
+import androidx.compose.material.icons.outlined.Pending
+import androidx.compose.material.icons.outlined.PersonAddAlt
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -28,9 +31,11 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.compose.linkBlue
 import com.example.hobbyclubs.api.Event
+import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.general.*
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.clubpage.ClubSectionTitle
+import com.example.hobbyclubs.screens.clubpage.CustomButton
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -47,6 +52,7 @@ fun EventScreen(
 
     LaunchedEffect(Unit) {
         vm.getEvent(eventId)
+        vm.getEventJoinRequests(eventId)
     }
 
     selectedEvent?.let { event ->
@@ -97,6 +103,7 @@ fun EventHeader(
     val hasJoinedEvent by vm.hasJoinedEvent.observeAsState(false)
     val hasLikedEvent by vm.hasLikedEvent.observeAsState(false)
     val hostClub by vm.selectedEventHostClub.observeAsState(null)
+    val hasRequested by vm.hasRequested.observeAsState(false)
     val context = LocalContext.current
 
     val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH)
@@ -207,35 +214,51 @@ fun EventHeader(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 10.dp, bottom = 20.dp, top = 20.dp),
+                    .padding(bottom = 20.dp, top = 20.dp),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                JoinEventButton(
-                    isJoined = hasJoinedEvent,
-                    modifier = Modifier.padding(end = 40.dp),
-                    onJoinEvent = {
-                        if (event.participantLimit != -1) {
-                            if (event.participants.size < event.participantLimit) {
-                                joinEvent(event, context)
-                            } else {
-                                Toast.makeText(
-                                    context,
-                                    "Event is currently full.",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        } else {
-                            joinEvent(event, context)
-                        }
-                    },
-                    onLeaveEvent = {
-                        leaveEvent(event, context)
-                    })
+                if (hasJoinedEvent) {
+                    CustomButton(
+                        text = "Cancel",
+                        onClick = {
+                            vm.leaveEvent(event.id)
+                        },
+                        icon = Icons.Outlined.ExitToApp
+                    )
+                }
+                if (!hasJoinedEvent && event.isPrivate && !hasRequested && !isAdmin) {
+                    CustomButton(
+                        text = "Request",
+                        onClick = {
+                            vm.createEventRequest(event, context)
+                        },
+                        icon = Icons.Outlined.PersonAddAlt
+                    )
+                }
+                if (!hasJoinedEvent && event.isPrivate && hasRequested) {
+                    CustomButton(
+                        text = "Pending",
+                        onClick = { },
+                        icon = Icons.Outlined.Pending
+                    )
+                }
+                if (!hasJoinedEvent && (!event.isPrivate || isAdmin)) {
+                    CustomButton(
+                        text = "Join",
+                        onClick = {
+                            vm.joinEvent(event.id)
+                        },
+                        icon = Icons.Outlined.PersonAddAlt
+                    )
+                }
                 if (isAdmin) {
-                    ManageEventButton() {
-                        navController.navigate(NavRoutes.EventManagementScreen.route + "/${event.id}")
-                    }
+                    CustomButton(
+                        text = "Manage Event",
+                        onClick = {
+                            navController.navigate(NavRoutes.EventManagementScreen.route + "/${event.id}")
+                        }
+                    )
                 }
             }
         }

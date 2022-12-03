@@ -212,7 +212,7 @@ fun SearchUI(vm: HomeScreenViewModel, navController: NavController) {
         }
         if (eventsExpanded) {
             items(eventsFiltered) { event ->
-                EventTile(event = event) {
+                EventTile(event = event, navController = navController) {
                     navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
                 }
             }
@@ -275,7 +275,7 @@ fun MainScreenContent(
                 event = event,
                 onClick = {
                     navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
-                }
+                }, navController = navController
             )
         }
 
