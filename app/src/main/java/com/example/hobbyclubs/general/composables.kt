@@ -22,6 +22,7 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -846,19 +847,8 @@ fun RequestCard(
     onAccept: () -> Unit,
     onReject: () -> Unit,
 ) {
-    var picUri: Uri? by rememberSaveable { mutableStateOf(null) }
     var user: User? by rememberSaveable { mutableStateOf(null) }
     LaunchedEffect(Unit) {
-        if (picUri == null) {
-            FirebaseHelper.getFile("${CollectionName.users}/${request.userId}")
-                .downloadUrl
-                .addOnSuccessListener {
-                    picUri = it
-                }
-                .addOnFailureListener {
-                    Log.e("getLogoUri", "SmallNewsTile: ", it)
-                }
-        }
         if (user == null) {
             FirebaseHelper.getUser(request.userId).get()
                 .addOnSuccessListener {
@@ -872,28 +862,28 @@ fun RequestCard(
             modifier = Modifier
                 .fillMaxWidth(),
         ) {
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)) {
+            Column(modifier = Modifier.fillMaxWidth()) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 10.dp, start = 5.dp),
+                        .padding(horizontal = 15.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    MemberImage(uri = picUri)
+                    MemberImage(uri = it.profilePicUri)
                     Text(
                         text = "${it.fName} ${it.lName}", fontSize = 16.sp, modifier = Modifier
                             .weight(6f)
                             .padding(start = 30.dp)
                     )
                 }
-                Text(text = request.message, modifier = Modifier.fillMaxWidth().padding(start = 10.dp))
-                Text(text = request.message, modifier = Modifier.fillMaxWidth().padding(start = 10.dp))
-                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = request.message, modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 15.dp)
+                )
+                Spacer(modifier = Modifier.height(5.dp))
                 Row(modifier = Modifier.fillMaxWidth()) {
                     CustomButton(
-                        modifier = Modifier.weight(1f),
                         onClick = {
                             onReject()
                         },
@@ -904,7 +894,6 @@ fun RequestCard(
                         )
                     )
                     CustomButton(
-                        modifier = Modifier.weight(1f),
                         onClick = {
                             onAccept()
                         },

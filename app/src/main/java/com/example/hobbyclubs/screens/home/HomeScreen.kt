@@ -50,6 +50,7 @@ fun HomeScreen(
     navController: NavController,
     vm: HomeScreenViewModel = viewModel(),
 ) {
+    val context = LocalContext.current
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     var fabIsExpanded by remember { mutableStateOf(false) }
     var showSearch by remember { mutableStateOf(false) }
