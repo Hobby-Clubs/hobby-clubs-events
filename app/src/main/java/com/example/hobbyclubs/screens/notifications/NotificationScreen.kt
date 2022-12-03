@@ -15,7 +15,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Undo
 import androidx.compose.material3.*
@@ -41,13 +40,13 @@ import com.example.compose.md_theme_light_primary
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.NotificationInfo
 import com.example.hobbyclubs.api.NotificationType
+import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.general.toString
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.notifications.NotificationContent
 import com.example.hobbyclubs.screens.settings.NotificationSetting
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import java.text.SimpleDateFormat
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
@@ -70,7 +69,7 @@ fun NotificationScreen(
     Scaffold(
         topBar = {
             NotificationsTopBar(
-                onBack = { navController.navigateUp() },
+                navController = navController,
                 onClickSettings = { navController.navigate(NavRoutes.SettingsScreen.route) })
         },
         floatingActionButton = {
@@ -146,18 +145,11 @@ fun NotificationScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NotificationsTopBar(onBack: () -> Unit, onClickSettings: () -> Unit) {
+fun NotificationsTopBar(navController: NavController, onClickSettings: () -> Unit) {
     CenterAlignedTopAppBar(
         title = { Text(text = "Notifications") },
         navigationIcon = {
-            IconButton(
-                onClick = onBack,
-                content = {
-                    Icon(
-                        imageVector = Icons.Outlined.ArrowBack,
-                        contentDescription = "back"
-                    )
-                })
+            TopBarBackButton(navController = navController)
         },
         actions = {
             IconButton(onClick = onClickSettings, content = {

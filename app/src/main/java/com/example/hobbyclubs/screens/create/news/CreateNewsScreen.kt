@@ -7,8 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
@@ -33,6 +31,7 @@ import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.News
 import com.example.hobbyclubs.general.CustomAlertDialog
 import com.example.hobbyclubs.general.CustomOutlinedTextField
+import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.example.hobbyclubs.screens.create.event.ClubSelectionDropdownMenu
@@ -63,9 +62,7 @@ fun CreateNewsScreen(
         CenterAlignedTopAppBar(title = { },
             colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
             navigationIcon = {
-                IconButton(onClick = { showLeaveDialog = true }) {
-                    Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")
-                }
+                TopBarBackButton(navController = navController)
             })
         if (showLeaveDialog) {
             CustomAlertDialog(

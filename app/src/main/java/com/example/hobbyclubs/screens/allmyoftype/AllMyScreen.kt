@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,6 +24,7 @@ import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.News
 import com.example.hobbyclubs.general.EventTile
 import com.example.hobbyclubs.general.SmallNewsTile
+import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.clubs.ClubTile
 
@@ -85,9 +84,7 @@ fun AllMyScreen(
                 title = { },
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
                 navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")
-                    }
+                    TopBarBackButton(navController = navController)
                 }
             )
         }

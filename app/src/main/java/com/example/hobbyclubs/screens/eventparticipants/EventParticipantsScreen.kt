@@ -3,8 +3,6 @@ package com.example.hobbyclubs.screens.eventparticipants
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -18,6 +16,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.User
+import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.screens.clubmembers.MemberImage
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,9 +53,7 @@ fun EventParticipantsScreen(
                 title = { Text(text = it.name, fontSize = 16.sp) },
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
                 navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")
-                    }
+                    TopBarBackButton(navController = navController)
                 }
             )
         }

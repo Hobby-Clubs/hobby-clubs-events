@@ -281,6 +281,33 @@ fun LazyColumnHeader(modifier: Modifier = Modifier, text: String, onHomeScreen: 
 }
 
 @Composable
+fun TopBarBackButton(navController: NavController) {
+    Card(
+        shape = CircleShape,
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        modifier = Modifier
+            .padding(start = 10.dp)
+            .size(30.dp)
+            .aspectRatio(1f)
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            IconButton(
+                onClick = { navController.navigateUp() }
+            ) {
+                Icon(
+                    Icons.Outlined.ArrowBack,
+                    contentDescription = "Back",
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
 fun PicturePicker(modifier: Modifier = Modifier, uri: Uri?, onPick: (Uri) -> Unit) {
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),

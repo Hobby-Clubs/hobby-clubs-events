@@ -5,9 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
@@ -22,7 +20,6 @@ class HomeScreenViewModel : ViewModel() {
 
     var unreadReceiver: BroadcastReceiver? = null
     val unreadAmount = MutableLiveData<Int>(0)
-    val userPicUri = MutableLiveData<Uri>()
     val isFirstTimeUser = MutableLiveData<Boolean>()
     val allClubs = MutableLiveData<List<Club>>()
     val myClubs = Transformations.map(allClubs) { clubs ->
@@ -44,7 +41,7 @@ class HomeScreenViewModel : ViewModel() {
             news.filter { singleNews ->
                 clubList.map { club -> club.ref }.contains(singleNews.clubId)
             }
-        }
+        } ?: listOf()
     }
 
     val searchInput = MutableLiveData("")

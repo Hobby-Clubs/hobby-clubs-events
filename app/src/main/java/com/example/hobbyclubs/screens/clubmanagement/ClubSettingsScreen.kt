@@ -9,7 +9,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.NavigateNext
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.*
@@ -32,6 +31,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.hobbyclubs.general.CustomAlertDialog
 import com.example.hobbyclubs.general.CustomOutlinedTextField
+import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.example.hobbyclubs.screens.create.event.SelectedImageItem
@@ -181,9 +181,7 @@ fun ClubSettingsScreen(
                     title = { Text(text = it.name, fontSize = 16.sp) },
                     colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
                     navigationIcon = {
-                        IconButton(onClick = { navController.navigateUp() }) {
-                            Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")
-                        }
+                        TopBarBackButton(navController = navController)
                     }
                 )
             }

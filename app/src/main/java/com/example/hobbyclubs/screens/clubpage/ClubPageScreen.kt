@@ -92,13 +92,7 @@ fun ClubPageScreen(
                 title = {},
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
                 navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(
-                            Icons.Outlined.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color.White
-                        )
-                    }
+                    TopBarBackButton(navController = navController)
                 }
             )
         }

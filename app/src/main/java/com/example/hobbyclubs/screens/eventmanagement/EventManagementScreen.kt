@@ -24,7 +24,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -39,10 +38,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.general.CustomOutlinedTextField
+import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.navigation.NavRoutes
-import com.example.hobbyclubs.screens.clubmanagement.ClubManagementRowNumberCount
 import com.example.hobbyclubs.screens.clubmanagement.EmptySurface
 import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.example.hobbyclubs.screens.create.event.SelectedImageItem
@@ -170,9 +168,7 @@ fun EventManagementScreen(
                     title = { Text(text = it.name, fontSize = 16.sp) },
                     colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
                     navigationIcon = {
-                        IconButton(onClick = { navController.navigateUp() }) {
-                            Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")
-                        }
+                        TopBarBackButton(navController = navController)
                     }
                 )
             }

@@ -1,6 +1,5 @@
 package com.example.hobbyclubs.screens.home
 
-import android.net.Uri
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
@@ -21,7 +20,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -57,7 +55,6 @@ fun HomeScreen(
     val searchInput by vm.searchInput.observeAsState("")
     val focusManager = LocalFocusManager.current
     val isFirst by vm.isFirstTimeUser.observeAsState()
-    val userPicUri by vm.userPicUri.observeAsState()
     val notifCount by vm.unreadAmount.observeAsState()
 
     LaunchedEffect(isFirst) {
@@ -72,7 +69,7 @@ fun HomeScreen(
         FirebaseHelper.uid ?.let { uid ->
             val settings = InAppNotificationHelper(context).getNotificationSettings()
             if (settings.none { !it.name.contains("REMINDER", true) }) {
-                vm.unregisterReceiver(context)
+//                vm.unregisterReceiver(context)
                 return@LaunchedEffect
             }
             if (!InAppNotificationService.isRunning(context)) {
@@ -278,6 +275,7 @@ fun MainScreenContent(
     val myClubs by vm.myClubs.observeAsState(listOf())
     val myEvents by vm.myEvents.observeAsState(listOf())
     val myNews by vm.myNews.observeAsState(listOf())
+    val allNews by vm.allNews.observeAsState(listOf())
 
     LazyColumn(
         modifier = Modifier
@@ -339,6 +337,23 @@ fun MainScreenContent(
                 news = singleNews,
             ) {
                 navController.navigate(NavRoutes.SingleNewsScreen.route + "/${singleNews.id}")
+            }
+        }
+
+        stickyHeader {
+            LazyColumnHeader(
+                text = "All News",
+                onHomeScreen = true,
+                onClick = {
+                    navController.navigate(NavRoutes.NewsScreen.route)
+                }
+            )
+        }
+        items(allNews.take(5)) {
+            SmallNewsTile(
+                news = it
+            ) {
+                navController.navigate(NavRoutes.SingleNewsScreen.route + "/${it.id}")
             }
         }
 

@@ -30,11 +30,15 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.compose.md_theme_dark_outline
+import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.screens.clubmanagement.ClubManagementSectionTitle
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun NotificationSettingsScreen(vm: NotificationSettingsViewModel = viewModel(), navController: NavController) {
+fun NotificationSettingsScreen(
+    vm: NotificationSettingsViewModel = viewModel(),
+    navController: NavController
+) {
 
     val context = LocalContext.current
     var notificationsAllowed by remember { mutableStateOf(false) }
@@ -51,6 +55,8 @@ fun NotificationSettingsScreen(vm: NotificationSettingsViewModel = viewModel(), 
     LaunchedEffect(Unit) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             notificationPermissionLauncher.launch(POST_NOTIFICATIONS)
+        } else {
+            notificationsAllowed = true
         }
     }
 
@@ -92,9 +98,7 @@ fun SettingsTopBar(navController: NavController, showSave: Boolean = false, onSa
     CenterAlignedTopAppBar(title = { Text(text = "Notification settings", fontSize = 16.sp) },
         colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
         navigationIcon = {
-            IconButton(onClick = { navController.navigateUp() }) {
-                Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")
-            }
+            TopBarBackButton(navController = navController)
         },
         actions = {
             if (showSave) {
