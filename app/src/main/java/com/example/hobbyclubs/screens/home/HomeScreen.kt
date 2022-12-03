@@ -1,12 +1,6 @@
 package com.example.hobbyclubs.screens.home
 
-import android.app.Activity
-import android.app.AlarmManager
-import android.content.Context
 import android.net.Uri
-import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
@@ -19,14 +13,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Feed
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Schedule
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -44,7 +39,8 @@ import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.*
 import com.example.hobbyclubs.general.*
 import com.example.hobbyclubs.navigation.NavRoutes
-import com.example.hobbyclubs.notifications.AlarmReceiver
+import com.example.hobbyclubs.notifications.InAppNotificationHelper
+import com.example.hobbyclubs.notifications.InAppNotificationService
 import com.example.hobbyclubs.screens.clubs.ClubTile
 import java.text.SimpleDateFormat
 
@@ -64,11 +60,27 @@ fun HomeScreen(
     val searchInput by vm.searchInput.observeAsState("")
     val focusManager = LocalFocusManager.current
     val isFirst by vm.isFirstTimeUser.observeAsState()
+    val userPicUri by vm.userPicUri.observeAsState()
+    val notifCount by vm.unreadAmount.observeAsState()
 
     LaunchedEffect(isFirst) {
         isFirst?.let {
             if (it) {
                 navController.navigate(NavRoutes.FirstTimeScreen.route)
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        FirebaseHelper.uid ?.let { uid ->
+            val settings = InAppNotificationHelper(context).getNotificationSettings()
+            if (settings.none { !it.name.contains("REMINDER", true) }) {
+                vm.unregisterReceiver(context)
+                return@LaunchedEffect
+            }
+            if (!InAppNotificationService.isRunning(context)) {
+                InAppNotificationService.start(context, uid)
+                vm.receiveUnreads(context)
             }
         }
     }
@@ -106,14 +118,13 @@ fun HomeScreen(
                     )
                 },
                 settingsIcon = {
-                    IconButton(onClick = {
-                        navController.navigate(NavRoutes.SettingsScreen.route)
-                    }) {
-                        Icon(
-                            Icons.Outlined.Settings,
-                            null,
-                            modifier = Modifier.padding(end = 10.dp)
-                        )
+                    NotificationsButton(
+                        modifier = Modifier
+                            .padding(horizontal = 10.dp)
+                            .size(50.dp),
+                        notifCount = notifCount
+                    ) {
+                        navController.navigate(NavRoutes.NotificationScreen.route)
                     }
                 }
             )
@@ -135,6 +146,32 @@ fun HomeScreen(
             )
         } else {
             SearchUI(vm = vm, navController = navController, imageVm)
+        }
+    }
+}
+
+@Composable
+fun NotificationsButton(modifier: Modifier = Modifier, notifCount: Int?, onClick: () -> Unit) {
+    Box(modifier = modifier.clickable { onClick() }, contentAlignment = Alignment.Center) {
+        Box() {
+            Icon(
+                imageVector = Icons.Outlined.Notifications,
+                contentDescription = null,
+                modifier = Modifier.size(30.dp)
+            )
+            notifCount?.let {
+                if (it > 0) {
+                    Card(
+                        modifier = Modifier
+                            .padding(2.dp)
+                            .size(10.dp)
+                            .align(Alignment.TopEnd),
+                        shape = CircleShape,
+                        colors = CardDefaults.cardColors(colorScheme.error),
+                        content = {}
+                    )
+                }
+            }
         }
     }
 }
@@ -364,6 +401,21 @@ fun MainScreenContent(
 }
 
 @Composable
+fun AdminLabel(modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(colorScheme.primary),
+        shape = RoundedCornerShape(100.dp)
+    ) {
+        Text(
+            text = "Admin",
+            fontSize = 10.sp,
+            modifier = Modifier.padding(vertical = 4.dp, horizontal = 12.dp)
+        )
+    }
+}
+
+@Composable
 fun MyClubTile(
     modifier: Modifier = Modifier,
     club: Club,
@@ -373,6 +425,7 @@ fun MyClubTile(
     onClickNews: () -> Unit,
     onClickUpcoming: (String) -> Unit
 ) {
+    val isAdmin = club.admins.contains(FirebaseHelper.uid)
     val allEvents by vm.allEvents.observeAsState(listOf())
     val nextEvent by remember {
         derivedStateOf {
@@ -404,16 +457,26 @@ fun MyClubTile(
         border = BorderStroke(1.dp, colorScheme.outlineVariant),
     ) {
         Row(Modifier.fillMaxSize()) {
-            AsyncImage(
-                modifier = Modifier.aspectRatio(0.75f),
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(picUri)
-                    .crossfade(true)
-                    .build(),
-                error = painterResource(id = R.drawable.nokia_logo),
-                contentDescription = "banner",
-                contentScale = ContentScale.Crop
-            )
+            Box {
+                AsyncImage(
+                    modifier = Modifier.aspectRatio(0.75f),
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(picUri)
+                        .crossfade(true)
+                        .build(),
+                    error = painterResource(id = R.drawable.nokia_logo),
+                    contentDescription = "banner",
+                    contentScale = ContentScale.Crop
+                )
+                if (isAdmin) {
+                    AdminLabel(
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(8.dp)
+                    )
+                }
+            }
+
             Column(
                 modifier = Modifier
                     .weight(1f)

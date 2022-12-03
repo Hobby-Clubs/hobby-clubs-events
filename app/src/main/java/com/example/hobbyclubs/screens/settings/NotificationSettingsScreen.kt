@@ -1,6 +1,7 @@
 package com.example.hobbyclubs.screens.settings
 
 import android.Manifest.permission.POST_NOTIFICATIONS
+import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -24,7 +25,6 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -34,20 +34,13 @@ import com.example.hobbyclubs.screens.clubmanagement.ClubManagementSectionTitle
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun SettingsScreen(vm: SettingsViewModel = viewModel(), navController: NavController) {
+fun NotificationSettingsScreen(vm: NotificationSettingsViewModel = viewModel(), navController: NavController) {
+
     val context = LocalContext.current
-    val eventSetting by vm.eventSetting.observeAsState(false)
-    val newsSetting by vm.newsSetting.observeAsState(false)
-    val requestSetting by vm.requestSetting.observeAsState(false)
     var notificationsAllowed by remember { mutableStateOf(false) }
-    val hasChanged by remember {
-        derivedStateOf {
-            val eventPref = vm.getBoolSetting(NotificationSetting.EVENT_NOTIFICATIONS)
-            val newsPref = vm.getBoolSetting(NotificationSetting.NEWS_NOTIFICATIONS)
-            val requestPref = vm.getBoolSetting(NotificationSetting.REQUEST_NOTIFICATIONS)
-            eventSetting != eventPref || newsSetting != newsPref || requestSetting != requestPref
-        }
-    }
+    val toggleSettings by vm.toggleSettings.observeAsState(listOf())
+    val hasChanged by vm.hasChanged.observeAsState(false)
+
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = {
@@ -56,21 +49,26 @@ fun SettingsScreen(vm: SettingsViewModel = viewModel(), navController: NavContro
     )
 
     LaunchedEffect(Unit) {
-        notificationPermissionLauncher.launch(POST_NOTIFICATIONS)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            notificationPermissionLauncher.launch(POST_NOTIFICATIONS)
+        }
     }
 
     Scaffold(topBar = {
         SettingsTopBar(
             navController = navController,
-            hasChanged = hasChanged,
+            showSave = hasChanged,
             onSave = {
                 if (!notificationsAllowed) {
-                    Toast.makeText(context, "Please allow notifications in settings", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        "Please allow notifications in settings",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     return@SettingsTopBar
                 }
-                vm.savePrefs()
+                vm.onSave(toggleSettings)
                 Toast.makeText(context, "Settings saved", Toast.LENGTH_SHORT).show()
-                navController.navigateUp()
             })
     }) {
         Box(
@@ -78,91 +76,20 @@ fun SettingsScreen(vm: SettingsViewModel = viewModel(), navController: NavContro
                 .padding(it)
                 .padding(16.dp),
         ) {
-            LazyColumn(
-                Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(bottom = 32.dp)
-            ) {
-                stickyHeader {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color.White)
-                            .padding(bottom = 12.dp)
-                    ) {
-                        Text(
-                            text = "Notifications",
-                            fontSize = 32.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier.padding(vertical = 8.dp),
-                        )
-                    }
+            SettingList(
+                settings = toggleSettings,
+                onCheckedChange = { setting, isActive ->
+                    vm.changeSetting(toggleSettings, setting, isActive)
                 }
-                item {
-                    ClubManagementSectionTitle(text = "Events")
-                    SettingsSwitchTile(
-                        icon = Icons.Outlined.CalendarMonth,
-                        title = "Event reminders",
-                        isActive = eventSetting,
-                        onCheckedChange = { isChecked ->
-                            vm.updateOption(
-                                NotificationSetting.EVENT_NOTIFICATIONS,
-                                isChecked
-                            )
-                        }
-                    )
-                }
-
-                item {
-                    ClubManagementSectionTitle(text = "News")
-                    SettingsSwitchTile(
-                        icon = Icons.Outlined.Feed,
-                        title = "Important news",
-                        isActive = newsSetting,
-                        onCheckedChange = { isChecked ->
-                            vm.updateOption(
-                                NotificationSetting.NEWS_NOTIFICATIONS,
-                                isChecked
-                            )
-                        }
-                    )
-                }
-
-                item {
-                    ClubManagementSectionTitle(text = "Clubs")
-                    SettingsSwitchTile(
-                        icon = Icons.Outlined.PersonAddAlt,
-                        title = "Membership requests",
-                        isActive = requestSetting,
-                        onCheckedChange = { isChecked ->
-                            vm.updateOption(
-                                NotificationSetting.REQUEST_NOTIFICATIONS,
-                                isChecked
-                            )
-                        }
-                    )
-                }
-            }
+            )
         }
     }
 }
 
-enum class EventNotificationOption(val hours: Int, val text: String) {
-    Start(0, "At the start"),
-    Hour(1, "1 hour before"),
-    Day(24, "A day before"),
-}
-
-enum class NewsNotificationOption(val text: String, val short: String) {
-    All("For all news", "All"),
-    MyClubs("Only for news related to my clubs", "My clubs"),
-    None("None", "None")
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsTopBar(navController: NavController, hasChanged: Boolean = false, onSave: () -> Unit) {
-    CenterAlignedTopAppBar(title = { Text(text = "Settings", fontSize = 16.sp) },
+fun SettingsTopBar(navController: NavController, showSave: Boolean = false, onSave: () -> Unit) {
+    CenterAlignedTopAppBar(title = { Text(text = "Notification settings", fontSize = 16.sp) },
         colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
         navigationIcon = {
             IconButton(onClick = { navController.navigateUp() }) {
@@ -170,9 +97,9 @@ fun SettingsTopBar(navController: NavController, hasChanged: Boolean = false, on
             }
         },
         actions = {
-            if (hasChanged) {
+            if (showSave) {
                 TextButton(onClick = onSave) {
-                    Text(text = "SAVE CHANGES")
+                    Text(text = "Save")
                 }
             }
         }
@@ -180,12 +107,7 @@ fun SettingsTopBar(navController: NavController, hasChanged: Boolean = false, on
 }
 
 @Composable
-fun SettingsSwitchTile(
-    icon: ImageVector,
-    title: String,
-    isActive: Boolean,
-    onCheckedChange: (Boolean) -> Unit
-) {
+fun SettingsSwitchTile(data: NotificationSetting, onCheckedChange: (Boolean) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -197,15 +119,38 @@ fun SettingsSwitchTile(
                 .padding(horizontal = 15.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(icon, null, modifier = Modifier.size(30.dp))
+            Icon(data.icon, null, modifier = Modifier.size(30.dp))
             Text(
-                text = title,
+                text = data.title,
                 fontSize = 16.sp,
                 modifier = Modifier
                     .weight(1f)
                     .padding(start = 30.dp)
             )
-            Switch(checked = isActive, onCheckedChange = onCheckedChange)
+            Switch(checked = data.isActive, onCheckedChange = onCheckedChange)
+        }
+    }
+}
+
+@Composable
+fun SettingList(
+    settings: List<NotificationSetting>,
+    onCheckedChange: (NotificationSetting, Boolean) -> Unit
+) {
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        SettingCategory.values().forEach { category ->
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ClubManagementSectionTitle(text = category.name)
+                    settings
+                        .filter { it.category == category }
+                        .forEach { data ->
+                            SettingsSwitchTile(
+                                data = data,
+                                onCheckedChange = { onCheckedChange(data, it) })
+                        }
+                }
+            }
         }
     }
 }
@@ -282,6 +227,60 @@ fun DropDownTile(text: String, onClick: () -> Unit) {
     ) {
         Text(text = text, Modifier.padding(8.dp))
     }
+}
+
+enum class SettingCategory {
+    Events, News, Requests
+}
+
+enum class NotificationSetting(
+    val title: String,
+    val category: SettingCategory,
+    val icon: ImageVector,
+    var isActive: Boolean
+) {
+    EVENT_NEW(
+        title = "New event in my clubs",
+        category = SettingCategory.Events,
+        icon = Icons.Outlined.NewReleases,
+        isActive = false
+    ),
+    EVENT_HOUR_REMINDER(
+        title = "1-hour reminder",
+        category = SettingCategory.Events,
+        icon = Icons.Outlined.Alarm,
+        isActive = false
+    ),
+    EVENT_DAY_REMINDER(
+        title = "1-day reminder",
+        category = SettingCategory.Events,
+        icon = Icons.Outlined.CalendarToday,
+        isActive = false
+    ),
+    NEWS_GENERAL(
+        title = "General news",
+        category = SettingCategory.News,
+        icon = Icons.Outlined.Feed,
+        isActive = false
+    ),
+    NEWS_CLUB(
+        title = "Club news",
+        category = SettingCategory.News,
+        icon = Icons.Outlined.Feed,
+        isActive = false
+    ),
+    REQUEST_MEMBERSHIP(
+        title = "New membership requests",
+        category = SettingCategory.Requests,
+        icon = Icons.Outlined.PersonAdd,
+        isActive = false
+    ),
+    REQUEST_ACCEPTED(
+        title = "Accepted membership requests",
+        category = SettingCategory.Requests,
+        icon = Icons.Outlined.Check,
+        isActive = false
+    ),
 }
 
 //@Composable

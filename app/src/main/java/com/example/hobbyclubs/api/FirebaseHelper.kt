@@ -8,7 +8,9 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.PropertyName
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
@@ -18,7 +20,6 @@ import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import kotlinx.parcelize.Parcelize
 import java.io.ByteArrayOutputStream
-import java.io.Serializable
 
 object FirebaseHelper {
     const val TAG = "FirebaseHelper"
@@ -372,6 +373,31 @@ object FirebaseHelper {
             }
     }
 
+    // Notifications
+
+    fun getNotifications(): CollectionReference {
+        return db.collection(CollectionName.notifications)
+    }
+
+    fun addNotification(notification: NotificationInfo) {
+        val ref = db.collection(CollectionName.notifications).document()
+        val data = notification.apply { id = ref.id }
+        ref.set(data)
+            .addOnSuccessListener {
+                Log.d(TAG, "addNotification: $ref")
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "addNotification: ", e)
+            }
+    }
+
+    fun markNotificationAsSeen(notificationId: String) {
+        uid?.let {
+            db.collection("notifications").document(notificationId)
+                .update("readBy", FieldValue.arrayUnion(it))
+        }
+    }
+
     // Auth
 
     private val auth = Firebase.auth
@@ -486,6 +512,7 @@ class CollectionName {
         const val news = "news"
         const val users = "users"
         const val requests = "requests"
+        const val notifications = "notifications"
     }
 }
 
@@ -573,3 +600,23 @@ data class Request(
     val message: String = "",
     val requestSent: Timestamp = Timestamp.now()
 ) : Parcelable
+
+@Parcelize
+data class NotificationInfo(
+    var id: String = "",
+    val type: String = "",
+    val time: Timestamp = Timestamp.now(),
+    val userId: String = "",
+    val clubId: String = "",
+    val eventId: String = "",
+    val newsId: String = "",
+    val readBy: List<String> = listOf()
+) : Parcelable
+
+enum class NotificationType(val channelName: String) {
+    EVENT_CREATED("New events"),
+    NEWS_CLUB("Club news"),
+    NEWS_GENERAL("General news"),
+    REQUEST_PENDING("Pending membership requests"),
+    REQUEST_ACCEPTED("Accepted membership requests")
+}

@@ -20,6 +20,7 @@
         android:theme="@style/Theme.HobbyClubs"
         tools:targetApi="31">
         <receiver android:name=".notifications.AlarmReceiver" />
+        <service android:name=".notifications.InAppNotificationService"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -27,7 +28,6 @@
             android:theme="@style/Theme.HobbyClubs">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>

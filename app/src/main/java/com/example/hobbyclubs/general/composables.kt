@@ -48,14 +48,13 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.compose.*
 import com.example.hobbyclubs.R
-import com.example.hobbyclubs.api.CollectionName
-import com.example.hobbyclubs.api.Event
-import com.example.hobbyclubs.api.FirebaseHelper
-import com.example.hobbyclubs.api.News
+import com.example.hobbyclubs.api.*
 import com.example.hobbyclubs.navigation.BottomBar
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.notifications.AlarmReceiver
 import com.example.hobbyclubs.notifications.EventNotificationInfo
+import com.example.hobbyclubs.screens.clubmembers.MemberImage
+import com.example.hobbyclubs.screens.clubpage.CustomButton
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -104,7 +103,7 @@ fun TopSearchBar(
         OutlinedTextField(
             modifier = Modifier
                 .width((screenWidth * 0.72).dp)
-                .aspectRatio(4.64f),
+                .aspectRatio(5.5f),
             value = input,
             onValueChange = { onTextChange(it) },
             leadingIcon = {
@@ -228,7 +227,8 @@ fun MockDrawerContent(navToFirstTime: () -> Unit, logout: () -> Unit, onClick: (
                             id = 1L,
                             eventId = "9ssrdprFCTrYUeIyoU98",
                             eventTime = alarmTime + (3600000),
-                            eventName = "Test event"
+                            eventName = "Test event",
+                            hoursBefore = 1
                         )
                         putExtra("data", info)
                     }
@@ -842,6 +842,82 @@ fun SmallNewsTile(modifier: Modifier = Modifier, news: News, onClick: () -> Unit
                     fontWeight = FontWeight.Light,
                     fontSize = 14.sp
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun RequestCard(
+    request: Request,
+    onAccept: () -> Unit,
+    onReject: () -> Unit,
+) {
+    var picUri: Uri? by rememberSaveable { mutableStateOf(null) }
+    var user: User? by rememberSaveable { mutableStateOf(null) }
+    LaunchedEffect(Unit) {
+        if (picUri == null) {
+            FirebaseHelper.getFile("${CollectionName.users}/${request.userId}")
+                .downloadUrl
+                .addOnSuccessListener {
+                    picUri = it
+                }
+                .addOnFailureListener {
+                    Log.e("getLogoUri", "SmallNewsTile: ", it)
+                }
+        }
+        if (user == null) {
+            FirebaseHelper.getUser(request.userId).get()
+                .addOnSuccessListener {
+                    val fetchedUser = it.toObject(User::class.java)
+                    user = fetchedUser
+                }
+        }
+    }
+    user?.let {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth(),
+        ) {
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 10.dp, start = 5.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    MemberImage(uri = picUri)
+                    Text(
+                        text = "${it.fName} ${it.lName}", fontSize = 16.sp, modifier = Modifier
+                            .weight(6f)
+                            .padding(start = 30.dp)
+                    )
+                }
+                Text(text = request.message, modifier = Modifier.fillMaxWidth().padding(start = 10.dp))
+                Text(text = request.message, modifier = Modifier.fillMaxWidth().padding(start = 10.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    CustomButton(
+                        modifier = Modifier.weight(1f),
+                        onClick = {
+                            onReject()
+                        },
+                        text = "Decline",
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = colorScheme.error,
+                            contentColor = colorScheme.onError
+                        )
+                    )
+                    CustomButton(
+                        modifier = Modifier.weight(1f),
+                        onClick = {
+                            onAccept()
+                        },
+                        text = "Accept",
+                    )
+                }
             }
         }
     }

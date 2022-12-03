@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.hobbyclubs.api.*
+import com.example.hobbyclubs.general.RequestCard
 import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.google.firebase.Timestamp
 
@@ -96,84 +97,10 @@ fun ListOfMemberRequests(listOfRequests: List<Request>, vm: ClubMembersViewModel
                     vm.declineJoinRequest(club.ref, request.id)
                     Toast.makeText(context, "Rejected", Toast.LENGTH_SHORT).show()
                 },
-                vm = vm,
             )
         }
     }
 
 }
 
-@Composable
-fun RequestCard(
-    request: Request,
-    onAccept: () -> Unit,
-    onReject: () -> Unit,
-    vm: ClubMembersViewModel,
-) {
-    var picUri: Uri? by rememberSaveable { mutableStateOf(null) }
-    var user: User? by rememberSaveable { mutableStateOf(null) }
-    LaunchedEffect(Unit) {
-        if (picUri == null) {
-            FirebaseHelper.getFile("${CollectionName.users}/${request.userId}")
-                .downloadUrl
-                .addOnSuccessListener {
-                    picUri = it
-                }
-                .addOnFailureListener {
-                    Log.e("getLogoUri", "SmallNewsTile: ", it)
-                }
-        }
-        if (user == null) {
-            FirebaseHelper.getUser(request.userId).get()
-                .addOnSuccessListener {
-                    val fetchedUser = it.toObject(User::class.java)
-                    user = fetchedUser
-                }
-        }
-    }
-    user?.let {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth(),
-        ) {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 15.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    MemberImage(uri = picUri)
-                    Text(
-                        text = "${it.fName} ${it.lName}", fontSize = 16.sp, modifier = Modifier
-                            .weight(6f)
-                            .padding(start = 30.dp)
-                    )
-                }
-                Text(text = request.message, modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 15.dp))
-                Spacer(modifier = Modifier.height(5.dp))
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    CustomButton(
-                        onClick = {
-                            onReject()
-                        },
-                        text = "Decline",
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = colorScheme.error,
-                            contentColor = colorScheme.onError
-                        )
-                    )
-                    CustomButton(
-                        onClick = {
-                            onAccept()
-                        },
-                        text = "Accept",
-                    )
-                }
-            }
-        }
-    }
 
-}

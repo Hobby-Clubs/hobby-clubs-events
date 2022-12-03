@@ -1,11 +1,19 @@
 package com.example.hobbyclubs.screens.home
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.net.Uri
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.hobbyclubs.api.*
+import com.example.hobbyclubs.notifications.InAppNotificationService
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -15,6 +23,9 @@ class HomeScreenViewModel : ViewModel() {
         const val TAG = "HomeScreenViewModel"
     }
 
+    var unreadReceiver: BroadcastReceiver? = null
+    val unreadAmount = MutableLiveData<Int>(0)
+    val userPicUri = MutableLiveData<Uri>()
     val isFirstTimeUser = MutableLiveData<Boolean>()
     val allClubs = MutableLiveData<List<Club>>()
     val myClubs = Transformations.map(allClubs) { clubs ->
@@ -24,8 +35,8 @@ class HomeScreenViewModel : ViewModel() {
     val myEvents = Transformations.map(allEvents) { events ->
         events
             .filter { event ->
-            event.participants.contains(FirebaseHelper.uid)
-                    || event.likers.contains(FirebaseHelper.uid)
+                event.participants.contains(FirebaseHelper.uid)
+                        || event.likers.contains(FirebaseHelper.uid)
             }
             .sortedBy { it.date }
     }
@@ -35,9 +46,20 @@ class HomeScreenViewModel : ViewModel() {
 
     init {
         checkFirstTime()
+        getUserPicUri()
         fetchAllClubs()
         fetchAllEvents()
         fetchAllNews()
+    }
+
+    fun getUserPicUri() {
+        FirebaseHelper.uid?.let { uid ->
+            FirebaseHelper.getFile("${CollectionName.users}/$uid")
+                .downloadUrl
+                .addOnSuccessListener {
+                    userPicUri.value = it
+                }
+        }
     }
 
     fun checkFirstTime() {
@@ -84,48 +106,6 @@ class HomeScreenViewModel : ViewModel() {
             }
     }
 
-//    fun fetchMyClubs() {
-//        FirebaseHelper.uid?.let { uid ->
-//            FirebaseHelper.getAllClubs().whereArrayContains("members", uid)
-//                .get()
-//                .addOnSuccessListener { data ->
-//                    val fetchedClubs =
-//                        data.toObjects(Club::class.java).sortedBy { club -> club.nextEvent }
-//                    myClubs.value = fetchedClubs
-//                    fetchMyNews(fetchedClubs)
-//                }
-//                .addOnFailureListener {
-//                    Log.e(TAG, "fetchMyClubs: ", it)
-//                }
-//        }
-//    }
-
-//    fun fetchMyEvents() {
-//        val now = Timestamp.now()
-//        FirebaseHelper.uid?.let { uid ->
-//            FirebaseHelper.getAllEvents().whereArrayContains("participants", uid)
-//                .addSnapshotListener { data, error ->
-//                    data ?: run {
-//                        Log.e(TAG, "fetchMyEvents: ", error)
-//                        return@addSnapshotListener
-//                    }
-//                    val joined = data.toObjects(Event::class.java)
-//                        .filter { it.date >= now }
-//                    joinedEvents.value = joined
-//                }
-//            FirebaseHelper.getAllEvents().whereArrayContains("likers", uid)
-//                .addSnapshotListener { data, error ->
-//                    data ?: run {
-//                        Log.e(TAG, "fetchMyEvents: ", error)
-//                        return@addSnapshotListener
-//                    }
-//                    val liked = data.toObjects(Event::class.java)
-//                        .filter { it.date >= now }
-//                    likedEvents.value = liked
-//                }
-//        }
-//    }
-
     fun fetchAllNews() {
         FirebaseHelper.getAllNews()
             .addSnapshotListener { data, error ->
@@ -145,4 +125,23 @@ class HomeScreenViewModel : ViewModel() {
         searchInput.value = newVal
     }
 
+    fun receiveUnreads(context: Context) {
+        val unreadFilter = IntentFilter()
+        unreadFilter.addAction(InAppNotificationService.NOTIF_UNREAD)
+        unreadReceiver = object : BroadcastReceiver() {
+            override fun onReceive(p0: Context?, p1: Intent?) {
+                Log.d(TAG, "onReceive: unreads")
+                val unreads = p1?.getParcelableArrayExtra(InAppNotificationService.EXTRA_NOTIF_UNREAD,)
+                    ?.map { it as NotificationInfo }
+                    ?.filter { !it.readBy.contains(FirebaseHelper.uid) }
+                    ?: listOf()
+                unreadAmount.value = unreads.size
+            }
+        }
+        context.registerReceiver(unreadReceiver, unreadFilter)
+    }
+
+    fun unregisterReceiver(context: Context) {
+        context.unregisterReceiver(unreadReceiver)
+    }
 }

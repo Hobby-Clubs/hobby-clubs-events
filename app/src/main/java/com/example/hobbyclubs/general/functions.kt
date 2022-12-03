@@ -8,6 +8,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.*
@@ -55,6 +56,8 @@ fun likeEvent(event: Event, context: Context) {
     }
 }
 
-
-
 fun LocalDate.toDate(): Date = Date.from(this.atStartOfDay(ZoneId.systemDefault()).toInstant())
+
+fun Date.toString(pattern: String): String {
+    return SimpleDateFormat(pattern, Locale.ENGLISH).format(this)
+}
