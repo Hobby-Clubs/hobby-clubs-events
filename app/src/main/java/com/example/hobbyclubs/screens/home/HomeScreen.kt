@@ -297,7 +297,7 @@ fun MainScreenContent(
                 club = club,
                 vm = vm,
                 onClickNews = {
-//                        navController.navigate(NavRoutes.ClubAllNewsScreen.route + "/${it.ref}")
+                    navController.navigate(NavRoutes.ClubNewsScreen.route + "/true/${club.ref}")
                 },
                 onClickUpcoming = {
                     navController.navigate(NavRoutes.EventScreen.route + "/${it}")
@@ -404,7 +404,7 @@ fun MyClubTile(
     val newsAmount by remember {
         derivedStateOf {
             if (allNews.isNotEmpty()) {
-                allNews.count { it.clubId == club.ref }
+                allNews.count { it.clubId == club.ref && !it.usersRead.contains(FirebaseHelper.uid) }
             } else {
                 null
             }

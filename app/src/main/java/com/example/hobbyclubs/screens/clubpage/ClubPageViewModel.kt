@@ -30,6 +30,7 @@ class ClubPageViewModel : ViewModel() {
     }
     val listOfEvents = MutableLiveData<List<Event>>(listOf())
     val listOfNews = MutableLiveData<List<News>>(listOf())
+    val correctList = MutableLiveData<List<News>>(listOf())
     val joinClubDialogText = MutableLiveData<TextFieldValue>()
 
     fun updateDialogText(newVal: TextFieldValue) {
@@ -48,18 +49,23 @@ class ClubPageViewModel : ViewModel() {
             }
     }
 
-    fun getAllNews(clubId: String) {
-        firebase.getAllNewsOfClub(clubId).orderBy("date", Query.Direction.ASCENDING)
+    fun getAllNews(clubId: String, fromHomeScreen: Boolean = false) {
+        firebase.getAllNewsOfClub(clubId).orderBy("date", Query.Direction.DESCENDING)
             .addSnapshotListener { data, error ->
                 data ?: run {
                     Log.e("getAllNews", "getAllNews: ", error)
                     return@addSnapshotListener
                 }
                 val fetchedNews = data.toObjects(News::class.java)
-                Log.d("fetchNews", fetchedNews.toString())
-                listOfNews.value = fetchedNews
+                Log.d("fromhomescreen", fromHomeScreen.toString())
+                if (fromHomeScreen){
+                    listOfNews.value = fetchedNews.filter { !it.usersRead.contains(FirebaseHelper.uid) }
+                } else {
+                    listOfNews.value = fetchedNews
+                }
             }
     }
+
 
     fun getClubEvents(clubId: String) {
         val now = Timestamp.now()
@@ -123,4 +129,5 @@ class ClubPageViewModel : ViewModel() {
                 clubsRequests.value = fetchedRequests.filter { !it.acceptedStatus }
             }
     }
+
 }

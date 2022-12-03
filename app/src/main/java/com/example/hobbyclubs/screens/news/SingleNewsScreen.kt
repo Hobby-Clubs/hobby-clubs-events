@@ -34,11 +34,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.hobbyclubs.api.Club
+import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.News
 import com.example.hobbyclubs.general.CustomOutlinedTextField
 import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.example.hobbyclubs.screens.create.event.SelectedImageItem
+import com.google.firebase.firestore.FieldValue
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -53,6 +55,8 @@ fun SingleNewsScreen(
 ) {
     val news by vm.selectedNews.observeAsState(null)
     val isPublisher by vm.isPublisher.observeAsState()
+    val hasRead by vm.hasRead.observeAsState(null)
+
     val sheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
         confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded }
@@ -77,6 +81,17 @@ fun SingleNewsScreen(
         LaunchedEffect(Unit) {
             vm.getNews(newsId)
             vm.getCurrentUser()
+        }
+        hasRead?.let {
+        LaunchedEffect(it) {
+            Log.d("hasread", "SingleNewsScreen: $it ")
+            if (!it) {
+                val changeMap = mapOf(
+                    Pair("usersRead", FieldValue.arrayUnion(FirebaseHelper.uid))
+                )
+                vm.updateNews(newsId, changeMap)
+            }
+        }
         }
         LaunchedEffect(news) {
             news?.let {

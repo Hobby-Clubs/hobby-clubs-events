@@ -41,6 +41,7 @@ import com.example.compose.linkBlue
 import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.FirebaseHelper
+import com.example.hobbyclubs.api.News
 import com.example.hobbyclubs.api.Request
 import com.example.hobbyclubs.general.*
 import com.example.hobbyclubs.navigation.NavRoutes
@@ -78,7 +79,7 @@ fun ClubPageScreen(
                 DividerLine()
                 ClubSchedule(vm, navController)
                 DividerLine()
-                ClubNews(vm, navController)
+                ClubNews(vm, navController, clubId)
                 DividerLine()
                 ClubLinks(context, linkList = club.socials)
                 DividerLine()
@@ -307,24 +308,28 @@ fun ClubSchedule(vm: ClubPageViewModel, navController: NavController) {
 
 
 @Composable
-fun ClubNews(vm: ClubPageViewModel, navController: NavController) {
+fun ClubNews(vm: ClubPageViewModel, navController: NavController, clubId: String) {
     val listOfNews by vm.listOfNews.observeAsState(listOf())
 
     Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 20.dp)) {
-        ClubSectionTitle(text = "News")
+        ClubSectionTitle(text = "News", isNewsTitle = true,
+            onClick = {navController.navigate(NavRoutes.ClubNewsScreen.route + "/false/$clubId")})
         Spacer(modifier = Modifier.height(20.dp))
-        listOfNews?.let { news ->
-            news.forEach { singleNews ->
-                SmallNewsTile(
-                    news = singleNews,
-                    onClick = {
-                        navController.navigate(NavRoutes.SingleNewsScreen.route + "/${singleNews.id}")
-                    }
-                )
-                Spacer(modifier = Modifier.height(5.dp))
-            }
-        }
+        ClubNewsList(list = listOfNews.take(5), navController = navController)
     }
+}
+
+@Composable
+fun ClubNewsList(list: List<News>, navController: NavController) {
+        list.forEach { singleNews ->
+            SmallNewsTile(
+                news = singleNews,
+                onClick = {
+                    navController.navigate(NavRoutes.SingleNewsScreen.route + "/${singleNews.id}")
+                }
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+        }
 }
 
 @Composable
@@ -370,8 +375,17 @@ fun ClubContactInfo(name: String, phoneNumber: String, email: String) {
 }
 
 @Composable
-fun ClubSectionTitle(text: String) {
-    Text(text = text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+fun ClubSectionTitle(text: String,isNewsTitle: Boolean = false, onClick: () -> Unit = {}) {
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .padding(end = 20.dp)
+        .clickable { onClick() },
+    verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(text = text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+        if (isNewsTitle) Icon(Icons.Outlined.NavigateNext, contentDescription = "", modifier = Modifier.size(24.dp))
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)

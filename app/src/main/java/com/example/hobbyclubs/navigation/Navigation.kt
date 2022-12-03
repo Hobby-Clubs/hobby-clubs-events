@@ -33,6 +33,7 @@ sealed class NavRoutes(val route: String) {
     object SettingsScreen: NavRoutes("SettingsScreen")
     object NotificationScreen: NavRoutes("NotificationScreen")
     object AllMyScreen: NavRoutes("AllMyScreen")
+    object ClubNewsScreen: NavRoutes("ClubNewsScreen")
 }
 
 data class BarItem(

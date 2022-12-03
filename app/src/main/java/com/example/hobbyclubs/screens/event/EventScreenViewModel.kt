@@ -26,16 +26,17 @@ class EventScreenViewModel() : ViewModel() {
     }
 
     fun getEvent(eventId: String) {
-        firebase.getEvent(eventId = eventId).get()
-            .addOnSuccessListener { data ->
+        firebase.getEvent(eventId = eventId)
+            .addSnapshotListener { data, error ->
+                data ?: run {
+                    Log.e("getEvent", "getEvent: ", error )
+                    return@addSnapshotListener
+                }
                 val fetchedEvent = data.toObject(Event::class.java)
                 fetchedEvent?.let {
                     selectedEvent.postValue(it)
                     getEventHostClub(it)
                 }
-            }
-            .addOnFailureListener {
-                Log.e("FetchEvent", "getEventFail: ", it)
             }
     }
 
@@ -47,24 +48,6 @@ class EventScreenViewModel() : ViewModel() {
                     selectedEventHostClub.postValue(it)
                 }
             }
-    }
-
-    fun joinEvent(event: Event) {
-        val updatedList = event.participants.toMutableList()
-        firebase.uid?.let {
-            updatedList.add(it)
-        }
-        firebase.updateUserInEvent(eventId = event.id, updatedList)
-        getEvent(event.id)
-    }
-
-    fun cancelEventJoin(event: Event) {
-        val updatedList = event.participants.toMutableList()
-        firebase.uid?.let {
-            updatedList.remove(it)
-        }
-        firebase.updateUserInEvent(eventId = event.id, updatedList)
-        getEvent(event.id)
     }
 
     fun likeEvent(event: Event) {

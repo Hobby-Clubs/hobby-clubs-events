@@ -14,11 +14,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.compose.HobbyClubsTheme
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.NotificationType
-import com.example.hobbyclubs.screens.eventmanagement.EventManagementScreen
 import com.example.hobbyclubs.database.EventAlarmDBHelper
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.notifications.*
-import com.example.hobbyclubs.notifications.AlarmReceiver
 import com.example.hobbyclubs.screens.allmyoftype.AllMyScreen
 import com.example.hobbyclubs.screens.calendar.CalendarScreen
 import com.example.hobbyclubs.screens.clubmanagement.ClubAllEventsScreen
@@ -27,12 +25,14 @@ import com.example.hobbyclubs.screens.clubmanagement.ClubManagementScreen
 import com.example.hobbyclubs.screens.clubmanagement.ClubSettingsScreen
 import com.example.hobbyclubs.screens.clubmembers.ClubMemberRequestScreen
 import com.example.hobbyclubs.screens.clubmembers.ClubMembersScreen
+import com.example.hobbyclubs.screens.clubpage.ClubNewsScreen
 import com.example.hobbyclubs.screens.clubpage.ClubPageScreen
 import com.example.hobbyclubs.screens.clubs.ClubsScreen
 import com.example.hobbyclubs.screens.create.club.CreateClubScreen
 import com.example.hobbyclubs.screens.create.event.CreateEventScreen
 import com.example.hobbyclubs.screens.create.news.CreateNewsScreen
 import com.example.hobbyclubs.screens.event.EventScreen
+import com.example.hobbyclubs.screens.eventmanagement.EventManagementScreen
 import com.example.hobbyclubs.screens.eventparticipants.EventParticipantsScreen
 import com.example.hobbyclubs.screens.firstTime.FirstTimeScreen
 import com.example.hobbyclubs.screens.home.HomeScreen
@@ -199,6 +199,18 @@ fun MyAppNavHost(navController: NavHostController) {
         ) {
             val clubId = it.arguments!!.getString("clubId")!!
             ClubManagementScreen(navController = navController, clubId = clubId)
+        }
+        // ClubNewsScreen
+        composable(NavRoutes.ClubNewsScreen.route + "/{fromHome}/{clubId}",
+            arguments = listOf(
+                navArgument("fromHome") { type = NavType.BoolType },
+                navArgument("clubId") { type = NavType.StringType }
+
+            )
+        ) {
+            val fromHome = it.arguments!!.getBoolean("fromHome")
+            val clubId = it.arguments!!.getString("clubId")!!
+            ClubNewsScreen(navController = navController, clubId = clubId, fromHomeScreen = fromHome)
         }
         // ClubSettingsScreen
         composable(NavRoutes.ClubSettingsScreen.route + "/{clubId}",

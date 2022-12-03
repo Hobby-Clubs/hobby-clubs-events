@@ -7,18 +7,13 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.PropertyName
-import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.*
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ListResult
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import kotlinx.parcelize.Parcelize
-import java.io.ByteArrayOutputStream
 
 object FirebaseHelper {
     const val TAG = "FirebaseHelper"
@@ -494,6 +489,7 @@ data class News(
     val date: Timestamp = Timestamp.now(),
     val newsImageUri: String = "",
     val clubImageUri: String = "",
+    val usersRead: List<String> = listOf()
 ) : Parcelable
 
 @Parcelize
