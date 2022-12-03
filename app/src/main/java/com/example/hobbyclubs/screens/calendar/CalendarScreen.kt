@@ -191,11 +191,14 @@ fun CalendarScreen(
                         contentPadding = PaddingValues(5.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         items(filteredEvents) { event ->
+                            vm.getEventJoinRequests(event.id)
+                            val hasRequested by vm.hasRequested.observeAsState(false)
+
                             EventTile(
                                 event = event,
                                 onClick = {
                                     navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
-                                }, navController = navController
+                                }, navController = navController, requested = hasRequested
                             )
                         }
                     }

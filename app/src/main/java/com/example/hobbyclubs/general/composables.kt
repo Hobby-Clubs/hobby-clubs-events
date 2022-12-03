@@ -400,6 +400,7 @@ fun EventTile(
     navController: NavController,
     modifier: Modifier = Modifier,
     event: Event,
+    requested: Boolean,
     onClick: () -> Unit,
 ) {
 
@@ -448,7 +449,13 @@ fun EventTile(
                             isJoined = joined,
                             onJoinEvent = {
                                 if (event.participantLimit != -1) {
-                                    if (event.isPrivate && event.participants.size < event.participantLimit && !event.admins.contains(FirebaseHelper.uid)) {
+                                    if(requested) {
+                                        Toast.makeText(
+                                            context,
+                                            "Request pending approval",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    } else if (event.isPrivate && event.participants.size < event.participantLimit && !event.admins.contains(FirebaseHelper.uid)) {
                                         createEventRequest(event, context)
                                     } else if (event.participants.size < event.participantLimit){
                                         joinEvent(event, context)
@@ -461,7 +468,7 @@ fun EventTile(
                                     }
                                 }
                                 else {
-                                    if(event.isPrivate && !event.admins.contains(FirebaseHelper.uid)) {
+                                    if(!requested && event.isPrivate && !event.admins.contains(FirebaseHelper.uid)) {
                                         createEventRequest(event, context)
                                     } else {
                                         joinEvent(event, context)
@@ -471,7 +478,8 @@ fun EventTile(
                             onLeaveEvent = {
                                 leaveEvent(event, context)
                             },
-                            isPrivate = !joined && event.isPrivate && !event.admins.contains(FirebaseHelper.uid)
+                            isPrivate = !joined && event.isPrivate && !event.admins.contains(FirebaseHelper.uid),
+                            requested = requested
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         if(event.admins.contains(FirebaseHelper.uid)) {
@@ -540,6 +548,7 @@ fun JoinEventButton(
     modifier: Modifier = Modifier,
     isJoined: Boolean,
     isPrivate: Boolean,
+    requested: Boolean,
     onJoinEvent: () -> Unit,
     onLeaveEvent: () -> Unit
 ) {
@@ -549,7 +558,11 @@ fun JoinEventButton(
         icon = Icons.Outlined.Close
         text = "Cancel"
     } else {
-        if(isPrivate) {
+        if(requested) {
+            icon = Icons.Outlined.Pending
+            text = "Pending.."
+        }
+        else if(isPrivate) {
             icon = Icons.Outlined.PersonAddAlt
             text = "Request to join"
         } else {

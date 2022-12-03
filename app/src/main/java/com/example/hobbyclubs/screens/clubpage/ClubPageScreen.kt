@@ -300,11 +300,14 @@ fun ClubSchedule(vm: ClubPageViewModel, navController: NavController) {
         Text(text = "Upcoming events", fontSize = 14.sp)
         Spacer(modifier = Modifier.height(20.dp))
         listOfEvents.forEach { event ->
+            vm.getEventJoinRequests(event.id)
+            val hasRequested by vm.hasRequestedToEvent.observeAsState(false)
+
             EventTile(
                 event = event,
                 onClick = {
                     navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
-                }, navController = navController
+                }, navController = navController, requested = hasRequested
             )
             Spacer(modifier = Modifier.height(20.dp))
         }

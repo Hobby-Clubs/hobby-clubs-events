@@ -28,6 +28,21 @@ class ClubPageViewModel : ViewModel() {
     val clubIsPrivate = Transformations.map(selectedClub) {
         it.isPrivate
     }
+    val eventRequests = MutableLiveData<List<EventRequest>>()
+    val hasRequestedToEvent = Transformations.map(eventRequests) { list ->
+        list.any { it.userId == FirebaseHelper.uid && !it.acceptedStatus }
+    }
+    fun getEventJoinRequests(eventId: String) {
+        FirebaseHelper.getRequestsFromEvent(eventId)
+            .addSnapshotListener { data, error ->
+                data ?: run {
+                    Log.e("getAllRequests", "RequestFetchFail: ", error)
+                    return@addSnapshotListener
+                }
+                val fetchedRequests = data.toObjects(EventRequest::class.java)
+                eventRequests.value = fetchedRequests.filter { !it.acceptedStatus }
+            }
+    }
     val listOfEvents = MutableLiveData<List<Event>>(listOf())
     val listOfNews = MutableLiveData<List<News>>(listOf())
     val joinClubDialogText = MutableLiveData<TextFieldValue>()
