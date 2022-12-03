@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.hobbyclubs.general.CustomAlertDialog
 import com.example.hobbyclubs.general.CustomOutlinedTextField
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.clubmanagement.EmptySurface
@@ -165,6 +166,34 @@ fun EventManagementScreen(
                             else sheetState.animateTo(ModalBottomSheetValue.Expanded)
                         }
                     }
+                    CustomButton(
+                        onClick = { showDeleteEventDialog = true },
+                        text = "Delete Event",
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Red,
+                            contentColor = Color.White
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 20.dp)
+                            .height(60.dp)
+
+                    )
+                }
+                if (showDeleteEventDialog) {
+                    CustomAlertDialog(
+                        onDismissRequest = { showDeleteEventDialog = false },
+                        onConfirm = {
+                            scope.launch {
+                                vm.deleteEvent(eventId)
+                                navController.navigate(NavRoutes.HomeScreen.route)
+                            }
+                        },
+                        title = "Delete event",
+                        text = "Are you sure you want to delete this event? There is no going back.",
+                        confirmText = "Delete"
+                    )
+
                 }
                 CenterAlignedTopAppBar(
                     title = { Text(text = it.name, fontSize = 16.sp) },
