@@ -38,7 +38,6 @@ import coil.compose.AsyncImage
 import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.News
 import com.example.hobbyclubs.general.CustomOutlinedTextField
-import com.example.hobbyclubs.screens.clubmanagement.*
 import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.example.hobbyclubs.screens.create.event.SelectedImageItem
 import kotlinx.coroutines.delay
@@ -53,7 +52,6 @@ fun SingleNewsScreen(
     vm: SingleScreenViewModel = viewModel(),
     newsId: String
 ) {
-    val context = LocalContext.current
     val news by vm.selectedNews.observeAsState(null)
     val isPublisher by vm.isPublisher.observeAsState()
     val sheetState = rememberModalBottomSheetState(
@@ -79,7 +77,6 @@ fun SingleNewsScreen(
     ) {
         LaunchedEffect(Unit) {
             vm.getNews(newsId)
-            vm.getImage(newsId)
             vm.getCurrentUser()
         }
         LaunchedEffect(news) {
@@ -253,7 +250,6 @@ fun EditNewsSheet(vm: SingleScreenViewModel, newsId: String, onSave: () -> Unit)
                         scope.launch {
                             vm.updateLoadingStatus(true)
                             delay(1500)
-                            vm.getImage(newsId)
                             vm.updateLoadingStatus(false)
                             onSave()
                         }
@@ -285,8 +281,6 @@ fun NewsContent(
     vm: SingleScreenViewModel = viewModel(),
     news: News
 ) {
-    val getImage by vm.newsUri.observeAsState()
-    val currentUser by vm.currentUser.observeAsState()
     val publisher by vm.publisher.observeAsState(null)
     var club: Club? by rememberSaveable { mutableStateOf(null) }
 
@@ -312,11 +306,11 @@ fun NewsContent(
                 .verticalScroll(rememberScrollState()),
         ) {
             AsyncImage(
-                model = getImage,
+                model = news.newsImageUri,
                 contentDescription = "news image",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .aspectRatio(16f/9f)
                     .padding(bottom = 16.dp)
             )
             Column(

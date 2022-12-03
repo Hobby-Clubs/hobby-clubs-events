@@ -3,8 +3,9 @@ package com.example.hobbyclubs.screens.eventmanagement
 import android.net.Uri
 import android.util.Log
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import com.example.hobbyclubs.api.CollectionName
 import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.FirebaseHelper
 import java.util.*
@@ -111,8 +112,27 @@ class EventManagementViewModel() : ViewModel() {
         bannerUri?.let { selectedBannerImages.value = it }
     }
 
+    var count = 0
     fun replaceEventImages(eventId: String, newImages: List<Uri>) {
-        firebase.updateEventImages(eventId, newImages)
+        val tempList = mutableListOf<Uri>()
+        newImages.forEach { uri ->
+            firebase.addPic(uri, "${CollectionName.events}/$eventId/$count.jpg")
+                .addOnSuccessListener {
+                    it.storage.downloadUrl.addOnSuccessListener { downloadUrl ->
+                        tempList.add(downloadUrl)
+                        if (tempList.size == newImages.size) {
+                            val changeMap = mapOf(
+                                Pair("bannerUris", tempList)
+                            )
+                            firebase.updateEventDetails(eventId, changeMap)
+                        }
+                    }
+                }
+                .addOnFailureListener {
+                    Log.e(FirebaseHelper.TAG, "addPic: ", it)
+                }
+            count += 1
+        }
     }
 
     fun deleteEvent(eventId: String) {

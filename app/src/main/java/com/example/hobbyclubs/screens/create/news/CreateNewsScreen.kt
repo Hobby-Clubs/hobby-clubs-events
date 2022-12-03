@@ -7,8 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.*
@@ -18,14 +16,12 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -40,7 +36,6 @@ import com.example.hobbyclubs.general.CustomOutlinedTextField
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.example.hobbyclubs.screens.create.event.ClubSelectionDropdownMenu
-import com.example.hobbyclubs.screens.create.news.CreateNewsViewModel
 import com.google.firebase.Timestamp
 import java.util.*
 
@@ -124,7 +119,6 @@ fun NewsCreationPage1(vm: CreateNewsViewModel) {
     val newsContent by vm.newsContent.observeAsState(null)
     val clubList by vm.clubsJoined.observeAsState(listOf())
     val selectedClub by vm.selectedClub.observeAsState(null)
-    val mMaxLength = 5
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -188,8 +182,7 @@ fun NewsCreationPage1(vm: CreateNewsViewModel) {
 @Composable
 fun NewsCreationPage2(vm: CreateNewsViewModel, navController: NavController) {
     val context = LocalContext.current
-    val selectImages by vm.selectedImage.observeAsState(null)
-    val selectImageBitmap by vm.selectedImageBitmap.observeAsState(null)
+    val selectedImage by vm.selectedImage.observeAsState(null)
     // First page
     val headline by vm.headline.observeAsState(null)
     val newsContent by vm.newsContent.observeAsState(null)
@@ -224,16 +217,17 @@ fun NewsCreationPage2(vm: CreateNewsViewModel, navController: NavController) {
                             ).show()
                         } else {
                             val news = News(
-                                clubId = selectedClub ?: "",
+                                clubId = selectedClub!!,
                                 publisherId = FirebaseHelper.uid!!,
                                 headline = headline!!.text,
                                 newsContent = newsContent!!.text,
                                 date = Timestamp.now()
                             )
                             val newsId = vm.addNews(news)
-                            selectImages?.let {
+                            selectedImage?.let {
                                 vm.storeNewsImage(it, newsId)
                             }
+                            vm.updateSingleNewsWithClubImageUri(clubId = selectedClub!!, newsId = newsId)
                             Toast.makeText(context, "News created.", Toast.LENGTH_SHORT).show()
                             navController.navigate(NavRoutes.HomeScreen.route)
                         }

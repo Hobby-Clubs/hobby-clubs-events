@@ -1,6 +1,5 @@
 package com.example.hobbyclubs.api
 
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Parcelable
 import android.util.Log
@@ -42,7 +41,7 @@ object FirebaseHelper {
         return db.collection(CollectionName.users).document(uid)
     }
 
-    fun updateUser(uid: String, changeMap: Map<String, Any>) {
+    fun updateUser(uid: String, changeMap: Map<String, Any?>) {
         val ref = db.collection("users").document(uid)
         ref
             .update(changeMap)
@@ -102,18 +101,6 @@ object FirebaseHelper {
 
     fun getAllClubs() = db.collection(CollectionName.clubs)
 
-    fun sendClubImage(imageName: String, clubId: String, imageBitmap: Bitmap) {
-        val storageRef =
-            Firebase.storage.reference.child("clubs").child(clubId).child(imageName)
-        val baos = ByteArrayOutputStream()
-        imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-        val bytes = baos.toByteArray()
-        storageRef.putBytes(bytes)
-            .addOnSuccessListener {
-                Log.d(TAG, "sendImage: picture uploaded ($imageName)")
-            }
-    }
-
     fun updateClubNextEvent(clubId: String, date: Timestamp) {
         val ref = db.collection(CollectionName.clubs).document(clubId)
         ref.update("nextEvent", date)
@@ -133,7 +120,7 @@ object FirebaseHelper {
         ref.set(eventWithId)
             .addOnSuccessListener {
                 Log.d(TAG, "addEvent: $ref")
-                event.clubId?.let { id ->
+                event.clubId.let { id ->
                     getNextEvent(id)
                         .get()
                         .addOnSuccessListener {
@@ -230,31 +217,6 @@ object FirebaseHelper {
     }
 
     fun getAllEvents() = db.collection(CollectionName.events)
-
-
-    fun sendNewsImage(imageId: String, newsId: String, imageBitmap: Bitmap) {
-        val storageRef = Firebase.storage.reference.child("news").child(newsId).child(imageId)
-        val baos = ByteArrayOutputStream()
-        imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-        val bytes = baos.toByteArray()
-        storageRef.putBytes(bytes)
-            .addOnSuccessListener {
-                Log.d(TAG, "sendImage: picture uploaded ($imageId)")
-            }
-    }
-
-
-    fun sendEventImage(imageId: String, eventId: String, imageBitmap: Bitmap) {
-        val storageRef =
-            Firebase.storage.reference.child("events").child(eventId).child(imageId)
-        val baos = ByteArrayOutputStream()
-        imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-        val bytes = baos.toByteArray()
-        storageRef.putBytes(bytes)
-            .addOnSuccessListener {
-                Log.d(TAG, "sendImage: picture uploaded ($imageId)")
-            }
-    }
 
     fun updateLikeEvent(updatedLikers: List<String>, eventId: String) {
         val ref = db.collection(CollectionName.events).document(eventId)
@@ -420,70 +382,7 @@ object FirebaseHelper {
 
     private val storage = Firebase.storage
 
-    fun addPic(uri: Uri, path: String) {
-        storage.reference.child(path).putFile(uri)
-            .addOnSuccessListener {
-                Log.d(TAG, "addPic: $path")
-            }
-            .addOnFailureListener {
-                Log.e(TAG, "addPic: ", it)
-            }
-    }
-
-    fun updateClubImages(clubId: String, newImages: List<Uri>, newLogo: Uri) {
-        var count = 0
-        getAllFiles("${CollectionName.clubs}/$clubId")
-            .addOnSuccessListener { list ->
-                list.items.forEach { ref ->
-                    ref.delete()
-                    Log.d(TAG, "deleted: ${ref.name}")
-                }
-                newImages.forEach { imageUri ->
-                    val imageName = if (count == 0) "banner" else "$count.jpg"
-                    addPic(imageUri, "${CollectionName.clubs}/$clubId/$imageName")
-                    count += 1
-                }
-                addPic(newLogo, "${CollectionName.clubs}/$clubId/logo")
-            }
-            .addOnFailureListener {
-                Log.e(TAG, "deleteImagesFail: ", it)
-            }
-
-    }
-
-    fun updateEventImages(eventId: String, newImages: List<Uri>) {
-        var count = 0
-        getAllFiles("${CollectionName.events}/$eventId")
-            .addOnSuccessListener { list ->
-                list.items.forEach { ref ->
-                    ref.delete()
-                    Log.d(TAG, "deleted: ${ref.name}")
-                }
-                newImages.forEach { imageUri ->
-                    val imageName = "$count.jpg"
-                    addPic(imageUri, "${CollectionName.events}/$eventId/$imageName")
-                    count += 1
-                }
-            }
-            .addOnFailureListener {
-                Log.e(TAG, "deleteImagesFail: ", it)
-            }
-
-    }
-
-    fun updateNewsImage(newsId: String, newBanner: Uri) {
-        getAllFiles("${CollectionName.news}/$newsId")
-            .addOnSuccessListener { list ->
-                list.items.forEach { ref ->
-                    ref.delete()
-                    Log.d(TAG, "deleted: ${ref.name}")
-                }
-                addPic(newBanner, "${CollectionName.news}/$newsId/newsImage.jpg")
-            }
-            .addOnFailureListener {
-                Log.e(TAG, "deleteImagesFail: ", it)
-            }
-    }
+    fun addPic(uri: Uri, path: String) = storage.reference.child(path).putFile(uri)
 
     fun updateNewsDetails(newsId: String, changeMap: Map<String, Any>) {
         val ref = db.collection(CollectionName.news).document(newsId)
@@ -539,6 +438,7 @@ data class User(
     var lName: String = "",
     val phone: String = "",
     val email: String = "",
+    val profilePicUri: String? = null,
     val interests: List<String> = listOf(),
     val firstTime: Boolean = true,
 ) : Parcelable
@@ -559,7 +459,9 @@ data class Club(
     var isPrivate: Boolean = false,
     val created: Timestamp = Timestamp.now(),
     val category: String = ClubCategory.other,
-    val nextEvent: Timestamp? = null
+    val nextEvent: Timestamp? = null,
+    val logoUri: String = "",
+    val bannerUri: String = "",
 ) : Parcelable
 
 @Parcelize
@@ -578,7 +480,8 @@ data class Event(
     var isPrivate: Boolean = false,
     val admins: List<String> = listOf(),
     val participants: List<String> = listOf(),
-    val likers: List<String> = listOf()
+    val likers: List<String> = listOf(),
+    val bannerUris: List<String> = listOf(),
 ) : Parcelable
 
 @Parcelize
@@ -589,12 +492,15 @@ data class News(
     val headline: String = "",
     val newsContent: String = "",
     val date: Timestamp = Timestamp.now(),
+    val newsImageUri: String = "",
+    val clubImageUri: String = "",
 ) : Parcelable
 
 @Parcelize
 data class Request(
     var id: String = "",
     val userId: String = "",
+    val profilePicUri: String? = null,
     val acceptedStatus: Boolean = false,
     val timeAccepted: Timestamp? = null,
     val message: String = "",

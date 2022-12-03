@@ -18,6 +18,8 @@ import com.example.hobbyclubs.screens.eventmanagement.EventManagementScreen
 import com.example.hobbyclubs.database.EventAlarmDBHelper
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.notifications.*
+import com.example.hobbyclubs.notifications.AlarmReceiver
+import com.example.hobbyclubs.screens.allmyoftype.AllMyScreen
 import com.example.hobbyclubs.screens.calendar.CalendarScreen
 import com.example.hobbyclubs.screens.clubmanagement.ClubAllEventsScreen
 import com.example.hobbyclubs.screens.clubmanagement.ClubAllNewsScreen
@@ -132,6 +134,14 @@ fun MyAppNavHost(navController: NavHostController) {
         // HomeScreen
         composable(NavRoutes.HomeScreen.route) {
             HomeScreen(navController = navController)
+        }
+        // AllMyScreen - All my clubs/events/news
+        composable(
+            NavRoutes.AllMyScreen.route + "/{type}",
+            arguments = listOf(navArgument("type") {type = NavType.StringType}),
+        ) {
+            val type = it.arguments!!.getString("type")!!
+            AllMyScreen(navController = navController, type = type)
         }
         // EventScreen
         composable(

@@ -5,7 +5,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -22,7 +22,6 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,12 +41,14 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.getSystemService
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.compose.*
 import com.example.hobbyclubs.R
+import com.example.hobbyclubs.api.Event
+import com.example.hobbyclubs.api.FirebaseHelper
+import com.example.hobbyclubs.api.News
 import com.example.hobbyclubs.api.*
 import com.example.hobbyclubs.navigation.BottomBar
 import com.example.hobbyclubs.navigation.NavRoutes
@@ -251,28 +252,30 @@ fun MockDrawerContent(navToFirstTime: () -> Unit, logout: () -> Unit, onClick: (
 }
 
 @Composable
-fun FakeButtonForNavigationTest(destination: String, onClick: () -> Unit) {
-    Button(
-        onClick = { onClick() },
-        modifier = Modifier.padding(10.dp)
-    ) {
-        Text(text = destination)
-    }
-}
-
-@Composable
-fun LazyColumnHeader(modifier: Modifier = Modifier, text: String) {
+fun LazyColumnHeader(modifier: Modifier = Modifier, text: String, onHomeScreen: Boolean = false, onClick: () -> Unit = {}) {
     Box(
         modifier = modifier
             .fillMaxWidth()
             .background(colorScheme.background)
+            .clickable {
+                onClick()
+            }
     ) {
-        Text(
-            modifier = Modifier.padding(vertical = 16.dp),
-            text = text,
-            fontWeight = FontWeight.Light,
-            fontSize = 24.sp
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(end = 20.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                modifier = Modifier.padding(vertical = 16.dp),
+                text = text,
+                fontWeight = FontWeight.Light,
+                fontSize = 24.sp
+            )
+            if (onHomeScreen) Icon(Icons.Outlined.NavigateNext, null, modifier = Modifier.size(24.dp))
+        }
     }
 }
 
@@ -375,9 +378,9 @@ fun CustomOutlinedTextField(
     focusManager: FocusManager,
     keyboardType: KeyboardType,
     label: String,
-    singleLine : Boolean = false,
+    singleLine: Boolean = false,
     placeholder: String,
-    ) {
+) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
@@ -385,7 +388,7 @@ fun CustomOutlinedTextField(
             imeAction = ImeAction.Done,
             keyboardType = keyboardType,
 
-        ),
+            ),
         keyboardActions = KeyboardActions(
             onDone = { focusManager.clearFocus() }
         ),
@@ -400,7 +403,6 @@ fun CustomOutlinedTextField(
 fun EventTile(
     modifier: Modifier = Modifier,
     event: Event,
-    picUri: Uri?,
     onClick: () -> Unit,
 ) {
     val joined = event.participants.contains(FirebaseHelper.uid)
@@ -425,11 +427,11 @@ fun EventTile(
             ) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data(picUri)
+                        .data(event.bannerUris.first())
                         .crossfade(true)
                         .build(),
                     contentDescription = "Tile background",
-                    error = painterResource(id = R.drawable.ic_launcher),
+                    error = painterResource(id = R.drawable.nokia_logo),
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxSize(),
@@ -446,7 +448,19 @@ fun EventTile(
                     JoinEventButton(
                         isJoined = joined,
                         onJoinEvent = {
-                            joinEvent(event, context)
+                            if (event.participantLimit != -1) {
+                                if (event.participants.size < event.participantLimit) {
+                                    joinEvent(event, context)
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        "Event is currently full.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            } else {
+                                joinEvent(event, context)
+                            }
                         },
                         onLeaveEvent = {
                             leaveEvent(event, context)
@@ -651,32 +665,19 @@ fun SmallTileForClubManagement(
     val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH)
     val time = SimpleDateFormat("HH:mm", Locale.ENGLISH)
     val isEvent = data is Event
-    var title = ""
-    var date = ""
-    var path = ""
+    val title: String
+    val date: String
+    val picUri: String
     if (isEvent) {
         val event = data as Event
         title = event.name
         date = sdf.format(event.date.toDate()) + " at " + time.format(event.date.toDate())
-        path = "${CollectionName.events}/${event.id}/0.jpg"
+        picUri = event.bannerUris.first()
     } else {
         val news = data as News
         title = news.headline
         date = sdf.format(news.date.toDate())
-        path = "${CollectionName.clubs}/${news.clubId}/logo"
-    }
-    var picUri: Uri? by rememberSaveable { mutableStateOf(null) }
-    LaunchedEffect(Unit) {
-        if (picUri == null) {
-            FirebaseHelper.getFile(path)
-                .downloadUrl
-                .addOnSuccessListener {
-                    picUri = it
-                }
-                .addOnFailureListener {
-                    Log.e("getLogoUri", "SmallNewsTile: ", it)
-                }
-        }
+        picUri = news.newsImageUri
     }
     Card(
         modifier = modifier
@@ -704,7 +705,7 @@ fun SmallTileForClubManagement(
                     .build(),
                 contentDescription = "logo",
                 contentScale = ContentScale.Crop,
-                error = painterResource(id = R.drawable.ic_launcher)
+                error = painterResource(id = R.drawable.nokia_logo)
             )
             Column(
                 Modifier
@@ -770,23 +771,15 @@ fun CustomAlertDialog(
 }
 
 @Composable
-fun SmallNewsTile(modifier: Modifier = Modifier, news: News, onClick: () -> Unit) {
+fun SmallNewsTile(
+    modifier: Modifier = Modifier,
+    news: News,
+    onClick: () -> Unit
+) {
     val screenWidth = LocalConfiguration.current.screenWidthDp
-    var picUri: Uri? by rememberSaveable { mutableStateOf(null) }
     val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH)
     val date = sdf.format(news.date.toDate())
-    LaunchedEffect(Unit) {
-        if (picUri == null && news.clubId.isNotEmpty()) {
-            FirebaseHelper.getFile("${CollectionName.clubs}/${news.clubId}/logo")
-                .downloadUrl
-                .addOnSuccessListener {
-                    picUri = it
-                }
-                .addOnFailureListener {
-                    Log.e("getLogoUri", "SmallNewsTile: ", it)
-                }
-        }
-    }
+
     Card(
         modifier = modifier
             .aspectRatio(4.7f)
@@ -808,12 +801,12 @@ fun SmallNewsTile(modifier: Modifier = Modifier, news: News, onClick: () -> Unit
                     .aspectRatio(1f)
                     .clip(CircleShape),
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(picUri)
+                    .data(news.clubImageUri)
                     .crossfade(true)
                     .build(),
                 contentDescription = "logo",
                 contentScale = ContentScale.Crop,
-                error = painterResource(id = R.drawable.ic_launcher)
+                error = painterResource(id = R.drawable.nokia_logo)
             )
             Column(
                 Modifier
@@ -821,7 +814,7 @@ fun SmallNewsTile(modifier: Modifier = Modifier, news: News, onClick: () -> Unit
                     .fillMaxHeight()
                     .padding(end = 4.dp),
                 verticalArrangement = Arrangement.SpaceBetween,
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.Start
             ) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(

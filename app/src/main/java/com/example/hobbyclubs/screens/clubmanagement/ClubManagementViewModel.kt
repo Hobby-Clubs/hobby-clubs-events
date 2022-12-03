@@ -29,20 +29,20 @@ class ClubManagementViewModel() : ViewModel() {
     val contactInfoNumber = MutableLiveData<TextFieldValue>()
     val currentLinkName = MutableLiveData<TextFieldValue>()
     val currentLinkURL = MutableLiveData<TextFieldValue>()
-    val selectedBannerImages = MutableLiveData<MutableList<Uri>>()
+    val selectedBannerImage = MutableLiveData<Uri>()
     val selectedClubLogo = MutableLiveData<Uri>()
     val givenLinksLiveData = MutableLiveData<Map<String, String>>(mapOf())
 
     fun fillPreviousClubData(club: Club) {
         clubName.value = TextFieldValue(club.name)
-        clubDescription.value  = TextFieldValue(club.description)
-        contactInfoEmail.value  = TextFieldValue(club.contactEmail)
-        contactInfoNumber.value  = TextFieldValue(club.contactPhone)
-        contactInfoName.value  = TextFieldValue(club.contactPerson)
+        clubDescription.value = TextFieldValue(club.description)
+        contactInfoEmail.value = TextFieldValue(club.contactEmail)
+        contactInfoNumber.value = TextFieldValue(club.contactPhone)
+        contactInfoName.value = TextFieldValue(club.contactPerson)
         givenLinksLiveData.value = club.socials
     }
 
-    fun updateClubDetails(clubId: String, changeMap: Map<String,Any>) {
+    fun updateClubDetails(clubId: String, changeMap: Map<String, Any>) {
         firebase.updateClubDetails(clubId, changeMap)
     }
 
@@ -84,18 +84,56 @@ class ClubManagementViewModel() : ViewModel() {
         currentLinkURL.value = null
     }
 
-    fun temporarilyStoreImages(bannerUri: MutableList<Uri>? = null, logoUri: Uri? = null) {
-        bannerUri?.let { selectedBannerImages.value = it }
+    fun temporarilyStoreImages(bannerUri: Uri? = null, logoUri: Uri? = null) {
+        bannerUri?.let { selectedBannerImage.value = it }
         logoUri?.let { selectedClubLogo.value = it }
     }
 
-    fun replaceClubImages(clubId: String, newImages: List<Uri>, newLogo: Uri) {
-        firebase.updateClubImages(clubId, newImages, newLogo)
+    fun replaceClubImage(bannerUri: Uri, logoUri: Uri, clubId: String) {
+        firebase.addPic(bannerUri, "${CollectionName.clubs}/$clubId/banner")
+            .addOnSuccessListener {
+                it.storage.downloadUrl.addOnSuccessListener { downloadUrl ->
+                    val changeMap = mapOf(
+                        Pair("bannerUri", downloadUrl)
+                    )
+                    firebase.updateClubDetails(clubId, changeMap)
+                }
+            }
+            .addOnFailureListener {
+                Log.e(FirebaseHelper.TAG, "addPic: ", it)
+            }
+        firebase.addPic(logoUri, "${CollectionName.clubs}/$clubId/logo")
+            .addOnSuccessListener {
+                it.storage.downloadUrl.addOnSuccessListener { downloadUrl ->
+                    val changeMap = mapOf(
+                        Pair("logoUri", downloadUrl)
+                    )
+                    firebase.updateClubDetails(clubId, changeMap)
+                    updateClubsNewsOfUriChanges(clubId, downloadUrl)
+                }
+            }
+            .addOnFailureListener {
+                Log.e(FirebaseHelper.TAG, "addPic: ", it)
+            }
+    }
+
+    private fun updateClubsNewsOfUriChanges(clubId: String, uri: Uri) {
+        firebase.getAllNewsOfClub(clubId).get()
+            .addOnSuccessListener {
+                val fetched = it.toObjects(News::class.java)
+                fetched.forEach { singleNews ->
+                    val changeMap = mapOf(
+                        Pair("clubImageUri", uri)
+                    )
+                    firebase.updateNewsDetails(singleNews.id, changeMap)
+                }
+            }
     }
 
     fun updateClubName(newVal: TextFieldValue) {
         clubName.value = newVal
     }
+
     fun updateClubDescription(newVal: TextFieldValue) {
         clubDescription.value = newVal
     }
@@ -113,13 +151,14 @@ class ClubManagementViewModel() : ViewModel() {
     }
 
     fun getClub(clubId: String) {
-        firebase.getClub(uid = clubId).get()
-            .addOnSuccessListener { data ->
+        firebase.getClub(uid = clubId)
+            .addSnapshotListener() { data, error ->
+                data ?: run {
+                    Log.e("getClub", "getClub: ", error)
+                    return@addSnapshotListener
+                }
                 val fetchedClub = data.toObject(Club::class.java)
                 fetchedClub?.let { selectedClub.postValue(fetchedClub) }
-            }
-            .addOnFailureListener {
-                Log.e("FetchClub", "getClubFail: ", it)
             }
     }
 
@@ -155,6 +194,7 @@ class ClubManagementViewModel() : ViewModel() {
             firebase.deleteNews(id)
         }
     }
+
     fun deleteEvent() {
         selectedEventId.value?.let { id ->
             firebase.deleteEvent(id)

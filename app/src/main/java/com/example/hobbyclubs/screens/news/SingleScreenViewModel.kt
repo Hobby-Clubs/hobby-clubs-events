@@ -11,7 +11,6 @@ import com.example.hobbyclubs.api.*
 class SingleScreenViewModel : ViewModel() {
     val firebase = FirebaseHelper
     val selectedNews = MutableLiveData<News>()
-    val newsUri = MutableLiveData<Uri>()
     val headline = MutableLiveData<TextFieldValue>()
     val newsContent = MutableLiveData<TextFieldValue>()
     val currentUser = MutableLiveData<User>()
@@ -35,7 +34,18 @@ class SingleScreenViewModel : ViewModel() {
     }
 
     fun updateNewsImage(picUri: Uri, newsId: String) {
-        firebase.updateNewsImage(newsId, picUri)
+        FirebaseHelper.addPic(picUri, "${CollectionName.news}/$newsId/newsImage.jpg")
+            .addOnSuccessListener {
+                it.storage.downloadUrl.addOnSuccessListener { downloadUrl ->
+                    val changeMap = mapOf(
+                        Pair("newsImageUri", downloadUrl)
+                    )
+                    firebase.updateNewsDetails(newsId, changeMap)
+                }
+            }
+            .addOnFailureListener {
+                Log.e(FirebaseHelper.TAG, "addPic: ", it)
+            }
     }
 
     fun updateNews(newsId: String, changeMap: Map<String, Any>) {
@@ -86,7 +96,7 @@ class SingleScreenViewModel : ViewModel() {
         }
     }
 
-    fun getImage(newsRef: String) =
-        FirebaseHelper.getFile("${CollectionName.news}/$newsRef/newsImage.jpg").downloadUrl
-            .addOnSuccessListener { newsUri.value = it }
+//    fun getImage(newsRef: String) =
+//        FirebaseHelper.getFile("${CollectionName.news}/$newsRef/newsImage.jpg").downloadUrl
+//            .addOnSuccessListener { newsUri.value = it }
 }

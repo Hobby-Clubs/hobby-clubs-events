@@ -144,74 +144,6 @@ fun ProgressionBar(isMarked: Boolean, onClick: () -> Unit) {
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalPagerApi::class)
-@Composable
-fun SelectedImagesDialog(
-    selectedImages: List<Uri>? = null,
-    selectedLogo: Uri? = null,
-    onConfirm: () -> Unit,
-    onDismissRequest: () -> Unit
-) {
-    Dialog(
-        onDismissRequest = { onDismissRequest() },
-        properties = DialogProperties(usePlatformDefaultWidth = false)
-    ) {
-        Card(
-            colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
-            modifier = Modifier.padding(horizontal = 10.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .wrapContentSize()
-                    .padding(10.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .wrapContentSize()
-                        .padding(5.dp)
-                ) {
-                    Text(text = "Image Previews")
-                    Spacer(modifier = Modifier.height(10.dp))
-                    val pagerState2 = rememberPagerState()
-                    selectedImages?.let {
-                        HorizontalPager(
-                            count = it.size,
-                            state = pagerState2,
-                            itemSpacing = 10.dp,
-                            contentPadding = PaddingValues(end = 150.dp)
-                        ) { page ->
-                            Log.d("imageList", "page: $page, index: ${it[page]}")
-                            SelectedImageItem(uri = it[page])
-                        }
-                        HorizontalPagerIndicator(
-                            pagerState = pagerState2,
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .padding(16.dp),
-                        )
-                    }
-                    selectedLogo?.let {
-                        SelectedImageItem(uri = it)
-                    }
-                    Spacer(modifier = Modifier.height(15.dp))
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        CustomButton(
-                            onClick = { onDismissRequest() },
-                            text = "Cancel",
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = colorScheme.onSurfaceVariant,
-                                contentColor = colorScheme.surfaceVariant
-                            )
-                        )
-                        CustomButton(onClick = { onConfirm() }, text = "Save Selection")
-                    }
-
-                }
-            }
-        }
-    }
-}
-
 @Composable
 fun SelectedImageItem(bitmap: Bitmap? = null, uri: Uri? = null) {
     if (bitmap != null) {
@@ -516,9 +448,7 @@ fun EventCreationPage1(vm: CreateEventViewModel) {
 @Composable
 fun EventCreationPage2(vm: CreateEventViewModel) {
 
-    val context = LocalContext.current
     val selectedImages by vm.selectedImages.observeAsState(mutableListOf())
-    val selectedImagesAsBitmap by vm.imagesAsBitmap.observeAsState(listOf())
     var showImagePreview by remember { mutableStateOf(false) }
     val galleryLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uriList ->
@@ -553,15 +483,15 @@ fun EventCreationPage2(vm: CreateEventViewModel) {
                     modifier = Modifier.padding(bottom = 20.dp)
                 )
                 val pagerState = rememberPagerState()
-                if (selectedImagesAsBitmap.isNotEmpty()) {
+                if (selectedImages.isNotEmpty()) {
                     HorizontalPager(
-                        count = selectedImagesAsBitmap.size,
+                        count = selectedImages.size,
                         state = pagerState,
                         itemSpacing = 10.dp,
                         contentPadding = PaddingValues(end = 150.dp)
                     ) { page ->
-                        Log.d("imageList", "page: $page, index: ${selectedImagesAsBitmap[page]}")
-                        SelectedImageItem(bitmap = selectedImagesAsBitmap[page])
+                        Log.d("imageList", "page: $page, index: ${selectedImages[page]}")
+                        SelectedImageItem(uri = selectedImages[page])
                     }
                     HorizontalPagerIndicator(
                         pagerState = pagerState,
@@ -605,16 +535,6 @@ fun EventCreationPage2(vm: CreateEventViewModel) {
                         .height(60.dp)
                 )
             }
-        }
-        if (showImagePreview) {
-            SelectedImagesDialog(
-                selectedImages = selectedImages,
-                onConfirm = {
-                    vm.convertUriToBitmap(selectedImages, context)
-                    vm.emptySelection()
-                    showImagePreview = false
-                },
-                onDismissRequest = { showImagePreview = false })
         }
     }
 }
@@ -750,7 +670,7 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
     val currentUser by vm.currentUser.observeAsState()
     val currentlySelectedClub by vm.currentlySelectedClub.observeAsState(null)
 
-    val selectedImages by vm.imagesAsBitmap.observeAsState()
+    val selectedImages by vm.selectedImages.observeAsState()
 
     // Last Page
     val contactInfoName by vm.contactInfoName.observeAsState(null)
@@ -881,10 +801,10 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
                                 linkArray = if (linkArray == null || linkArray!!.isEmpty()) mapOf() else linkArray!!,
                                 contactInfoName = contactInfoName!!.text,
                                 contactInfoEmail = contactInfoEmail!!.text,
-                                contactInfoNumber = contactInfoNumber!!.text
+                                contactInfoNumber = contactInfoNumber!!.text,
                             )
                             val eventId = vm.addEvent(event)
-                            vm.storeBitmapsOnFirebase(
+                            vm.storeImagesOnFirebase(
                                 listToStore = selectedImages?.toList() ?: listOf(),
                                 eventId = eventId
                             )

@@ -3,7 +3,6 @@ package com.example.hobbyclubs.screens.event
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -11,10 +10,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,18 +22,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.compose.linkBlue
-import com.example.hobbyclubs.api.CollectionName
 import com.example.hobbyclubs.api.Event
-import com.example.hobbyclubs.api.FirebaseHelper
-import com.example.hobbyclubs.general.DividerLine
-import com.example.hobbyclubs.general.JoinEventButton
-import com.example.hobbyclubs.general.LikeEventButton
-import com.example.hobbyclubs.general.ManageEventButton
+import com.example.hobbyclubs.general.*
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.clubpage.ClubSectionTitle
 import java.text.SimpleDateFormat
@@ -50,15 +42,14 @@ fun EventScreen(
     eventId: String
 ) {
     val context = LocalContext.current
-    val event by vm.selectedEvent.observeAsState(null)
+    val selectedEvent by vm.selectedEvent.observeAsState(null)
     val isAdmin by vm.isAdmin.observeAsState(false)
-    val screenWidth = LocalConfiguration.current.screenWidthDp
 
     LaunchedEffect(Unit) {
         vm.getEvent(eventId)
     }
 
-    event?.let { event ->
+    selectedEvent?.let { event ->
         Scaffold() { padding ->
             Column(
                 modifier = Modifier
@@ -67,7 +58,7 @@ fun EventScreen(
                     .padding(padding),
                 horizontalAlignment = Alignment.Start,
             ) {
-                EventHeader(navController, context, event, isAdmin, vm)
+                EventHeader(navController, event, isAdmin, vm)
                 DividerLine()
                 EventDescription(event.description)
                 DividerLine()
@@ -97,7 +88,6 @@ fun EventScreen(
 @Composable
 fun EventHeader(
     navController: NavController,
-    context: Context,
     event: Event,
     isAdmin: Boolean,
     vm: EventScreenViewModel
@@ -107,36 +97,11 @@ fun EventHeader(
     val hasJoinedEvent by vm.hasJoinedEvent.observeAsState(false)
     val hasLikedEvent by vm.hasLikedEvent.observeAsState(false)
     val hostClub by vm.selectedEventHostClub.observeAsState(null)
-    var picUri: Uri? by rememberSaveable { mutableStateOf(null) }
+    val context = LocalContext.current
 
     val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH)
     val dateFormatted = sdf.format(event.date.toDate())
     val time = SimpleDateFormat("HH:mm", Locale.ENGLISH).format(event.date.toDate())
-
-    LaunchedEffect(Unit) {
-        if (picUri == null) {
-            FirebaseHelper.getAllFiles("${CollectionName.events}/${event.id}")
-                .addOnSuccessListener { res ->
-                    val items = res.items
-                    if (items.isEmpty()) {
-                        return@addOnSuccessListener
-                    }
-                    val bannerRef = items.find { it.name == "0.jpg" } ?: items.first()
-                    bannerRef
-                        .downloadUrl
-                        .addOnSuccessListener {
-                            picUri = it
-                        }
-                        .addOnFailureListener {
-                            Log.e("getPicUri", "EventHeader: ", it)
-                        }
-                }
-                .addOnFailureListener {
-                    Log.e("getAllFiles", "EventHeader: ", it)
-                }
-        }
-    }
-
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -150,7 +115,7 @@ fun EventHeader(
             Box(modifier = Modifier.fillMaxSize()) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data(picUri)
+                        .data(event.bannerUris.first())
                         .crossfade(true)
                         .build(),
                     contentDescription = "background image",
@@ -225,7 +190,7 @@ fun EventHeader(
                         horizontalArrangement = Arrangement.End
                     ) {
                         Text(
-                            text = "${event.participants.size} participants",
+                            text = "${event.participants.size} ${if (event.participants.size == 1) "participant" else "participants"}",
                             fontSize = 14.sp,
                         )
                         Icon(
@@ -250,10 +215,22 @@ fun EventHeader(
                     isJoined = hasJoinedEvent,
                     modifier = Modifier.padding(end = 40.dp),
                     onJoinEvent = {
-                        vm.joinEvent(event)
+                        if (event.participantLimit != -1) {
+                            if (event.participants.size < event.participantLimit) {
+                                joinEvent(event, context)
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "Event is currently full.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        } else {
+                            joinEvent(event, context)
+                        }
                     },
                     onLeaveEvent = {
-                        vm.cancelEventJoin(event)
+                        leaveEvent(event, context)
                     })
                 if (isAdmin) {
                     ManageEventButton() {

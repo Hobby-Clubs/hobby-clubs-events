@@ -1,7 +1,5 @@
 package com.example.hobbyclubs.screens.clubmembers
 
-import android.net.Uri
-import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -16,7 +14,6 @@ import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,7 +29,6 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.Club
-import com.example.hobbyclubs.api.CollectionName
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.User
 import com.example.hobbyclubs.screens.clubmanagement.ClubManagementSectionTitle
@@ -50,12 +46,12 @@ fun ClubMembersScreen(
     LaunchedEffect(Unit) {
         vm.getClub(clubId)
     }
-    club?.let { club ->
-        Scaffold() {
+    club?.let {
+        Scaffold() { padding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(vertical = it.calculateBottomPadding(), horizontal = 20.dp),
+                    .padding(vertical = padding.calculateBottomPadding(), horizontal = 20.dp),
                 horizontalAlignment = Alignment.Start,
             ) {
                 Text(
@@ -64,10 +60,10 @@ fun ClubMembersScreen(
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(top = 75.dp, bottom = 20.dp),
                 )
-                ListOfClubMembers(listOfMembers, vm, club)
+                ListOfClubMembers(listOfMembers, vm, it)
             }
             CenterAlignedTopAppBar(
-                title = { Text(text = club.name, fontSize = 16.sp) },
+                title = { Text(text = it.name, fontSize = 16.sp) },
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
@@ -83,12 +79,11 @@ fun ClubMembersScreen(
 fun ListOfClubMembers(
     listOfMembers: List<User>,
     vm: ClubMembersViewModel,
-    club: Club
+    club: Club,
 ) {
     var selectedMemberUid: String? by remember { mutableStateOf(null) }
     val listOfAdmins = listOfMembers.filter { club.admins.contains(it.uid) }
     val listOfNormalMembers = listOfMembers.filter { !club.admins.contains(it.uid) }
-    Log.d("listOfMembers", "ListOfMembers: $listOfMembers")
 
     LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         item { ClubManagementSectionTitle(text = "Admins") }
@@ -104,7 +99,7 @@ fun ListOfClubMembers(
                 },
                 isSelected = selectedMemberUid == admin.uid,
                 vm = vm,
-                club = club
+                club = club,
             )
         }
         item { ClubManagementSectionTitle(text = "Members") }
@@ -121,7 +116,7 @@ fun ListOfClubMembers(
                 },
                 isSelected = selectedMemberUid == member.uid,
                 vm = vm,
-                club = club
+                club = club,
             )
         }
     }
@@ -136,25 +131,12 @@ fun MemberCard(
     onPromote: () -> Unit,
     isSelected: Boolean,
     vm: ClubMembersViewModel,
-    club: Club
+    club: Club,
 ) {
-    val context = LocalContext.current
     var expandedState by remember { mutableStateOf(false) }
-    var picUri: Uri? by rememberSaveable { mutableStateOf(null) }
     val isPromotable = !club.admins.contains(user.uid)
     val isKickable = (user.uid != FirebaseHelper.uid && !club.admins.contains(user.uid))
-    LaunchedEffect(Unit) {
-        if (picUri == null) {
-            FirebaseHelper.getFile("${CollectionName.users}/${user.uid}")
-                .downloadUrl
-                .addOnSuccessListener {
-                    picUri = it
-                }
-                .addOnFailureListener {
-                    Log.e("getLogoUri", "SmallNewsTile: ", it)
-                }
-        }
-    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -177,7 +159,7 @@ fun MemberCard(
                     .padding(horizontal = 15.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                MemberImage(uri = picUri)
+                MemberImage(uri = user.profilePicUri)
                 Text(
                     text = "${user.fName} ${user.lName}", fontSize = 16.sp, modifier = Modifier
                         .weight(6f)
@@ -214,7 +196,7 @@ fun MemberCard(
 }
 
 @Composable
-fun MemberImage(uri: Uri?) {
+fun MemberImage(uri: String?) {
     Card(
         shape = CircleShape,
         border = BorderStroke(2.dp, Color.Black),
@@ -229,7 +211,7 @@ fun MemberImage(uri: Uri?) {
             contentDescription = "avatar",
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize(),
-            error = painterResource(id = R.drawable.ic_launcher)
+            error = painterResource(id = R.drawable.nokia_logo)
         )
     }
 }

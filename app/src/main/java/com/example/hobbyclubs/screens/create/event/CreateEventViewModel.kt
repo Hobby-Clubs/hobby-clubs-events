@@ -1,19 +1,12 @@
 package com.example.hobbyclubs.screens.create.event
 
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
 import android.net.Uri
 import android.util.Log
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.hobbyclubs.api.Club
-import com.example.hobbyclubs.api.Event
-import com.example.hobbyclubs.api.FirebaseHelper
-import com.example.hobbyclubs.api.User
-import com.google.firebase.Timestamp
+import com.example.hobbyclubs.api.*
+import com.google.firebase.firestore.FieldValue
 import java.util.*
 
 class CreateEventViewModel : ViewModel() {
@@ -121,34 +114,27 @@ class CreateEventViewModel : ViewModel() {
         return firebase.addEvent(event)
     }
 
-    val imagesAsBitmap = MutableLiveData<MutableList<Bitmap>>()
-    private val selectedImagesAsBitmaps = mutableListOf<Bitmap>()
-    fun convertUriToBitmap(images: List<Uri>, context: Context) {
-
-        images.forEach { image ->
-            val source = ImageDecoder.createSource(context.contentResolver, image)
-            val bitmap = ImageDecoder.decodeBitmap(source)
-            selectedImagesAsBitmaps.add(bitmap)
-            Log.d("imageList", selectedImagesAsBitmaps.toString())
-        }
-        imagesAsBitmap.value = selectedImagesAsBitmaps
-        imagesAsBitmap.notifyObserver()
-    }
-
-    var count = 0
-    fun storeBitmapsOnFirebase(listToStore: List<Bitmap>, eventId: String) {
-        listToStore.forEach { bitmap ->
-            firebase.sendEventImage(imageId = "$count.jpg", eventId = eventId, imageBitmap = bitmap)
+    private var count = 0
+    fun storeImagesOnFirebase(listToStore: List<Uri>, eventId: String) {
+        listToStore.forEach { uri ->
+            firebase.addPic(uri ,"${CollectionName.events}/$eventId/$count.jpg")
+                .addOnSuccessListener {
+                    it.storage.downloadUrl.addOnSuccessListener { downloadUrl ->
+                        val changeMap = mapOf(
+                            Pair("bannerUris", FieldValue.arrayUnion(downloadUrl))
+                        )
+                        firebase.updateEventDetails(eventId, changeMap)
+                    }
+                }
+                .addOnFailureListener {
+                    Log.e(FirebaseHelper.TAG, "addPic: ", it)
+                }
             count += 1
         }
     }
 
     fun temporarilyStoreImages(images: MutableList<Uri>) {
         selectedImages.value = images
-    }
-
-    fun emptySelection() {
-        selectedImages.value = mutableListOf()
     }
 
     fun getCurrentUser() {
@@ -168,8 +154,4 @@ class CreateEventViewModel : ViewModel() {
         contactInfoNumber.value = TextFieldValue(user.phone)
     }
 
-}
-
-fun <T> MutableLiveData<T>.notifyObserver() {
-    this.value = this.value
 }

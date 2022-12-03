@@ -1,6 +1,5 @@
 package com.example.hobbyclubs.screens.clubmanagement
 
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -36,11 +35,6 @@ import com.example.hobbyclubs.general.CustomOutlinedTextField
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.example.hobbyclubs.screens.create.event.SelectedImageItem
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.HorizontalPagerIndicator
-import com.google.accompanist.pager.rememberPagerState
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
@@ -169,18 +163,18 @@ fun ClubSettingsScreen(
                     )
                 }
                 if (showDeleteClubDialog) {
-                        CustomAlertDialog(
-                            onDismissRequest = { showDeleteClubDialog = false },
-                            onConfirm = {
-                                scope.launch {
-                                    vm.deleteClub(clubId)
-                                    navController.navigate(NavRoutes.HomeScreen.route)
-                                }
-                            },
-                            title = "Delete Club?",
-                            text = "Are you sure you want to delete this club? There is no going back.",
-                            confirmText = "Delete"
-                        )
+                    CustomAlertDialog(
+                        onDismissRequest = { showDeleteClubDialog = false },
+                        onConfirm = {
+                            scope.launch {
+                                vm.deleteClub(clubId)
+                                navController.navigate(NavRoutes.HomeScreen.route)
+                            }
+                        },
+                        title = "Delete Club?",
+                        text = "Are you sure you want to delete this club? There is no going back.",
+                        confirmText = "Delete"
+                    )
 
                 }
                 CenterAlignedTopAppBar(
@@ -289,15 +283,14 @@ fun NameAndDescriptionSheet(vm: ClubManagementViewModel, clubId: String, onSave:
     }
 }
 
-@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun LogoAndBannerSheet(vm: ClubManagementViewModel, clubId: String, onSave: () -> Unit) {
     val screenHeight = LocalConfiguration.current.screenHeightDp
-    val selectedImages by vm.selectedBannerImages.observeAsState(mutableListOf())
+    val selectedImage by vm.selectedBannerImage.observeAsState()
     val selectedLogo by vm.selectedClubLogo.observeAsState(null)
     val galleryLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uriList ->
-            vm.temporarilyStoreImages(bannerUri = uriList.toMutableList())
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            vm.temporarilyStoreImages(bannerUri = uri)
         }
     val galleryLauncherLogo =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -368,25 +361,8 @@ fun LogoAndBannerSheet(vm: ClubManagementViewModel, clubId: String, onSave: () -
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(bottom = 20.dp)
                     )
-                    val pagerState = rememberPagerState()
-                    if (selectedImages.isNotEmpty()) {
-                        HorizontalPager(
-                            count = selectedImages.size,
-                            state = pagerState,
-                            itemSpacing = 10.dp,
-                            contentPadding = PaddingValues(end = 200.dp)
-                        ) { page ->
-                            Log.d("imageList", "page: $page, index: ${selectedImages[page]}")
-                            SelectedImageItem(uri = selectedImages[page])
-                        }
-                        if (selectedImages.size > 1) {
-                            HorizontalPagerIndicator(
-                                pagerState = pagerState,
-                                modifier = Modifier
-                                    .align(Alignment.CenterHorizontally)
-                                    .padding(16.dp),
-                            )
-                        }
+                    if (selectedImage != null) {
+                        SelectedImageItem(uri = selectedImage)
                     } else {
                         Box(modifier = Modifier.size(100.dp))
                     }
@@ -395,11 +371,11 @@ fun LogoAndBannerSheet(vm: ClubManagementViewModel, clubId: String, onSave: () -
         }
         CustomButton(
             onClick = {
-                if (selectedLogo != null && selectedImages != null) {
-                    vm.replaceClubImages(
+                if (selectedLogo != null && selectedImage != null) {
+                    vm.replaceClubImage(
                         clubId = clubId,
-                        newImages = selectedImages,
-                        newLogo = selectedLogo!!
+                        bannerUri = selectedImage!!,
+                        logoUri = selectedLogo!!
                     )
                     onSave()
                 }
@@ -523,7 +499,6 @@ fun SocialLinksSheet(vm: ClubManagementViewModel, clubId: String, onSave: () -> 
 fun ContactInfoSheet(vm: ClubManagementViewModel, clubId: String, onSave: () -> Unit) {
     val screenHeight = LocalConfiguration.current.screenHeightDp
     val focusManager = LocalFocusManager.current
-    val context = LocalContext.current
 
     val contactInfoName by vm.contactInfoName.observeAsState(TextFieldValue(""))
     val contactInfoEmail by vm.contactInfoEmail.observeAsState(TextFieldValue(""))

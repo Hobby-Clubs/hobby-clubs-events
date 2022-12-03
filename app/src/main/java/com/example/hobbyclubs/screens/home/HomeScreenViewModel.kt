@@ -11,12 +11,9 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.hobbyclubs.api.*
 import com.example.hobbyclubs.notifications.InAppNotificationService
 import com.google.firebase.Timestamp
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 class HomeScreenViewModel : ViewModel() {
     companion object {
@@ -29,7 +26,7 @@ class HomeScreenViewModel : ViewModel() {
     val isFirstTimeUser = MutableLiveData<Boolean>()
     val allClubs = MutableLiveData<List<Club>>()
     val myClubs = Transformations.map(allClubs) { clubs ->
-        clubs.filter { it.members.contains(FirebaseHelper.uid) }
+        clubs.filter { club -> club.members.contains(FirebaseHelper.uid) }
     }
     val allEvents = MutableLiveData<List<Event>>()
     val myEvents = Transformations.map(allEvents) { events ->
@@ -42,27 +39,24 @@ class HomeScreenViewModel : ViewModel() {
     }
 
     val allNews = MutableLiveData<List<News>>()
+    val myNews = Transformations.map(allNews) { news ->
+        myClubs.value?.let { clubList ->
+            news.filter { singleNews ->
+                clubList.map { club -> club.ref }.contains(singleNews.clubId)
+            }
+        }
+    }
+
     val searchInput = MutableLiveData("")
 
     init {
         checkFirstTime()
-        getUserPicUri()
         fetchAllClubs()
         fetchAllEvents()
         fetchAllNews()
     }
 
-    fun getUserPicUri() {
-        FirebaseHelper.uid?.let { uid ->
-            FirebaseHelper.getFile("${CollectionName.users}/$uid")
-                .downloadUrl
-                .addOnSuccessListener {
-                    userPicUri.value = it
-                }
-        }
-    }
-
-    fun checkFirstTime() {
+    private fun checkFirstTime() {
         FirebaseHelper.uid?.let {
             FirebaseHelper.getUser(it)
                 .get()
@@ -75,7 +69,7 @@ class HomeScreenViewModel : ViewModel() {
         }
     }
 
-    fun fetchAllEvents() {
+    private fun fetchAllEvents() {
         val now = Timestamp.now()
         FirebaseHelper.getAllEvents()
             .addSnapshotListener { data, error ->
@@ -91,7 +85,7 @@ class HomeScreenViewModel : ViewModel() {
             }
     }
 
-    fun fetchAllClubs() {
+    private fun fetchAllClubs() {
         FirebaseHelper.getAllClubs()
             .addSnapshotListener { data, error ->
                 data ?: run {
@@ -118,9 +112,6 @@ class HomeScreenViewModel : ViewModel() {
                 allNews.value = fetchedNews
             }
     }
-
-    fun getLogo(clubId: String) = FirebaseHelper.getFile("${CollectionName.clubs}/$clubId/logo")
-    fun getBanner(clubId: String) = FirebaseHelper.getFile("${CollectionName.clubs}/$clubId/banner")
     fun updateInput(newVal: String) {
         searchInput.value = newVal
     }

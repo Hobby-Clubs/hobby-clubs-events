@@ -34,7 +34,6 @@ import java.time.DayOfWeek
 fun CalendarScreen(
     navController: NavController,
     vm: CalendarScreenViewModel = viewModel(),
-    imageVm: ImageViewModel = viewModel()
 ) {
     val state = rememberSelectableCalendarState(
         confirmSelectionChange = { vm.onSelectionChanged(it); true },
@@ -50,7 +49,6 @@ fun CalendarScreen(
     val allEvents by vm.allEvents.observeAsState(listOf())
     val selection by vm.selection.observeAsState()
 
-    val listOfUri by imageVm.eventBannerUris.observeAsState(listOf())
     val eventsFromSelectedDay by remember {
         derivedStateOf {
             selection?.let {
@@ -80,14 +78,6 @@ fun CalendarScreen(
             } else {
                 listOf()
             }
-        }
-    }
-
-
-
-    LaunchedEffect(allEvents) {
-        if (allEvents.isNotEmpty()) {
-            imageVm.getEventUris(allEvents)
         }
     }
 
@@ -150,7 +140,7 @@ fun CalendarScreen(
                             allIsChecked.value = it
 
                         },
-                        colors = CheckboxDefaults.colors(MaterialTheme.colorScheme.primary),
+                        colors = CheckboxDefaults.colors(colorScheme.primary),
 
                     )
                     Text("All", fontSize = 12.sp)
@@ -170,7 +160,7 @@ fun CalendarScreen(
                             joinedIsChecked.value = it
 
                         },
-                        colors = CheckboxDefaults.colors(MaterialTheme.colorScheme.secondary),
+                        colors = CheckboxDefaults.colors(colorScheme.secondary),
                         enabled = (!allIsChecked.value)
 
                     )
@@ -188,23 +178,21 @@ fun CalendarScreen(
                     Checkbox(
                         checked = likedIsChecked.value,
                         onCheckedChange = { likedIsChecked.value = it },
-                        colors = CheckboxDefaults.colors(MaterialTheme.colorScheme.tertiary),
+                        colors = CheckboxDefaults.colors(colorScheme.tertiary),
                         enabled = (!allIsChecked.value)
                     )
                     Text("Liked", fontSize = 12.sp)
                 }
 
-                if (eventsFromSelectedDay.isNotEmpty() && listOfUri.isNotEmpty()) {
+                if (eventsFromSelectedDay.isNotEmpty()) {
                     LazyColumn(modifier = Modifier
                         .fillMaxHeight()
                         .padding(horizontal = 2.dp, vertical = 5.dp),
                         contentPadding = PaddingValues(5.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         items(filteredEvents) { event ->
-                            val uri = listOfUri!!.find { it.first == event.id }?.second
                             EventTile(
                                 event = event,
-                                picUri = uri,
                                 onClick = {
                                     navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
                                 },
