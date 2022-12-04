@@ -391,38 +391,19 @@ fun LogoAndBannerSheet(vm: ClubManagementViewModel, clubId: String, onSave: () -
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.padding(bottom = 20.dp)
                         )
-                        val pagerState = rememberPagerState()
-                        if (selectedImages.isNotEmpty()) {
-                            HorizontalPager(
-                                count = selectedImages.size,
-                                state = pagerState,
-                                itemSpacing = 10.dp,
-                                contentPadding = PaddingValues(end = 200.dp)
-                            ) { page ->
-                                Log.d("imageList", "page: $page, index: ${selectedImages[page]}")
-                                SelectedImageItem(uri = selectedImages[page])
-                            }
-                            if (selectedImages.size > 1) {
-                                HorizontalPagerIndicator(
-                                    pagerState = pagerState,
-                                    modifier = Modifier
-                                        .align(Alignment.CenterHorizontally)
-                                        .padding(16.dp),
-                                )
-                            }
-                        } else {
-                            Box(modifier = Modifier.size(100.dp))
-                        }
+                        selectedImage?.let { uri ->
+                            SelectedImageItem (uri = uri)
+                        } ?: Box(modifier = Modifier.size(100.dp))
                     }
                 }
             }
             Button(
                 onClick = {
-                    if (selectedLogo != null && selectedImages != null) {
-                        vm.replaceClubImages(
+                    if (selectedLogo != null && selectedImage != null) {
+                        vm.replaceClubImage(
                             clubId = clubId,
-                            newImages = selectedImages,
-                            newLogo = selectedLogo!!
+                            bannerUri = selectedImage!!,
+                            logoUri = selectedLogo!!
                         )
                         onSave()
                     }
