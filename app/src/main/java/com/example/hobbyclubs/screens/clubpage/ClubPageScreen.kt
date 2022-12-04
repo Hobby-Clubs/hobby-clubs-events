@@ -8,6 +8,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material.icons.outlined.*
@@ -24,21 +25,23 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.compose.linkBlue
+import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.Club
+import com.example.hobbyclubs.api.ClubRequest
 import com.example.hobbyclubs.api.FirebaseHelper
-import com.example.hobbyclubs.api.Request
+import com.example.hobbyclubs.api.News
 import com.example.hobbyclubs.general.*
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.google.firebase.Timestamp
@@ -49,20 +52,18 @@ import java.util.*
 fun ClubPageScreen(
     navController: NavController,
     vm: ClubPageViewModel = viewModel(),
-    imageVm: ImageViewModel = viewModel(),
     clubId: String
 ) {
     val context = LocalContext.current
-    val club by vm.selectedClub.observeAsState(null)
+    val selectedClub by vm.selectedClub.observeAsState(null)
 
     LaunchedEffect(Unit) {
         vm.getClub(clubId)
-        vm.getLogo(clubId)
-        vm.getBanner(clubId)
         vm.getClubEvents(clubId)
         vm.getAllNews(clubId)
+        vm.getAllJoinRequests(clubId)
     }
-    club?.let { club ->
+    selectedClub?.let { club ->
         Scaffold {
             Column(
                 modifier = Modifier
@@ -75,9 +76,9 @@ fun ClubPageScreen(
                 DividerLine()
                 ClubDescription(club.description)
                 DividerLine()
-                ClubSchedule(vm, navController, imageVm)
+                ClubSchedule(vm, navController)
                 DividerLine()
-                ClubNews(vm, navController)
+                ClubNews(vm, navController, clubId)
                 DividerLine()
                 ClubLinks(context, linkList = club.socials)
                 DividerLine()
@@ -91,13 +92,7 @@ fun ClubPageScreen(
                 title = {},
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
                 navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(
-                            Icons.Outlined.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color.White
-                        )
-                    }
+                    TopBarBackButton(navController = navController)
                 }
             )
         }
@@ -113,10 +108,10 @@ fun ClubPageHeader(
     vm: ClubPageViewModel
 ) {
     val screenHeight = LocalConfiguration.current.screenHeightDp
-    val bannerUri by vm.bannerUri.observeAsState()
-    val logoUri by vm.logoUri.observeAsState()
+    val screenWidth = LocalConfiguration.current.screenWidthDp
     val hasJoinedClub by vm.hasJoinedClub.observeAsState(false)
     val isAdmin by vm.isAdmin.observeAsState(false)
+    val hasRequested by vm.hasRequested.observeAsState(false)
     val clubIsPrivate by vm.clubIsPrivate.observeAsState(null)
     val joinClubDialogText by vm.joinClubDialogText.observeAsState(TextFieldValue(""))
     var showJoinRequestDialog by remember { mutableStateOf(false) }
@@ -129,7 +124,7 @@ fun ClubPageHeader(
             JoinClubDialog(
                 onConfirm = {
                     if (FirebaseHelper.uid != null && joinClubDialogText.text.isNotEmpty()) {
-                        val request = Request(
+                        val request = ClubRequest(
                             userId = FirebaseHelper.uid!!,
                             acceptedStatus = false,
                             timeAccepted = null,
@@ -137,6 +132,7 @@ fun ClubPageHeader(
                             requestSent = Timestamp.now()
                         )
                         vm.sendJoinClubRequest(clubId = club.ref, request = request)
+                        vm.updateUserWithProfilePicUri(FirebaseHelper.uid!!)
                         Toast.makeText(context, "Request sent", Toast.LENGTH_LONG).show()
                         showJoinRequestDialog = false
                     } else {
@@ -153,7 +149,7 @@ fun ClubPageHeader(
             modifier = Modifier.fillMaxWidth(),
         ) {
             AsyncImage(
-                model = bannerUri,
+                model = club.bannerUri,
                 contentDescription = "background image",
                 modifier = Modifier
                     .fillMaxWidth()
@@ -161,22 +157,26 @@ fun ClubPageHeader(
                 contentScale = ContentScale.FillWidth
             )
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
+                horizontalAlignment = Alignment.Start,
                 modifier = Modifier
                     .padding(start = 20.dp, top = 20.dp)
             ) {
                 Text(
                     text = club.name,
-                    fontSize = 24.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(end = 20.dp)
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.width((screenWidth * 0.45).dp)
                 )
                 TextButton(
                     onClick = { navController.navigate(NavRoutes.ClubMembersScreen.route + "/${club.ref}") },
                     colors = ButtonDefaults.buttonColors(
                         contentColor = colorScheme.onBackground,
                         containerColor = Color.Transparent
-                    )
+                    ),
+                    contentPadding = PaddingValues(0.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(text = "${club.members.size} " + if (club.members.size == 1) "member" else "members")
@@ -190,57 +190,83 @@ fun ClubPageHeader(
             }
         }
         Row(modifier = Modifier.align(Alignment.CenterEnd)) {
-            ClubLogo(modifier = Modifier.size(150.dp), logoUri)
+            Card(
+                shape = CircleShape,
+                elevation = CardDefaults.cardElevation(4.0.dp),
+                colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
+                modifier = Modifier.size(150.dp)
+            ) {
+                AsyncImage(
+                    model = club.logoUri,
+                    contentDescription = "avatar",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize(),
+                    error = painterResource(id = R.drawable.nokia_logo)
+                )
+            }
             Spacer(modifier = Modifier.width(30.dp))
         }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 20.dp), horizontalArrangement = Arrangement.SpaceEvenly
+                .padding(bottom = 20.dp, start = 20.dp, end = 20.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            if (!hasJoinedClub && clubIsPrivate == true) {
-                CustomButton(
-                    text = "Join",
+            if (!hasJoinedClub) {
+                Button(
+                    modifier = Modifier.weight(1f),
                     onClick = {
-                        showJoinRequestDialog = true
-                    },
-                    icon = Icons.Outlined.PersonAddAlt
-                )
-            }
-            if (!hasJoinedClub && clubIsPrivate == false) {
-                CustomButton(
-                    text = "Join",
-                    onClick = {
-                        vm.joinClub(club.ref)
-                    },
-                    icon = Icons.Outlined.PersonAddAlt
-                )
-            }
-            if (hasJoinedClub && !isAdmin) {
-                CustomButton(
-                    text = "Leave club",
-                    onClick = {
-                        vm.leaveClub(clubId = club.ref)
-                    },
-                    icon = Icons.Outlined.ExitToApp
-                )
-            }
-            if (hasJoinedClub && isAdmin) {
-                CustomButton(
-                    text = "Manage club",
-                    onClick = {
-                        navController.navigate(NavRoutes.ClubManagementScreen.route + "/${club.ref}")
+                        if (clubIsPrivate == true) {
+                            showJoinRequestDialog = true
+                        } else {
+                            vm.joinClub(club.ref)
+                        }
                     }
-                )
+                ) {
+                    Icon(Icons.Outlined.PersonAdd, null)
+                    Text(
+                        modifier = Modifier.padding(start = 8.dp),
+                        text = "Join club",
+                    )
+                }
             }
-            ShareButton(text = "Share", clubId = club.ref)
+            if (hasJoinedClub) {
+                if (isAdmin) {
+                    Button(
+                        modifier = Modifier.weight(1f),
+                        onClick = {
+                            navController.navigate(NavRoutes.ClubManagementScreen.route + "/${club.ref}")
+                        }
+                    ) {
+                        Icon(Icons.Outlined.Tune, null)
+                        Text(
+                            modifier = Modifier.padding(start = 8.dp),
+                            text = "Manage club",
+                        )
+                    }
+                } else {
+                    Button(
+                        modifier = Modifier.weight(1f),
+                        onClick = {
+                            vm.leaveClub(clubId = club.ref)
+                        }
+                    ) {
+                        Icon(Icons.Outlined.ExitToApp, null)
+                        Text(
+                            modifier = Modifier.padding(start = 8.dp),
+                            text = "Leave club",
+                        )
+                    }
+                }
+            }
+            ShareButton(modifier = Modifier.weight(1f), text = "Share", clubId = club.ref)
         }
     }
 }
 
 @Composable
-fun ShareButton(text: String, clubId: String) {
+fun ShareButton(modifier: Modifier = Modifier, text: String, clubId: String) {
     val sendIntent: Intent = Intent().apply {
         action = Intent.ACTION_SEND
         putExtra(Intent.EXTRA_TEXT, "https://hobbyclubs.fi/clubId=$clubId")
@@ -248,12 +274,19 @@ fun ShareButton(text: String, clubId: String) {
     }
     val shareIntent = Intent.createChooser(sendIntent, null)
     val context = LocalContext.current
-    CustomButton(
+
+    Button(
+        modifier = modifier,
         onClick = {
             context.startActivity(shareIntent)
-        },
-        text = text
-    )
+        }
+    ) {
+        Icon(Icons.Outlined.Share, null)
+        Text(
+            modifier = Modifier.padding(start = 8.dp),
+            text = text,
+        )
+    }
 }
 
 @Composable
@@ -266,53 +299,52 @@ fun ClubDescription(desc: String) {
 }
 
 @Composable
-fun ClubSchedule(vm: ClubPageViewModel, navController: NavController, imageVm: ImageViewModel) {
+fun ClubSchedule(vm: ClubPageViewModel, navController: NavController) {
     val listOfEvents by vm.listOfEvents.observeAsState(listOf())
-    val eventUris by imageVm.eventBannerUris.observeAsState(listOf())
-
-    if (listOfEvents.isNotEmpty()) {
-        imageVm.getEventUris(listOfEvents)
-    }
 
     Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 20.dp)) {
         ClubSectionTitle(text = "Schedule")
         Text(text = "Upcoming events", fontSize = 14.sp)
         Spacer(modifier = Modifier.height(20.dp))
-        if (eventUris.isNotEmpty()) {
-            listOfEvents.forEach { event ->
-                val uri = eventUris.find { it.first == event.id }?.second
-                EventTile(
-                    event = event,
-                    picUri = uri,
-                    onClick = {
-                        navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
-                    },
-                )
-                Spacer(modifier = Modifier.height(20.dp))
-            }
+        listOfEvents.forEach { event ->
+//            vm.getEventJoinRequests(event.id)
+//            val hasRequested by vm.hasRequestedToEvent.observeAsState(false)
+
+            EventTile(
+                event = event,
+                onClick = {
+                    navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
+                }, navController = navController
+            )
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }
 
 
 @Composable
-fun ClubNews(vm: ClubPageViewModel, navController: NavController) {
-    val listOfNews by vm.listOfNews.observeAsState()
+fun ClubNews(vm: ClubPageViewModel, navController: NavController, clubId: String) {
+    val listOfNews by vm.listOfNews.observeAsState(listOf())
+
     Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 20.dp)) {
-        ClubSectionTitle(text = "News")
+        ClubSectionTitle(text = "News", isNewsTitle = true,
+            onClick = {navController.navigate(NavRoutes.ClubNewsScreen.route + "/false/$clubId")})
         Spacer(modifier = Modifier.height(20.dp))
-        listOfNews?.let { news ->
-            news.forEach { singleNews ->
-                SmallNewsTile(
-                    news = singleNews,
-                    onClick = {
-                        navController.navigate(NavRoutes.SingleNewsScreen.route + "/${singleNews.id}")
-                    }
-                )
-                Spacer(modifier = Modifier.height(5.dp))
-            }
-        }
+        ClubNewsList(list = listOfNews.take(5), navController = navController)
     }
+}
+
+@Composable
+fun ClubNewsList(list: List<News>, navController: NavController) {
+        list.forEach { singleNews ->
+            SmallNewsTile(
+                news = singleNews,
+                onClick = {
+                    navController.navigate(NavRoutes.SingleNewsScreen.route + "/${singleNews.id}")
+                }
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+        }
 }
 
 @Composable
@@ -358,11 +390,20 @@ fun ClubContactInfo(name: String, phoneNumber: String, email: String) {
 }
 
 @Composable
-fun ClubSectionTitle(text: String) {
-    Text(text = text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+fun ClubSectionTitle(text: String,isNewsTitle: Boolean = false, onClick: () -> Unit = {}) {
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .padding(end = 20.dp)
+        .clickable { onClick() },
+    verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(text = text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+        if (isNewsTitle) Icon(Icons.Outlined.NavigateNext, contentDescription = "", modifier = Modifier.size(24.dp))
+    }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun JoinClubDialog(
     onConfirm: () -> Unit,
@@ -372,81 +413,52 @@ fun JoinClubDialog(
     val joinClubDialogText by vm.joinClubDialogText.observeAsState(TextFieldValue(""))
     val focusManager = LocalFocusManager.current
     val screenHeight = LocalConfiguration.current.screenHeightDp
-    Dialog(
-        onDismissRequest = { onDismissRequest() },
-        properties = DialogProperties(usePlatformDefaultWidth = false)
-    ) {
-        Card(
-            modifier = Modifier
-                .height((screenHeight * 0.55).dp)
-                .fillMaxWidth(0.9f)
-        ) {
-            Box {
-
-                Icon(
-                    Icons.Outlined.Close,
-                    null,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(10.dp)
-                        .clickable { onDismissRequest() }
+    AlertDialog(
+        onDismissRequest = {
+            // Dismiss the dialog when the user clicks outside the dialog or on the back
+            // button. If you want to disable that functionality, simply use an empty
+            // onDismissRequest.
+            onDismissRequest()
+        },
+        title = {
+            Text(text = "Introduce yourself!")
+        },
+        text = {
+            Column() {
+                Text(
+                    text = "Please fill in the following form. The admins of the club will review your membership request as soon as possible!"
                 )
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
+                OutlinedTextField(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(20.dp)
-                ) {
-                    Text(
-                        text = "Introduce yourself!",
-                        fontSize = 24.sp,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Start
-                    )
-                    Text(
-                        text = "Please fill in the following form. The admins of the club will review your membership request as soon as possible!",
-                        fontSize = 12.sp,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 20.dp),
-                        lineHeight = 15.sp
-                    )
-                    CustomOutlinedTextField(
-                        value = joinClubDialogText,
-                        onValueChange = { vm.updateDialogText(newVal = it) },
-                        focusManager = focusManager,
-                        keyboardType = KeyboardType.Text,
-                        label = "Introduction",
-                        placeholder = "Tell us about yourself",
-                        modifier = Modifier
-                            .height((screenHeight * 0.3).dp)
-                            .fillMaxWidth()
-                            .padding(bottom = 10.dp)
-                    )
-                    CustomButton(onClick = { onConfirm() }, text = "Send")
-                }
+                        .height((screenHeight * 0.3).dp)
+                        .padding(top = 20.dp),
+                    value = joinClubDialogText,
+                    onValueChange = { vm.updateDialogText(newVal = it) },
+                    label = { Text(text = "Introduction") },
+                    placeholder = { Text(text = "Tell us about yourself") },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
+                )
             }
-
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirm()
+                }
+            ) {
+                Text("Send Request")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
+                }
+            ) {
+                Text("Dismiss")
+            }
         }
-    }
-}
-
-@Composable
-fun ClubLogo(modifier: Modifier, uri: Uri?) {
-    Card(
-        shape = CircleShape,
-        elevation = CardDefaults.cardElevation(4.0.dp),
-        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
-        modifier = modifier
-    ) {
-        AsyncImage(
-            model = uri,
-            contentDescription = "avatar",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
-    }
+    )
 }
 
 @Composable

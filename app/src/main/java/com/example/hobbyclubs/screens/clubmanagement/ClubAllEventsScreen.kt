@@ -3,8 +3,6 @@ package com.example.hobbyclubs.screens.clubmanagement
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -17,11 +15,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.hobbyclubs.api.Event
-import com.example.hobbyclubs.api.News
-import com.example.hobbyclubs.general.CustomAlertDialog
-import com.example.hobbyclubs.general.EventTile
-import com.example.hobbyclubs.general.SmallNewsTile
-import com.example.hobbyclubs.general.SmallTileForClubManagement
+import com.example.hobbyclubs.general.*
 import com.example.hobbyclubs.navigation.NavRoutes
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -66,9 +60,7 @@ fun ClubAllEventsScreen(
                 title = { Text(text = it.name, fontSize = 16.sp) },
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
                 navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")
-                    }
+                    TopBarBackButton(navController = navController)
                 }
             )
         }

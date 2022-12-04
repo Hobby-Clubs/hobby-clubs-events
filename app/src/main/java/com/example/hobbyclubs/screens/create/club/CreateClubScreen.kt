@@ -1,15 +1,12 @@
 package com.example.hobbyclubs.screens.create.club
 
 import android.net.Uri
-import android.graphics.BitmapFactory
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
@@ -34,13 +31,10 @@ import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.general.CustomAlertDialog
 import com.example.hobbyclubs.general.CustomOutlinedTextField
 import com.example.hobbyclubs.general.Pill
+import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.example.hobbyclubs.screens.create.event.*
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.HorizontalPagerIndicator
-import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,9 +64,7 @@ fun CreateClubScreen(
             title = { },
             colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
             navigationIcon = {
-                IconButton(onClick = { showLeaveDialog = true }) {
-                    Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")
-                }
+                TopBarBackButton(navController = navController)
             }
         )
         if (showLeaveDialog) {
@@ -161,7 +153,8 @@ fun ClubCreationPage1(vm: CreateClubViewModel) {
                         ).show()
                     } else {
                         vm.changePageTo(2)
-                    } },
+                    }
+                },
                 text = "Next",
                 modifier = Modifier
                     .fillMaxWidth()
@@ -171,23 +164,17 @@ fun ClubCreationPage1(vm: CreateClubViewModel) {
     }
 }
 
-@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun ClubCreationPage2(vm: CreateClubViewModel) {
-    val context = LocalContext.current
-    val selectedImages by vm.selectedBannerImages.observeAsState(mutableListOf())
+    val selectedImage by vm.selectedBannerImage.observeAsState(null)
     val selectedLogo by vm.selectedClubLogo.observeAsState(null)
-    var showBannerImagesPreview by remember { mutableStateOf(false) }
-    var showLogoPreview by remember { mutableStateOf(false) }
     val galleryLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uriList ->
-            vm.temporarilyStoreImages(bannerUri = uriList.toMutableList())
-            showBannerImagesPreview = true
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uriList ->
+            vm.temporarilyStoreImages(bannerUri = uriList)
         }
     val galleryLauncherLogo =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             vm.temporarilyStoreImages(logoUri = uri)
-            showLogoPreview = true
         }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -249,25 +236,8 @@ fun ClubCreationPage2(vm: CreateClubViewModel) {
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(bottom = 20.dp)
                     )
-                    val pagerState = rememberPagerState()
-                    if (selectedImages.isNotEmpty()) {
-                        HorizontalPager(
-                            count = selectedImages.size,
-                            state = pagerState,
-                            itemSpacing = 10.dp,
-                            contentPadding = PaddingValues(end = 200.dp)
-                        ) { page ->
-                            Log.d("imageList", "page: $page, index: ${selectedImages[page]}")
-                            SelectedImageItem(uri = selectedImages[page])
-                        }
-                        if (selectedImages.size > 1) {
-                            HorizontalPagerIndicator(
-                                pagerState = pagerState,
-                                modifier = Modifier
-                                    .align(Alignment.CenterHorizontally)
-                                    .padding(16.dp),
-                            )
-                        }
+                    if (selectedImage != null) {
+                        SelectedImageItem(uri = selectedImage)
                     } else {
                         Box(modifier = Modifier.size(100.dp))
                     }
@@ -305,26 +275,6 @@ fun ClubCreationPage2(vm: CreateClubViewModel) {
                 )
             }
         }
-//        if (showBannerImagesPreview) {
-//            SelectedImagesDialog(
-//                selectedImages = selectedImages,
-//                onConfirm = {
-//                    vm.convertUriToBitmap(bannerImages = selectedImages, context = context)
-//                    vm.emptySelection(banner = true)
-//                    showBannerImagesPreview = false
-//                },
-//                onDismissRequest = { showBannerImagesPreview = false })
-//        }
-//        if (showLogoPreview) {
-//            SelectedImagesDialog(
-//                selectedLogo = selectedLogo,
-//                onConfirm = {
-//                    vm.convertUriToBitmap(logo = selectedLogo, context =  context)
-//                    vm.emptySelection(logo = true)
-//                    showLogoPreview = false
-//                },
-//                onDismissRequest = { showLogoPreview = false })
-//        }
     }
 }
 
@@ -453,7 +403,7 @@ fun ClubCreationPage4(vm: CreateClubViewModel, navController: NavController) {
     val clubIsPrivate by vm.clubIsPrivate.observeAsState(false)
     val linkArray by vm.givenLinksLiveData.observeAsState(null)
     val currentUser by vm.currentUser.observeAsState()
-    val selectedImages by vm.selectedBannerImages.observeAsState()
+    val selectedImage by vm.selectedBannerImage.observeAsState()
     val selectedLogo by vm.selectedClubLogo.observeAsState()
 
     // Last Page
@@ -580,10 +530,11 @@ fun ClubCreationPage4(vm: CreateClubViewModel, navController: NavController) {
                                 contactPhone = contactInfoNumber!!.text
                             )
                             val clubId = vm.addClub(club)
-                            val defaultUri = Uri.parse("android.resource://com.example.hobbyclubs/drawable/nokia_logo.png")
+                            val defaultUri =
+                                Uri.parse("android.resource://com.example.hobbyclubs/drawable/nokia_logo.png")
                             vm.storeImagesOnFirebase(
-                                listToStore = selectedImages?.toList() ?: listOf(),
-                                logo = selectedLogo ?: defaultUri,
+                                bannerUri = selectedImage ?: defaultUri,
+                                logoUri = selectedLogo ?: defaultUri,
                                 clubId = clubId
                             )
                             Toast.makeText(context, "Club created.", Toast.LENGTH_SHORT).show()

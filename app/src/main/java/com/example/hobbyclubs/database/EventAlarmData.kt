@@ -17,6 +17,7 @@ data class EventAlarmData(
     val eventId: String,
     val eventTime: Timestamp,
     val eventName: String,
+    val hoursBefore: Int
 ): Serializable
 
 @Dao
@@ -30,9 +31,17 @@ interface EventAlarmDataDao {
     @Query("SELECT * FROM eventalarmdata WHERE eventId = :eventId")
     fun getDataByEventId(eventId: String): List<EventAlarmData>
 
+    @Query("SELECT * FROM eventalarmdata WHERE hoursBefore = :hoursBefore")
+    fun getDataByHoursBefore(hoursBefore: Int): List<EventAlarmData>
+
     @Query("SELECT * FROM eventalarmdata")
     fun getAllData(): List<EventAlarmData>
 
     @Update
     fun updateData(data: EventAlarmData)
+
+    @Query("DELETE FROM eventalarmdata WHERE hoursBefore = :hoursBefore")
+    fun deleteByHoursBefore(hoursBefore: Int)
+
+
 }

@@ -21,7 +21,8 @@ class AlarmHelper(val context: Context) {
                     id = data.id,
                     eventId = data.eventId,
                     eventName = data.eventName,
-                    eventTime = data.eventTime.toDate().time
+                    eventTime = data.eventTime.toDate().time,
+                    hoursBefore = data.hoursBefore
                 )
                 putExtra("data", info)
             }
@@ -35,7 +36,7 @@ class AlarmHelper(val context: Context) {
     }
 
     fun setEventAlarm(data: EventAlarmData) {
-        val date = data.eventTime.toDate().time - 3600000
+        val date = data.eventTime.toDate().time - (data.hoursBefore * 3600000)
         val timeString = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.ENGLISH)
             .format(Date(date))
         alarmManager.setExactAndAllowWhileIdle(
@@ -60,5 +61,6 @@ data class EventNotificationInfo(
     val id: Long,
     val eventId: String,
     val eventName: String,
-    val eventTime: Long
+    val eventTime: Long,
+    val hoursBefore: Int
 ): Serializable

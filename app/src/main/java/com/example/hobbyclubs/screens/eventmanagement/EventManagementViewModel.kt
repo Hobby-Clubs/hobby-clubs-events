@@ -3,13 +3,12 @@ package com.example.hobbyclubs.screens.eventmanagement
 import android.net.Uri
 import android.util.Log
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.MutableLiveData
-import com.example.hobbyclubs.api.Event
-import com.example.hobbyclubs.api.FirebaseHelper
+import androidx.lifecycle.ViewModel
+import com.example.hobbyclubs.api.*
 import java.util.*
 
-class EventManagementViewModel() : ViewModel() {
+class EventManagementViewModel: ViewModel() {
     val firebase = FirebaseHelper
     val selectedEvent = MutableLiveData<Event>()
 
@@ -25,6 +24,7 @@ class EventManagementViewModel() : ViewModel() {
     val currentLinkURL = MutableLiveData<TextFieldValue>()
     val selectedBannerImages = MutableLiveData<MutableList<Uri>>()
     val givenLinks = MutableLiveData<Map<String, String>>(mapOf())
+    val listOfRequests = MutableLiveData<List<EventRequest>>()
 
     fun getEvent(eventId: String) {
         firebase.getEvent(eventId = eventId).get()
@@ -111,8 +111,27 @@ class EventManagementViewModel() : ViewModel() {
         bannerUri?.let { selectedBannerImages.value = it }
     }
 
+    var count = 0
     fun replaceEventImages(eventId: String, newImages: List<Uri>) {
-        firebase.updateEventImages(eventId, newImages)
+        val tempList = mutableListOf<Uri>()
+        newImages.forEach { uri ->
+            firebase.addPic(uri, "${CollectionName.events}/$eventId/$count.jpg")
+                .addOnSuccessListener {
+                    it.storage.downloadUrl.addOnSuccessListener { downloadUrl ->
+                        tempList.add(downloadUrl)
+                        if (tempList.size == newImages.size) {
+                            val changeMap = mapOf(
+                                Pair("bannerUris", tempList)
+                            )
+                            firebase.updateEventDetails(eventId, changeMap)
+                        }
+                    }
+                }
+                .addOnFailureListener {
+                    Log.e(FirebaseHelper.TAG, "addPic: ", it)
+                }
+            count += 1
+        }
     }
 
     fun deleteEvent(eventId: String) {
@@ -121,5 +140,18 @@ class EventManagementViewModel() : ViewModel() {
 
     fun updateEventDetails(eventId: String, changeMap: Map<String,Any>) {
         firebase.updateEventDetails(eventId, changeMap)
+    }
+
+    fun getAllJoinRequests(eventId: String) {
+        firebase.getRequestsFromEvent(eventId)
+            .addSnapshotListener { data, error ->
+                data ?: run {
+                    Log.e("getAllRequests", "RequestFetchFail: ", error)
+                    return@addSnapshotListener
+                }
+                val fetchedRequests = data.toObjects(EventRequest::class.java)
+                Log.d("fetchRequests", fetchedRequests.toString())
+                listOfRequests.value = fetchedRequests.filter { !it.acceptedStatus }
+            }
     }
 }

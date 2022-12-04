@@ -6,18 +6,23 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import com.example.hobbyclubs.api.*
+import com.example.hobbyclubs.api.CollectionName
+import com.example.hobbyclubs.api.FirebaseHelper
+import com.example.hobbyclubs.api.News
+import com.example.hobbyclubs.api.User
 
 class SingleScreenViewModel : ViewModel() {
     val firebase = FirebaseHelper
     val selectedNews = MutableLiveData<News>()
-    val newsUri = MutableLiveData<Uri>()
     val headline = MutableLiveData<TextFieldValue>()
     val newsContent = MutableLiveData<TextFieldValue>()
     val currentUser = MutableLiveData<User>()
     val publisher = MutableLiveData<User>()
     val isPublisher = Transformations.map(selectedNews) {
         it.publisherId == firebase.uid
+    }
+    val hasRead = Transformations.map(selectedNews) {
+        it.usersRead.contains(firebase.uid)
     }
     val selectedImage = MutableLiveData<Uri>()
     val loading = MutableLiveData<Boolean>()
@@ -35,7 +40,18 @@ class SingleScreenViewModel : ViewModel() {
     }
 
     fun updateNewsImage(picUri: Uri, newsId: String) {
-        firebase.updateNewsImage(newsId, picUri)
+        FirebaseHelper.addPic(picUri, "${CollectionName.news}/$newsId/newsImage.jpg")
+            .addOnSuccessListener {
+                it.storage.downloadUrl.addOnSuccessListener { downloadUrl ->
+                    val changeMap = mapOf(
+                        Pair("newsImageUri", downloadUrl)
+                    )
+                    firebase.updateNewsDetails(newsId, changeMap)
+                }
+            }
+            .addOnFailureListener {
+                Log.e(FirebaseHelper.TAG, "addPic: ", it)
+            }
     }
 
     fun updateNews(newsId: String, changeMap: Map<String, Any>) {
@@ -86,7 +102,5 @@ class SingleScreenViewModel : ViewModel() {
         }
     }
 
-    fun getImage(newsRef: String) =
-        FirebaseHelper.getFile("${CollectionName.news}/$newsRef/newsImage.jpg").downloadUrl
-            .addOnSuccessListener { newsUri.value = it }
+
 }

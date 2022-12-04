@@ -1,12 +1,5 @@
 package com.example.hobbyclubs.screens.home
 
-import android.app.Activity
-import android.app.AlarmManager
-import android.content.Context
-import android.net.Uri
-import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
@@ -19,8 +12,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Feed
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Schedule
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
@@ -44,7 +37,8 @@ import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.*
 import com.example.hobbyclubs.general.*
 import com.example.hobbyclubs.navigation.NavRoutes
-import com.example.hobbyclubs.notifications.AlarmReceiver
+import com.example.hobbyclubs.notifications.InAppNotificationHelper
+import com.example.hobbyclubs.notifications.InAppNotificationService
 import com.example.hobbyclubs.screens.clubs.ClubTile
 import java.text.SimpleDateFormat
 
@@ -53,17 +47,15 @@ import java.text.SimpleDateFormat
 fun HomeScreen(
     navController: NavController,
     vm: HomeScreenViewModel = viewModel(),
-    imageVm: ImageViewModel = viewModel()
 ) {
     val context = LocalContext.current
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val allClubs by vm.allClubs.observeAsState(listOf())
-    val allEvents by vm.allEvents.observeAsState(listOf())
     var fabIsExpanded by remember { mutableStateOf(false) }
     var showSearch by remember { mutableStateOf(false) }
     val searchInput by vm.searchInput.observeAsState("")
     val focusManager = LocalFocusManager.current
     val isFirst by vm.isFirstTimeUser.observeAsState()
+    val notifCount by vm.unreadAmount.observeAsState()
 
     LaunchedEffect(isFirst) {
         isFirst?.let {
@@ -73,15 +65,17 @@ fun HomeScreen(
         }
     }
 
-    LaunchedEffect(allClubs) {
-        if (allClubs.isNotEmpty()) {
-            imageVm.getClubUris(allClubs)
-        }
-    }
-
-    LaunchedEffect(allEvents) {
-        if (allEvents.isNotEmpty()) {
-            imageVm.getEventUris(allEvents)
+    LaunchedEffect(Unit) {
+        FirebaseHelper.uid ?.let { uid ->
+            val settings = InAppNotificationHelper(context).getNotificationSettings()
+            if (settings.none { !it.name.contains("REMINDER", true) }) {
+//                vm.unregisterReceiver(context)
+                return@LaunchedEffect
+            }
+            if (!InAppNotificationService.isRunning(context)) {
+                InAppNotificationService.start(context, uid)
+                vm.receiveUnreads(context)
+            }
         }
     }
 
@@ -106,14 +100,13 @@ fun HomeScreen(
                     )
                 },
                 settingsIcon = {
-                    IconButton(onClick = {
-                        navController.navigate(NavRoutes.SettingsScreen.route)
-                    }) {
-                        Icon(
-                            Icons.Outlined.Settings,
-                            null,
-                            modifier = Modifier.padding(end = 10.dp)
-                        )
+                    NotificationsButton(
+                        modifier = Modifier
+                            .padding(horizontal = 10.dp)
+                            .size(50.dp),
+                        notifCount = notifCount
+                    ) {
+                        navController.navigate(NavRoutes.NotificationScreen.route)
                     }
                 }
             )
@@ -130,17 +123,42 @@ fun HomeScreen(
         if (!showSearch) {
             MainScreenContent(
                 vm = vm,
-                imageVm = imageVm,
                 navController = navController,
             )
         } else {
-            SearchUI(vm = vm, navController = navController, imageVm)
+            SearchUI(vm = vm, navController = navController)
         }
     }
 }
 
 @Composable
-fun SearchUI(vm: HomeScreenViewModel, navController: NavController, imageVm: ImageViewModel) {
+fun NotificationsButton(modifier: Modifier = Modifier, notifCount: Int?, onClick: () -> Unit) {
+    Box(modifier = modifier.clickable { onClick() }, contentAlignment = Alignment.Center) {
+        Box() {
+            Icon(
+                imageVector = Icons.Outlined.Notifications,
+                contentDescription = null,
+                modifier = Modifier.size(30.dp)
+            )
+            notifCount?.let {
+                if (it > 0) {
+                    Card(
+                        modifier = Modifier
+                            .padding(2.dp)
+                            .size(10.dp)
+                            .align(Alignment.TopEnd),
+                        shape = CircleShape,
+                        colors = CardDefaults.cardColors(colorScheme.error),
+                        content = {}
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SearchUI(vm: HomeScreenViewModel, navController: NavController) {
     val allClubs by vm.allClubs.observeAsState(listOf())
     val searchInput by vm.searchInput.observeAsState("")
     val allEvents by vm.allEvents.observeAsState(listOf())
@@ -177,10 +195,6 @@ fun SearchUI(vm: HomeScreenViewModel, navController: NavController, imageVm: Ima
         }
     }
 
-    val eventBannerUris by imageVm.eventBannerUris.observeAsState(listOf())
-    val clubLogoUris by imageVm.clubLogoUris.observeAsState(listOf())
-    val clubBannerUris by imageVm.clubBannerUris.observeAsState(listOf())
-
     var clubsExpanded by remember { mutableStateOf(true) }
     var eventsExpanded by remember { mutableStateOf(true) }
 
@@ -212,17 +226,9 @@ fun SearchUI(vm: HomeScreenViewModel, navController: NavController, imageVm: Ima
             }
         }
         if (clubsExpanded) {
-            if (clubBannerUris.isNotEmpty() && clubLogoUris.isNotEmpty()) {
-                items(clubsFiltered) { club ->
-                    val logoUri = clubLogoUris.find { it.first == club.ref }?.second
-                    val bannerUri = clubBannerUris.find { it.first == club.ref }?.second
-                    ClubTile(
-                        club = club,
-                        logoUri = logoUri,
-                        bannerUri = bannerUri
-                    ) {
-                        navController.navigate(NavRoutes.ClubPageScreen.route + "/${club.ref}")
-                    }
+            items(clubsFiltered) { club ->
+                ClubTile(club = club) {
+                    navController.navigate(NavRoutes.ClubPageScreen.route + "/${club.ref}")
                 }
             }
         }
@@ -248,12 +254,12 @@ fun SearchUI(vm: HomeScreenViewModel, navController: NavController, imageVm: Ima
             }
         }
         if (eventsExpanded) {
-            if (eventBannerUris.isNotEmpty()) {
-                items(eventsFiltered) { event ->
-                    val picUri = eventBannerUris.find { it.first == event.id }?.second
-                    EventTile(event = event, picUri = picUri) {
-                        navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
-                    }
+            items(eventsFiltered) { event ->
+//                vm.getEventJoinRequests(event.id)
+//                val hasRequested by vm.hasRequested.observeAsState(false)
+
+                EventTile(event = event, navController = navController) {
+                    navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
                 }
             }
         }
@@ -267,33 +273,12 @@ fun SearchUI(vm: HomeScreenViewModel, navController: NavController, imageVm: Ima
 @Composable
 fun MainScreenContent(
     vm: HomeScreenViewModel,
-    imageVm: ImageViewModel,
     navController: NavController,
 ) {
     val myClubs by vm.myClubs.observeAsState(listOf())
     val myEvents by vm.myEvents.observeAsState(listOf())
+    val myNews by vm.myNews.observeAsState(listOf())
     val allNews by vm.allNews.observeAsState(listOf())
-    val myNews by remember {
-        derivedStateOf {
-            allNews.filter { myClubs.map { club -> club.ref }.contains(it.clubId) }
-        }
-    }
-    val clubUris by imageVm.clubBannerUris.observeAsState()
-    val myClubsUris by remember {
-        derivedStateOf {
-            clubUris?.let {
-                it.filter { pair -> myClubs.map { club -> club.ref }.contains(pair.first) }
-            }
-        }
-    }
-    val eventUris by imageVm.eventBannerUris.observeAsState()
-    val myEventsUris by remember {
-        derivedStateOf {
-            eventUris?.let {
-                it.filter { pair -> myEvents.map { event -> event.id }.contains(pair.first) }
-            }
-        }
-    }
 
     LazyColumn(
         modifier = Modifier
@@ -302,61 +287,82 @@ fun MainScreenContent(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         stickyHeader {
-            LazyColumnHeader(text = "My Clubs")
-        }
-        clubUris?.let { clubUris ->
-            if (myClubsUris?.size == myClubs.size) {
-                items(myClubs) { club ->
-                    val uri = clubUris.find { it.first == club.ref }?.second
-                    MyClubTile(
-                        club = club,
-                        vm = vm,
-                        picUri = uri,
-                        onClickNews = {
-//                        navController.navigate(NavRoutes.ClubAllNewsScreen.route + "/${it.ref}")
-                        },
-                        onClickUpcoming = {
-                            navController.navigate(NavRoutes.EventScreen.route + "/${it}")
-                        },
-                        onClick = {
-                            navController.navigate(NavRoutes.ClubPageScreen.route + "/${club.ref}")
-                        }
-                    )
+            LazyColumnHeader(
+                text = "My Clubs",
+                onHomeScreen = true,
+                onClick = {
+                    navController.navigate(NavRoutes.AllMyScreen.route + "/club")
                 }
-            }
+            )
+        }
+        items(myClubs.take(5)) { club ->
+            MyClubTile(
+                club = club,
+                vm = vm,
+                onClickNews = {
+                    navController.navigate(NavRoutes.ClubNewsScreen.route + "/true/${club.ref}")
+                },
+                onClickUpcoming = {
+                    navController.navigate(NavRoutes.EventScreen.route + "/${it}")
+                },
+                onClick = {
+                    navController.navigate(NavRoutes.ClubPageScreen.route + "/${club.ref}")
+                }
+            )
         }
 
         stickyHeader {
-            LazyColumnHeader(text = "My Events")
+            LazyColumnHeader(
+                text = "My Events",
+                onHomeScreen = true,
+                onClick = { navController.navigate(NavRoutes.AllMyScreen.route + "/event") })
         }
-        eventUris?.let { eventUris ->
-            if (myEventsUris?.size == myEvents.size) {
-                items(myEvents) { event ->
-                    val uri = eventUris.find { it.first == event.id }?.second
-                    EventTile(
-                        event = event,
-                        picUri = uri,
-                        onClick = {
-                            navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
-                        }
-                    )
+        items(myEvents.take(5)) { event ->
+//            vm.getEventJoinRequests(event.id)
+//            val hasRequested by vm.hasRequested.observeAsState(false)
+
+            EventTile(
+                event = event,
+                onClick = {
+                    navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
+                }, navController = navController
+            )
+        }
+
+        stickyHeader {
+            LazyColumnHeader(
+                text = "My News",
+                onHomeScreen = true,
+                onClick = {
+                    navController.navigate(NavRoutes.AllMyScreen.route + "/news")
                 }
+            )
+        }
+        items(myNews.take(5)) { singleNews ->
+            SmallNewsTile(
+                news = singleNews,
+            ) {
+                navController.navigate(NavRoutes.SingleNewsScreen.route + "/${singleNews.id}")
             }
         }
 
         stickyHeader {
             LazyColumnHeader(
-                modifier = Modifier.clickable { navController.navigate(NavRoutes.NewsScreen.route) },
-                text = "My News"
+                text = "All News",
+                onHomeScreen = true,
+                onClick = {
+                    navController.navigate(NavRoutes.NewsScreen.route)
+                }
             )
         }
-        items(myNews) {
+        items(allNews.take(5)) {
             SmallNewsTile(
                 news = it
             ) {
                 navController.navigate(NavRoutes.SingleNewsScreen.route + "/${it.id}")
             }
         }
+
         item {
             Spacer(modifier = Modifier.height(32.dp))
         }
@@ -364,15 +370,30 @@ fun MainScreenContent(
 }
 
 @Composable
+fun AdminLabel(modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(colorScheme.primary),
+        shape = RoundedCornerShape(100.dp)
+    ) {
+        Text(
+            text = "Admin",
+            fontSize = 10.sp,
+            modifier = Modifier.padding(vertical = 4.dp, horizontal = 12.dp)
+        )
+    }
+}
+
+@Composable
 fun MyClubTile(
     modifier: Modifier = Modifier,
     club: Club,
-    picUri: Uri?,
     vm: HomeScreenViewModel,
     onClick: () -> Unit,
     onClickNews: () -> Unit,
     onClickUpcoming: (String) -> Unit
 ) {
+    val isAdmin = club.admins.contains(FirebaseHelper.uid)
     val allEvents by vm.allEvents.observeAsState(listOf())
     val nextEvent by remember {
         derivedStateOf {
@@ -389,7 +410,7 @@ fun MyClubTile(
     val newsAmount by remember {
         derivedStateOf {
             if (allNews.isNotEmpty()) {
-                allNews.count { it.clubId == club.ref }
+                allNews.count { it.clubId == club.ref && !it.usersRead.contains(FirebaseHelper.uid) }
             } else {
                 null
             }
@@ -404,16 +425,26 @@ fun MyClubTile(
         border = BorderStroke(1.dp, colorScheme.outlineVariant),
     ) {
         Row(Modifier.fillMaxSize()) {
-            AsyncImage(
-                modifier = Modifier.aspectRatio(0.75f),
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(picUri)
-                    .crossfade(true)
-                    .build(),
-                error = painterResource(id = R.drawable.nokia_logo),
-                contentDescription = "banner",
-                contentScale = ContentScale.Crop
-            )
+            Box {
+                AsyncImage(
+                    modifier = Modifier.aspectRatio(0.75f),
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(club.bannerUri)
+                        .crossfade(true)
+                        .build(),
+                    error = painterResource(id = R.drawable.nokia_logo),
+                    contentDescription = "banner",
+                    contentScale = ContentScale.Crop
+                )
+                if (isAdmin) {
+                    AdminLabel(
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(8.dp)
+                    )
+                }
+            }
+
             Column(
                 modifier = Modifier
                     .weight(1f)

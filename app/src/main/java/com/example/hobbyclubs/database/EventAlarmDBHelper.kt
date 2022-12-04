@@ -5,6 +5,7 @@ import android.util.Log
 import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.notifications.AlarmHelper
+import com.example.hobbyclubs.screens.settings.NotificationSetting
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -18,16 +19,18 @@ class EventAlarmDBHelper(val context: Context) {
     val db = EventAlarmDB.getInstance(context)
     val dao = db.eventNotificationDao()
     val alarmHelper = AlarmHelper(context)
-
-    fun toggleNotifications(isActive: Boolean) {
-        if (isActive) {
-            updateAlarms()
-        } else {
-            deleteAllAlarms()
-        }
-    }
+    val settingsPref = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
 
     fun updateAlarms() {
+        val needsHourReminder =
+            settingsPref.getBoolean(NotificationSetting.EVENT_HOUR_REMINDER.name, false)
+        val needsDayReminder = settingsPref.getBoolean(NotificationSetting.EVENT_DAY_REMINDER.name, false)
+        deleteExtraAlarms(needsHourReminder, needsDayReminder)
+
+        if (!needsHourReminder && needsDayReminder) {
+            return
+        }
+
         FirebaseHelper.uid?.let { uid ->
             FirebaseHelper.getAllEvents()
                 .get()
@@ -40,7 +43,7 @@ class EventAlarmDBHelper(val context: Context) {
                         !joinedEvents.map { event -> event.id }.contains(it.id)
                     }
                     CoroutineScope(Dispatchers.IO).launch {
-                        updateDB(myEvents.sortedBy { it.date })
+                        updateDB(myEvents.sortedBy { it.date }, needsHourReminder, needsDayReminder)
                     }
                 }
                 .addOnFailureListener { error ->
@@ -49,22 +52,48 @@ class EventAlarmDBHelper(val context: Context) {
         }
     }
 
-    private fun updateDB(myEventsFromFB: List<Event>) {
+    private fun updateDB(
+        myEventsFromFB: List<Event>,
+        needsHourReminder: Boolean,
+        needsDayReminder: Boolean
+    ) {
         val allEventAlarms = dao.getAllData()
-        val deletedEvents =
+        val hourAlarms = allEventAlarms.filter { it.hoursBefore == 1 }
+        val dayAlarms = allEventAlarms.filter { it.hoursBefore == 24 }
+
+        val toDelete =
             allEventAlarms.filter { alarm -> !myEventsFromFB.map { it.id }.contains(alarm.eventId) }
-        val newEvents =
-            myEventsFromFB.filter { event -> !allEventAlarms.map { it.eventId }.contains(event.id) }
+
+        val toAdd =
+            myEventsFromFB.filter { event ->
+                !hourAlarms.map { it.eventId }.contains(event.id)
+                        || !dayAlarms.map { it.eventId }.contains(event.id)
+            }
+
         val toUpdate = getAlarmsToUpdate(myEventsFromFB, allEventAlarms)
 
-        addNewAlarms(newEvents)
-
-        deletedEvents.forEach {
+        toDelete.forEach {
             deleteEventAlarm(it)
         }
 
         toUpdate.forEach {
             updateEventAlarm(it)
+        }
+
+        addNewAlarms(toAdd, allEventAlarms, needsHourReminder, needsDayReminder)
+    }
+
+    private fun deleteExtraAlarms(needsHourReminder: Boolean, needsDayReminder: Boolean) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val allEventAlarms = dao.getAllData()
+            val hoursAlarms = allEventAlarms.filter { it.hoursBefore == 1 }
+            val dayAlarms = allEventAlarms.filter { it.hoursBefore == 24 }
+            if (!needsHourReminder) {
+                hoursAlarms.forEach { deleteEventAlarm(it) }
+            }
+            if (!needsDayReminder) {
+                dayAlarms.forEach { deleteEventAlarm(it) }
+            }
         }
     }
 
@@ -86,20 +115,50 @@ class EventAlarmDBHelper(val context: Context) {
                     eventId = data.eventId,
                     eventName = event?.name ?: data.eventName,
                     eventTime = event?.date ?: data.eventTime,
+                    hoursBefore = data.hoursBefore
                 )
             }
         return toBeUpdated.sortedBy { it.id }
     }
 
-    fun addNewAlarms(events: List<Event>) {
+    fun addNewAlarms(
+        events: List<Event>,
+        allEventAlarms: List<EventAlarmData>,
+        needsHourReminder: Boolean,
+        needsDayReminder: Boolean
+    ) {
+        if (!needsHourReminder && !needsDayReminder) {
+            return
+        }
+
+        val hourAlarms = allEventAlarms.filter { it.hoursBefore == 1 }
+        val dayAlarms = allEventAlarms.filter { it.hoursBefore == 24 }
+
         events.forEach { event ->
-            val data = EventAlarmData(
-                id = 0,
-                eventId = event.id,
-                eventTime = event.date,
-                eventName = event.name,
-            )
-            addEventAlarm(data)
+            val hasHourAlarm = hourAlarms.map { it.eventId }.contains(event.id)
+            val hasDayAlarm = dayAlarms.map { it.eventId }.contains(event.id)
+
+            if (needsHourReminder && !hasHourAlarm) {
+                val data = EventAlarmData(
+                    id = 0,
+                    eventId = event.id,
+                    eventTime = event.date,
+                    eventName = event.name,
+                    hoursBefore = 1
+                )
+                addEventAlarm(data)
+            }
+
+            if (needsDayReminder && !hasDayAlarm) {
+                val data = EventAlarmData(
+                    id = 0,
+                    eventId = event.id,
+                    eventTime = event.date,
+                    eventName = event.name,
+                    hoursBefore = 24
+                )
+                addEventAlarm(data)
+            }
         }
     }
 

@@ -12,7 +12,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.*
@@ -24,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -36,11 +34,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.hobbyclubs.api.Club
+import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.News
 import com.example.hobbyclubs.general.CustomOutlinedTextField
-import com.example.hobbyclubs.screens.clubmanagement.*
+import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.example.hobbyclubs.screens.create.event.SelectedImageItem
+import com.google.firebase.firestore.FieldValue
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -53,9 +53,10 @@ fun SingleNewsScreen(
     vm: SingleScreenViewModel = viewModel(),
     newsId: String
 ) {
-    val context = LocalContext.current
     val news by vm.selectedNews.observeAsState(null)
     val isPublisher by vm.isPublisher.observeAsState()
+    val hasRead by vm.hasRead.observeAsState(null)
+
     val sheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
         confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded }
@@ -79,8 +80,18 @@ fun SingleNewsScreen(
     ) {
         LaunchedEffect(Unit) {
             vm.getNews(newsId)
-            vm.getImage(newsId)
             vm.getCurrentUser()
+        }
+        hasRead?.let {
+        LaunchedEffect(it) {
+            Log.d("hasread", "SingleNewsScreen: $it ")
+            if (!it) {
+                val changeMap = mapOf(
+                    Pair("usersRead", FieldValue.arrayUnion(FirebaseHelper.uid))
+                )
+                vm.updateNews(newsId, changeMap)
+            }
+        }
         }
         LaunchedEffect(news) {
             news?.let {
@@ -126,29 +137,7 @@ fun SingleNewsScreen(
 
                     },
                     navigationIcon = {
-                        Card(
-                            shape = CircleShape,
-                            colors = CardDefaults.cardColors(containerColor = Color.White),
-                            modifier = Modifier
-                                .padding(start = 10.dp)
-                                .size(30.dp)
-                                .aspectRatio(1f)
-                        ) {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                IconButton(
-                                    onClick = { navController.navigateUp() }
-                                ) {
-                                    Icon(
-                                        Icons.Outlined.ArrowBack,
-                                        contentDescription = "Back",
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                }
-                            }
-                        }
+                        TopBarBackButton(navController = navController)
                     }
                 )
             }
@@ -253,7 +242,6 @@ fun EditNewsSheet(vm: SingleScreenViewModel, newsId: String, onSave: () -> Unit)
                         scope.launch {
                             vm.updateLoadingStatus(true)
                             delay(1500)
-                            vm.getImage(newsId)
                             vm.updateLoadingStatus(false)
                             onSave()
                         }
@@ -285,8 +273,6 @@ fun NewsContent(
     vm: SingleScreenViewModel = viewModel(),
     news: News
 ) {
-    val getImage by vm.newsUri.observeAsState()
-    val currentUser by vm.currentUser.observeAsState()
     val publisher by vm.publisher.observeAsState(null)
     var club: Club? by rememberSaveable { mutableStateOf(null) }
 
@@ -312,11 +298,11 @@ fun NewsContent(
                 .verticalScroll(rememberScrollState()),
         ) {
             AsyncImage(
-                model = getImage,
+                model = news.newsImageUri,
                 contentDescription = "news image",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .aspectRatio(16f / 9f)
                     .padding(bottom = 16.dp)
             )
             Column(

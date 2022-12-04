@@ -1,36 +1,65 @@
 package com.example.hobbyclubs.screens.home
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.hobbyclubs.api.*
+import com.example.hobbyclubs.notifications.InAppNotificationService
 import com.google.firebase.Timestamp
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 class HomeScreenViewModel : ViewModel() {
     companion object {
         const val TAG = "HomeScreenViewModel"
     }
 
+    var unreadReceiver: BroadcastReceiver? = null
+    val unreadAmount = MutableLiveData<Int>(0)
     val isFirstTimeUser = MutableLiveData<Boolean>()
     val allClubs = MutableLiveData<List<Club>>()
     val myClubs = Transformations.map(allClubs) { clubs ->
-        clubs.filter { it.members.contains(FirebaseHelper.uid) }
+        clubs.filter { club -> club.members.contains(FirebaseHelper.uid) }
     }
     val allEvents = MutableLiveData<List<Event>>()
     val myEvents = Transformations.map(allEvents) { events ->
         events
             .filter { event ->
-            event.participants.contains(FirebaseHelper.uid)
-                    || event.likers.contains(FirebaseHelper.uid)
+                event.participants.contains(FirebaseHelper.uid)
+                        || event.likers.contains(FirebaseHelper.uid)
             }
             .sortedBy { it.date }
     }
 
+    val eventRequests = MutableLiveData<List<EventRequest>>()
+    val hasRequested = Transformations.map(eventRequests) { list ->
+        list.any { it.userId == FirebaseHelper.uid && !it.acceptedStatus }
+    }
+    fun getEventJoinRequests(eventId: String) {
+        FirebaseHelper.getRequestsFromEvent(eventId)
+            .addSnapshotListener { data, error ->
+                data ?: run {
+                    Log.e("getAllRequests", "RequestFetchFail: ", error)
+                    return@addSnapshotListener
+                }
+                val fetchedRequests = data.toObjects(EventRequest::class.java)
+                eventRequests.value = fetchedRequests.filter { !it.acceptedStatus }
+            }
+    }
+
     val allNews = MutableLiveData<List<News>>()
+    val myNews = Transformations.map(allNews) { news ->
+        myClubs.value?.let { clubList ->
+            news.filter { singleNews ->
+                clubList.map { club -> club.ref }.contains(singleNews.clubId)
+            }
+        } ?: listOf()
+    }
+
     val searchInput = MutableLiveData("")
 
     init {
@@ -40,7 +69,7 @@ class HomeScreenViewModel : ViewModel() {
         fetchAllNews()
     }
 
-    fun checkFirstTime() {
+    private fun checkFirstTime() {
         FirebaseHelper.uid?.let {
             FirebaseHelper.getUser(it)
                 .get()
@@ -53,7 +82,7 @@ class HomeScreenViewModel : ViewModel() {
         }
     }
 
-    fun fetchAllEvents() {
+    private fun fetchAllEvents() {
         val now = Timestamp.now()
         FirebaseHelper.getAllEvents()
             .addSnapshotListener { data, error ->
@@ -69,7 +98,7 @@ class HomeScreenViewModel : ViewModel() {
             }
     }
 
-    fun fetchAllClubs() {
+    private fun fetchAllClubs() {
         FirebaseHelper.getAllClubs()
             .addSnapshotListener { data, error ->
                 data ?: run {
@@ -84,48 +113,6 @@ class HomeScreenViewModel : ViewModel() {
             }
     }
 
-//    fun fetchMyClubs() {
-//        FirebaseHelper.uid?.let { uid ->
-//            FirebaseHelper.getAllClubs().whereArrayContains("members", uid)
-//                .get()
-//                .addOnSuccessListener { data ->
-//                    val fetchedClubs =
-//                        data.toObjects(Club::class.java).sortedBy { club -> club.nextEvent }
-//                    myClubs.value = fetchedClubs
-//                    fetchMyNews(fetchedClubs)
-//                }
-//                .addOnFailureListener {
-//                    Log.e(TAG, "fetchMyClubs: ", it)
-//                }
-//        }
-//    }
-
-//    fun fetchMyEvents() {
-//        val now = Timestamp.now()
-//        FirebaseHelper.uid?.let { uid ->
-//            FirebaseHelper.getAllEvents().whereArrayContains("participants", uid)
-//                .addSnapshotListener { data, error ->
-//                    data ?: run {
-//                        Log.e(TAG, "fetchMyEvents: ", error)
-//                        return@addSnapshotListener
-//                    }
-//                    val joined = data.toObjects(Event::class.java)
-//                        .filter { it.date >= now }
-//                    joinedEvents.value = joined
-//                }
-//            FirebaseHelper.getAllEvents().whereArrayContains("likers", uid)
-//                .addSnapshotListener { data, error ->
-//                    data ?: run {
-//                        Log.e(TAG, "fetchMyEvents: ", error)
-//                        return@addSnapshotListener
-//                    }
-//                    val liked = data.toObjects(Event::class.java)
-//                        .filter { it.date >= now }
-//                    likedEvents.value = liked
-//                }
-//        }
-//    }
-
     fun fetchAllNews() {
         FirebaseHelper.getAllNews()
             .addSnapshotListener { data, error ->
@@ -138,11 +125,27 @@ class HomeScreenViewModel : ViewModel() {
                 allNews.value = fetchedNews
             }
     }
-
-    fun getLogo(clubId: String) = FirebaseHelper.getFile("${CollectionName.clubs}/$clubId/logo")
-    fun getBanner(clubId: String) = FirebaseHelper.getFile("${CollectionName.clubs}/$clubId/banner")
     fun updateInput(newVal: String) {
         searchInput.value = newVal
     }
 
+    fun receiveUnreads(context: Context) {
+        val unreadFilter = IntentFilter()
+        unreadFilter.addAction(InAppNotificationService.NOTIF_UNREAD)
+        unreadReceiver = object : BroadcastReceiver() {
+            override fun onReceive(p0: Context?, p1: Intent?) {
+                Log.d(TAG, "onReceive: unreads")
+                val unreads = p1?.getParcelableArrayExtra(InAppNotificationService.EXTRA_NOTIF_UNREAD,)
+                    ?.map { it as NotificationInfo }
+                    ?.filter { !it.readBy.contains(FirebaseHelper.uid) }
+                    ?: listOf()
+                unreadAmount.value = unreads.size
+            }
+        }
+        context.registerReceiver(unreadReceiver, unreadFilter)
+    }
+
+    fun unregisterReceiver(context: Context) {
+        context.unregisterReceiver(unreadReceiver)
+    }
 }

@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.hobbyclubs.api.Club
+import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.navigation.NavRoutes
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -74,9 +75,7 @@ fun ClubManagementScreen(
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")
-                    }
+                    TopBarBackButton(navController = navController)
                 }
             )
         }

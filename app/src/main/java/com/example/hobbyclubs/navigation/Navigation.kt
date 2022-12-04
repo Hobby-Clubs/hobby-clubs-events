@@ -4,6 +4,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ClearAll
 import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.ClearAll
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.ui.graphics.vector.ImageVector
 
 /**
@@ -17,6 +20,7 @@ sealed class NavRoutes(val route: String) {
     object CalendarScreen: NavRoutes("CalendarScreen")
     object EventScreen: NavRoutes("EventScreen")
     object EventParticipantsScreen: NavRoutes("EventParticipantsScreen")
+    object EventParticipantRequestScreen: NavRoutes("EventParticipantRequestScreen")
     object EventManagementScreen: NavRoutes("EventManagementScreen")
     object ClubPageScreen: NavRoutes("ClubPageScreen")
     object ClubManagementScreen: NavRoutes("ClubManagementScreen")
@@ -31,6 +35,9 @@ sealed class NavRoutes(val route: String) {
     object SingleNewsScreen: NavRoutes("SingleNews")
     object FirstTimeScreen: NavRoutes("FirstTimeScreen")
     object SettingsScreen: NavRoutes("SettingsScreen")
+    object NotificationScreen: NavRoutes("NotificationScreen")
+    object AllMyScreen: NavRoutes("AllMyScreen")
+    object ClubNewsScreen: NavRoutes("ClubNewsScreen")
 }
 
 data class BarItem(
@@ -44,19 +51,17 @@ object NavBarItems {
         BarItem(
             route = NavRoutes.HomeScreen.route,
             title = "Home",
-            icon = Icons.Default.Home
+            icon = Icons.Outlined.Home
         ),
-
-        BarItem(
-            route = NavRoutes.ClubsScreen.route,
-            title = "Clubs",
-            icon = Icons.Default.ClearAll
-        ),
-
         BarItem(
             route = NavRoutes.CalendarScreen.route,
             title = "Events",
-            icon = Icons.Default.EventNote
+            icon = Icons.Outlined.CalendarMonth
+        ),
+        BarItem(
+            route = NavRoutes.ClubsScreen.route,
+            title = "Clubs",
+            icon = Icons.Outlined.ClearAll
         )
     )
     object FirstTimeScreen: NavRoutes("FirstTimeScreen")

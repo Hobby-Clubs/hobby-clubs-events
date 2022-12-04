@@ -5,7 +5,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -42,20 +42,22 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.getSystemService
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.compose.*
 import com.example.hobbyclubs.R
-import com.example.hobbyclubs.api.CollectionName
 import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.News
+import com.example.hobbyclubs.api.*
 import com.example.hobbyclubs.navigation.BottomBar
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.notifications.AlarmReceiver
 import com.example.hobbyclubs.notifications.EventNotificationInfo
+import com.example.hobbyclubs.screens.clubmembers.MemberImage
+import com.example.hobbyclubs.screens.clubpage.CustomButton
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -104,7 +106,8 @@ fun TopSearchBar(
         OutlinedTextField(
             modifier = Modifier
                 .width((screenWidth * 0.72).dp)
-                .aspectRatio(4.64f),
+                .aspectRatio(5.5f)
+                .padding(top = 10.dp),
             value = input,
             onValueChange = { onTextChange(it) },
             leadingIcon = {
@@ -152,6 +155,9 @@ fun DrawerScreen(
     content: @Composable () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
+    val selectedItem by remember {
+        mutableStateOf(0)
+    }
     ModalNavigationDrawer(
         modifier = Modifier.fillMaxSize(),
         drawerState = drawerState,
@@ -169,7 +175,7 @@ fun DrawerScreen(
         }) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
-            bottomBar = { BottomBar(navController) },
+            bottomBar = { BottomBar(navController = navController) },
             topBar = { topBar(drawerState) },
             floatingActionButton = { fab() }
         ) { pad ->
@@ -228,7 +234,8 @@ fun MockDrawerContent(navToFirstTime: () -> Unit, logout: () -> Unit, onClick: (
                             id = 1L,
                             eventId = "9ssrdprFCTrYUeIyoU98",
                             eventTime = alarmTime + (3600000),
-                            eventName = "Test event"
+                            eventName = "Test event",
+                            hoursBefore = 1
                         )
                         putExtra("data", info)
                     }
@@ -251,28 +258,57 @@ fun MockDrawerContent(navToFirstTime: () -> Unit, logout: () -> Unit, onClick: (
 }
 
 @Composable
-fun FakeButtonForNavigationTest(destination: String, onClick: () -> Unit) {
-    Button(
-        onClick = { onClick() },
-        modifier = Modifier.padding(10.dp)
-    ) {
-        Text(text = destination)
-    }
-}
-
-@Composable
-fun LazyColumnHeader(modifier: Modifier = Modifier, text: String) {
+fun LazyColumnHeader(modifier: Modifier = Modifier, text: String, onHomeScreen: Boolean = false, onClick: () -> Unit = {}) {
     Box(
         modifier = modifier
             .fillMaxWidth()
             .background(colorScheme.background)
+            .clickable {
+                onClick()
+            }
     ) {
-        Text(
-            modifier = Modifier.padding(vertical = 16.dp),
-            text = text,
-            fontWeight = FontWeight.Light,
-            fontSize = 24.sp
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(end = 20.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                modifier = Modifier.padding(vertical = 16.dp),
+                text = text,
+                fontWeight = FontWeight.Light,
+                fontSize = 24.sp
+            )
+            if (onHomeScreen) Icon(Icons.Outlined.NavigateNext, null, modifier = Modifier.size(24.dp))
+        }
+    }
+}
+
+@Composable
+fun TopBarBackButton(navController: NavController) {
+    Card(
+        shape = CircleShape,
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        modifier = Modifier
+            .padding(start = 10.dp)
+            .size(30.dp)
+            .aspectRatio(1f)
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            IconButton(
+                onClick = { navController.navigateUp() }
+            ) {
+                Icon(
+                    Icons.Outlined.ArrowBack,
+                    contentDescription = "Back",
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
     }
 }
 
@@ -375,9 +411,9 @@ fun CustomOutlinedTextField(
     focusManager: FocusManager,
     keyboardType: KeyboardType,
     label: String,
-    singleLine : Boolean = false,
+    singleLine: Boolean = false,
     placeholder: String,
-    ) {
+) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
@@ -385,7 +421,7 @@ fun CustomOutlinedTextField(
             imeAction = ImeAction.Done,
             keyboardType = keyboardType,
 
-        ),
+            ),
         keyboardActions = KeyboardActions(
             onDone = { focusManager.clearFocus() }
         ),
@@ -398,14 +434,28 @@ fun CustomOutlinedTextField(
 
 @Composable
 fun EventTile(
+    navController: NavController,
     modifier: Modifier = Modifier,
     event: Event,
-    picUri: Uri?,
     onClick: () -> Unit,
 ) {
+
     val joined = event.participants.contains(FirebaseHelper.uid)
     val liked = event.likers.contains(FirebaseHelper.uid)
     val context = LocalContext.current
+    var hasRequested: Boolean? by remember { mutableStateOf(null) }
+    val scope = rememberCoroutineScope()
+
+    fun refreshStatus() {
+        scope.launch(Dispatchers.IO) {
+            hasRequested = getHasRequested(event.id)
+
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        refreshStatus()
+    }
 
     Card(
         shape = RoundedCornerShape(12.dp),
@@ -425,11 +475,11 @@ fun EventTile(
             ) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data(picUri)
+                        .data(event.bannerUris.first())
                         .crossfade(true)
                         .build(),
                     contentDescription = "Tile background",
-                    error = painterResource(id = R.drawable.ic_launcher),
+                    error = painterResource(id = R.drawable.nokia_logo),
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxSize(),
@@ -443,20 +493,62 @@ fun EventTile(
                     verticalAlignment = Alignment.Top,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    JoinEventButton(
-                        isJoined = joined,
-                        onJoinEvent = {
-                            joinEvent(event, context)
-                        },
-                        onLeaveEvent = {
-                            leaveEvent(event, context)
+                    Row() {
+                        hasRequested?.let { hasRequested ->
+                            JoinEventButton(
+                                isJoined = joined,
+                                onJoinEvent = {
+                                    if (event.participantLimit != -1) {
+                                        if(hasRequested) {
+                                            Toast.makeText(
+                                                context,
+                                                "Request pending approval",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        } else if (event.isPrivate && event.participants.size < event.participantLimit && !event.admins.contains(FirebaseHelper.uid)) {
+                                            createEventRequest(event, context)
+                                            refreshStatus()
+                                        } else if (event.participants.size < event.participantLimit){
+                                            joinEvent(event, context)
+                                        } else {
+                                            Toast.makeText(
+                                                context,
+                                                "Event is currently full.",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                    }
+                                    else {
+                                        if(!hasRequested && event.isPrivate && !event.admins.contains(FirebaseHelper.uid)) {
+                                            createEventRequest(event, context)
+                                            refreshStatus()
+                                        } else {
+                                            joinEvent(event, context)
+                                        }
+                                    }
+                                },
+                                onLeaveEvent = {
+                                    leaveEvent(event, context)
+                                },
+                                isPrivate = !joined && event.isPrivate && !event.admins.contains(FirebaseHelper.uid),
+                                requested = hasRequested
+                            )
                         }
-                    )
+
+                        Spacer(modifier = Modifier.width(10.dp))
+                        if(event.admins.contains(FirebaseHelper.uid)) {
+                            ManageEventButton() {
+                                navController.navigate(NavRoutes.EventManagementScreen.route + "/${event.id}")
+                            }
+                        }
+                    }
+
                     if (!joined) {
                         LikeEventButton(isLiked = liked) {
                             likeEvent(event, context)
                         }
                     }
+
                 }
                 Text(
                     text = event.name,
@@ -509,6 +601,8 @@ fun EventTile(
 fun JoinEventButton(
     modifier: Modifier = Modifier,
     isJoined: Boolean,
+    isPrivate: Boolean,
+    requested: Boolean,
     onJoinEvent: () -> Unit,
     onLeaveEvent: () -> Unit
 ) {
@@ -518,8 +612,17 @@ fun JoinEventButton(
         icon = Icons.Outlined.Close
         text = "Cancel"
     } else {
-        icon = Icons.Outlined.PersonAddAlt
-        text = "Join"
+        if(requested) {
+            icon = Icons.Outlined.Pending
+            text = "Pending.."
+        }
+        else if(isPrivate) {
+            icon = Icons.Outlined.PersonAddAlt
+            text = "Request to join"
+        } else {
+            icon = Icons.Outlined.PersonAddAlt
+            text = "Join"
+        }
     }
     var showLeaveEventDialog by remember { mutableStateOf(false) }
 
@@ -535,6 +638,7 @@ fun JoinEventButton(
             confirmText = "Leave"
         )
     }
+
     Card(
         shape = RoundedCornerShape(100.dp),
         colors = CardDefaults.cardColors(containerColor = colorScheme.primary),
@@ -651,32 +755,19 @@ fun SmallTileForClubManagement(
     val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH)
     val time = SimpleDateFormat("HH:mm", Locale.ENGLISH)
     val isEvent = data is Event
-    var title = ""
-    var date = ""
-    var path = ""
+    val title: String
+    val date: String
+    val picUri: String
     if (isEvent) {
         val event = data as Event
         title = event.name
         date = sdf.format(event.date.toDate()) + " at " + time.format(event.date.toDate())
-        path = "${CollectionName.events}/${event.id}/0.jpg"
+        picUri = event.bannerUris.first()
     } else {
         val news = data as News
         title = news.headline
         date = sdf.format(news.date.toDate())
-        path = "${CollectionName.clubs}/${news.clubId}/logo"
-    }
-    var picUri: Uri? by rememberSaveable { mutableStateOf(null) }
-    LaunchedEffect(Unit) {
-        if (picUri == null) {
-            FirebaseHelper.getFile(path)
-                .downloadUrl
-                .addOnSuccessListener {
-                    picUri = it
-                }
-                .addOnFailureListener {
-                    Log.e("getLogoUri", "SmallNewsTile: ", it)
-                }
-        }
+        picUri = news.newsImageUri
     }
     Card(
         modifier = modifier
@@ -704,7 +795,7 @@ fun SmallTileForClubManagement(
                     .build(),
                 contentDescription = "logo",
                 contentScale = ContentScale.Crop,
-                error = painterResource(id = R.drawable.ic_launcher)
+                error = painterResource(id = R.drawable.nokia_logo)
             )
             Column(
                 Modifier
@@ -751,17 +842,16 @@ fun CustomAlertDialog(
         text = { Text(text = text) },
         onDismissRequest = onDismissRequest,
         dismissButton = {
-            Button(onClick = { onDismissRequest() }) {
+            TextButton(
+                onClick = { onDismissRequest() },
+            ) {
                 Text(text = "Cancel")
             }
         },
         confirmButton = {
-            Button(
+            TextButton(
                 onClick = { onConfirm() },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colorScheme.error,
-                    contentColor = colorScheme.onError
-                )
+                colors =  ButtonDefaults.textButtonColors(contentColor = colorScheme.error),
             ) {
                 Text(text = confirmText)
             }
@@ -770,23 +860,15 @@ fun CustomAlertDialog(
 }
 
 @Composable
-fun SmallNewsTile(modifier: Modifier = Modifier, news: News, onClick: () -> Unit) {
+fun SmallNewsTile(
+    modifier: Modifier = Modifier,
+    news: News,
+    onClick: () -> Unit
+) {
     val screenWidth = LocalConfiguration.current.screenWidthDp
-    var picUri: Uri? by rememberSaveable { mutableStateOf(null) }
     val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH)
     val date = sdf.format(news.date.toDate())
-    LaunchedEffect(Unit) {
-        if (picUri == null && news.clubId.isNotEmpty()) {
-            FirebaseHelper.getFile("${CollectionName.clubs}/${news.clubId}/logo")
-                .downloadUrl
-                .addOnSuccessListener {
-                    picUri = it
-                }
-                .addOnFailureListener {
-                    Log.e("getLogoUri", "SmallNewsTile: ", it)
-                }
-        }
-    }
+
     Card(
         modifier = modifier
             .aspectRatio(4.7f)
@@ -808,12 +890,12 @@ fun SmallNewsTile(modifier: Modifier = Modifier, news: News, onClick: () -> Unit
                     .aspectRatio(1f)
                     .clip(CircleShape),
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(picUri)
+                    .data(news.clubImageUri)
                     .crossfade(true)
                     .build(),
                 contentDescription = "logo",
                 contentScale = ContentScale.Crop,
-                error = painterResource(id = R.drawable.ic_launcher)
+                error = painterResource(id = R.drawable.nokia_logo)
             )
             Column(
                 Modifier
@@ -821,7 +903,7 @@ fun SmallNewsTile(modifier: Modifier = Modifier, news: News, onClick: () -> Unit
                     .fillMaxHeight()
                     .padding(end = 4.dp),
                 verticalArrangement = Arrangement.SpaceBetween,
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.Start
             ) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(
@@ -842,6 +924,70 @@ fun SmallNewsTile(modifier: Modifier = Modifier, news: News, onClick: () -> Unit
                     fontWeight = FontWeight.Light,
                     fontSize = 14.sp
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun RequestCard(
+    request: ClubRequest,
+    onAccept: () -> Unit,
+    onReject: () -> Unit,
+) {
+    var user: User? by rememberSaveable { mutableStateOf(null) }
+    LaunchedEffect(Unit) {
+        if (user == null) {
+            FirebaseHelper.getUser(request.userId).get()
+                .addOnSuccessListener {
+                    val fetchedUser = it.toObject(User::class.java)
+                    user = fetchedUser
+                }
+        }
+    }
+    user?.let {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth(),
+        ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 15.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    MemberImage(uri = it.profilePicUri)
+                    Text(
+                        text = "${it.fName} ${it.lName}", fontSize = 16.sp, modifier = Modifier
+                            .weight(6f)
+                            .padding(start = 30.dp)
+                    )
+                }
+                Text(
+                    text = request.message, modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 15.dp)
+                )
+                Spacer(modifier = Modifier.height(5.dp))
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    CustomButton(
+                        onClick = {
+                            onReject()
+                        },
+                        text = "Decline",
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = colorScheme.error,
+                            contentColor = colorScheme.onError
+                        )
+                    )
+                    CustomButton(
+                        onClick = {
+                            onAccept()
+                        },
+                        text = "Accept",
+                    )
+                }
             }
         }
     }

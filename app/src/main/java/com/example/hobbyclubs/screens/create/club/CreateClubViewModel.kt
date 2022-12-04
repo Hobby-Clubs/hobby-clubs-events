@@ -9,6 +9,7 @@ import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.CollectionName
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.User
+import com.google.firebase.firestore.FieldValue
 
 class CreateClubViewModel : ViewModel() {
     val firebase = FirebaseHelper
@@ -21,8 +22,8 @@ class CreateClubViewModel : ViewModel() {
     val contactInfoNumber = MutableLiveData<TextFieldValue>()
     val currentLinkName = MutableLiveData<TextFieldValue>()
     val currentLinkURL = MutableLiveData<TextFieldValue>()
-    val selectedBannerImages = MutableLiveData<MutableList<Uri>>()
-    val selectedClubLogo = MutableLiveData<Uri>()
+    val selectedBannerImage = MutableLiveData<Uri?>()
+    val selectedClubLogo = MutableLiveData<Uri?>()
     val leftSelected = MutableLiveData<Boolean>()
     val rightSelected = MutableLiveData<Boolean>()
     val clubIsPrivate = MutableLiveData<Boolean>()
@@ -80,18 +81,36 @@ class CreateClubViewModel : ViewModel() {
         currentLinkName.value = null
         currentLinkURL.value = null
     }
-    private var count = 0
-    fun storeImagesOnFirebase(listToStore: List<Uri>, logo: Uri, clubId: String) {
-        listToStore.forEach { uri ->
-            val imageName = if (count == 0) "banner" else "$count.jpg"
-            firebase.addPic(uri, "${CollectionName.clubs}/$clubId/$imageName")
-            count += 1
-        }
-        firebase.addPic(logo, "${CollectionName.clubs}/$clubId/logo")
+
+    fun storeImagesOnFirebase(bannerUri: Uri, logoUri: Uri, clubId: String) {
+        firebase.addPic(bannerUri, "${CollectionName.clubs}/$clubId/banner")
+            .addOnSuccessListener {
+                it.storage.downloadUrl.addOnSuccessListener { downloadUrl ->
+                    val changeMap = mapOf(
+                        Pair("bannerUri", downloadUrl)
+                    )
+                    firebase.updateClubDetails(clubId, changeMap)
+                }
+            }
+            .addOnFailureListener {
+                Log.e(FirebaseHelper.TAG, "addPic: ", it)
+            }
+        firebase.addPic(logoUri, "${CollectionName.clubs}/$clubId/logo")
+            .addOnSuccessListener {
+                it.storage.downloadUrl.addOnSuccessListener { downloadUrl ->
+                    val changeMap = mapOf(
+                        Pair("logoUri", FieldValue.arrayUnion(downloadUrl))
+                    )
+                    firebase.updateEventDetails(clubId, changeMap)
+                }
+            }
+            .addOnFailureListener {
+                Log.e(FirebaseHelper.TAG, "addPic: ", it)
+            }
     }
 
-    fun temporarilyStoreImages(bannerUri: MutableList<Uri>? = null, logoUri: Uri? = null) {
-        bannerUri?.let { selectedBannerImages.value = it }
+    fun temporarilyStoreImages(bannerUri: Uri? = null, logoUri: Uri? = null) {
+        bannerUri?.let { selectedBannerImage.value = it }
         logoUri?.let { selectedClubLogo.value = it }
     }
 

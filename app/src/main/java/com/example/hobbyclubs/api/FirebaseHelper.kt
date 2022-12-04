@@ -1,6 +1,5 @@
 package com.example.hobbyclubs.api
 
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Parcelable
 import android.util.Log
@@ -8,17 +7,13 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.PropertyName
-import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.*
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ListResult
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import kotlinx.parcelize.Parcelize
-import java.io.ByteArrayOutputStream
-import java.io.Serializable
 
 object FirebaseHelper {
     const val TAG = "FirebaseHelper"
@@ -41,7 +36,7 @@ object FirebaseHelper {
         return db.collection(CollectionName.users).document(uid)
     }
 
-    fun updateUser(uid: String, changeMap: Map<String, Any>) {
+    fun updateUser(uid: String, changeMap: Map<String, Any?>) {
         val ref = db.collection("users").document(uid)
         ref
             .update(changeMap)
@@ -101,18 +96,6 @@ object FirebaseHelper {
 
     fun getAllClubs() = db.collection(CollectionName.clubs)
 
-    fun sendClubImage(imageName: String, clubId: String, imageBitmap: Bitmap) {
-        val storageRef =
-            Firebase.storage.reference.child("clubs").child(clubId).child(imageName)
-        val baos = ByteArrayOutputStream()
-        imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-        val bytes = baos.toByteArray()
-        storageRef.putBytes(bytes)
-            .addOnSuccessListener {
-                Log.d(TAG, "sendImage: picture uploaded ($imageName)")
-            }
-    }
-
     fun updateClubNextEvent(clubId: String, date: Timestamp) {
         val ref = db.collection(CollectionName.clubs).document(clubId)
         ref.update("nextEvent", date)
@@ -132,7 +115,7 @@ object FirebaseHelper {
         ref.set(eventWithId)
             .addOnSuccessListener {
                 Log.d(TAG, "addEvent: $ref")
-                event.clubId?.let { id ->
+                event.clubId.let { id ->
                     getNextEvent(id)
                         .get()
                         .addOnSuccessListener {
@@ -140,6 +123,7 @@ object FirebaseHelper {
                             updateClubNextEvent(id, next.date)
                         }
                 }
+                addNewEventNotif(eventId = ref.id, clubId = event.clubId)
             }
             .addOnFailureListener { e ->
                 Log.e(TAG, "addEvent: ", e)
@@ -195,9 +179,10 @@ object FirebaseHelper {
             }
     }
 
-    fun updateUserInClub(clubId: String, newList: List<String>) {
+    fun updateUserInClub(clubId: String, userId: String, remove: Boolean = false) {
         val userRef = db.collection(CollectionName.clubs).document(clubId)
-        userRef.update("members", newList)
+        val action = if (remove) FieldValue.arrayRemove(userId) else FieldValue.arrayUnion(userId)
+        userRef.update("members", action)
             .addOnSuccessListener {
                 Log.d(TAG, "UpdateUser: " + "success (${userRef.id})")
             }
@@ -230,31 +215,6 @@ object FirebaseHelper {
 
     fun getAllEvents() = db.collection(CollectionName.events)
 
-
-    fun sendNewsImage(imageId: String, newsId: String, imageBitmap: Bitmap) {
-        val storageRef = Firebase.storage.reference.child("news").child(newsId).child(imageId)
-        val baos = ByteArrayOutputStream()
-        imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-        val bytes = baos.toByteArray()
-        storageRef.putBytes(bytes)
-            .addOnSuccessListener {
-                Log.d(TAG, "sendImage: picture uploaded ($imageId)")
-            }
-    }
-
-
-    fun sendEventImage(imageId: String, eventId: String, imageBitmap: Bitmap) {
-        val storageRef =
-            Firebase.storage.reference.child("events").child(eventId).child(imageId)
-        val baos = ByteArrayOutputStream()
-        imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-        val bytes = baos.toByteArray()
-        storageRef.putBytes(bytes)
-            .addOnSuccessListener {
-                Log.d(TAG, "sendImage: picture uploaded ($imageId)")
-            }
-    }
-
     fun updateLikeEvent(updatedLikers: List<String>, eventId: String) {
         val ref = db.collection(CollectionName.events).document(eventId)
         ref.update(mapOf(Pair("likers", updatedLikers)))
@@ -284,6 +244,12 @@ object FirebaseHelper {
         ref.set(newsId)
             .addOnSuccessListener {
                 Log.d(TAG, "addNews: $ref")
+                val isGeneral = news.clubId.isEmpty()
+                if (isGeneral) {
+                    addGeneralNewsNotif(newsId = ref.id)
+                } else {
+                    addClubNewsNotif(newsId = ref.id, clubId = news.clubId)
+                }
             }
             .addOnFailureListener { e ->
                 Log.e(TAG, "addNews: ", e)
@@ -321,47 +287,49 @@ object FirebaseHelper {
 
     fun getAllUsers() = db.collection(CollectionName.users)
 
-    // Requests
+    // Club Requests
 
     fun getRequestsFromClub(clubId: String) =
-        db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.requests)
+        db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.clubRequests)
 
-    fun addRequest(clubId: String, request: Request) {
+    fun addClubRequest(clubId: String, request: ClubRequest) {
         val ref =
-            db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.requests)
+            db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.clubRequests)
                 .document()
         val requestWithId = request.apply { id = ref.id }
         ref.set(requestWithId)
             .addOnSuccessListener {
                 Log.d(TAG, "addRequest: $ref")
+                addRequestPendingNotif(userId = request.userId, clubId = clubId)
             }
             .addOnFailureListener { e ->
                 Log.e(TAG, "addRequestFail: ", e)
             }
     }
 
-    fun acceptRequest(
+    fun acceptClubRequest(
         clubId: String,
         requestId: String,
-        memberListWithNewUser: List<String>,
+        userId: String,
         changeMapForRequest: Map<String, Any>
     ) {
         val ref =
-            db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.requests)
+            db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.clubRequests)
                 .document(requestId)
         ref.update(changeMapForRequest)
             .addOnSuccessListener {
                 Log.d(TAG, "acceptRequest: $ref")
-                updateUserInClub(clubId, memberListWithNewUser)
+                updateUserInClub(clubId, userId)
+                addRequestAcceptedNotif(userId = userId, clubId = clubId)
             }
             .addOnFailureListener { e ->
                 Log.e(TAG, "acceptRequestFail: ", e)
             }
     }
 
-    fun declineRequest(clubId: String, requestId: String) {
+    fun declineClubRequest(clubId: String, requestId: String) {
         val ref =
-            db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.requests)
+            db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.clubRequests)
                 .document(requestId)
         ref.delete()
             .addOnSuccessListener {
@@ -369,6 +337,131 @@ object FirebaseHelper {
             }
             .addOnFailureListener { e ->
                 Log.e(TAG, "RequestDeletionFail: ", e)
+            }
+    }
+
+    // Notifications
+
+    fun getNotifications(): CollectionReference {
+        return db.collection(CollectionName.notifications)
+    }
+
+    fun addNewEventNotif(eventId: String, clubId: String) {
+        addNotification(
+            NotificationInfo(
+                type = NotificationType.EVENT_CREATED.name,
+                eventId = eventId,
+                clubId = clubId,
+            )
+        )
+    }
+
+    fun addGeneralNewsNotif(newsId: String) {
+        addNotification(
+            NotificationInfo(
+                type = NotificationType.NEWS_GENERAL.name,
+                newsId = newsId
+            )
+        )
+    }
+
+    fun addClubNewsNotif(newsId: String, clubId: String) {
+        addNotification(
+            NotificationInfo(
+                type = NotificationType.NEWS_CLUB.name,
+                newsId = newsId,
+                clubId = clubId,
+            )
+        )
+    }
+
+    fun addRequestPendingNotif(userId: String, clubId: String) {
+        addNotification(
+            NotificationInfo(
+                type = NotificationType.REQUEST_PENDING.name,
+                userId = userId,
+                clubId = clubId,
+            )
+        )
+    }
+
+    fun addRequestAcceptedNotif(userId: String, clubId: String) {
+        addNotification(
+            NotificationInfo(
+                type = NotificationType.REQUEST_ACCEPTED.name,
+                userId = userId,
+                clubId = clubId,
+            )
+        )
+    }
+
+    fun addNotification(notification: NotificationInfo) {
+        val ref = db.collection(CollectionName.notifications).document()
+        val data = notification.apply { id = ref.id }
+        ref.set(data)
+            .addOnSuccessListener {
+                Log.d(TAG, "addNotification: $ref")
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "addNotification: ", e)
+            }
+    }
+
+    fun markNotificationAsSeen(notificationId: String) {
+        uid?.let {
+            db.collection("notifications").document(notificationId)
+                .update("readBy", FieldValue.arrayUnion(it))
+        }
+    }
+
+    // Event Requests
+
+    fun getRequestsFromEvent(eventId: String) =
+        db.collection(CollectionName.events).document(eventId).collection(CollectionName.eventRequests)
+
+    fun addEventRequest(eventId: String, request: EventRequest) {
+        val ref =
+            db.collection(CollectionName.events).document(eventId).collection(CollectionName.eventRequests)
+                .document()
+        val requestWithId = request.apply { id = ref.id }
+        ref.set(requestWithId)
+            .addOnSuccessListener {
+                Log.d(TAG, "addEventRequest: $ref")
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "addEventRequestFail: ", e)
+            }
+    }
+
+    fun acceptEventRequest(
+        eventId: String,
+        requestId: String,
+        memberListWithNewUser: List<String>,
+        changeMapForRequest: Map<String, Any>
+    ) {
+        val ref =
+            db.collection(CollectionName.events).document(eventId).collection(CollectionName.eventRequests)
+                .document(requestId)
+        ref.update(changeMapForRequest)
+            .addOnSuccessListener {
+                Log.d(TAG, "acceptEventRequest: $ref")
+                updateUserInEvent(eventId, memberListWithNewUser)
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "acceptEventRequestFail: ", e)
+            }
+    }
+
+    fun declineEventRequest(eventId: String, requestId: String) {
+        val ref =
+            db.collection(CollectionName.events).document(eventId).collection(CollectionName.eventRequests)
+                .document(requestId)
+        ref.delete()
+            .addOnSuccessListener {
+                Log.d(TAG, "Event request deleted: $ref")
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "EventRequestDeletionFail: ", e)
             }
     }
 
@@ -394,70 +487,7 @@ object FirebaseHelper {
 
     private val storage = Firebase.storage
 
-    fun addPic(uri: Uri, path: String) {
-        storage.reference.child(path).putFile(uri)
-            .addOnSuccessListener {
-                Log.d(TAG, "addPic: $path")
-            }
-            .addOnFailureListener {
-                Log.e(TAG, "addPic: ", it)
-            }
-    }
-
-    fun updateClubImages(clubId: String, newImages: List<Uri>, newLogo: Uri) {
-        var count = 0
-        getAllFiles("${CollectionName.clubs}/$clubId")
-            .addOnSuccessListener { list ->
-                list.items.forEach { ref ->
-                    ref.delete()
-                    Log.d(TAG, "deleted: ${ref.name}")
-                }
-                newImages.forEach { imageUri ->
-                    val imageName = if (count == 0) "banner" else "$count.jpg"
-                    addPic(imageUri, "${CollectionName.clubs}/$clubId/$imageName")
-                    count += 1
-                }
-                addPic(newLogo, "${CollectionName.clubs}/$clubId/logo")
-            }
-            .addOnFailureListener {
-                Log.e(TAG, "deleteImagesFail: ", it)
-            }
-
-    }
-
-    fun updateEventImages(eventId: String, newImages: List<Uri>) {
-        var count = 0
-        getAllFiles("${CollectionName.events}/$eventId")
-            .addOnSuccessListener { list ->
-                list.items.forEach { ref ->
-                    ref.delete()
-                    Log.d(TAG, "deleted: ${ref.name}")
-                }
-                newImages.forEach { imageUri ->
-                    val imageName = "$count.jpg"
-                    addPic(imageUri, "${CollectionName.events}/$eventId/$imageName")
-                    count += 1
-                }
-            }
-            .addOnFailureListener {
-                Log.e(TAG, "deleteImagesFail: ", it)
-            }
-
-    }
-
-    fun updateNewsImage(newsId: String, newBanner: Uri) {
-        getAllFiles("${CollectionName.news}/$newsId")
-            .addOnSuccessListener { list ->
-                list.items.forEach { ref ->
-                    ref.delete()
-                    Log.d(TAG, "deleted: ${ref.name}")
-                }
-                addPic(newBanner, "${CollectionName.news}/$newsId/newsImage.jpg")
-            }
-            .addOnFailureListener {
-                Log.e(TAG, "deleteImagesFail: ", it)
-            }
-    }
+    fun addPic(uri: Uri, path: String) = storage.reference.child(path).putFile(uri)
 
     fun updateNewsDetails(newsId: String, changeMap: Map<String, Any>) {
         val ref = db.collection(CollectionName.news).document(newsId)
@@ -485,7 +515,9 @@ class CollectionName {
         const val events = "events"
         const val news = "news"
         const val users = "users"
-        const val requests = "requests"
+        const val clubRequests = "clubRequests"
+        const val eventRequests = "eventRequests"
+        const val notifications = "notifications"
     }
 }
 
@@ -512,6 +544,7 @@ data class User(
     var lName: String = "",
     val phone: String = "",
     val email: String = "",
+    val profilePicUri: String? = null,
     val interests: List<String> = listOf(),
     val firstTime: Boolean = true,
 ) : Parcelable
@@ -532,7 +565,9 @@ data class Club(
     var isPrivate: Boolean = false,
     val created: Timestamp = Timestamp.now(),
     val category: String = ClubCategory.other,
-    val nextEvent: Timestamp? = null
+    val nextEvent: Timestamp? = null,
+    val logoUri: String = "",
+    val bannerUri: String = "",
 ) : Parcelable
 
 @Parcelize
@@ -548,10 +583,13 @@ data class Event(
     val contactInfoName: String = "",
     val contactInfoEmail: String = "",
     val contactInfoNumber: String = "",
+    @get:PropertyName("isPrivate")
+    @set:PropertyName("isPrivate")
     var isPrivate: Boolean = false,
     val admins: List<String> = listOf(),
     val participants: List<String> = listOf(),
-    val likers: List<String> = listOf()
+    val likers: List<String> = listOf(),
+    val bannerUris: List<String> = listOf(),
 ) : Parcelable
 
 @Parcelize
@@ -562,14 +600,49 @@ data class News(
     val headline: String = "",
     val newsContent: String = "",
     val date: Timestamp = Timestamp.now(),
+    val newsImageUri: String = "",
+    val clubImageUri: String = "",
+    val usersRead: List<String> = listOf()
 ) : Parcelable
 
 @Parcelize
-data class Request(
+data class ClubRequest(
     var id: String = "",
     val userId: String = "",
+    val profilePicUri: String? = null,
     val acceptedStatus: Boolean = false,
     val timeAccepted: Timestamp? = null,
     val message: String = "",
     val requestSent: Timestamp = Timestamp.now()
 ) : Parcelable
+
+@Parcelize
+data class EventRequest(
+    var id: String = "",
+    val userId: String = "",
+    val profilePicUri: String? = null,
+    val acceptedStatus: Boolean = false,
+    val timeAccepted: Timestamp? = null,
+    val message: String = "",
+    val requestSent: Timestamp = Timestamp.now()
+) : Parcelable
+
+@Parcelize
+data class NotificationInfo(
+    var id: String = "",
+    val type: String = "",
+    val time: Timestamp = Timestamp.now(),
+    val userId: String = "",
+    val clubId: String = "",
+    val eventId: String = "",
+    val newsId: String = "",
+    val readBy: List<String> = listOf()
+) : Parcelable
+
+enum class NotificationType(val channelName: String) {
+    EVENT_CREATED("New events"),
+    NEWS_CLUB("Club news"),
+    NEWS_GENERAL("General news"),
+    REQUEST_PENDING("Pending membership requests"),
+    REQUEST_ACCEPTED("Accepted membership requests")
+}

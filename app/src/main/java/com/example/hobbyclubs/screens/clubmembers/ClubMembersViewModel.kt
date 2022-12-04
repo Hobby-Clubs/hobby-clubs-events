@@ -5,14 +5,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.FirebaseHelper
-import com.example.hobbyclubs.api.Request
+import com.example.hobbyclubs.api.ClubRequest
 import com.example.hobbyclubs.api.User
 
 class ClubMembersViewModel : ViewModel() {
     val firebase = FirebaseHelper
     val selectedClub = MutableLiveData<Club>()
     val listOfMembers = MutableLiveData<List<User>>(listOf())
-    val listOfRequests = MutableLiveData<List<Request>>(listOf())
+    val listOfRequests = MutableLiveData<List<ClubRequest>>(listOf())
 
     private fun getClubMembers(clubMembers: List<String>) {
         listOfMembers.value = listOf()
@@ -61,9 +61,7 @@ class ClubMembersViewModel : ViewModel() {
 //    }
 
     fun kickUserFromClub(clubId: String, userId: String) {
-        val updatedList = selectedClub.value?.members?.toMutableList()
-        updatedList?.remove(userId)
-        firebase.updateUserInClub(clubId = clubId, updatedList!!)
+        firebase.updateUserInClub(clubId = clubId, userId = userId, remove = true)
     }
 
     fun getAllJoinRequests(clubId: String) {
@@ -73,7 +71,7 @@ class ClubMembersViewModel : ViewModel() {
                     Log.e("getAllRequests", "RequestFetchFail: ", error)
                     return@addSnapshotListener
                 }
-                val fetchedRequests = data.toObjects(Request::class.java)
+                val fetchedRequests = data.toObjects(ClubRequest::class.java)
                 Log.d("fetchNews", fetchedRequests.toString())
                 listOfRequests.value = fetchedRequests.filter { !it.acceptedStatus }
             }
@@ -82,17 +80,17 @@ class ClubMembersViewModel : ViewModel() {
     fun acceptJoinRequest(
         clubId: String,
         requestId: String,
-        memberListWithNewUser: List<String>,
+        userId: String,
         changeMapForRequest: Map<String, Any>
     ) {
-        firebase.acceptRequest(
+        firebase.acceptClubRequest(
             clubId = clubId,
             requestId = requestId,
-            memberListWithNewUser = memberListWithNewUser,
+            userId = userId,
             changeMapForRequest = changeMapForRequest
         )
     }
     fun declineJoinRequest(clubId: String, requestId: String) {
-        firebase.declineRequest(clubId, requestId)
+        firebase.declineClubRequest(clubId, requestId)
     }
 }

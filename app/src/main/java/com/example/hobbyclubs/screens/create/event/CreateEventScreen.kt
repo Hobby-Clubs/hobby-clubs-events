@@ -14,7 +14,6 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.Timer
@@ -23,7 +22,6 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
@@ -40,8 +38,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
@@ -50,6 +46,8 @@ import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.general.CustomAlertDialog
 import com.example.hobbyclubs.general.CustomOutlinedTextField
+import com.example.hobbyclubs.general.TopBarBackButton
+import com.example.hobbyclubs.general.Pill
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -88,9 +86,7 @@ fun CreateEventScreen(
             title = { },
             colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
             navigationIcon = {
-                IconButton(onClick = { showLeaveDialog = true }) {
-                    Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")
-                }
+                TopBarBackButton(navController = navController)
             }
         )
         if (showLeaveDialog) {
@@ -142,74 +138,6 @@ fun ProgressionBar(isMarked: Boolean, onClick: () -> Unit) {
         .background(color = if (isMarked) colorScheme.primary else colorScheme.surfaceVariant)
         .clickable { onClick() }
     )
-}
-
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalPagerApi::class)
-@Composable
-fun SelectedImagesDialog(
-    selectedImages: List<Uri>? = null,
-    selectedLogo: Uri? = null,
-    onConfirm: () -> Unit,
-    onDismissRequest: () -> Unit
-) {
-    Dialog(
-        onDismissRequest = { onDismissRequest() },
-        properties = DialogProperties(usePlatformDefaultWidth = false)
-    ) {
-        Card(
-            colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
-            modifier = Modifier.padding(horizontal = 10.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .wrapContentSize()
-                    .padding(10.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .wrapContentSize()
-                        .padding(5.dp)
-                ) {
-                    Text(text = "Image Previews")
-                    Spacer(modifier = Modifier.height(10.dp))
-                    val pagerState2 = rememberPagerState()
-                    selectedImages?.let {
-                        HorizontalPager(
-                            count = it.size,
-                            state = pagerState2,
-                            itemSpacing = 10.dp,
-                            contentPadding = PaddingValues(end = 150.dp)
-                        ) { page ->
-                            Log.d("imageList", "page: $page, index: ${it[page]}")
-                            SelectedImageItem(uri = it[page])
-                        }
-                        HorizontalPagerIndicator(
-                            pagerState = pagerState2,
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .padding(16.dp),
-                        )
-                    }
-                    selectedLogo?.let {
-                        SelectedImageItem(uri = it)
-                    }
-                    Spacer(modifier = Modifier.height(15.dp))
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        CustomButton(
-                            onClick = { onDismissRequest() },
-                            text = "Cancel",
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = colorScheme.onSurfaceVariant,
-                                contentColor = colorScheme.surfaceVariant
-                            )
-                        )
-                        CustomButton(onClick = { onConfirm() }, text = "Save Selection")
-                    }
-
-                }
-            }
-        }
-    }
 }
 
 @Composable
@@ -414,69 +342,65 @@ fun EventCreationPage1(vm: CreateEventViewModel) {
     val eventLocation by vm.eventLocation.observeAsState(null)
     val eventParticipantLimit by vm.eventParticipantLimit.observeAsState(null)
     val joinedClubs by vm.joinedClubs.observeAsState(listOf())
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Text(
-                text = "Create a new event!",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(bottom = 20.dp)
-            )
-            ClubSelectionDropdownMenu(joinedClubs, onSelect = {
-                vm.updateSelectedClub(it.ref)
-            })
-            CustomOutlinedTextField(
-                value = eventName ?: TextFieldValue(""),
-                onValueChange = { vm.updateEventName(it) },
-                focusManager = focusManager,
-                keyboardType = KeyboardType.Text,
-                label = "Name *",
-                placeholder = "Give your event a name *",
-                singleLine = true,
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
-            CustomOutlinedTextField(
-                value = eventDescription ?: TextFieldValue(""),
-                onValueChange = { vm.updateEventDescription(it) },
-                focusManager = focusManager,
-                keyboardType = KeyboardType.Text,
-                label = "Description *",
-                placeholder = "Describe your event *",
-                modifier = Modifier
-                    .height((screenHeight * 0.2).dp)
-                    .fillMaxWidth()
-            )
-            CustomOutlinedTextField(
-                value = eventLocation ?: TextFieldValue(""),
-                onValueChange = { vm.updateEventLocation(it) },
-                focusManager = focusManager,
-                keyboardType = KeyboardType.Text,
-                label = "Location *",
-                placeholder = "Give the address of the event *",
-                singleLine = true,
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(5.dp))
-            DateSelector(vm)
-            Spacer(modifier = Modifier.height(5.dp))
-            CustomOutlinedTextField(
-                value = eventParticipantLimit ?: TextFieldValue(""),
-                onValueChange = { vm.updateEventParticipantLimit(it) },
-                focusManager = focusManager,
-                keyboardType = KeyboardType.Number,
-                label = "Participant limit",
-                placeholder = "Leave empty for no limit",
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
-        }
-        Column(
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        Text(
+            text = "Create a new event!",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(bottom = 20.dp)
+        )
+        ClubSelectionDropdownMenu(joinedClubs, onSelect = {
+            vm.updateSelectedClub(it.ref)
+        })
+        CustomOutlinedTextField(
+            value = eventName ?: TextFieldValue(""),
+            onValueChange = { vm.updateEventName(it) },
+            focusManager = focusManager,
+            keyboardType = KeyboardType.Text,
+            label = "Name *",
+            placeholder = "Give your event a name *",
+            singleLine = true,
             modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 75.dp)
-        ) {
+                .fillMaxWidth()
+        )
+        CustomOutlinedTextField(
+            value = eventDescription ?: TextFieldValue(""),
+            onValueChange = { vm.updateEventDescription(it) },
+            focusManager = focusManager,
+            keyboardType = KeyboardType.Text,
+            label = "Description *",
+            placeholder = "Describe your event *",
+            modifier = Modifier
+                .height((screenHeight * 0.2).dp)
+                .fillMaxWidth()
+        )
+        CustomOutlinedTextField(
+            value = eventLocation ?: TextFieldValue(""),
+            onValueChange = { vm.updateEventLocation(it) },
+            focusManager = focusManager,
+            keyboardType = KeyboardType.Text,
+            label = "Location *",
+            placeholder = "Give the address of the event *",
+            singleLine = true,
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(5.dp))
+        DateSelector(vm)
+        Spacer(modifier = Modifier.height(5.dp))
+        CustomOutlinedTextField(
+            value = eventParticipantLimit ?: TextFieldValue(""),
+            onValueChange = { vm.updateEventParticipantLimit(it) },
+            focusManager = focusManager,
+            keyboardType = KeyboardType.Number,
+            label = "Participant limit",
+            placeholder = "Leave empty for no limit",
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        Column() {
             PageProgression(
                 numberOfLines = 1,
                 onClick1 = { vm.changePageTo(1) },
@@ -486,22 +410,22 @@ fun EventCreationPage1(vm: CreateEventViewModel) {
             )
             CustomButton(
                 onClick = {
-                if (
-                    selectedClub == null ||
-                    selectedDate == null ||
-                    eventName == null ||
-                    eventDescription == null ||
-                    eventLocation == null
+                    if (
+                        selectedClub == null ||
+                        selectedDate == null ||
+                        eventName == null ||
+                        eventDescription == null ||
+                        eventLocation == null
 
-                ) {
-                    Toast.makeText(
-                        context,
-                        "Please fill in all the fields",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                } else {
-                    vm.changePageTo(2)
-                } },
+                    ) {
+                        Toast.makeText(
+                            context,
+                            "Please fill in all the fields",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        vm.changePageTo(2)
+                    } },
                 text = "Next",
                 modifier = Modifier
                     .fillMaxWidth()
@@ -510,15 +434,15 @@ fun EventCreationPage1(vm: CreateEventViewModel) {
         }
     }
 
+
+
 }
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun EventCreationPage2(vm: CreateEventViewModel) {
 
-    val context = LocalContext.current
     val selectedImages by vm.selectedImages.observeAsState(mutableListOf())
-    val selectedImagesAsBitmap by vm.imagesAsBitmap.observeAsState(listOf())
     var showImagePreview by remember { mutableStateOf(false) }
     val galleryLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uriList ->
@@ -526,60 +450,56 @@ fun EventCreationPage2(vm: CreateEventViewModel) {
             showImagePreview = true
         }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Text(
-                text = "Add images about the event",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(bottom = 10.dp)
-            )
-            CustomButton(
-                onClick = { galleryLauncher.launch("image/*") },
-                text = "Choose images from gallery",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(0.dp)
-            )
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 20.dp)
-            ) {
-                Text(
-                    text = "Saved images",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(bottom = 20.dp)
-                )
-                val pagerState = rememberPagerState()
-                if (selectedImagesAsBitmap.isNotEmpty()) {
-                    HorizontalPager(
-                        count = selectedImagesAsBitmap.size,
-                        state = pagerState,
-                        itemSpacing = 10.dp,
-                        contentPadding = PaddingValues(end = 150.dp)
-                    ) { page ->
-                        Log.d("imageList", "page: $page, index: ${selectedImagesAsBitmap[page]}")
-                        SelectedImageItem(bitmap = selectedImagesAsBitmap[page])
-                    }
-                    HorizontalPagerIndicator(
-                        pagerState = pagerState,
-                        modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .padding(16.dp),
-                    )
-                } else {
-                    Box(modifier = Modifier.size(150.dp))
-                }
 
-            }
-        }
+    Column(modifier = Modifier.fillMaxSize()) {
+        Text(
+            text = "Add images about the event",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(bottom = 10.dp)
+        )
+        CustomButton(
+            onClick = { galleryLauncher.launch("image/*") },
+            text = "Choose images from gallery",
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(0.dp)
+        )
         Column(
             modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 75.dp)
+                .fillMaxWidth()
+                .padding(vertical = 20.dp)
         ) {
+            Text(
+                text = "Saved images",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.padding(bottom = 20.dp)
+            )
+            val pagerState = rememberPagerState()
+            if (selectedImages.isNotEmpty()) {
+                HorizontalPager(
+                    count = selectedImages.size,
+                    state = pagerState,
+                    itemSpacing = 10.dp,
+                    contentPadding = PaddingValues(end = 150.dp)
+                ) { page ->
+                    Log.d("imageList", "page: $page, index: ${selectedImages[page]}")
+                    SelectedImageItem(uri = selectedImages[page])
+                }
+                HorizontalPagerIndicator(
+                    pagerState = pagerState,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(16.dp),
+                )
+            } else {
+                Box(modifier = Modifier.size(150.dp))
+            }
+
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        Column() {
             PageProgression(
                 numberOfLines = 2,
                 onClick1 = { vm.changePageTo(1) },
@@ -606,17 +526,9 @@ fun EventCreationPage2(vm: CreateEventViewModel) {
                 )
             }
         }
-        if (showImagePreview) {
-            SelectedImagesDialog(
-                selectedImages = selectedImages,
-                onConfirm = {
-                    vm.convertUriToBitmap(selectedImages, context)
-                    vm.emptySelection()
-                    showImagePreview = false
-                },
-                onDismissRequest = { showImagePreview = false })
-        }
     }
+
+
 }
 
 @Composable
@@ -630,81 +542,77 @@ fun EventCreationPage3(vm: CreateEventViewModel) {
     val currentLinkURL by vm.currentLinkURL.observeAsState(null)
     val givenLinks by vm.givenLinksLiveData.observeAsState(mapOf())
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Text(
-                text = "Add social media links",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.SemiBold,
-            )
-            Text(
-                text = "Give people your community links (eg. Facebook, Discord, Twitter)",
-                fontSize = 12.sp,
-                modifier = Modifier.padding(bottom = 20.dp)
-            )
-            CustomOutlinedTextField(
-                value = currentLinkName ?: TextFieldValue(""),
-                onValueChange = { vm.updateCurrentLinkName(it) },
-                focusManager = focusManager,
-                keyboardType = KeyboardType.Text,
-                label = "Link name",
-                placeholder = "Name your link",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(focusRequester)
-            )
-            CustomOutlinedTextField(
-                value = currentLinkURL ?: TextFieldValue(""),
-                onValueChange = { vm.updateCurrentLinkURL(it) },
-                focusManager = focusManager,
-                keyboardType = KeyboardType.Text,
-                label = "Link",
-                placeholder = "Link (URL)",
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
-            CustomButton(
-                onClick = {
-                    if (currentLinkName != null && currentLinkURL != null) {
-                        vm.addLinkToList(
-                            Pair(
-                                currentLinkName!!.text.replaceFirstChar { it.uppercase() },
-                                currentLinkURL!!.text
-                            )
-                        )
-                        vm.clearLinkFields()
-                        linkSent = true
-                    } else {
-                        Toast.makeText(context, "Please fill both fields.", Toast.LENGTH_SHORT)
-                            .show()
-                    }
-                },
-                text = "Add Link",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 20.dp)
-            )
-            Text(
-                text = "Provided links",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(bottom = 20.dp)
-            )
-            givenLinks.forEach {
-                Text(text = it.key)
-            }
-            DisposableEffect(linkSent) {
-                if (linkSent) {
-                    focusRequester.requestFocus()
-                }
-                onDispose {}
-            }
-        }
-        Column(
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        Text(
+            text = "Add social media links",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.SemiBold,
+        )
+        Text(
+            text = "Give people your community links (eg. Facebook, Discord, Twitter)",
+            fontSize = 12.sp,
+            modifier = Modifier.padding(bottom = 20.dp)
+        )
+        CustomOutlinedTextField(
+            value = currentLinkName ?: TextFieldValue(""),
+            onValueChange = { vm.updateCurrentLinkName(it) },
+            focusManager = focusManager,
+            keyboardType = KeyboardType.Text,
+            label = "Link name",
+            placeholder = "Name your link",
             modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 75.dp)
-        ) {
+                .fillMaxWidth()
+                .focusRequester(focusRequester)
+        )
+        CustomOutlinedTextField(
+            value = currentLinkURL ?: TextFieldValue(""),
+            onValueChange = { vm.updateCurrentLinkURL(it) },
+            focusManager = focusManager,
+            keyboardType = KeyboardType.Text,
+            label = "Link",
+            placeholder = "Link (URL)",
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+        CustomButton(
+            onClick = {
+                if (currentLinkName != null && currentLinkURL != null) {
+                    vm.addLinkToList(
+                        Pair(
+                            currentLinkName!!.text.replaceFirstChar { it.uppercase() },
+                            currentLinkURL!!.text
+                        )
+                    )
+                    vm.clearLinkFields()
+                    linkSent = true
+                } else {
+                    Toast.makeText(context, "Please fill both fields.", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            },
+            text = "Add Link",
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 20.dp)
+        )
+        Text(
+            text = "Provided links",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(bottom = 20.dp)
+        )
+        givenLinks.forEach {
+            Text(text = it.key)
+        }
+        DisposableEffect(linkSent) {
+            if (linkSent) {
+                focusRequester.requestFocus()
+            }
+            onDispose {}
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        Column() {
             PageProgression(
                 numberOfLines = 3,
                 onClick1 = { vm.changePageTo(1) },
@@ -750,13 +658,13 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
     val currentUser by vm.currentUser.observeAsState()
     val currentlySelectedClub by vm.currentlySelectedClub.observeAsState(null)
 
-    val selectedImages by vm.imagesAsBitmap.observeAsState()
+    val selectedImages by vm.selectedImages.observeAsState()
 
     // Last Page
     val contactInfoName by vm.contactInfoName.observeAsState(null)
     val contactInfoEmail by vm.contactInfoEmail.observeAsState(null)
     val contactInfoNumber by vm.contactInfoNumber.observeAsState(null)
-
+    val eventIsPrivate by vm.eventIsPrivate.observeAsState(false)
     val scope = rememberCoroutineScope()
 
     if (currentUser == null) {
@@ -768,63 +676,60 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Text(
-                text = "Contact Information",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.SemiBold,
-            )
-            Text(
-                text = "Provide members a way to contact you directly",
-                fontSize = 12.sp,
-                modifier = Modifier.padding(bottom = 20.dp)
-            )
-            CustomOutlinedTextField(
-                value = contactInfoName ?: TextFieldValue(""),
-                onValueChange = { vm.updateContactInfoName(it) },
-                focusManager = focusManager,
-                keyboardType = KeyboardType.Text,
-                label = "Name",
-                placeholder = "Name",
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
-            CustomOutlinedTextField(
-                value = contactInfoEmail ?: TextFieldValue(""),
-                onValueChange = { vm.updateContactInfoEmail(it) },
-                focusManager = focusManager,
-                keyboardType = KeyboardType.Email,
-                label = "Email",
-                placeholder = "Email",
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
-            CustomOutlinedTextField(
-                value = contactInfoNumber ?: TextFieldValue(""),
-                onValueChange = { vm.updateContactInfoNumber(it) },
-                focusManager = focusManager,
-                keyboardType = KeyboardType.Number,
-                label = "Phone number",
-                placeholder = "Phone number",
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(20.dp))
-            Text(text = "Or fill quickly using account details", fontSize = 12.sp)
-            CustomButton(
-                onClick = { currentUser?.let { vm.quickFillOptions(it) } },
-                text = "Quick fill"
-            )
-        }
-        Column(
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Text(
+            text = "Contact Information",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.SemiBold,
+        )
+        Text(
+            text = "Provide members a way to contact you directly",
+            fontSize = 12.sp,
+            modifier = Modifier.padding(bottom = 20.dp)
+        )
+        CustomOutlinedTextField(
+            value = contactInfoName ?: TextFieldValue(""),
+            onValueChange = { vm.updateContactInfoName(it) },
+            focusManager = focusManager,
+            keyboardType = KeyboardType.Text,
+            label = "Name",
+            placeholder = "Name",
             modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 75.dp)
-        ) {
+                .fillMaxWidth()
+        )
+        CustomOutlinedTextField(
+            value = contactInfoEmail ?: TextFieldValue(""),
+            onValueChange = { vm.updateContactInfoEmail(it) },
+            focusManager = focusManager,
+            keyboardType = KeyboardType.Email,
+            label = "Email",
+            placeholder = "Email",
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+        CustomOutlinedTextField(
+            value = contactInfoNumber ?: TextFieldValue(""),
+            onValueChange = { vm.updateContactInfoNumber(it) },
+            focusManager = focusManager,
+            keyboardType = KeyboardType.Number,
+            label = "Phone number",
+            placeholder = "Phone number",
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(20.dp))
+        Text(text = "Or fill quickly using account details", fontSize = 12.sp)
+        CustomButton(
+            onClick = { currentUser?.let { vm.quickFillOptions(it) } },
+            text = "Quick fill"
+        )
+        SelectPrivacy(vm)
+        Spacer(modifier = Modifier.weight(1f))
+        Column() {
             PageProgression(
                 numberOfLines = 4,
                 onClick1 = { vm.changePageTo(1) },
@@ -849,6 +754,7 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
                             selectedClub == null ||
                             selectedDate == null ||
                             eventName == null ||
+                            eventIsPrivate == null ||
                             eventDescription == null ||
                             eventLocation == null ||
                             contactInfoName == null ||
@@ -867,7 +773,6 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
                             FirebaseHelper.uid?.let {
                                 listWithYouAsAdmin.add(it)
                             }
-                            val privacy = currentlySelectedClub?.isPrivate ?: false
 
                             val event = Event(
                                 clubId = selectedClub!!,
@@ -876,15 +781,15 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
                                 date = timestamp,
                                 address = eventLocation!!.text,
                                 admins = listWithYouAsAdmin,
-                                isPrivate = privacy,
+                                isPrivate = eventIsPrivate,
                                 participantLimit = if (eventParticipantLimit == null || eventParticipantLimit!!.text.isBlank()) -1 else eventParticipantLimit!!.text.toInt(),
                                 linkArray = if (linkArray == null || linkArray!!.isEmpty()) mapOf() else linkArray!!,
                                 contactInfoName = contactInfoName!!.text,
                                 contactInfoEmail = contactInfoEmail!!.text,
-                                contactInfoNumber = contactInfoNumber!!.text
+                                contactInfoNumber = contactInfoNumber!!.text,
                             )
                             val eventId = vm.addEvent(event)
-                            vm.storeBitmapsOnFirebase(
+                            vm.storeImagesOnFirebase(
                                 listToStore = selectedImages?.toList() ?: listOf(),
                                 eventId = eventId
                             )
@@ -898,5 +803,33 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
                 )
             }
         }
+    }
+}
+
+@Composable
+fun SelectPrivacy(vm: CreateEventViewModel) {
+    val leftSelected by vm.leftSelected.observeAsState(true)
+    val rightSelected by vm.rightSelected.observeAsState(false)
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = "Privacy",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(bottom = 20.dp)
+        )
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Pill(modifier = Modifier.weight(1f), isSelected = leftSelected, text = "Public") {
+                vm.updateEventPrivacySelection(leftVal = true, rightVal = false)
+            }
+            Pill(
+                modifier = Modifier.weight(1f),
+                isLeft = false,
+                isSelected = rightSelected,
+                text = "Private"
+            ) {
+                vm.updateEventPrivacySelection(leftVal = false, rightVal = true)
+            }
+        }
+
     }
 }
