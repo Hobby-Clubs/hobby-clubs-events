@@ -211,11 +211,11 @@ fun ClubPageHeader(
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 20.dp, start = 20.dp, end = 20.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             if (!hasJoinedClub) {
                 Button(
-                    modifier = Modifier.width(175.dp),
+                    modifier = Modifier.weight(1f),
                     onClick = {
                         if (clubIsPrivate == true) {
                             showJoinRequestDialog = true
@@ -234,7 +234,7 @@ fun ClubPageHeader(
             if (hasJoinedClub) {
                 if (isAdmin) {
                     Button(
-                        modifier = Modifier.width(175.dp),
+                        modifier = Modifier.weight(1f),
                         onClick = {
                             navController.navigate(NavRoutes.ClubManagementScreen.route + "/${club.ref}")
                         }
@@ -247,7 +247,7 @@ fun ClubPageHeader(
                     }
                 } else {
                     Button(
-                        modifier = Modifier.width(175.dp),
+                        modifier = Modifier.weight(1f),
                         onClick = {
                             vm.leaveClub(clubId = club.ref)
                         }
@@ -260,13 +260,13 @@ fun ClubPageHeader(
                     }
                 }
             }
-            ShareButton(text = "Share", clubId = club.ref)
+            ShareButton(modifier = Modifier.weight(1f), text = "Share", clubId = club.ref)
         }
     }
 }
 
 @Composable
-fun ShareButton(text: String, clubId: String) {
+fun ShareButton(modifier: Modifier = Modifier, text: String, clubId: String) {
     val sendIntent: Intent = Intent().apply {
         action = Intent.ACTION_SEND
         putExtra(Intent.EXTRA_TEXT, "https://hobbyclubs.fi/clubId=$clubId")
@@ -276,7 +276,7 @@ fun ShareButton(text: String, clubId: String) {
     val context = LocalContext.current
 
     Button(
-        modifier = Modifier.width(175.dp),
+        modifier = modifier,
         onClick = {
             context.startActivity(shareIntent)
         }
