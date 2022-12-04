@@ -83,21 +83,17 @@ class ClubPageViewModel : ViewModel() {
     fun getEvent(eventId: String) = firebase.getEvent(eventId)
 
     fun joinClub(clubId: String) {
-        val updatedList = selectedClub.value?.members?.toMutableList()
-        firebase.uid?.let {
-            updatedList?.add(it)
+        firebase.uid?.let { uid ->
+            firebase.updateUserInClub(clubId = clubId, userId = uid)
+            getClub(clubId)
         }
-        firebase.updateUserInClub(clubId = clubId, updatedList!!)
-        getClub(clubId)
     }
 
     fun leaveClub(clubId: String) {
-        val updatedList = selectedClub.value?.members?.toMutableList()
-        firebase.uid?.let {
-            updatedList?.remove(it)
+        firebase.uid?.let { uid ->
+            firebase.updateUserInClub(clubId = clubId, userId = uid, remove = true)
+            getClub(clubId)
         }
-        firebase.updateUserInClub(clubId = clubId, updatedList!!)
-        getClub(clubId)
     }
 
     fun sendJoinClubRequest(clubId: String, request: Request) {

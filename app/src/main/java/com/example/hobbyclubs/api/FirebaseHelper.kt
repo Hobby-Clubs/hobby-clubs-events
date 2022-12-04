@@ -123,6 +123,7 @@ object FirebaseHelper {
                             updateClubNextEvent(id, next.date)
                         }
                 }
+                addNewEventNotif(eventId = ref.id, clubId = event.clubId)
             }
             .addOnFailureListener { e ->
                 Log.e(TAG, "addEvent: ", e)
@@ -178,9 +179,10 @@ object FirebaseHelper {
             }
     }
 
-    fun updateUserInClub(clubId: String, newList: List<String>) {
+    fun updateUserInClub(clubId: String, userId: String, remove: Boolean = false) {
         val userRef = db.collection(CollectionName.clubs).document(clubId)
-        userRef.update("members", newList)
+        val action = if (remove) FieldValue.arrayRemove(userId) else FieldValue.arrayUnion(userId)
+        userRef.update("members", action)
             .addOnSuccessListener {
                 Log.d(TAG, "UpdateUser: " + "success (${userRef.id})")
             }
@@ -242,6 +244,12 @@ object FirebaseHelper {
         ref.set(newsId)
             .addOnSuccessListener {
                 Log.d(TAG, "addNews: $ref")
+                val isGeneral = news.clubId.isEmpty()
+                if (isGeneral) {
+                    addGeneralNewsNotif(newsId = ref.id)
+                } else {
+                    addClubNewsNotif(newsId = ref.id, clubId = news.clubId)
+                }
             }
             .addOnFailureListener { e ->
                 Log.e(TAG, "addNews: ", e)
@@ -292,6 +300,7 @@ object FirebaseHelper {
         ref.set(requestWithId)
             .addOnSuccessListener {
                 Log.d(TAG, "addRequest: $ref")
+                addRequestPendingNotif(userId = request.userId, clubId = clubId)
             }
             .addOnFailureListener { e ->
                 Log.e(TAG, "addRequestFail: ", e)
@@ -301,7 +310,7 @@ object FirebaseHelper {
     fun acceptRequest(
         clubId: String,
         requestId: String,
-        memberListWithNewUser: List<String>,
+        userId: String,
         changeMapForRequest: Map<String, Any>
     ) {
         val ref =
@@ -310,7 +319,8 @@ object FirebaseHelper {
         ref.update(changeMapForRequest)
             .addOnSuccessListener {
                 Log.d(TAG, "acceptRequest: $ref")
-                updateUserInClub(clubId, memberListWithNewUser)
+                updateUserInClub(clubId, userId)
+                addRequestAcceptedNotif(userId = userId, clubId = clubId)
             }
             .addOnFailureListener { e ->
                 Log.e(TAG, "acceptRequestFail: ", e)
@@ -334,6 +344,55 @@ object FirebaseHelper {
 
     fun getNotifications(): CollectionReference {
         return db.collection(CollectionName.notifications)
+    }
+
+    fun addNewEventNotif(eventId: String, clubId: String) {
+        addNotification(
+            NotificationInfo(
+                type = NotificationType.EVENT_CREATED.name,
+                eventId = eventId,
+                clubId = clubId,
+            )
+        )
+    }
+
+    fun addGeneralNewsNotif(newsId: String) {
+        addNotification(
+            NotificationInfo(
+                type = NotificationType.NEWS_GENERAL.name,
+                newsId = newsId
+            )
+        )
+    }
+
+    fun addClubNewsNotif(newsId: String, clubId: String) {
+        addNotification(
+            NotificationInfo(
+                type = NotificationType.NEWS_CLUB.name,
+                newsId = newsId,
+                clubId = clubId,
+            )
+        )
+    }
+
+    fun addRequestPendingNotif(userId: String, clubId: String) {
+        addNotification(
+            NotificationInfo(
+                type = NotificationType.REQUEST_PENDING.name,
+                userId = userId,
+                clubId = clubId,
+            )
+        )
+    }
+
+    fun addRequestAcceptedNotif(userId: String, clubId: String) {
+        addNotification(
+            NotificationInfo(
+                type = NotificationType.REQUEST_ACCEPTED.name,
+                userId = userId,
+                clubId = clubId,
+            )
+        )
     }
 
     fun addNotification(notification: NotificationInfo) {

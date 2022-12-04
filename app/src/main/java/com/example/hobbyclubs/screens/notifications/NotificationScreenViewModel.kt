@@ -19,9 +19,10 @@ import com.example.hobbyclubs.screens.home.HomeScreenViewModel
 import com.google.firebase.firestore.FieldValue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
-class NotificationScreenViewModel(application: Application): AndroidViewModel(application) {
+class NotificationScreenViewModel(application: Application) : AndroidViewModel(application) {
     private var unreadReceiver: BroadcastReceiver? = null
     val helper = InAppNotificationHelper(application)
     val unreads = MutableLiveData<List<NotificationContent>>()
@@ -42,13 +43,12 @@ class NotificationScreenViewModel(application: Application): AndroidViewModel(ap
         unreadReceiver = object : BroadcastReceiver() {
             override fun onReceive(p0: Context?, p1: Intent?) {
                 Log.d(HomeScreenViewModel.TAG, "onReceive: unreads")
-                val infos = p1?.
-                getParcelableArrayExtra(
+                val infos = p1?.getParcelableArrayExtra(
                     InAppNotificationService.EXTRA_NOTIF_UNREAD,
                 )?.toList() ?: listOf()
                 convertToContents(
                     infos.map { it as NotificationInfo }
-                        .filter { !it.readBy.contains(FirebaseHelper.uid)}
+                        .filter { !it.readBy.contains(FirebaseHelper.uid) }
                 )
             }
         }
@@ -64,7 +64,11 @@ class NotificationScreenViewModel(application: Application): AndroidViewModel(ap
                     NEWS_CLUB -> withContext(coroutineContext) { helper.clubNewsToContent(it) }
                     NEWS_GENERAL -> withContext(coroutineContext) { helper.generalNewsToContent(it) }
                     REQUEST_PENDING -> withContext(coroutineContext) { helper.requestToContent(it) }
-                    REQUEST_ACCEPTED -> withContext(coroutineContext) { helper.acceptedRequestToContent(it) }
+                    REQUEST_ACCEPTED -> withContext(coroutineContext) {
+                        helper.acceptedRequestToContent(
+                            it
+                        )
+                    }
                 }
             }
             unreads.postValue(contents.filterNotNull())
@@ -73,7 +77,7 @@ class NotificationScreenViewModel(application: Application): AndroidViewModel(ap
 
     fun fetchUnreads() {
         viewModelScope.launch(Dispatchers.IO) {
-            val list =  helper.getMyNotifsContents()
+            val list = helper.getMyNotifsContents()
             unreads.postValue(list)
             isRefreshing.postValue(false)
         }
@@ -93,11 +97,24 @@ class NotificationScreenViewModel(application: Application): AndroidViewModel(ap
             FirebaseHelper.getNotifications().get()
                 .addOnSuccessListener {
                     val notifs = it.toObjects(NotificationInfo::class.java)
-                    notifs.forEach { notif ->
-                        FirebaseHelper.getNotifications().document(notif.id)
-                            .update("readBy", FieldValue.arrayRemove(uid))
+                    viewModelScope.launch {
+                        notifs.forEach { notif ->
+                            withContext(Dispatchers.IO) {
+                                FirebaseHelper.getNotifications().document(notif.id)
+                                    .update("readBy", FieldValue.arrayRemove(uid))
+                                    .await()
+                            }
+                        }
+                        fetchUnreads()
                     }
                 }
         }
+    }
+
+    fun markAllAsRead(contents: List<NotificationContent>) {
+        contents.map { it.id }.forEach {
+            FirebaseHelper.markNotificationAsSeen(it)
+        }
+        unreads.value = listOf()
     }
 }

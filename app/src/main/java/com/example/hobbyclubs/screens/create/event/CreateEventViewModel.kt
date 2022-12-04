@@ -114,6 +114,10 @@ class CreateEventViewModel : ViewModel() {
         return firebase.addEvent(event)
     }
 
+    fun addNewEventNotif(event: Event) {
+        FirebaseHelper.addNewEventNotif(eventId = event.id, clubId = event.clubId)
+    }
+
     private var count = 0
     fun storeImagesOnFirebase(listToStore: List<Uri>, eventId: String) {
         listToStore.forEach { uri ->

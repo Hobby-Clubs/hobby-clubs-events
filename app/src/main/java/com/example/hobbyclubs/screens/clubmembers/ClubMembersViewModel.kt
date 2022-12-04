@@ -61,9 +61,7 @@ class ClubMembersViewModel : ViewModel() {
 //    }
 
     fun kickUserFromClub(clubId: String, userId: String) {
-        val updatedList = selectedClub.value?.members?.toMutableList()
-        updatedList?.remove(userId)
-        firebase.updateUserInClub(clubId = clubId, updatedList!!)
+        firebase.updateUserInClub(clubId = clubId, userId = userId, remove = true)
     }
 
     fun getAllJoinRequests(clubId: String) {
@@ -82,13 +80,13 @@ class ClubMembersViewModel : ViewModel() {
     fun acceptJoinRequest(
         clubId: String,
         requestId: String,
-        memberListWithNewUser: List<String>,
+        userId: String,
         changeMapForRequest: Map<String, Any>
     ) {
         firebase.acceptRequest(
             clubId = clubId,
             requestId = requestId,
-            memberListWithNewUser = memberListWithNewUser,
+            userId = userId,
             changeMapForRequest = changeMapForRequest
         )
     }

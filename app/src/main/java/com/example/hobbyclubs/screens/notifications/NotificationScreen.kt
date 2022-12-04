@@ -9,12 +9,15 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.FabPosition
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.ClearAll
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Undo
 import androidx.compose.material3.*
@@ -44,6 +47,7 @@ import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.general.toString
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.notifications.NotificationContent
+import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.example.hobbyclubs.screens.settings.NotificationSetting
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -73,71 +77,93 @@ fun NotificationScreen(
                 onClickSettings = { navController.navigate(NavRoutes.SettingsScreen.route) })
         },
         floatingActionButton = {
-            Column() {
-                FloatingActionButton(onClick = { vm.removeRead() }) {
-                    Icon(imageVector = Icons.Outlined.Undo, contentDescription = null)
-                }
-                Spacer(modifier = Modifier.size(8.dp))
-                FloatingActionButton(onClick = {
-                    val notif = NotificationInfo(
-                        type = NotificationType.NEWS_GENERAL.name,
-                        newsId = "rMULEun8hJWYewpG3z4R"
-                    )
-                    FirebaseHelper.addNotification(notif)
-                }) {
-                    Icon(imageVector = Icons.Outlined.Add, contentDescription = null)
+            unreads?.let {
+                if (it.isNotEmpty()) {
+                    ClearAllButton() {
+                        vm.markAllAsRead(it)
+                    }
+                } else {
+                    FloatingActionButton(onClick = { vm.removeRead() }) {
+                       Text(text = "Reset")
+                    }
                 }
             }
-
-        }
+        },
+        floatingActionButtonPosition = FabPosition.Center
     ) { pad ->
         Box(modifier = Modifier.padding(pad)) {
             if (unreads == null) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        CircularProgressIndicator()
-                        Text(text = "Loading notifications")
-                    }
-
-                }
+                NotificationsLoading()
             } else {
                 unreads?.let { data ->
                     if (data.isEmpty()) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(text = "No new notifications")
-                        }
+                        NoNotifications()
                     } else {
-                        SwipeRefresh(
-                            state = rememberSwipeRefreshState(isRefreshing = isRefreshing),
+                        NotificationList(
+                            isRefreshing = isRefreshing,
                             onRefresh = { vm.refresh() },
-                            refreshTriggerDistance = 50.dp
-                        ) {
-                            LazyColumn(
-                                contentPadding = PaddingValues(8.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                items(data, { item -> item.id }) {
-                                    NotificationTile(
-                                        content = it,
-                                        onDismiss = { id ->
-                                            vm.markAsRead(id)
-                                        },
-                                        onClick = {
-                                            it.navRoute?.let { route ->
-                                                navController.navigate(route)
-                                            }
-                                        })
-                                }
-                            }
-                        }
+                            contents = data,
+                            onMarkAsRead = { vm.markAsRead(it) },
+                            onClick = { navController.navigate(it) }
+                        )
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun NoNotifications() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(text = "No new notifications")
+    }
+}
+
+@Composable
+fun NotificationsLoading() {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            CircularProgressIndicator()
+            Text(text = "Loading notifications")
+        }
+    }
+}
+
+@Composable
+fun NotificationList(
+    isRefreshing: Boolean,
+    onRefresh: () -> Unit,
+    contents: List<NotificationContent>,
+    onMarkAsRead: (String) -> Unit,
+    onClick: (String) -> Unit
+) {
+    SwipeRefresh(
+        state = rememberSwipeRefreshState(isRefreshing = isRefreshing),
+        onRefresh = { onRefresh() },
+        refreshTriggerDistance = 50.dp
+    ) {
+        LazyColumn(
+            contentPadding = PaddingValues(bottom = 80.dp, start = 8.dp, end = 8.dp, top = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(contents, { item -> item.id }) {
+                NotificationTile(
+                    content = it,
+                    onDismiss = { id ->
+                        onMarkAsRead(id)
+                    },
+                    onClick = {
+                        it.navRoute?.let { route ->
+                            onClick(route)
+                        }
+                    })
             }
         }
     }
@@ -256,6 +282,40 @@ fun NotificationTile(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun ClearAllButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Card(
+        shape = RoundedCornerShape(100.dp),
+        colors = CardDefaults.cardColors(containerColor = androidx.compose.material3.MaterialTheme.colorScheme.primary),
+        modifier = modifier
+            .clickable { onClick() }
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .padding(vertical = 12.dp)
+                .padding(horizontal = 16.dp)
+                .padding(end = 4.dp)
+        ) {
+            Icon(
+                Icons.Outlined.ClearAll,
+                "clear icon",
+                tint = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier
+                    .padding(end = 8.dp)
+                    .width(18.dp)
+            )
+            Text(
+                text = "Clear all",
+                color = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium
+            )
         }
     }
 }
