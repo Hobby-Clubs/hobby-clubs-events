@@ -751,16 +751,17 @@ fun CustomAlertDialog(
         text = { Text(text = text) },
         onDismissRequest = onDismissRequest,
         dismissButton = {
-            TextButton(
-                onClick = { onDismissRequest() },
-            ) {
+            Button(onClick = { onDismissRequest() }) {
                 Text(text = "Cancel")
             }
         },
         confirmButton = {
-            TextButton(
+            Button(
                 onClick = { onConfirm() },
-                colors =  ButtonDefaults.textButtonColors(contentColor = colorScheme.error),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorScheme.error,
+                    contentColor = colorScheme.onError
+                )
             ) {
                 Text(text = confirmText)
             }
