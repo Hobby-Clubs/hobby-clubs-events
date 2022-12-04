@@ -77,7 +77,8 @@ fun AllMyScreen(
                     navController = navController,
                     clubs = if (type == "club") myClubs else null,
                     events = if (type == "event") myEvents else null,
-                    news = if (type == "news") myNews else null
+                    news = if (type == "news") myNews else null,
+                    vm
                 )
             }
             CenterAlignedTopAppBar(
@@ -96,7 +97,8 @@ fun ListOfSelectedType(
     navController: NavController,
     clubs: List<Club>? = null,
     events: List<Event>? = null,
-    news: List<News>? = null
+    news: List<News>? = null,
+    vm: AllMyViewModel,
 ) {
     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         clubs?.let {
@@ -108,7 +110,10 @@ fun ListOfSelectedType(
         }
         events?.let {
             items(it) { event ->
-                EventTile(event = event) {
+                vm.getEventJoinRequests(event.id)
+                val hasRequested by vm.hasRequested.observeAsState(false)
+
+                EventTile(event = event, navController = navController, requested = hasRequested) {
                     navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
                 }
             }

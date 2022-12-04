@@ -13,7 +13,7 @@ import com.google.firebase.firestore.Query
 class ClubPageViewModel : ViewModel() {
     val firebase = FirebaseHelper
     val selectedClub = MutableLiveData<Club>()
-    val clubsRequests = MutableLiveData<List<Request>>()
+    val clubsRequests = MutableLiveData<List<ClubRequest>>()
     val logoUri = MutableLiveData<Uri>()
     val bannerUri = MutableLiveData<Uri>()
     val hasJoinedClub = Transformations.map(selectedClub) {
@@ -27,6 +27,21 @@ class ClubPageViewModel : ViewModel() {
     }
     val clubIsPrivate = Transformations.map(selectedClub) {
         it.isPrivate
+    }
+    val eventRequests = MutableLiveData<List<EventRequest>>()
+    val hasRequestedToEvent = Transformations.map(eventRequests) { list ->
+        list.any { it.userId == FirebaseHelper.uid && !it.acceptedStatus }
+    }
+    fun getEventJoinRequests(eventId: String) {
+        FirebaseHelper.getRequestsFromEvent(eventId)
+            .addSnapshotListener { data, error ->
+                data ?: run {
+                    Log.e("getAllRequests", "RequestFetchFail: ", error)
+                    return@addSnapshotListener
+                }
+                val fetchedRequests = data.toObjects(EventRequest::class.java)
+                eventRequests.value = fetchedRequests.filter { !it.acceptedStatus }
+            }
     }
     val listOfEvents = MutableLiveData<List<Event>>(listOf())
     val listOfNews = MutableLiveData<List<News>>(listOf())
@@ -96,8 +111,8 @@ class ClubPageViewModel : ViewModel() {
         }
     }
 
-    fun sendJoinClubRequest(clubId: String, request: Request) {
-        firebase.addRequest(clubId = clubId, request = request)
+    fun sendJoinClubRequest(clubId: String, request: ClubRequest) {
+        firebase.addClubRequest(clubId = clubId, request = request)
     }
 
     fun updateUserWithProfilePicUri(userId: String) {
@@ -120,7 +135,7 @@ class ClubPageViewModel : ViewModel() {
                     Log.e("getAllRequests", "RequestFetchFail: ", error)
                     return@addSnapshotListener
                 }
-                val fetchedRequests = data.toObjects(Request::class.java)
+                val fetchedRequests = data.toObjects(ClubRequest::class.java)
                 Log.d("fetchNews", fetchedRequests.toString())
                 clubsRequests.value = fetchedRequests.filter { !it.acceptedStatus }
             }

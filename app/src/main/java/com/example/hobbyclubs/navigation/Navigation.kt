@@ -17,6 +17,7 @@ sealed class NavRoutes(val route: String) {
     object CalendarScreen: NavRoutes("CalendarScreen")
     object EventScreen: NavRoutes("EventScreen")
     object EventParticipantsScreen: NavRoutes("EventParticipantsScreen")
+    object EventParticipantRequestScreen: NavRoutes("EventParticipantRequestScreen")
     object EventManagementScreen: NavRoutes("EventManagementScreen")
     object ClubPageScreen: NavRoutes("ClubPageScreen")
     object ClubManagementScreen: NavRoutes("ClubManagementScreen")

@@ -12,6 +12,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
@@ -38,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.hobbyclubs.general.CustomAlertDialog
 import com.example.hobbyclubs.general.CustomOutlinedTextField
 import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.navigation.NavRoutes
@@ -61,6 +63,7 @@ fun EventManagementScreen(
     eventId: String
 ) {
     val event by vm.selectedEvent.observeAsState(null)
+    val listOfRequests by vm.listOfRequests.observeAsState(listOf())
     val sheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
         confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded }
@@ -80,6 +83,7 @@ fun EventManagementScreen(
     ) {
         LaunchedEffect(Unit) {
             vm.getEvent(eventId)
+            vm.getAllJoinRequests(eventId)
         }
         LaunchedEffect(event) {
             event?.let {
@@ -101,7 +105,7 @@ fun EventManagementScreen(
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(top = 75.dp, bottom = 20.dp),
                     )
-                    ParticipantsSection(navController = navController, eventId = eventId)
+                    ParticipantsSection(navController = navController, eventId = eventId, participantAmount = event!!.participants.size, requestAmount = listOfRequests.size)
                     Spacer(modifier = Modifier.height(10.dp))
                     EventManagementSectionTitle(text = "Edit event details")
                     EventManagementRowItem(text = "Name and description") {
@@ -163,6 +167,34 @@ fun EventManagementScreen(
                             else sheetState.animateTo(ModalBottomSheetValue.Expanded)
                         }
                     }
+                    CustomButton(
+                        onClick = { showDeleteEventDialog = true },
+                        text = "Delete Event",
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Red,
+                            contentColor = Color.White
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 20.dp)
+                            .height(60.dp)
+
+                    )
+                }
+                if (showDeleteEventDialog) {
+                    CustomAlertDialog(
+                        onDismissRequest = { showDeleteEventDialog = false },
+                        onConfirm = {
+                            scope.launch {
+                                vm.deleteEvent(eventId)
+                                navController.navigate(NavRoutes.HomeScreen.route)
+                            }
+                        },
+                        title = "Delete event",
+                        text = "Are you sure you want to delete this event? There is no going back.",
+                        confirmText = "Delete"
+                    )
+
                 }
                 CenterAlignedTopAppBar(
                     title = { Text(text = it.name, fontSize = 16.sp) },
@@ -214,7 +246,7 @@ fun EventManagementRowItem(text: String, onClick: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ParticipantsSection(navController: NavController, eventId: String) {
+fun ParticipantsSection(navController: NavController, eventId: String, participantAmount: Int, requestAmount: Int) {
     Column() {
         EventManagementSectionTitle(text = "Participants")
         Card(
@@ -238,7 +270,64 @@ fun ParticipantsSection(navController: NavController, eventId: String) {
                         .weight(6f)
                         .padding(start = 30.dp)
                 )
+                EventManagementRowNumberCount(
+                    modifier = Modifier
+                        .size(24.dp),
+                    numberOfItem = participantAmount
+                )
             }
+        }
+        Spacer(modifier = Modifier.height(10.dp))
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+            onClick = { navController.navigate(NavRoutes.EventParticipantRequestScreen.route + "/$eventId") },
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 15.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.Outlined.PersonAddAlt, "Person add Icon", modifier = Modifier
+                        .size(30.dp)
+                )
+                Text(
+                    text = "Participant Requests", fontSize = 16.sp, modifier = Modifier
+                        .weight(6f)
+                        .padding(start = 30.dp)
+                )
+                EventManagementRowNumberCount(
+                    modifier = Modifier
+                        .size(24.dp),
+                    numberOfItem = requestAmount,
+                    isParticipantRequestSection = true
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun EventManagementRowNumberCount(
+    modifier: Modifier,
+    numberOfItem: Int,
+    isParticipantRequestSection: Boolean = false
+) {
+    Card(
+        shape = CircleShape,
+        colors = CardDefaults.cardColors(containerColor = if (isParticipantRequestSection && numberOfItem > 0) MaterialTheme.colorScheme.error else Color.Transparent),
+        modifier = modifier.aspectRatio(1f)
+    ) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(
+                text = numberOfItem.toString(),
+                fontSize = 16.sp,
+                color = if (isParticipantRequestSection && numberOfItem > 0) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.onSurface,
+                maxLines = 1
+            )
         }
     }
 }

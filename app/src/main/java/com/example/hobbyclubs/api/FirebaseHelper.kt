@@ -287,14 +287,14 @@ object FirebaseHelper {
 
     fun getAllUsers() = db.collection(CollectionName.users)
 
-    // Requests
+    // Club Requests
 
     fun getRequestsFromClub(clubId: String) =
-        db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.requests)
+        db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.clubRequests)
 
-    fun addRequest(clubId: String, request: Request) {
+    fun addClubRequest(clubId: String, request: ClubRequest) {
         val ref =
-            db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.requests)
+            db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.clubRequests)
                 .document()
         val requestWithId = request.apply { id = ref.id }
         ref.set(requestWithId)
@@ -307,14 +307,14 @@ object FirebaseHelper {
             }
     }
 
-    fun acceptRequest(
+    fun acceptClubRequest(
         clubId: String,
         requestId: String,
         userId: String,
         changeMapForRequest: Map<String, Any>
     ) {
         val ref =
-            db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.requests)
+            db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.clubRequests)
                 .document(requestId)
         ref.update(changeMapForRequest)
             .addOnSuccessListener {
@@ -327,9 +327,9 @@ object FirebaseHelper {
             }
     }
 
-    fun declineRequest(clubId: String, requestId: String) {
+    fun declineClubRequest(clubId: String, requestId: String) {
         val ref =
-            db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.requests)
+            db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.clubRequests)
                 .document(requestId)
         ref.delete()
             .addOnSuccessListener {
@@ -414,6 +414,57 @@ object FirebaseHelper {
         }
     }
 
+    // Event Requests
+
+    fun getRequestsFromEvent(eventId: String) =
+        db.collection(CollectionName.events).document(eventId).collection(CollectionName.eventRequests)
+
+    fun addEventRequest(eventId: String, request: EventRequest) {
+        val ref =
+            db.collection(CollectionName.events).document(eventId).collection(CollectionName.eventRequests)
+                .document()
+        val requestWithId = request.apply { id = ref.id }
+        ref.set(requestWithId)
+            .addOnSuccessListener {
+                Log.d(TAG, "addEventRequest: $ref")
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "addEventRequestFail: ", e)
+            }
+    }
+
+    fun acceptEventRequest(
+        eventId: String,
+        requestId: String,
+        memberListWithNewUser: List<String>,
+        changeMapForRequest: Map<String, Any>
+    ) {
+        val ref =
+            db.collection(CollectionName.events).document(eventId).collection(CollectionName.eventRequests)
+                .document(requestId)
+        ref.update(changeMapForRequest)
+            .addOnSuccessListener {
+                Log.d(TAG, "acceptEventRequest: $ref")
+                updateUserInEvent(eventId, memberListWithNewUser)
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "acceptEventRequestFail: ", e)
+            }
+    }
+
+    fun declineEventRequest(eventId: String, requestId: String) {
+        val ref =
+            db.collection(CollectionName.events).document(eventId).collection(CollectionName.eventRequests)
+                .document(requestId)
+        ref.delete()
+            .addOnSuccessListener {
+                Log.d(TAG, "Event request deleted: $ref")
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "EventRequestDeletionFail: ", e)
+            }
+    }
+
     // Auth
 
     private val auth = Firebase.auth
@@ -464,7 +515,8 @@ class CollectionName {
         const val events = "events"
         const val news = "news"
         const val users = "users"
-        const val requests = "requests"
+        const val clubRequests = "clubRequests"
+        const val eventRequests = "eventRequests"
         const val notifications = "notifications"
     }
 }
@@ -531,6 +583,8 @@ data class Event(
     val contactInfoName: String = "",
     val contactInfoEmail: String = "",
     val contactInfoNumber: String = "",
+    @get:PropertyName("isPrivate")
+    @set:PropertyName("isPrivate")
     var isPrivate: Boolean = false,
     val admins: List<String> = listOf(),
     val participants: List<String> = listOf(),
@@ -552,7 +606,18 @@ data class News(
 ) : Parcelable
 
 @Parcelize
-data class Request(
+data class ClubRequest(
+    var id: String = "",
+    val userId: String = "",
+    val profilePicUri: String? = null,
+    val acceptedStatus: Boolean = false,
+    val timeAccepted: Timestamp? = null,
+    val message: String = "",
+    val requestSent: Timestamp = Timestamp.now()
+) : Parcelable
+
+@Parcelize
+data class EventRequest(
     var id: String = "",
     val userId: String = "",
     val profilePicUri: String? = null,

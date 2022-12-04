@@ -20,7 +20,7 @@ class ClubManagementViewModel() : ViewModel() {
     }
     val listOfEvents = MutableLiveData<List<Event>>(listOf())
     val listOfNews = MutableLiveData<List<News>>(listOf())
-    val listOfRequests = MutableLiveData<List<Request>>()
+    val listOfRequests = MutableLiveData<List<ClubRequest>>()
 
     val clubName = MutableLiveData<TextFieldValue>()
     val clubDescription = MutableLiveData<TextFieldValue>()
@@ -208,7 +208,7 @@ class ClubManagementViewModel() : ViewModel() {
                     Log.e("getAllRequests", "RequestFetchFail: ", error)
                     return@addSnapshotListener
                 }
-                val fetchedRequests = data.toObjects(Request::class.java)
+                val fetchedRequests = data.toObjects(ClubRequest::class.java)
                 Log.d("fetchNews", fetchedRequests.toString())
                 listOfRequests.value = fetchedRequests.filter { !it.acceptedStatus }
             }

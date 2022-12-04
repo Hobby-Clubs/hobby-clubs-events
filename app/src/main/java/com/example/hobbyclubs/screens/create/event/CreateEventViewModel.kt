@@ -26,6 +26,9 @@ class CreateEventViewModel : ViewModel() {
     val contactInfoNumber = MutableLiveData<TextFieldValue>()
     val currentLinkName = MutableLiveData<TextFieldValue>()
     val currentLinkURL = MutableLiveData<TextFieldValue>()
+    val leftSelected = MutableLiveData<Boolean>()
+    val rightSelected = MutableLiveData<Boolean>()
+    val eventIsPrivate = MutableLiveData<Boolean>()
 
     val selectedImages = MutableLiveData<MutableList<Uri>>()
     val joinedClubs = MutableLiveData<List<Club>>()
@@ -55,6 +58,11 @@ class CreateEventViewModel : ViewModel() {
             .addOnFailureListener {
                 Log.e("FetchClub", "getClubFail: ", it)
             }
+    }
+    fun updateEventPrivacySelection(leftVal: Boolean, rightVal: Boolean) {
+        leftSelected.value = leftVal
+        rightSelected.value = rightVal
+        eventIsPrivate.value = rightVal
     }
     fun updateSelectedDate(years: Int, month: Int, day: Int, hour: Int, minutes: Int) {
         selectedDate.value = Date(years, month, day, hour,minutes)

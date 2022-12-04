@@ -66,7 +66,7 @@ fun ClubMemberRequestScreen(
 
 @Composable
 fun ListOfMemberRequests(
-    listOfRequests: List<Request>,
+    listOfRequests: List<ClubRequest>,
     vm: ClubMembersViewModel,
     club: Club,
 ) {

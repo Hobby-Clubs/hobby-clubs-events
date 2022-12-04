@@ -3,10 +3,12 @@ package com.example.hobbyclubs.screens.calendar
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.example.hobbyclubs.api.CollectionName
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.Event
+import com.example.hobbyclubs.api.EventRequest
 import com.example.hobbyclubs.general.toDate
 import org.joda.time.DateTimeComparator
 import java.time.LocalDate
@@ -23,6 +25,22 @@ class CalendarScreenViewModel() : ViewModel() {
 
     init {
         getEvents()
+    }
+
+    val eventRequests = MutableLiveData<List<EventRequest>>()
+    val hasRequested = Transformations.map(eventRequests) { list ->
+        list.any { it.userId == FirebaseHelper.uid && !it.acceptedStatus }
+    }
+    fun getEventJoinRequests(eventId: String) {
+        FirebaseHelper.getRequestsFromEvent(eventId)
+            .addSnapshotListener { data, error ->
+                data ?: run {
+                    Log.e("getAllRequests", "RequestFetchFail: ", error)
+                    return@addSnapshotListener
+                }
+                val fetchedRequests = data.toObjects(EventRequest::class.java)
+                eventRequests.value = fetchedRequests.filter { !it.acceptedStatus }
+            }
     }
 
     fun onSelectionChanged(selection: List<LocalDate>) {

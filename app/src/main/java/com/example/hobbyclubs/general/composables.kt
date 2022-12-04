@@ -429,10 +429,13 @@ fun CustomOutlinedTextField(
 
 @Composable
 fun EventTile(
+    navController: NavController,
     modifier: Modifier = Modifier,
     event: Event,
+    requested: Boolean,
     onClick: () -> Unit,
 ) {
+
     val joined = event.participants.contains(FirebaseHelper.uid)
     val liked = event.likers.contains(FirebaseHelper.uid)
     val context = LocalContext.current
@@ -473,32 +476,57 @@ fun EventTile(
                     verticalAlignment = Alignment.Top,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    JoinEventButton(
-                        isJoined = joined,
-                        onJoinEvent = {
-                            if (event.participantLimit != -1) {
-                                if (event.participants.size < event.participantLimit) {
-                                    joinEvent(event, context)
-                                } else {
-                                    Toast.makeText(
-                                        context,
-                                        "Event is currently full.",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                    Row() {
+                        JoinEventButton(
+                            isJoined = joined,
+                            onJoinEvent = {
+                                if (event.participantLimit != -1) {
+                                    if(requested) {
+                                        Toast.makeText(
+                                            context,
+                                            "Request pending approval",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    } else if (event.isPrivate && event.participants.size < event.participantLimit && !event.admins.contains(FirebaseHelper.uid)) {
+                                        createEventRequest(event, context)
+                                    } else if (event.participants.size < event.participantLimit){
+                                        joinEvent(event, context)
+                                    } else {
+                                        Toast.makeText(
+                                            context,
+                                            "Event is currently full.",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
                                 }
-                            } else {
-                                joinEvent(event, context)
+                                else {
+                                    if(!requested && event.isPrivate && !event.admins.contains(FirebaseHelper.uid)) {
+                                        createEventRequest(event, context)
+                                    } else {
+                                        joinEvent(event, context)
+                                    }
+                                }
+                            },
+                            onLeaveEvent = {
+                                leaveEvent(event, context)
+                            },
+                            isPrivate = !joined && event.isPrivate && !event.admins.contains(FirebaseHelper.uid),
+                            requested = requested
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        if(event.admins.contains(FirebaseHelper.uid)) {
+                            ManageEventButton() {
+                                navController.navigate(NavRoutes.EventManagementScreen.route + "/${event.id}")
                             }
-                        },
-                        onLeaveEvent = {
-                            leaveEvent(event, context)
                         }
-                    )
+                    }
+
                     if (!joined) {
                         LikeEventButton(isLiked = liked) {
                             likeEvent(event, context)
                         }
                     }
+
                 }
                 Text(
                     text = event.name,
@@ -551,6 +579,8 @@ fun EventTile(
 fun JoinEventButton(
     modifier: Modifier = Modifier,
     isJoined: Boolean,
+    isPrivate: Boolean,
+    requested: Boolean,
     onJoinEvent: () -> Unit,
     onLeaveEvent: () -> Unit
 ) {
@@ -560,8 +590,17 @@ fun JoinEventButton(
         icon = Icons.Outlined.Close
         text = "Cancel"
     } else {
-        icon = Icons.Outlined.PersonAddAlt
-        text = "Join"
+        if(requested) {
+            icon = Icons.Outlined.Pending
+            text = "Pending.."
+        }
+        else if(isPrivate) {
+            icon = Icons.Outlined.PersonAddAlt
+            text = "Request to join"
+        } else {
+            icon = Icons.Outlined.PersonAddAlt
+            text = "Join"
+        }
     }
     var showLeaveEventDialog by remember { mutableStateOf(false) }
 
@@ -577,6 +616,7 @@ fun JoinEventButton(
             confirmText = "Leave"
         )
     }
+
     Card(
         shape = RoundedCornerShape(100.dp),
         colors = CardDefaults.cardColors(containerColor = colorScheme.primary),

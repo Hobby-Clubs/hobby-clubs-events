@@ -5,9 +5,7 @@ import android.util.Log
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.hobbyclubs.api.CollectionName
-import com.example.hobbyclubs.api.Event
-import com.example.hobbyclubs.api.FirebaseHelper
+import com.example.hobbyclubs.api.*
 import java.util.*
 
 class EventManagementViewModel() : ViewModel() {
@@ -26,6 +24,7 @@ class EventManagementViewModel() : ViewModel() {
     val currentLinkURL = MutableLiveData<TextFieldValue>()
     val selectedBannerImages = MutableLiveData<MutableList<Uri>>()
     val givenLinks = MutableLiveData<Map<String, String>>(mapOf())
+    val listOfRequests = MutableLiveData<List<EventRequest>>()
 
     fun getEvent(eventId: String) {
         firebase.getEvent(eventId = eventId).get()
@@ -141,5 +140,18 @@ class EventManagementViewModel() : ViewModel() {
 
     fun updateEventDetails(eventId: String, changeMap: Map<String,Any>) {
         firebase.updateEventDetails(eventId, changeMap)
+    }
+
+    fun getAllJoinRequests(eventId: String) {
+        firebase.getRequestsFromEvent(eventId)
+            .addSnapshotListener { data, error ->
+                data ?: run {
+                    Log.e("getAllRequests", "RequestFetchFail: ", error)
+                    return@addSnapshotListener
+                }
+                val fetchedRequests = data.toObjects(EventRequest::class.java)
+                Log.d("fetchRequests", fetchedRequests.toString())
+                listOfRequests.value = fetchedRequests.filter { !it.acceptedStatus }
+            }
     }
 }
