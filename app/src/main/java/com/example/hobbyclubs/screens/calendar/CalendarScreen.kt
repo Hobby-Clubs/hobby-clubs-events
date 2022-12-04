@@ -129,117 +129,110 @@ fun CalendarScreen(
         drawerState = drawerState,
         topBar = { MenuTopBar(drawerState = drawerState) }) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-            Column(
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .padding(horizontal = 12.dp)
+                    .padding(horizontal = 12.dp),
+                contentPadding = PaddingValues(bottom = 32.dp)
             ) {
-                SelectableCalendar(
-                    modifier = Modifier
-                        .clip(
-                            RoundedCornerShape(28.dp)
-                        )
-                        .background(color = surface3)
-                        .padding(horizontal = 12.dp, vertical = 24.dp),
-                    firstDayOfWeek = DayOfWeek.MONDAY,
-                    calendarState = state,
-                    showAdjacentMonths = false,
-                    dayContent = { dayState ->
-                        Day(
-                            state = dayState,
-                            event = allEvents.firstOrNull {
-                                (dateTimeComparator.compare(
-                                    it.date.toDate(),
-                                    dayState.date.toDate()
-                                )) == 0 && !(it.participants.contains(FirebaseHelper.uid) || it.likers.contains(
-                                    FirebaseHelper.uid
-                                )) && suggestedIsChecked.value
-                            },
-                            joinedEvent = allEvents.firstOrNull {
-                                (dateTimeComparator.compare(
-                                    it.date.toDate(),
-                                    dayState.date.toDate()
-                                )) == 0 && it.participants.contains(FirebaseHelper.uid)
-                                        && joinedIsChecked.value
-                            },
-                            likedEvent = allEvents.firstOrNull {
-                                (dateTimeComparator.compare(
-                                    it.date.toDate(),
-                                    dayState.date.toDate()
-                                )) == 0 && it.likers.contains(FirebaseHelper.uid) && !it.participants.contains(
-                                    FirebaseHelper.uid
+                item {
+                    SelectableCalendar(
+                        modifier = Modifier
+                            .clip(
+                                RoundedCornerShape(28.dp)
+                            )
+                            .background(color = surface3)
+                            .padding(horizontal = 12.dp, vertical = 24.dp),
+                        firstDayOfWeek = DayOfWeek.MONDAY,
+                        calendarState = state,
+                        showAdjacentMonths = false,
+                        dayContent = { dayState ->
+                            Day(
+                                state = dayState,
+                                event = allEvents.firstOrNull {
+                                    (dateTimeComparator.compare(
+                                        it.date.toDate(),
+                                        dayState.date.toDate()
+                                    )) == 0 && !(it.participants.contains(FirebaseHelper.uid) || it.likers.contains(
+                                        FirebaseHelper.uid
+                                    )) && suggestedIsChecked.value
+                                },
+                                joinedEvent = allEvents.firstOrNull {
+                                    (dateTimeComparator.compare(
+                                        it.date.toDate(),
+                                        dayState.date.toDate()
+                                    )) == 0 && it.participants.contains(FirebaseHelper.uid)
+                                            && joinedIsChecked.value
+                                },
+                                likedEvent = allEvents.firstOrNull {
+                                    (dateTimeComparator.compare(
+                                        it.date.toDate(),
+                                        dayState.date.toDate()
+                                    )) == 0 && it.likers.contains(FirebaseHelper.uid) && !it.participants.contains(
+                                        FirebaseHelper.uid
+                                    )
+                                            && likedIsChecked.value
+                                },
+                            )
+                        },
+                        monthHeader = { MonthHeader(monthState = state.monthState) },
+                        weekHeader = { WeekHeader() }
+                    )
+                }
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = suggestedIsChecked.value,
+                                onClick = { suggestedIsChecked.value = !suggestedIsChecked.value },
+                                colors = RadioButtonDefaults.colors(
+                                    suggestedEventColor
                                 )
-                                        && likedIsChecked.value
-                            },
-                        )
-                    },
-                    monthHeader = { MonthHeader(monthState = state.monthState) },
-                    weekHeader = { WeekHeader() }
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(
-                            selected = suggestedIsChecked.value,
-                            onClick = { suggestedIsChecked.value = !suggestedIsChecked.value },
-                            colors = RadioButtonDefaults.colors(
-                                suggestedEventColor
                             )
-                        )
-                        Text("Suggested", fontSize = 12.sp)
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(
-                            selected = joinedIsChecked.value,
-                            onClick = { joinedIsChecked.value = !joinedIsChecked.value },
-                            colors = RadioButtonDefaults.colors(
-                                md_theme_light_primary
+                            Text("Suggested", fontSize = 12.sp)
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = joinedIsChecked.value,
+                                onClick = { joinedIsChecked.value = !joinedIsChecked.value },
+                                colors = RadioButtonDefaults.colors(
+                                    md_theme_light_primary
+                                )
                             )
-                        )
-                        Text("Joined", fontSize = 12.sp)
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(
-                            selected = likedIsChecked.value,
-                            onClick = { likedIsChecked.value = !likedIsChecked.value },
-                            colors = RadioButtonDefaults.colors(
-                                md_theme_light_tertiary
+                            Text("Joined", fontSize = 12.sp)
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = likedIsChecked.value,
+                                onClick = { likedIsChecked.value = !likedIsChecked.value },
+                                colors = RadioButtonDefaults.colors(
+                                    md_theme_light_tertiary
+                                )
                             )
-                        )
-                        Text("Liked", fontSize = 12.sp)
+                            Text("Liked", fontSize = 12.sp)
+                        }
                     }
                 }
 
-                if (eventsFromSelectedDay.isNotEmpty() && listOfUri.isNotEmpty()) {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .padding(horizontal = 2.dp, vertical = 5.dp),
                 if (eventsFromSelectedDay.isNotEmpty()) {
-                    LazyColumn(modifier = Modifier
-                        .fillMaxHeight()
-                        .padding(horizontal = 2.dp, vertical = 5.dp),
-                        contentPadding = PaddingValues(5.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(filteredEvents) { event ->
-                            val uri = listOfUri!!.find { it.first == event.id }?.second
-                            EventTile(
-                                event = event,
-                                onClick = {
-                                    navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
-                                }, navController = navController
-                            )
-                        }
+                    items(filteredEvents) { event ->
+                        EventTile(
+                            modifier = Modifier.padding(bottom = 8.dp),
+                            event = event,
+                            onClick = {
+                                navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
+                            }, navController = navController
+                        )
                     }
                 }
             }
