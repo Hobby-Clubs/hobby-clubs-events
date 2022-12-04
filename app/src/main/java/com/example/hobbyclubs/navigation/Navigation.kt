@@ -4,6 +4,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ClearAll
 import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.ClearAll
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.ui.graphics.vector.ImageVector
 
 /**
@@ -48,19 +51,17 @@ object NavBarItems {
         BarItem(
             route = NavRoutes.HomeScreen.route,
             title = "Home",
-            icon = Icons.Default.Home
+            icon = Icons.Outlined.Home
         ),
-
-        BarItem(
-            route = NavRoutes.ClubsScreen.route,
-            title = "Clubs",
-            icon = Icons.Default.ClearAll
-        ),
-
         BarItem(
             route = NavRoutes.CalendarScreen.route,
             title = "Events",
-            icon = Icons.Default.EventNote
+            icon = Icons.Outlined.CalendarMonth
+        ),
+        BarItem(
+            route = NavRoutes.ClubsScreen.route,
+            title = "Clubs",
+            icon = Icons.Outlined.ClearAll
         )
     )
     object FirstTimeScreen: NavRoutes("FirstTimeScreen")

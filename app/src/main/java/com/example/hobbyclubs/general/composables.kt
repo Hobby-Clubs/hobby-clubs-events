@@ -155,6 +155,9 @@ fun DrawerScreen(
     content: @Composable () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
+    val selectedItem by remember {
+        mutableStateOf(0)
+    }
     ModalNavigationDrawer(
         modifier = Modifier.fillMaxSize(),
         drawerState = drawerState,
@@ -172,7 +175,7 @@ fun DrawerScreen(
         }) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
-            bottomBar = { BottomBar(navController) },
+            bottomBar = { BottomBar(navController = navController) },
             topBar = { topBar(drawerState) },
             floatingActionButton = { fab() }
         ) { pad ->
