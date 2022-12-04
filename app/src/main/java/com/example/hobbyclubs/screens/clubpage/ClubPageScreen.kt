@@ -40,10 +40,9 @@ import coil.compose.AsyncImage
 import com.example.compose.linkBlue
 import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.Club
+import com.example.hobbyclubs.api.ClubRequest
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.News
-import com.example.hobbyclubs.api.Request
-import com.example.hobbyclubs.api.ClubRequest
 import com.example.hobbyclubs.general.*
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.google.firebase.Timestamp
@@ -296,14 +295,14 @@ fun ClubSchedule(vm: ClubPageViewModel, navController: NavController) {
         Text(text = "Upcoming events", fontSize = 14.sp)
         Spacer(modifier = Modifier.height(20.dp))
         listOfEvents.forEach { event ->
-            vm.getEventJoinRequests(event.id)
-            val hasRequested by vm.hasRequestedToEvent.observeAsState(false)
+//            vm.getEventJoinRequests(event.id)
+//            val hasRequested by vm.hasRequestedToEvent.observeAsState(false)
 
             EventTile(
                 event = event,
                 onClick = {
                     navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
-                }, navController = navController, requested = hasRequested
+                }, navController = navController
             )
             Spacer(modifier = Modifier.height(20.dp))
         }

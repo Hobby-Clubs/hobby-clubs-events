@@ -255,10 +255,10 @@ fun SearchUI(vm: HomeScreenViewModel, navController: NavController) {
         }
         if (eventsExpanded) {
             items(eventsFiltered) { event ->
-                vm.getEventJoinRequests(event.id)
-                val hasRequested by vm.hasRequested.observeAsState(false)
+//                vm.getEventJoinRequests(event.id)
+//                val hasRequested by vm.hasRequested.observeAsState(false)
 
-                EventTile(event = event, navController = navController, requested = hasRequested) {
+                EventTile(event = event, navController = navController) {
                     navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
                 }
             }
@@ -318,14 +318,14 @@ fun MainScreenContent(
                 onClick = { navController.navigate(NavRoutes.AllMyScreen.route + "/event") })
         }
         items(myEvents.take(5)) { event ->
-            vm.getEventJoinRequests(event.id)
-            val hasRequested by vm.hasRequested.observeAsState(false)
+//            vm.getEventJoinRequests(event.id)
+//            val hasRequested by vm.hasRequested.observeAsState(false)
 
             EventTile(
                 event = event,
                 onClick = {
                     navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
-                }, navController = navController, requested = hasRequested
+                }, navController = navController
             )
         }
 

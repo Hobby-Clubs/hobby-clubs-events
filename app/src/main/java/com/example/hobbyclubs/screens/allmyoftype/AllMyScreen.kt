@@ -113,7 +113,7 @@ fun ListOfSelectedType(
                 vm.getEventJoinRequests(event.id)
                 val hasRequested by vm.hasRequested.observeAsState(false)
 
-                EventTile(event = event, navController = navController, requested = hasRequested) {
+                EventTile(event = event, navController = navController) {
                     navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
                 }
             }

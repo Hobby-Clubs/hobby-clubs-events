@@ -57,6 +57,7 @@ import com.example.hobbyclubs.notifications.AlarmReceiver
 import com.example.hobbyclubs.notifications.EventNotificationInfo
 import com.example.hobbyclubs.screens.clubmembers.MemberImage
 import com.example.hobbyclubs.screens.clubpage.CustomButton
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -432,13 +433,25 @@ fun EventTile(
     navController: NavController,
     modifier: Modifier = Modifier,
     event: Event,
-    requested: Boolean,
     onClick: () -> Unit,
 ) {
 
     val joined = event.participants.contains(FirebaseHelper.uid)
     val liked = event.likers.contains(FirebaseHelper.uid)
     val context = LocalContext.current
+    var hasRequested: Boolean? by remember { mutableStateOf(null) }
+    val scope = rememberCoroutineScope()
+
+    fun refreshStatus() {
+        scope.launch(Dispatchers.IO) {
+            hasRequested = getHasRequested(event.id)
+
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        refreshStatus()
+    }
 
     Card(
         shape = RoundedCornerShape(12.dp),
@@ -477,42 +490,47 @@ fun EventTile(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Row() {
-                        JoinEventButton(
-                            isJoined = joined,
-                            onJoinEvent = {
-                                if (event.participantLimit != -1) {
-                                    if(requested) {
-                                        Toast.makeText(
-                                            context,
-                                            "Request pending approval",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    } else if (event.isPrivate && event.participants.size < event.participantLimit && !event.admins.contains(FirebaseHelper.uid)) {
-                                        createEventRequest(event, context)
-                                    } else if (event.participants.size < event.participantLimit){
-                                        joinEvent(event, context)
-                                    } else {
-                                        Toast.makeText(
-                                            context,
-                                            "Event is currently full.",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                        hasRequested?.let { hasRequested ->
+                            JoinEventButton(
+                                isJoined = joined,
+                                onJoinEvent = {
+                                    if (event.participantLimit != -1) {
+                                        if(hasRequested) {
+                                            Toast.makeText(
+                                                context,
+                                                "Request pending approval",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        } else if (event.isPrivate && event.participants.size < event.participantLimit && !event.admins.contains(FirebaseHelper.uid)) {
+                                            createEventRequest(event, context)
+                                            refreshStatus()
+                                        } else if (event.participants.size < event.participantLimit){
+                                            joinEvent(event, context)
+                                        } else {
+                                            Toast.makeText(
+                                                context,
+                                                "Event is currently full.",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
                                     }
-                                }
-                                else {
-                                    if(!requested && event.isPrivate && !event.admins.contains(FirebaseHelper.uid)) {
-                                        createEventRequest(event, context)
-                                    } else {
-                                        joinEvent(event, context)
+                                    else {
+                                        if(!hasRequested && event.isPrivate && !event.admins.contains(FirebaseHelper.uid)) {
+                                            createEventRequest(event, context)
+                                            refreshStatus()
+                                        } else {
+                                            joinEvent(event, context)
+                                        }
                                     }
-                                }
-                            },
-                            onLeaveEvent = {
-                                leaveEvent(event, context)
-                            },
-                            isPrivate = !joined && event.isPrivate && !event.admins.contains(FirebaseHelper.uid),
-                            requested = requested
-                        )
+                                },
+                                onLeaveEvent = {
+                                    leaveEvent(event, context)
+                                },
+                                isPrivate = !joined && event.isPrivate && !event.admins.contains(FirebaseHelper.uid),
+                                requested = hasRequested
+                            )
+                        }
+
                         Spacer(modifier = Modifier.width(10.dp))
                         if(event.admins.contains(FirebaseHelper.uid)) {
                             ManageEventButton() {
@@ -910,7 +928,7 @@ fun SmallNewsTile(
 
 @Composable
 fun RequestCard(
-    request: Request,
+    request: ClubRequest,
     onAccept: () -> Unit,
     onReject: () -> Unit,
 ) {

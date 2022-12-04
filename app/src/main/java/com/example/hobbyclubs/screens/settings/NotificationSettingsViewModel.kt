@@ -3,16 +3,13 @@ package com.example.hobbyclubs.screens.settings
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.example.hobbyclubs.api.Club
-import com.example.hobbyclubs.api.FirebaseHelper
-import com.example.hobbyclubs.api.Request
 import com.example.hobbyclubs.database.EventAlarmDBHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
 
 class NotificationSettingsViewModel(application: Application) : AndroidViewModel(application) {
     companion object {

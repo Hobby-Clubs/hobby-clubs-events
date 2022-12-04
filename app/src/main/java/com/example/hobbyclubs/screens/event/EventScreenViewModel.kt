@@ -9,7 +9,7 @@ import androidx.lifecycle.ViewModel
 import com.example.hobbyclubs.api.*
 import com.google.firebase.Timestamp
 
-class EventScreenViewModel() : ViewModel() {
+class EventScreenViewModel : ViewModel() {
     val firebase = FirebaseHelper
     val selectedEvent = MutableLiveData<Event>()
     val selectedEventHostClub = MutableLiveData<Club>()

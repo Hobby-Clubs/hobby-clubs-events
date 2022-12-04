@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import com.example.hobbyclubs.api.*
 import java.util.*
 
-class EventManagementViewModel() : ViewModel() {
+class EventManagementViewModel: ViewModel() {
     val firebase = FirebaseHelper
     val selectedEvent = MutableLiveData<Event>()
 

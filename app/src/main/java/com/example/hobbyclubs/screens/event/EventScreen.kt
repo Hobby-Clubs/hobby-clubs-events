@@ -3,12 +3,10 @@ package com.example.hobbyclubs.screens.event
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NavigateNext
-import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.ExitToApp
 import androidx.compose.material.icons.outlined.Pending
 import androidx.compose.material.icons.outlined.PersonAddAlt
@@ -31,7 +29,6 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.compose.linkBlue
 import com.example.hobbyclubs.api.Event
-import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.general.*
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.clubpage.ClubSectionTitle

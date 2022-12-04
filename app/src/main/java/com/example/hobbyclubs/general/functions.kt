@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.ZoneId
@@ -75,4 +76,15 @@ fun LocalDate.toDate(): Date = Date.from(this.atStartOfDay(ZoneId.systemDefault(
 
 fun Date.toString(pattern: String): String {
     return SimpleDateFormat(pattern, Locale.ENGLISH).format(this)
+}
+
+suspend fun getHasRequested(eventId: String): Boolean {
+    FirebaseHelper.uid?.let { uid ->
+        val allRequests = FirebaseHelper.getRequestsFromEvent(eventId)
+            .get()
+            .await()
+            .toObjects(EventRequest::class.java)
+
+        return allRequests.filter { !it.acceptedStatus }.find { it.userId == uid } != null
+    } ?: return false
 }
