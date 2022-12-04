@@ -8,6 +8,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material.icons.outlined.*
@@ -26,14 +27,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -211,49 +210,55 @@ fun ClubPageHeader(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 20.dp), horizontalArrangement = Arrangement.SpaceEvenly
+                .padding(bottom = 20.dp, start = 20.dp, end = 20.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            if (!hasJoinedClub && clubIsPrivate == true && !hasRequested) {
-                CustomButton(
-                    text = "Join",
+            if (!hasJoinedClub) {
+                Button(
+                    modifier = Modifier.width(175.dp),
                     onClick = {
-                        showJoinRequestDialog = true
-                    },
-                    icon = Icons.Outlined.PersonAddAlt
-                )
-            }
-            if (clubIsPrivate == true && hasRequested) {
-                CustomButton(
-                    text = "Pending",
-                    onClick = { },
-                    icon = Icons.Outlined.Pending
-                )
-            }
-            if (!hasJoinedClub && clubIsPrivate == false) {
-                CustomButton(
-                    text = "Join",
-                    onClick = {
-                        vm.joinClub(club.ref)
-                    },
-                    icon = Icons.Outlined.PersonAddAlt
-                )
-            }
-            if (hasJoinedClub && !isAdmin) {
-                CustomButton(
-                    text = "Leave club",
-                    onClick = {
-                        vm.leaveClub(clubId = club.ref)
-                    },
-                    icon = Icons.Outlined.ExitToApp
-                )
-            }
-            if (hasJoinedClub && isAdmin) {
-                CustomButton(
-                    text = "Manage club",
-                    onClick = {
-                        navController.navigate(NavRoutes.ClubManagementScreen.route + "/${club.ref}")
+                        if (clubIsPrivate == true) {
+                            showJoinRequestDialog = true
+                        } else {
+                            vm.joinClub(club.ref)
+                        }
                     }
-                )
+                ) {
+                    Icon(Icons.Outlined.PersonAdd, null)
+                    Text(
+                        modifier = Modifier.padding(start = 8.dp),
+                        text = "Join club",
+                    )
+                }
+            }
+            if (hasJoinedClub) {
+                if (isAdmin) {
+                    Button(
+                        modifier = Modifier.width(175.dp),
+                        onClick = {
+                            navController.navigate(NavRoutes.ClubManagementScreen.route + "/${club.ref}")
+                        }
+                    ) {
+                        Icon(Icons.Outlined.Tune, null)
+                        Text(
+                            modifier = Modifier.padding(start = 8.dp),
+                            text = "Manage club",
+                        )
+                    }
+                } else {
+                    Button(
+                        modifier = Modifier.width(175.dp),
+                        onClick = {
+                            vm.leaveClub(clubId = club.ref)
+                        }
+                    ) {
+                        Icon(Icons.Outlined.ExitToApp, null)
+                        Text(
+                            modifier = Modifier.padding(start = 8.dp),
+                            text = "Leave club",
+                        )
+                    }
+                }
             }
             ShareButton(text = "Share", clubId = club.ref)
         }
@@ -269,12 +274,19 @@ fun ShareButton(text: String, clubId: String) {
     }
     val shareIntent = Intent.createChooser(sendIntent, null)
     val context = LocalContext.current
-    CustomButton(
+
+    Button(
+        modifier = Modifier.width(175.dp),
         onClick = {
             context.startActivity(shareIntent)
-        },
-        text = text
-    )
+        }
+    ) {
+        Icon(Icons.Outlined.Share, null)
+        Text(
+            modifier = Modifier.padding(start = 8.dp),
+            text = text,
+        )
+    }
 }
 
 @Composable
@@ -391,7 +403,7 @@ fun ClubSectionTitle(text: String,isNewsTitle: Boolean = false, onClick: () -> U
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun JoinClubDialog(
     onConfirm: () -> Unit,
@@ -401,63 +413,52 @@ fun JoinClubDialog(
     val joinClubDialogText by vm.joinClubDialogText.observeAsState(TextFieldValue(""))
     val focusManager = LocalFocusManager.current
     val screenHeight = LocalConfiguration.current.screenHeightDp
-    Dialog(
-        onDismissRequest = { onDismissRequest() },
-        properties = DialogProperties(usePlatformDefaultWidth = false)
-    ) {
-        Card(
-            modifier = Modifier
-                .height((screenHeight * 0.55).dp)
-                .fillMaxWidth(0.9f)
-        ) {
-            Box {
-
-                Icon(
-                    Icons.Outlined.Close,
-                    null,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(10.dp)
-                        .clickable { onDismissRequest() }
+    AlertDialog(
+        onDismissRequest = {
+            // Dismiss the dialog when the user clicks outside the dialog or on the back
+            // button. If you want to disable that functionality, simply use an empty
+            // onDismissRequest.
+            onDismissRequest()
+        },
+        title = {
+            Text(text = "Introduce yourself!")
+        },
+        text = {
+            Column() {
+                Text(
+                    text = "Please fill in the following form. The admins of the club will review your membership request as soon as possible!"
                 )
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
+                OutlinedTextField(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(20.dp)
-                ) {
-                    Text(
-                        text = "Introduce yourself!",
-                        fontSize = 24.sp,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Start
-                    )
-                    Text(
-                        text = "Please fill in the following form. The admins of the club will review your membership request as soon as possible!",
-                        fontSize = 12.sp,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 20.dp),
-                        lineHeight = 15.sp
-                    )
-                    CustomOutlinedTextField(
-                        value = joinClubDialogText,
-                        onValueChange = { vm.updateDialogText(newVal = it) },
-                        focusManager = focusManager,
-                        keyboardType = KeyboardType.Text,
-                        label = "Introduction",
-                        placeholder = "Tell us about yourself",
-                        modifier = Modifier
-                            .height((screenHeight * 0.3).dp)
-                            .fillMaxWidth()
-                            .padding(bottom = 10.dp)
-                    )
-                    CustomButton(onClick = { onConfirm() }, text = "Send")
+                        .height((screenHeight * 0.3).dp)
+                        .padding(top = 20.dp),
+                    value = joinClubDialogText,
+                    onValueChange = { vm.updateDialogText(newVal = it) },
+                    label = { Text(text = "Introduction") },
+                    placeholder = { Text(text = "Tell us about yourself") },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirm()
                 }
+            ) {
+                Text("Send Request")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
+                }
+            ) {
+                Text("Dismiss")
             }
         }
-    }
+    )
 }
 
 @Composable

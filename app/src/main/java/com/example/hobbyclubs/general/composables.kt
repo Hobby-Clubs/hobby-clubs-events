@@ -106,7 +106,8 @@ fun TopSearchBar(
         OutlinedTextField(
             modifier = Modifier
                 .width((screenWidth * 0.72).dp)
-                .aspectRatio(5.5f),
+                .aspectRatio(5.5f)
+                .padding(top = 10.dp),
             value = input,
             onValueChange = { onTextChange(it) },
             leadingIcon = {
