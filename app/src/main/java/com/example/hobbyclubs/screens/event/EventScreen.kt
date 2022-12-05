@@ -7,9 +7,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NavigateNext
-import androidx.compose.material.icons.outlined.ExitToApp
-import androidx.compose.material.icons.outlined.Pending
-import androidx.compose.material.icons.outlined.PersonAddAlt
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -32,16 +30,13 @@ import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.general.*
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.clubpage.ClubSectionTitle
-import com.example.hobbyclubs.screens.clubpage.CustomButton
 import java.text.SimpleDateFormat
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventScreen(
-    navController: NavController,
-    vm: EventScreenViewModel = viewModel(),
-    eventId: String
+    navController: NavController, vm: EventScreenViewModel = viewModel(), eventId: String
 ) {
     val context = LocalContext.current
     val selectedEvent by vm.selectedEvent.observeAsState(null)
@@ -69,25 +64,22 @@ fun EventScreen(
                 DividerLine()
                 EventLinks(context, event.linkArray)
                 DividerLine()
-                EventContactInfo(event.contactInfoName, event.contactInfoNumber, event.contactInfoEmail)
+                EventContactInfo(
+                    event.contactInfoName, event.contactInfoNumber, event.contactInfoEmail
+                )
             }
-            TopAppBar(
-                title = {},
+            TopAppBar(title = {},
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
                 navigationIcon = {
                     TopBarBackButton(navController = navController)
-                }
-            )
+                })
         }
     }
 }
 
 @Composable
 fun EventHeader(
-    navController: NavController,
-    event: Event,
-    isAdmin: Boolean,
-    vm: EventScreenViewModel
+    navController: NavController, event: Event, isAdmin: Boolean, vm: EventScreenViewModel
 ) {
     val screenHeight = LocalConfiguration.current.screenHeightDp
     val screenWidth = LocalConfiguration.current.screenWidthDp
@@ -113,9 +105,7 @@ fun EventHeader(
             Box(modifier = Modifier.fillMaxSize()) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data(event.bannerUris.first())
-                        .crossfade(true)
-                        .build(),
+                        .data(event.bannerUris.first()).crossfade(true).build(),
                     contentDescription = "background image",
                     modifier = Modifier
                         .fillMaxWidth()
@@ -152,8 +142,7 @@ fun EventHeader(
             modifier = Modifier.padding(start = 20.dp, top = 20.dp, end = 20.dp)
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(modifier = Modifier.width((screenWidth * 0.5).dp)) {
                     Text(
@@ -178,15 +167,13 @@ fun EventHeader(
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
-                    Row(
-                        modifier = Modifier
-                            .clickable {
-                                navController.navigate(NavRoutes.EventParticipantsScreen.route + "/${event.id}")
-                            }
-                            .fillMaxWidth(),
+                    Row(modifier = Modifier
+                        .clickable {
+                            navController.navigate(NavRoutes.EventParticipantsScreen.route + "/${event.id}")
+                        }
+                        .fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End
-                    ) {
+                        horizontalArrangement = Arrangement.End) {
                         Text(
                             text = "${event.participants.size} ${if (event.participants.size == 1) "participant" else "participants"}",
                             fontSize = 14.sp,
@@ -198,58 +185,81 @@ fun EventHeader(
                             tint = Color.Black
                         )
                     }
-
                 }
             }
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 20.dp, top = 20.dp),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                if (hasJoinedEvent) {
-                    CustomButton(
-                        text = "Cancel",
-                        onClick = {
-                            vm.leaveEvent(event.id)
-                        },
-                        icon = Icons.Outlined.ExitToApp
-                    )
-                }
-                if (!hasJoinedEvent && event.isPrivate && !hasRequested && !isAdmin) {
-                    CustomButton(
-                        text = "Request",
-                        onClick = {
-                            vm.createEventRequest(event, context)
-                        },
-                        icon = Icons.Outlined.PersonAddAlt
-                    )
-                }
-                if (!hasJoinedEvent && event.isPrivate && hasRequested) {
-                    CustomButton(
-                        text = "Pending",
-                        onClick = { },
-                        icon = Icons.Outlined.Pending
-                    )
-                }
-                if (!hasJoinedEvent && (!event.isPrivate || isAdmin)) {
-                    CustomButton(
-                        text = "Join",
-                        onClick = {
-                            vm.joinEvent(event.id)
-                        },
-                        icon = Icons.Outlined.PersonAddAlt
-                    )
-                }
-                if (isAdmin) {
-                    CustomButton(
-                        text = "Manage Event",
-                        onClick = {
-                            navController.navigate(NavRoutes.EventManagementScreen.route + "/${event.id}")
+                Box(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    if (hasJoinedEvent) {
+                        Button(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = { vm.leaveEvent(event.id) },
+                        ) {
+                            Icon(Icons.Outlined.ExitToApp, null)
+                            Text(
+                                modifier = Modifier.padding(start = 8.dp),
+                                text = "Cancel",
+                            )
                         }
-                    )
+                    }
+                    if (!hasJoinedEvent && event.isPrivate && !hasRequested && !isAdmin) {
+                        Button(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = { vm.createEventRequest(event, context) },
+                        ) {
+                            Icon(Icons.Outlined.PersonAdd, null)
+                            Text(
+                                modifier = Modifier.padding(start = 8.dp),
+                                text = "Request",
+                            )
+                        }
+                    }
+                    if (!hasJoinedEvent && event.isPrivate && hasRequested) {
+                        Button(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = { },
+                        ) {
+                            Icon(Icons.Outlined.Pending, null)
+                            Text(
+                                modifier = Modifier.padding(start = 8.dp),
+                                text = "Pending",
+                            )
+                        }
+                    }
+                    if (!hasJoinedEvent && !event.isPrivate || isAdmin) {
+                        Button(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = { vm.joinEvent(event.id) },
+                        ) {
+                            Icon(Icons.Outlined.PersonAdd, null)
+                            Text(
+                                modifier = Modifier.padding(start = 8.dp),
+                                text = "Join",
+                            )
+                        }
+                    }
+                }
+                Box(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    if (isAdmin) {
+                        Button(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = { navController.navigate(NavRoutes.EventManagementScreen.route + "/${event.id}") },
+                        ) {
+                            Icon(Icons.Outlined.Tune, null)
+                            Text(
+                                modifier = Modifier.padding(start = 8.dp),
+                                text = "Manage Event",
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -280,16 +290,12 @@ fun EventLinks(context: Context, links: Map<String, String>) {
         ClubSectionTitle(text = "Links")
         Column(verticalArrangement = Arrangement.Top) {
             links.forEach { (name, url) ->
-                EventLinkRow(
-                    link = name,
-                    onClick = {
-                        val urlIntent = Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse(url)
-                        )
-                        context.startActivity(urlIntent)
-                    }
-                )
+                EventLinkRow(link = name, onClick = {
+                    val urlIntent = Intent(
+                        Intent.ACTION_VIEW, Uri.parse(url)
+                    )
+                    context.startActivity(urlIntent)
+                })
             }
         }
     }
@@ -297,12 +303,9 @@ fun EventLinks(context: Context, links: Map<String, String>) {
 
 @Composable
 fun EventLinkRow(link: String, onClick: () -> Unit) {
-    Text(
-        text = link,
-        color = linkBlue,
-        modifier = Modifier
-            .clickable { onClick() }
-            .padding(5.dp))
+    Text(text = link, color = linkBlue, modifier = Modifier
+        .clickable { onClick() }
+        .padding(5.dp))
 }
 
 @Composable
