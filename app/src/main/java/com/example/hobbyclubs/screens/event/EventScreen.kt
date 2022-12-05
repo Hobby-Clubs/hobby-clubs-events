@@ -201,7 +201,7 @@ fun EventHeader(
                             modifier = Modifier.fillMaxWidth(),
                             onClick = { vm.leaveEvent(event.id) },
                         ) {
-                            Icon(Icons.Outlined.ExitToApp, null)
+                            Icon(Icons.Outlined.Close, null)
                             Text(
                                 modifier = Modifier.padding(start = 8.dp),
                                 text = "Cancel",
