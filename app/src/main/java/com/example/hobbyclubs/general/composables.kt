@@ -371,13 +371,13 @@ fun Pill(
     onClick: () -> Unit
 ) {
     val shape = if (isLeft) {
-        RoundedCornerShape(topStart = 10.dp, bottomStart = 10.dp)
+        RoundedCornerShape(topStart = 20.dp, bottomStart = 20.dp)
     } else {
-        RoundedCornerShape(topEnd = 10.dp, bottomEnd = 10.dp)
+        RoundedCornerShape(topEnd = 20.dp, bottomEnd = 20.dp)
     }
 
     val color =
-        if (isSelected) colorScheme.primary else colorScheme.secondary
+        if (isSelected) colorScheme.primary else colorScheme.surfaceVariant
 
     Card(
         shape = shape,
