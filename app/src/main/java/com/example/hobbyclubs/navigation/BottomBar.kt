@@ -1,8 +1,10 @@
 package com.example.hobbyclubs.navigation
 
 import androidx.compose.material.Icon
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.navigation.NavController
@@ -37,10 +39,11 @@ fun BottomBar(navController: NavController) {
                 icon = {
                     Icon(
                         imageVector = barItem.icon,
-                        contentDescription = null
+                        contentDescription = null,
+                        tint = colorScheme.onSurfaceVariant
                     )
                 },
-                label = { androidx.compose.material3.Text(text = barItem.title) }
+                label = { Text(text = barItem.title) }
             )
         }
     }
