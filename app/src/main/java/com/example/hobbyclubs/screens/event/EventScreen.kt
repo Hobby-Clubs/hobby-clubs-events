@@ -207,41 +207,40 @@ fun EventHeader(
                                 text = "Cancel",
                             )
                         }
-                    }
-                    if (!hasJoinedEvent && event.isPrivate && !hasRequested && !isAdmin) {
-                        Button(
-                            modifier = Modifier.fillMaxWidth(),
-                            onClick = { vm.createEventRequest(event, context) },
-                        ) {
-                            Icon(Icons.Outlined.PersonAdd, null)
-                            Text(
-                                modifier = Modifier.padding(start = 8.dp),
-                                text = "Request",
-                            )
-                        }
-                    }
-                    if (!hasJoinedEvent && event.isPrivate && hasRequested) {
-                        Button(
-                            modifier = Modifier.fillMaxWidth(),
-                            onClick = { },
-                        ) {
-                            Icon(Icons.Outlined.Pending, null)
-                            Text(
-                                modifier = Modifier.padding(start = 8.dp),
-                                text = "Pending",
-                            )
-                        }
-                    }
-                    if (!hasJoinedEvent && !event.isPrivate || isAdmin) {
-                        Button(
-                            modifier = Modifier.fillMaxWidth(),
-                            onClick = { vm.joinEvent(event.id) },
-                        ) {
-                            Icon(Icons.Outlined.PersonAdd, null)
-                            Text(
-                                modifier = Modifier.padding(start = 8.dp),
-                                text = "Join",
-                            )
+                    } else {
+                        if (event.isPrivate && !hasRequested && !isAdmin) {
+                            Button(
+                                modifier = Modifier.fillMaxWidth(),
+                                onClick = { vm.createEventRequest(event, context) },
+                            ) {
+                                Icon(Icons.Outlined.PersonAdd, null)
+                                Text(
+                                    modifier = Modifier.padding(start = 8.dp),
+                                    text = "Request",
+                                )
+                            }
+                        } else if (event.isPrivate && hasRequested) {
+                            Button(
+                                modifier = Modifier.fillMaxWidth(),
+                                onClick = { },
+                            ) {
+                                Icon(Icons.Outlined.Pending, null)
+                                Text(
+                                    modifier = Modifier.padding(start = 8.dp),
+                                    text = "Pending",
+                                )
+                            }
+                        } else {
+                            Button(
+                                modifier = Modifier.fillMaxWidth(),
+                                onClick = { vm.joinEvent(event.id) },
+                            ) {
+                                Icon(Icons.Outlined.PersonAdd, null)
+                                Text(
+                                    modifier = Modifier.padding(start = 8.dp),
+                                    text = "Join",
+                                )
+                            }
                         }
                     }
                 }
