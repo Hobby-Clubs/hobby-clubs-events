@@ -3,7 +3,6 @@ package com.example.hobbyclubs.screens.notifications
 import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,26 +10,21 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.FabPosition
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FabPosition
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.ClearAll
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.Undo
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.material3.Card
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -39,25 +33,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.compose.md_theme_light_primary
-import com.example.hobbyclubs.api.FirebaseHelper
-import com.example.hobbyclubs.api.NotificationInfo
-import com.example.hobbyclubs.api.NotificationType
+import com.example.compose.*
 import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.general.toString
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.notifications.NotificationContent
-import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.example.hobbyclubs.screens.settings.NotificationSetting
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationScreen(
-    navController: NavController,
-    vm: NotificationScreenViewModel = viewModel()
+    navController: NavController, vm: NotificationScreenViewModel = viewModel()
 ) {
     val context = LocalContext.current
     val unreads by vm.unreads.observeAsState()
@@ -72,8 +61,7 @@ fun NotificationScreen(
 
     Scaffold(
         topBar = {
-            NotificationsTopBar(
-                navController = navController,
+            NotificationsTopBar(navController = navController,
                 onClickSettings = { navController.navigate(NavRoutes.SettingsScreen.route) })
         },
         floatingActionButton = {
@@ -83,13 +71,17 @@ fun NotificationScreen(
                         vm.markAllAsRead(it)
                     }
                 } else {
-                    FloatingActionButton(onClick = { vm.removeRead() }) {
-                       Text(text = "Reset")
+                    FilledTonalButton(onClick = { vm.removeRead() }) {
+                        Icon(
+                            Icons.Outlined.Restore, "restore",
+                            modifier = Modifier.padding(end = 8.dp),
+                        )
+                        Text(text = "Reset")
                     }
                 }
             }
         },
-        floatingActionButtonPosition = FabPosition.Center
+        floatingActionButtonPosition = FabPosition.Center,
     ) { pad ->
         Box(modifier = Modifier.padding(pad)) {
             if (unreads == null) {
@@ -99,13 +91,11 @@ fun NotificationScreen(
                     if (data.isEmpty()) {
                         NoNotifications()
                     } else {
-                        NotificationList(
-                            isRefreshing = isRefreshing,
+                        NotificationList(isRefreshing = isRefreshing,
                             onRefresh = { vm.refresh() },
                             contents = data,
                             onMarkAsRead = { vm.markAsRead(it) },
-                            onClick = { navController.navigate(it) }
-                        )
+                            onClick = { navController.navigate(it) })
                     }
                 }
             }
@@ -116,8 +106,7 @@ fun NotificationScreen(
 @Composable
 fun NoNotifications() {
     Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
     ) {
         Text(text = "No new notifications")
     }
@@ -154,16 +143,13 @@ fun NotificationList(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(contents, { item -> item.id }) {
-                NotificationTile(
-                    content = it,
-                    onDismiss = { id ->
-                        onMarkAsRead(id)
-                    },
-                    onClick = {
-                        it.navRoute?.let { route ->
-                            onClick(route)
-                        }
-                    })
+                NotificationTile(content = it, onDismiss = { id ->
+                    onMarkAsRead(id)
+                }, onClick = {
+                    it.navRoute?.let { route ->
+                        onClick(route)
+                    }
+                })
             }
         }
     }
@@ -172,20 +158,15 @@ fun NotificationList(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationsTopBar(navController: NavController, onClickSettings: () -> Unit) {
-    CenterAlignedTopAppBar(
-        title = { Text(text = "Notifications") },
-        navigationIcon = {
-            TopBarBackButton(navController = navController)
-        },
-        actions = {
-            IconButton(onClick = onClickSettings, content = {
-                Icon(
-                    imageVector = Icons.Outlined.Settings,
-                    contentDescription = "settings"
-                )
-            })
-        }
-    )
+    CenterAlignedTopAppBar(title = { Text(text = "Notifications") }, navigationIcon = {
+        TopBarBackButton(navController = navController)
+    }, actions = {
+        IconButton(onClick = onClickSettings, content = {
+            Icon(
+                imageVector = Icons.Outlined.Settings, contentDescription = "settings"
+            )
+        })
+    })
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -203,46 +184,39 @@ fun NotificationTile(
         onDismiss(content.id)
     }
 
-    SwipeToDismiss(
-        state = dismissState,
-        directions = setOf(
-            DismissDirection.StartToEnd
-        ),
-        background = {
-            val color by animateColorAsState(
-                when (dismissState.targetValue) {
-                    DismissValue.Default -> Color.Transparent
-                    else -> MaterialTheme.colors.error
-                }
-            )
-            val alignment = Alignment.CenterStart
-            val icon = Icons.Default.Delete
+    SwipeToDismiss(state = dismissState, directions = setOf(
+        DismissDirection.StartToEnd
+    ), background = {
+        val color by animateColorAsState(
+            when (dismissState.targetValue) {
+                DismissValue.Default -> Color.Transparent
+                else -> colorScheme.error
+            }
+        )
+        val alignment = Alignment.CenterStart
+        val icon = Icons.Default.Delete
 
-            val scale by animateFloatAsState(
-                if (dismissState.targetValue == DismissValue.Default) 0.75f else 1f
-            )
-            Card(
-                Modifier
-                    .fillMaxSize(),
-                colors = CardDefaults.cardColors(color)
+        val scale by animateFloatAsState(
+            if (dismissState.targetValue == DismissValue.Default) 0.75f else 1f
+        )
+        Card(
+            Modifier.fillMaxSize(), colors = CardDefaults.cardColors(color)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 20.dp),
+                contentAlignment = alignment
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 20.dp),
-                    contentAlignment = alignment
-                ) {
-                    Icon(
-                        icon,
-                        contentDescription = "Delete Icon",
-                        modifier = Modifier.scale(scale),
-                        tint = MaterialTheme.colors.onPrimary
-                    )
-                }
+                Icon(
+                    icon,
+                    contentDescription = "Delete Icon",
+                    modifier = Modifier.scale(scale),
+                )
             }
         }
-    ) {
-        Card(modifier = Modifier
+    }) {
+        ElevatedCard(modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }) {
             Row(
@@ -253,23 +227,26 @@ fun NotificationTile(
             ) {
                 content.setting?.icon?.let {
                     val color = when (content.setting) {
-                        NotificationSetting.EVENT_NEW -> MaterialTheme.colors.error
-                        NotificationSetting.EVENT_HOUR_REMINDER -> Color.White
-                        NotificationSetting.EVENT_DAY_REMINDER -> Color.White
-                        NotificationSetting.NEWS_GENERAL -> Color.Black
-                        NotificationSetting.NEWS_CLUB -> Color.Black
-                        NotificationSetting.REQUEST_MEMBERSHIP -> md_theme_light_primary
-                        NotificationSetting.REQUEST_ACCEPTED -> Color.Green
+                        NotificationSetting.EVENT_NEW -> colorScheme.primary
+                        NotificationSetting.EVENT_HOUR_REMINDER -> colorScheme.error
+                        NotificationSetting.EVENT_DAY_REMINDER -> colorScheme.error
+                        NotificationSetting.NEWS_GENERAL -> colorScheme.surfaceVariant
+                        NotificationSetting.NEWS_CLUB -> colorScheme.primary
+                        NotificationSetting.REQUEST_MEMBERSHIP -> colorScheme.primary
+                        NotificationSetting.REQUEST_ACCEPTED -> colorScheme.primary
                     }
-                    Box(
-                        modifier = Modifier
-                            .padding(end = 8.dp)
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .background(color),
-                        contentAlignment = Alignment.Center
+                    Card(
+                        modifier = Modifier.padding(end = 8.dp),
+                        shape = CircleShape,
+                        colors = CardDefaults.cardColors(color),
                     ) {
-                        Icon(imageVector = it, contentDescription = null, tint = Color.White)
+                        Icon(
+                            imageVector = it,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(50.dp)
+                                .padding(10.dp)
+                        )
                     }
                 }
                 Column() {
@@ -288,12 +265,9 @@ fun NotificationTile(
 
 @Composable
 fun ClearAllButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
-    Card(
-        shape = RoundedCornerShape(100.dp),
-        colors = CardDefaults.cardColors(containerColor = androidx.compose.material3.MaterialTheme.colorScheme.primary),
-        modifier = modifier
-            .clickable { onClick() }
-    ) {
+    Card(shape = RoundedCornerShape(100.dp),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.primary),
+        modifier = modifier.clickable { onClick() }) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
@@ -305,14 +279,14 @@ fun ClearAllButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
             Icon(
                 Icons.Outlined.ClearAll,
                 "clear icon",
-                tint = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary,
+                tint = colorScheme.onPrimary,
                 modifier = Modifier
                     .padding(end = 8.dp)
                     .width(18.dp)
             )
             Text(
                 text = "Clear all",
-                color = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary,
+                color = colorScheme.onPrimary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
             )
@@ -331,8 +305,7 @@ fun getDateText(notificationDate: Date): String {
     val dayInMillis = 86400000L
     val weekInMillis = 7 * dayInMillis
     val timeDiff = now.time - notificationDate.time
-    val isToday =
-        now.toString("dd.MM.yyyy") == notificationDate.toString("dd.MM.yyyy")
+    val isToday = now.toString("dd.MM.yyyy") == notificationDate.toString("dd.MM.yyyy")
 
     if (isToday) {
         return "Today at $timeString"
