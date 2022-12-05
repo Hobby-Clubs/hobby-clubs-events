@@ -681,7 +681,7 @@ fun JoinEventButton(
 fun ManageEventButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
     Card(
         shape = RoundedCornerShape(100.dp),
-        colors = CardDefaults.cardColors(containerColor = md_theme_light_surfaceTint),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.primary),
         modifier = modifier
             .clickable { onClick() }
     ) {
@@ -694,16 +694,16 @@ fun ManageEventButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
                 .padding(end = 4.dp)
         ) {
             Icon(
-                Icons.Outlined.Settings,
-                "Settings icon",
-                tint = Color.White,
+                Icons.Outlined.Tune,
+                "Manage icon",
+                tint = colorScheme.onPrimary,
                 modifier = Modifier
                     .padding(end = 8.dp)
                     .width(18.dp)
             )
             Text(
                 text = "Manage",
-                color = Color.White,
+                color = colorScheme.onPrimary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
             )
