@@ -107,7 +107,7 @@ fun TopSearchBar(
             modifier = Modifier
                 .width((screenWidth * 0.72).dp)
                 .aspectRatio(5.5f)
-                .padding(top = 10.dp),
+                .padding(vertical = 4.dp),
             value = input,
             onValueChange = { onTextChange(it) },
             leadingIcon = {
