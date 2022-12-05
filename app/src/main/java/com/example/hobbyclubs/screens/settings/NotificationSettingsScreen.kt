@@ -116,7 +116,7 @@ fun SettingsTopBar(navController: NavController, showSave: Boolean = false, onSa
 
 @Composable
 fun SettingsSwitchTile(data: NotificationSetting, onCheckedChange: (Boolean) -> Unit) {
-    Card(
+    ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
             .height(50.dp),
