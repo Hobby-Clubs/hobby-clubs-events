@@ -49,7 +49,6 @@ import com.example.hobbyclubs.general.CustomOutlinedTextField
 import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.general.Pill
 import com.example.hobbyclubs.navigation.NavRoutes
-import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
@@ -228,7 +227,6 @@ fun DateSelector(vm: CreateEventViewModel) {
     val selectedMinute = remember { mutableStateOf(0) }
 
 
-
     val datePickerDialog = DatePickerDialog(
         context,
         { _: DatePicker, mYear: Int, mMonth: Int, dayOfMonth: Int ->
@@ -238,7 +236,7 @@ fun DateSelector(vm: CreateEventViewModel) {
         },
         year, month, day,
     )
-    datePickerDialog.datePicker .minDate = calendar.timeInMillis
+    datePickerDialog.datePicker.minDate = calendar.timeInMillis
 
 
     val timePickerDialog = TimePickerDialog(
@@ -400,7 +398,10 @@ fun EventCreationPage1(vm: CreateEventViewModel) {
                 .fillMaxWidth()
         )
         Spacer(modifier = Modifier.weight(1f))
-        Column() {
+        Column(
+            modifier = Modifier
+                .padding(bottom = 32.dp),
+        ) {
             PageProgression(
                 numberOfLines = 1,
                 onClick1 = { vm.changePageTo(1) },
@@ -408,7 +409,8 @@ fun EventCreationPage1(vm: CreateEventViewModel) {
                 onClick3 = { vm.changePageTo(3) },
                 onClick4 = { vm.changePageTo(4) },
             )
-            CustomButton(
+            Button(
+                modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     if (
                         selectedClub == null ||
@@ -416,7 +418,6 @@ fun EventCreationPage1(vm: CreateEventViewModel) {
                         eventName == null ||
                         eventDescription == null ||
                         eventLocation == null
-
                     ) {
                         Toast.makeText(
                             context,
@@ -425,15 +426,13 @@ fun EventCreationPage1(vm: CreateEventViewModel) {
                         ).show()
                     } else {
                         vm.changePageTo(2)
-                    } },
-                text = "Next",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(60.dp)
-            )
+                    }
+                },
+            ) {
+                Text(text = "Next")
+            }
         }
     }
-
 
 
 }
@@ -458,13 +457,11 @@ fun EventCreationPage2(vm: CreateEventViewModel) {
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(bottom = 10.dp)
         )
-        CustomButton(
-            onClick = { galleryLauncher.launch("image/*") },
-            text = "Choose images from gallery",
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(0.dp)
-        )
+        FilledTonalButton(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = { galleryLauncher.launch("image/*") }) {
+            Text(text = "Choose images from gallery")
+        }
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -499,7 +496,10 @@ fun EventCreationPage2(vm: CreateEventViewModel) {
 
         }
         Spacer(modifier = Modifier.weight(1f))
-        Column() {
+        Column(
+            modifier = Modifier
+                .padding(bottom = 32.dp),
+        ) {
             PageProgression(
                 numberOfLines = 2,
                 onClick1 = { vm.changePageTo(1) },
@@ -507,23 +507,20 @@ fun EventCreationPage2(vm: CreateEventViewModel) {
                 onClick3 = { vm.changePageTo(3) },
                 onClick4 = { vm.changePageTo(4) },
             )
-            Row() {
-                CustomButton(
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(
+                    modifier = Modifier.weight(1f),
                     onClick = { vm.changePageTo(1) },
-                    text = "Previous",
                     colors = ButtonDefaults.buttonColors(
                         contentColor = colorScheme.onSurfaceVariant,
                         containerColor = colorScheme.surfaceVariant
                     ),
-                    modifier = Modifier
-                        .height(60.dp)
-                )
-                CustomButton(
-                    onClick = { vm.changePageTo(3) },
-                    text = "Next",
-                    modifier = Modifier
-                        .height(60.dp)
-                )
+                ) {
+                    Text(text = "Previous")
+                }
+                Button(modifier = Modifier.weight(1f), onClick = { vm.changePageTo(3) }) {
+                    Text(text = "Next")
+                }
             }
         }
     }
@@ -575,7 +572,10 @@ fun EventCreationPage3(vm: CreateEventViewModel) {
             modifier = Modifier
                 .fillMaxWidth()
         )
-        CustomButton(
+        FilledTonalButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 20.dp),
             onClick = {
                 if (currentLinkName != null && currentLinkURL != null) {
                     vm.addLinkToList(
@@ -590,12 +590,9 @@ fun EventCreationPage3(vm: CreateEventViewModel) {
                     Toast.makeText(context, "Please fill both fields.", Toast.LENGTH_SHORT)
                         .show()
                 }
-            },
-            text = "Add Link",
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 20.dp)
-        )
+            }) {
+            Text(text = "Add Link")
+        }
         Text(
             text = "Provided links",
             fontSize = 16.sp,
@@ -612,7 +609,10 @@ fun EventCreationPage3(vm: CreateEventViewModel) {
             onDispose {}
         }
         Spacer(modifier = Modifier.weight(1f))
-        Column() {
+        Column(
+            modifier = Modifier
+                .padding(bottom = 32.dp),
+        ) {
             PageProgression(
                 numberOfLines = 3,
                 onClick1 = { vm.changePageTo(1) },
@@ -620,23 +620,20 @@ fun EventCreationPage3(vm: CreateEventViewModel) {
                 onClick3 = { vm.changePageTo(3) },
                 onClick4 = { vm.changePageTo(4) },
             )
-            Row() {
-                CustomButton(
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(
+                    modifier = Modifier.weight(1f),
                     onClick = { vm.changePageTo(2) },
-                    text = "Previous",
                     colors = ButtonDefaults.buttonColors(
                         contentColor = colorScheme.onSurfaceVariant,
                         containerColor = colorScheme.surfaceVariant
                     ),
-                    modifier = Modifier
-                        .height(60.dp)
-                )
-                CustomButton(
-                    onClick = { vm.changePageTo(4) },
-                    text = "Next",
-                    modifier = Modifier
-                        .height(60.dp)
-                )
+                ) {
+                    Text(text = "Previous")
+                }
+                Button(modifier = Modifier.weight(1f), onClick = { vm.changePageTo(4) }) {
+                    Text(text = "Next")
+                }
             }
         }
     }
@@ -723,13 +720,17 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
         )
         Spacer(modifier = Modifier.height(20.dp))
         Text(text = "Or fill quickly using account details", fontSize = 12.sp)
-        CustomButton(
-            onClick = { currentUser?.let { vm.quickFillOptions(it) } },
-            text = "Quick fill"
-        )
+        FilledTonalButton(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = { currentUser?.let { vm.quickFillOptions(it) } }) {
+            Text(text = "Quick fill")
+        }
         SelectPrivacy(vm)
         Spacer(modifier = Modifier.weight(1f))
-        Column() {
+        Column(
+            modifier = Modifier
+                .padding(bottom = 32.dp),
+        ) {
             PageProgression(
                 numberOfLines = 4,
                 onClick1 = { vm.changePageTo(1) },
@@ -737,18 +738,19 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
                 onClick3 = { vm.changePageTo(3) },
                 onClick4 = { vm.changePageTo(4) },
             )
-            Row() {
-                CustomButton(
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(
+                    modifier = Modifier.weight(1f),
                     onClick = { vm.changePageTo(3) },
-                    text = "Previous",
                     colors = ButtonDefaults.buttonColors(
                         contentColor = colorScheme.onSurfaceVariant,
                         containerColor = colorScheme.surfaceVariant
                     ),
-                    modifier = Modifier
-                        .height(60.dp)
-                )
-                CustomButton(
+                ) {
+                    Text(text = "Previous")
+                }
+                Button(
+                    modifier = Modifier.weight(1f),
                     onClick = {
                         if (
                             selectedClub == null ||
@@ -766,7 +768,7 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
                                 "Please fill in all the fields",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            return@CustomButton
+                            return@Button
                         } else {
                             val timestamp = Timestamp(selectedDate!!)
                             val listWithYouAsAdmin = mutableListOf<String>()
@@ -797,10 +799,9 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
                             navController.navigate(NavRoutes.HomeScreen.route)
                         }
                     },
-                    text = "Create Event",
-                    modifier = Modifier
-                        .height(60.dp)
-                )
+                ) {
+                    Text(text = "Create Event")
+                }
             }
         }
     }
