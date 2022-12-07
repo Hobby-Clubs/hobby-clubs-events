@@ -258,7 +258,12 @@ fun MockDrawerContent(navToFirstTime: () -> Unit, logout: () -> Unit, onClick: (
 }
 
 @Composable
-fun LazyColumnHeader(modifier: Modifier = Modifier, text: String, onHomeScreen: Boolean = false, onClick: () -> Unit = {}) {
+fun LazyColumnHeader(
+    modifier: Modifier = Modifier,
+    text: String,
+    onHomeScreen: Boolean = false,
+    onClick: () -> Unit = {}
+) {
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -280,7 +285,11 @@ fun LazyColumnHeader(modifier: Modifier = Modifier, text: String, onHomeScreen: 
                 fontWeight = FontWeight.Light,
                 fontSize = 24.sp
             )
-            if (onHomeScreen) Icon(Icons.Outlined.NavigateNext, null, modifier = Modifier.size(24.dp))
+            if (onHomeScreen) Icon(
+                Icons.Outlined.NavigateNext,
+                null,
+                modifier = Modifier.size(24.dp)
+            )
         }
     }
 }
@@ -288,27 +297,22 @@ fun LazyColumnHeader(modifier: Modifier = Modifier, text: String, onHomeScreen: 
 @Composable
 fun TopBarBackButton(navController: NavController) {
     Card(
+        modifier = Modifier.size(30.dp),
         shape = CircleShape,
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        modifier = Modifier
-            .padding(start = 10.dp)
-            .size(30.dp)
-            .aspectRatio(1f)
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+        IconButton(
+            onClick = { navController.navigateUp() }
         ) {
-            IconButton(
-                onClick = { navController.navigateUp() }
-            ) {
-                Icon(
-                    Icons.Outlined.ArrowBack,
-                    contentDescription = "Back",
-                    modifier = Modifier.size(20.dp)
-                )
-            }
+            Icon(
+                Icons.Outlined.KeyboardArrowLeft,
+                contentDescription = "Back",
+                modifier = Modifier
+                    .width(24.dp)
+                    .padding(end = 2.dp)
+            )
         }
+
     }
 }
 
@@ -499,16 +503,19 @@ fun EventTile(
                                 isJoined = joined,
                                 onJoinEvent = {
                                     if (event.participantLimit != -1) {
-                                        if(hasRequested) {
+                                        if (hasRequested) {
                                             Toast.makeText(
                                                 context,
                                                 "Request pending approval",
                                                 Toast.LENGTH_SHORT
                                             ).show()
-                                        } else if (event.isPrivate && event.participants.size < event.participantLimit && !event.admins.contains(FirebaseHelper.uid)) {
+                                        } else if (event.isPrivate && event.participants.size < event.participantLimit && !event.admins.contains(
+                                                FirebaseHelper.uid
+                                            )
+                                        ) {
                                             createEventRequest(event, context)
                                             refreshStatus()
-                                        } else if (event.participants.size < event.participantLimit){
+                                        } else if (event.participants.size < event.participantLimit) {
                                             joinEvent(event, context)
                                         } else {
                                             Toast.makeText(
@@ -517,9 +524,11 @@ fun EventTile(
                                                 Toast.LENGTH_SHORT
                                             ).show()
                                         }
-                                    }
-                                    else {
-                                        if(!hasRequested && event.isPrivate && !event.admins.contains(FirebaseHelper.uid)) {
+                                    } else {
+                                        if (!hasRequested && event.isPrivate && !event.admins.contains(
+                                                FirebaseHelper.uid
+                                            )
+                                        ) {
                                             createEventRequest(event, context)
                                             refreshStatus()
                                         } else {
@@ -530,13 +539,15 @@ fun EventTile(
                                 onLeaveEvent = {
                                     leaveEvent(event, context)
                                 },
-                                isPrivate = !joined && event.isPrivate && !event.admins.contains(FirebaseHelper.uid),
+                                isPrivate = !joined && event.isPrivate && !event.admins.contains(
+                                    FirebaseHelper.uid
+                                ),
                                 requested = hasRequested
                             )
                         }
 
                         Spacer(modifier = Modifier.width(10.dp))
-                        if(event.admins.contains(FirebaseHelper.uid)) {
+                        if (event.admins.contains(FirebaseHelper.uid)) {
                             ManageEventButton() {
                                 navController.navigate(NavRoutes.EventManagementScreen.route + "/${event.id}")
                             }
@@ -612,11 +623,10 @@ fun JoinEventButton(
         icon = Icons.Outlined.Close
         text = "Cancel"
     } else {
-        if(requested) {
+        if (requested) {
             icon = Icons.Outlined.Pending
             text = "Pending.."
-        }
-        else if(isPrivate) {
+        } else if (isPrivate) {
             icon = Icons.Outlined.PersonAddAlt
             text = "Request to join"
         } else {
@@ -851,7 +861,7 @@ fun CustomAlertDialog(
         confirmButton = {
             TextButton(
                 onClick = { onConfirm() },
-                colors =  ButtonDefaults.textButtonColors(contentColor = colorScheme.error),
+                colors = ButtonDefaults.textButtonColors(contentColor = colorScheme.error),
             ) {
                 Text(text = confirmText)
             }
