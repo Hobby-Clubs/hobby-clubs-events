@@ -28,6 +28,16 @@ import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.clubs.ClubTile
 
+/**
+ * All my screen displays all items of selected types:
+ * -Clubs
+ * -Events
+ * -News
+ *
+ * @param navController for Compose navigation
+ * @param type list type (Clubs,Events,News)
+ * @param vm [AllMyViewModel]
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AllMyScreen(
@@ -42,6 +52,7 @@ fun AllMyScreen(
         else -> ""
     }
 
+    // Fetch data related to selected type
     LaunchedEffect(Unit) {
         if (type == "club") {
             vm.fetchAllClubs()
@@ -92,6 +103,15 @@ fun AllMyScreen(
     }
 }
 
+/**
+ * List of selected type
+ *
+ * @param navController for Compose navigation
+ * @param clubs if user selected my clubs on home screen this will not be null
+ * @param events if user selected my events on home screen this will not be null
+ * @param news if user selected my news on home screen this will not be null
+ * @param vm [AllMyViewModel]
+ */
 @Composable
 fun ListOfSelectedType(
     navController: NavController,
@@ -110,9 +130,6 @@ fun ListOfSelectedType(
         }
         events?.let {
             items(it) { event ->
-                vm.getEventJoinRequests(event.id)
-                val hasRequested by vm.hasRequested.observeAsState(false)
-
                 EventTile(event = event, navController = navController) {
                     navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
                 }

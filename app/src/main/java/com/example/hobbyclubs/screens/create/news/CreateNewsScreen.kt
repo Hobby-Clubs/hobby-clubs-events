@@ -33,7 +33,7 @@ import com.example.hobbyclubs.general.CustomAlertDialog
 import com.example.hobbyclubs.general.CustomOutlinedTextField
 import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.navigation.NavRoutes
-import com.example.hobbyclubs.screens.clubpage.CustomButton
+import com.example.hobbyclubs.general.CustomButton
 import com.example.hobbyclubs.screens.create.event.ClubSelectionDropdownMenu
 import com.google.firebase.Timestamp
 import java.util.*

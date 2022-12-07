@@ -31,7 +31,7 @@ import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.User
 import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.screens.clubmanagement.ClubManagementSectionTitle
-import com.example.hobbyclubs.screens.clubpage.CustomButton
+import com.example.hobbyclubs.general.CustomButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

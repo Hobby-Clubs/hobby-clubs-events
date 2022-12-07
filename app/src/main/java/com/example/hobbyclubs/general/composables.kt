@@ -56,7 +56,6 @@ import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.notifications.AlarmReceiver
 import com.example.hobbyclubs.notifications.EventNotificationInfo
 import com.example.hobbyclubs.screens.clubmembers.MemberImage
-import com.example.hobbyclubs.screens.clubpage.CustomButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -143,7 +142,6 @@ fun BurgerMenuButton(onClick: () -> Unit) {
         )
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -258,7 +256,12 @@ fun MockDrawerContent(navToFirstTime: () -> Unit, logout: () -> Unit, onClick: (
 }
 
 @Composable
-fun LazyColumnHeader(modifier: Modifier = Modifier, text: String, onHomeScreen: Boolean = false, onClick: () -> Unit = {}) {
+fun LazyColumnHeader(
+    modifier: Modifier = Modifier,
+    text: String,
+    onHomeScreen: Boolean = false,
+    onClick: () -> Unit = {}
+) {
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -280,7 +283,11 @@ fun LazyColumnHeader(modifier: Modifier = Modifier, text: String, onHomeScreen: 
                 fontWeight = FontWeight.Light,
                 fontSize = 24.sp
             )
-            if (onHomeScreen) Icon(Icons.Outlined.NavigateNext, null, modifier = Modifier.size(24.dp))
+            if (onHomeScreen) Icon(
+                Icons.Outlined.NavigateNext,
+                null,
+                modifier = Modifier.size(24.dp)
+            )
         }
     }
 }
@@ -473,9 +480,10 @@ fun EventTile(
                     .fillMaxWidth()
                     .aspectRatio(3.07f)
             ) {
+                val uris = if(event.bannerUris.isEmpty()) null else event.bannerUris.first()
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data(event.bannerUris.first())
+                        .data(uris)
                         .crossfade(true)
                         .build(),
                     contentDescription = "Tile background",
@@ -499,16 +507,19 @@ fun EventTile(
                                 isJoined = joined,
                                 onJoinEvent = {
                                     if (event.participantLimit != -1) {
-                                        if(hasRequested) {
+                                        if (hasRequested) {
                                             Toast.makeText(
                                                 context,
                                                 "Request pending approval",
                                                 Toast.LENGTH_SHORT
                                             ).show()
-                                        } else if (event.isPrivate && event.participants.size < event.participantLimit && !event.admins.contains(FirebaseHelper.uid)) {
+                                        } else if (event.isPrivate && event.participants.size < event.participantLimit && !event.admins.contains(
+                                                FirebaseHelper.uid
+                                            )
+                                        ) {
                                             createEventRequest(event, context)
                                             refreshStatus()
-                                        } else if (event.participants.size < event.participantLimit){
+                                        } else if (event.participants.size < event.participantLimit) {
                                             joinEvent(event, context)
                                         } else {
                                             Toast.makeText(
@@ -517,9 +528,11 @@ fun EventTile(
                                                 Toast.LENGTH_SHORT
                                             ).show()
                                         }
-                                    }
-                                    else {
-                                        if(!hasRequested && event.isPrivate && !event.admins.contains(FirebaseHelper.uid)) {
+                                    } else {
+                                        if (!hasRequested && event.isPrivate && !event.admins.contains(
+                                                FirebaseHelper.uid
+                                            )
+                                        ) {
                                             createEventRequest(event, context)
                                             refreshStatus()
                                         } else {
@@ -530,13 +543,15 @@ fun EventTile(
                                 onLeaveEvent = {
                                     leaveEvent(event, context)
                                 },
-                                isPrivate = !joined && event.isPrivate && !event.admins.contains(FirebaseHelper.uid),
+                                isPrivate = !joined && event.isPrivate && !event.admins.contains(
+                                    FirebaseHelper.uid
+                                ),
                                 requested = hasRequested
                             )
                         }
 
                         Spacer(modifier = Modifier.width(10.dp))
-                        if(event.admins.contains(FirebaseHelper.uid)) {
+                        if (event.admins.contains(FirebaseHelper.uid)) {
                             ManageEventButton() {
                                 navController.navigate(NavRoutes.EventManagementScreen.route + "/${event.id}")
                             }
@@ -612,11 +627,10 @@ fun JoinEventButton(
         icon = Icons.Outlined.Close
         text = "Cancel"
     } else {
-        if(requested) {
+        if (requested) {
             icon = Icons.Outlined.Pending
             text = "Pending.."
-        }
-        else if(isPrivate) {
+        } else if (isPrivate) {
             icon = Icons.Outlined.PersonAddAlt
             text = "Request to join"
         } else {
@@ -851,7 +865,7 @@ fun CustomAlertDialog(
         confirmButton = {
             TextButton(
                 onClick = { onConfirm() },
-                colors =  ButtonDefaults.textButtonColors(contentColor = colorScheme.error),
+                colors = ButtonDefaults.textButtonColors(contentColor = colorScheme.error),
             ) {
                 Text(text = confirmText)
             }
@@ -991,4 +1005,104 @@ fun RequestCard(
             }
         }
     }
+}
+
+/**
+ * Custom button
+ *
+ * @param modifier
+ * @param onClick
+ * @param text
+ * @param colors
+ * @param icon
+ * @receiver
+ */
+@Composable
+fun CustomButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    text: String,
+    colors: ButtonColors = ButtonDefaults.buttonColors(
+        containerColor = colorScheme.primary,
+        contentColor = colorScheme.onPrimary,
+    ),
+    icon: ImageVector? = null
+) {
+    Button(
+        onClick = { onClick() },
+        modifier = modifier
+            .width(175.dp)
+            .height(50.dp)
+            .padding(5.dp),
+        colors = colors,
+        shape = RoundedCornerShape(10.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            if (icon != null) {
+                Icon(
+                    icon, null, modifier = Modifier
+                        .padding(end = 5.dp)
+                        .size(14.dp)
+                )
+            }
+            Text(text = text, fontSize = 14.sp)
+        }
+    }
+}
+
+@Composable
+fun JoinLeaveOrManageButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    type: String
+) {
+    val text: String = when (type) {
+        "join" -> "Join club"
+        "leave" -> "Leave club"
+        "manage" -> "Manage club"
+        "pending" -> "Pending"
+        else -> ""
+    }
+    val icon: ImageVector = when (type) {
+        "join" -> Icons.Outlined.PersonAdd
+        "leave" -> Icons.Outlined.ExitToApp
+        "manage" -> Icons.Outlined.Tune
+        "pending" -> Icons.Outlined.Pending
+        else -> Icons.Outlined.QuestionMark
+    }
+
+    Button(
+        modifier = modifier,
+        onClick = { onClick() }
+    ) {
+        Icon(icon, null)
+        Text(
+            modifier = Modifier.padding(start = 8.dp),
+            text = text,
+        )
+    }
+}
+
+@Composable
+fun CreationPageTitle(modifier: Modifier = Modifier, text: String) {
+    Text(
+        modifier = modifier,
+        text = text,
+        fontSize = 24.sp,
+        fontWeight = FontWeight.SemiBold,
+    )
+}
+
+@Composable
+fun CreationPageSubtitle(modifier: Modifier = Modifier, text: String) {
+    Text(
+        text = text,
+        fontSize = 16.sp,
+        fontWeight = FontWeight.SemiBold,
+        modifier = modifier
+    )
 }

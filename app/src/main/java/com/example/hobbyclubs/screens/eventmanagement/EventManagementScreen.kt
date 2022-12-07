@@ -44,7 +44,7 @@ import com.example.hobbyclubs.general.CustomOutlinedTextField
 import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.clubmanagement.EmptySurface
-import com.example.hobbyclubs.screens.clubpage.CustomButton
+import com.example.hobbyclubs.general.CustomButton
 import com.example.hobbyclubs.screens.create.event.SelectedImageItem
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager

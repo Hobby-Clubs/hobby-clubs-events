@@ -16,10 +16,8 @@ import androidx.compose.material.FabPosition
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.ClearAll
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.Undo
 import androidx.compose.material3.*
 import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
@@ -40,14 +38,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.compose.md_theme_light_primary
-import com.example.hobbyclubs.api.FirebaseHelper
-import com.example.hobbyclubs.api.NotificationInfo
-import com.example.hobbyclubs.api.NotificationType
 import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.general.toString
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.notifications.NotificationContent
-import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.example.hobbyclubs.screens.settings.NotificationSetting
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState

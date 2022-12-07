@@ -21,18 +21,24 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.compose.linkBlue
 import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.*
 import com.example.hobbyclubs.general.*
@@ -66,7 +72,7 @@ fun HomeScreen(
     }
 
     LaunchedEffect(Unit) {
-        FirebaseHelper.uid ?.let { uid ->
+        FirebaseHelper.uid?.let { uid ->
             val settings = InAppNotificationHelper(context).getNotificationSettings()
             if (settings.none { !it.name.contains("REMINDER", true) }) {
 //                vm.unregisterReceiver(context)
@@ -295,20 +301,36 @@ fun MainScreenContent(
                 }
             )
         }
-        items(myClubs.take(5)) { club ->
-            MyClubTile(
-                club = club,
-                vm = vm,
-                onClickNews = {
-                    navController.navigate(NavRoutes.ClubNewsScreen.route + "/true/${club.ref}")
-                },
-                onClickUpcoming = {
-                    navController.navigate(NavRoutes.EventScreen.route + "/${it}")
-                },
-                onClick = {
-                    navController.navigate(NavRoutes.ClubPageScreen.route + "/${club.ref}")
+        if (myClubs.isNullOrEmpty()) {
+            item {
+                Column {
+                    Text(text = "You have not joined any clubs yet.")
+                    Row {
+                        Text(text = "Press ")
+                        Text(
+                            text = "here ",
+                            color = linkBlue,
+                            modifier = Modifier.clickable { navigateToNewTab(navController, NavRoutes.ClubsScreen.route) })
+                        Text(text = "to see new clubs")
+                    }
                 }
-            )
+            }
+        } else {
+            items(myClubs.take(5)) { club ->
+                MyClubTile(
+                    club = club,
+                    vm = vm,
+                    onClickNews = {
+                        navController.navigate(NavRoutes.ClubNewsScreen.route + "/true/${club.ref}")
+                    },
+                    onClickUpcoming = {
+                        navController.navigate(NavRoutes.EventScreen.route + "/${it}")
+                    },
+                    onClick = {
+                        navController.navigate(NavRoutes.ClubPageScreen.route + "/${club.ref}")
+                    }
+                )
+            }
         }
 
         stickyHeader {
@@ -317,16 +339,29 @@ fun MainScreenContent(
                 onHomeScreen = true,
                 onClick = { navController.navigate(NavRoutes.AllMyScreen.route + "/event") })
         }
-        items(myEvents.take(5)) { event ->
-//            vm.getEventJoinRequests(event.id)
-//            val hasRequested by vm.hasRequested.observeAsState(false)
-
-            EventTile(
-                event = event,
-                onClick = {
-                    navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
-                }, navController = navController
-            )
+        if (myEvents.isNullOrEmpty()) {
+            item {
+                Column {
+                    Text(text = "You have not joined or liked any events yet.")
+                    Row {
+                        Text(text = "Press ")
+                        Text(
+                            text = "here ",
+                            color = linkBlue,
+                            modifier = Modifier.clickable { navigateToNewTab(navController, NavRoutes.CalendarScreen.route) })
+                        Text(text = "to see new events")
+                    }
+                }
+            }
+        } else {
+            items(myEvents.take(5)) { event ->
+                EventTile(
+                    event = event,
+                    onClick = {
+                        navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
+                    }, navController = navController
+                )
+            }
         }
 
         stickyHeader {
@@ -338,11 +373,27 @@ fun MainScreenContent(
                 }
             )
         }
-        items(myNews.take(5)) { singleNews ->
-            SmallNewsTile(
-                news = singleNews,
-            ) {
-                navController.navigate(NavRoutes.SingleNewsScreen.route + "/${singleNews.id}")
+        if (myNews.isNullOrEmpty()) {
+            item {
+                Column {
+                    Text(text = "You have not joined any clubs yet.")
+                    Row {
+                        Text(text = "Press ")
+                        Text(
+                            text = "here ",
+                            color = linkBlue,
+                            modifier = Modifier.clickable { navigateToNewTab(navController, NavRoutes.ClubsScreen.route) })
+                        Text(text = "to see new clubs")
+                    }
+                }
+            }
+        } else {
+            items(myNews.take(5)) { singleNews ->
+                SmallNewsTile(
+                    news = singleNews,
+                ) {
+                    navController.navigate(NavRoutes.SingleNewsScreen.route + "/${singleNews.id}")
+                }
             }
         }
 

@@ -609,7 +609,6 @@ data class News(
 data class ClubRequest(
     var id: String = "",
     val userId: String = "",
-    val profilePicUri: String? = null,
     val acceptedStatus: Boolean = false,
     val timeAccepted: Timestamp? = null,
     val message: String = "",
@@ -620,7 +619,6 @@ data class ClubRequest(
 data class EventRequest(
     var id: String = "",
     val userId: String = "",
-    val profilePicUri: String? = null,
     val acceptedStatus: Boolean = false,
     val timeAccepted: Timestamp? = null,
     val message: String = "",

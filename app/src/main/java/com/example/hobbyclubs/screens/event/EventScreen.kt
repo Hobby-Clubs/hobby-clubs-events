@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -28,11 +29,12 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.compose.linkBlue
+import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.general.*
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.clubpage.ClubSectionTitle
-import com.example.hobbyclubs.screens.clubpage.CustomButton
+import com.example.hobbyclubs.general.CustomButton
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -111,16 +113,18 @@ fun EventHeader(
 
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
+                val uris = if(event.bannerUris.isEmpty()) null else event.bannerUris.first()
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data(event.bannerUris.first())
+                        .data(uris)
                         .crossfade(true)
                         .build(),
                     contentDescription = "background image",
                     modifier = Modifier
                         .fillMaxWidth()
                         .height((screenHeight * 0.25).dp),
-                    contentScale = ContentScale.FillWidth
+                    contentScale = ContentScale.FillWidth,
+                    error = painterResource(id = R.drawable.nokia_logo)
                 )
                 if (!hasJoinedEvent) {
                     if (!hasLikedEvent) {
@@ -170,14 +174,13 @@ fun EventHeader(
                     )
                 }
                 Column(modifier = Modifier.width((screenWidth * 0.5).dp)) {
-                    hostClub?.let {
                         Text(
-                            text = it.name,
+                            text = if (hostClub != null) hostClub!!.name else "Nokia",
                             fontSize = 18.sp,
                             textAlign = TextAlign.End,
                             modifier = Modifier.fillMaxWidth()
                         )
-                    }
+
                     Row(
                         modifier = Modifier
                             .clickable {

@@ -7,7 +7,6 @@ import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NavigateNext
@@ -20,7 +19,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -47,6 +45,14 @@ import com.example.hobbyclubs.navigation.NavRoutes
 import com.google.firebase.Timestamp
 import java.util.*
 
+/**
+ * Club page screen is used to display information about a club selected from home or club screen.
+ * it has clubs images, name, description, upcoming events, club news, socials and contact information.
+ *
+ * @param navController for Compose navigation
+ * @param vm [ClubPageViewModel]
+ * @param clubId UID for the club you have selected earlier on home or club screen
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClubPageScreen(
@@ -57,12 +63,14 @@ fun ClubPageScreen(
     val context = LocalContext.current
     val selectedClub by vm.selectedClub.observeAsState(null)
 
+    // Get all club related information / events / news / requests
     LaunchedEffect(Unit) {
         vm.getClub(clubId)
         vm.getClubEvents(clubId)
         vm.getAllNews(clubId)
         vm.getAllJoinRequests(clubId)
     }
+
     selectedClub?.let { club ->
         Scaffold {
             Column(
@@ -100,6 +108,20 @@ fun ClubPageScreen(
     }
 }
 
+/**
+ * Club page header displays the clubs:
+ * - Banner
+ * - Logo
+ * - Name
+ * - Club members amount
+ * - Join / manage button
+ * - Share button
+ *
+ * @param navController for Compose navigation
+ * @param context
+ * @param club
+ * @param vm
+ */
 @Composable
 fun ClubPageHeader(
     navController: NavController,
@@ -132,7 +154,6 @@ fun ClubPageHeader(
                             requestSent = Timestamp.now()
                         )
                         vm.sendJoinClubRequest(clubId = club.ref, request = request)
-                        vm.updateUserWithProfilePicUri(FirebaseHelper.uid!!)
                         Toast.makeText(context, "Request sent", Toast.LENGTH_LONG).show()
                         showJoinRequestDialog = false
                     } else {
@@ -213,8 +234,8 @@ fun ClubPageHeader(
                 .padding(bottom = 20.dp, start = 20.dp, end = 20.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            if (!hasJoinedClub) {
-                Button(
+            if (!hasJoinedClub && !hasRequested) {
+                JoinLeaveOrManageButton(
                     modifier = Modifier.weight(1f),
                     onClick = {
                         if (clubIsPrivate == true) {
@@ -222,42 +243,30 @@ fun ClubPageHeader(
                         } else {
                             vm.joinClub(club.ref)
                         }
-                    }
-                ) {
-                    Icon(Icons.Outlined.PersonAdd, null)
-                    Text(
-                        modifier = Modifier.padding(start = 8.dp),
-                        text = "Join club",
-                    )
-                }
+                    },
+                    type = "join"
+                )
+            }
+            if (!hasJoinedClub && hasRequested) {
+                JoinLeaveOrManageButton(
+                    modifier = Modifier.weight(1f),
+                    onClick = { },
+                    type = "pending"
+                )
             }
             if (hasJoinedClub) {
                 if (isAdmin) {
-                    Button(
+                    JoinLeaveOrManageButton(
                         modifier = Modifier.weight(1f),
-                        onClick = {
-                            navController.navigate(NavRoutes.ClubManagementScreen.route + "/${club.ref}")
-                        }
-                    ) {
-                        Icon(Icons.Outlined.Tune, null)
-                        Text(
-                            modifier = Modifier.padding(start = 8.dp),
-                            text = "Manage club",
-                        )
-                    }
+                        onClick = { navController.navigate(NavRoutes.ClubManagementScreen.route + "/${club.ref}") },
+                        type = "manage"
+                    )
                 } else {
-                    Button(
+                    JoinLeaveOrManageButton(
                         modifier = Modifier.weight(1f),
-                        onClick = {
-                            vm.leaveClub(clubId = club.ref)
-                        }
-                    ) {
-                        Icon(Icons.Outlined.ExitToApp, null)
-                        Text(
-                            modifier = Modifier.padding(start = 8.dp),
-                            text = "Leave club",
-                        )
-                    }
+                        onClick = { vm.leaveClub(clubId = club.ref) },
+                        type = "leave"
+                    )
                 }
             }
             ShareButton(modifier = Modifier.weight(1f), text = "Share", clubId = club.ref)
@@ -265,6 +274,13 @@ fun ClubPageHeader(
     }
 }
 
+/**
+ * Share button opens a share sheet that you can share the club.
+ *
+ * @param modifier The modifier to be applied to the button.
+ * @param text The text that shows on the button.
+ * @param clubId UID for the club you have selected earlier on home or club screen
+ */
 @Composable
 fun ShareButton(modifier: Modifier = Modifier, text: String, clubId: String) {
     val sendIntent: Intent = Intent().apply {
@@ -289,6 +305,11 @@ fun ShareButton(modifier: Modifier = Modifier, text: String, clubId: String) {
     }
 }
 
+/**
+ * Club description displays the description of the club.
+ *
+ * @param desc Value to show on the screen.
+ */
 @Composable
 fun ClubDescription(desc: String) {
     Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 20.dp)) {
@@ -298,6 +319,12 @@ fun ClubDescription(desc: String) {
     }
 }
 
+/**
+ * Club schedule displays the selected clubs upcoming events.
+ *
+ * @param vm [ClubPageViewModel]
+ * @param navController for Compose navigation
+ */
 @Composable
 fun ClubSchedule(vm: ClubPageViewModel, navController: NavController) {
     val listOfEvents by vm.listOfEvents.observeAsState(listOf())
@@ -307,9 +334,6 @@ fun ClubSchedule(vm: ClubPageViewModel, navController: NavController) {
         Text(text = "Upcoming events", fontSize = 14.sp)
         Spacer(modifier = Modifier.height(20.dp))
         listOfEvents.forEach { event ->
-//            vm.getEventJoinRequests(event.id)
-//            val hasRequested by vm.hasRequestedToEvent.observeAsState(false)
-
             EventTile(
                 event = event,
                 onClick = {
@@ -322,34 +346,53 @@ fun ClubSchedule(vm: ClubPageViewModel, navController: NavController) {
 }
 
 
+/**
+ * Club news displays the selected clubs news (up to 5 most recent). When section title
+ * has been clicked navigate to another screen that displays all of the clubs news.
+ *
+ * @param vm [ClubPageViewModel]
+ * @param navController for Compose navigation
+ * @param clubId UID for the club you have selected earlier on home or club screen
+ */
 @Composable
 fun ClubNews(vm: ClubPageViewModel, navController: NavController, clubId: String) {
     val listOfNews by vm.listOfNews.observeAsState(listOf())
 
     Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 20.dp)) {
         ClubSectionTitle(text = "News", isNewsTitle = true,
-            onClick = {navController.navigate(NavRoutes.ClubNewsScreen.route + "/false/$clubId")})
+            onClick = { navController.navigate(NavRoutes.ClubNewsScreen.route + "/false/$clubId") })
         Spacer(modifier = Modifier.height(20.dp))
         ClubNewsList(list = listOfNews.take(5), navController = navController)
     }
 }
 
+/**
+ * Club news list displays the list of news provided.
+ *
+ * @param list List of News to show
+ * @param navController for Compose navigation
+ */
 @Composable
 fun ClubNewsList(list: List<News>, navController: NavController) {
-        list.forEach { singleNews ->
-            SmallNewsTile(
-                news = singleNews,
-                onClick = {
-                    navController.navigate(NavRoutes.SingleNewsScreen.route + "/${singleNews.id}")
-                }
-            )
-            Spacer(modifier = Modifier.height(5.dp))
-        }
+    list.forEach { singleNews ->
+        SmallNewsTile(
+            news = singleNews,
+            onClick = {
+                navController.navigate(NavRoutes.SingleNewsScreen.route + "/${singleNews.id}")
+            }
+        )
+        Spacer(modifier = Modifier.height(5.dp))
+    }
 }
 
+/**
+ * Club links displays the social links of the selected club
+ *
+ * @param context for starting the intent for opening a link
+ * @param linkList clubs social links
+ */
 @Composable
 fun ClubLinks(context: Context, linkList: Map<String, String>) {
-
     Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 20.dp)) {
         ClubSectionTitle(text = "Links")
         Column(verticalArrangement = Arrangement.Top) {
@@ -369,6 +412,12 @@ fun ClubLinks(context: Context, linkList: Map<String, String>) {
     }
 }
 
+/**
+ * Club link row displays how one row in the link list should look like
+ *
+ * @param link provided link
+ * @param onClick what to do when link has been clicked.
+ */
 @Composable
 fun ClubLinkRow(link: String, onClick: () -> Unit) {
     Text(
@@ -379,6 +428,13 @@ fun ClubLinkRow(link: String, onClick: () -> Unit) {
             .padding(5.dp))
 }
 
+/**
+ * Club contact info displays clubs contact persons information
+ *
+ * @param name contact persons name
+ * @param phoneNumber contact persons phone number
+ * @param email contact persons email
+ */
 @Composable
 fun ClubContactInfo(name: String, phoneNumber: String, email: String) {
     Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 20.dp)) {
@@ -389,21 +445,40 @@ fun ClubContactInfo(name: String, phoneNumber: String, email: String) {
     }
 }
 
+/**
+ * Club section title is the title for each section of the page.
+ *
+ * @param text what the dividing title should say
+ * @param isNewsTitle show arrow icon on the side indicating it to be clickable
+ * @param onClick action what happens on click
+ */
 @Composable
-fun ClubSectionTitle(text: String,isNewsTitle: Boolean = false, onClick: () -> Unit = {}) {
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .padding(end = 20.dp)
-        .clickable { onClick() },
-    verticalAlignment = Alignment.CenterVertically,
+fun ClubSectionTitle(text: String, isNewsTitle: Boolean = false, onClick: () -> Unit = {}) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(end = 20.dp)
+            .clickable { onClick() },
+        verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(text = text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
-        if (isNewsTitle) Icon(Icons.Outlined.NavigateNext, contentDescription = "", modifier = Modifier.size(24.dp))
+        if (isNewsTitle) Icon(
+            Icons.Outlined.NavigateNext,
+            contentDescription = "",
+            modifier = Modifier.size(24.dp)
+        )
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
+/**
+ * Join club dialog is the dialog shown when user tries to join a private club.
+ *
+ * @param onConfirm action what happens on user pressing send request
+ * @param onDismissRequest action when user closes dialog
+ * @param vm [ClubPageViewModel]
+ */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JoinClubDialog(
     onConfirm: () -> Unit,
@@ -411,7 +486,6 @@ fun JoinClubDialog(
     vm: ClubPageViewModel
 ) {
     val joinClubDialogText by vm.joinClubDialogText.observeAsState(TextFieldValue(""))
-    val focusManager = LocalFocusManager.current
     val screenHeight = LocalConfiguration.current.screenHeightDp
     AlertDialog(
         onDismissRequest = {
@@ -459,41 +533,4 @@ fun JoinClubDialog(
             }
         }
     )
-}
-
-@Composable
-fun CustomButton(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-    text: String,
-    colors: ButtonColors = ButtonDefaults.buttonColors(
-        containerColor = colorScheme.primary,
-        contentColor = colorScheme.onPrimary,
-    ),
-    icon: ImageVector? = null
-) {
-    Button(
-        onClick = { onClick() },
-        modifier = modifier
-            .width(175.dp)
-            .height(50.dp)
-            .padding(5.dp),
-        colors = colors,
-        shape = RoundedCornerShape(10.dp)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            if (icon != null) {
-                Icon(
-                    icon, null, modifier = Modifier
-                        .padding(end = 5.dp)
-                        .size(14.dp)
-                )
-            }
-            Text(text = text, fontSize = 14.sp)
-        }
-    }
 }

@@ -33,7 +33,7 @@ import com.example.hobbyclubs.general.CustomOutlinedTextField
 import com.example.hobbyclubs.general.Pill
 import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.navigation.NavRoutes
-import com.example.hobbyclubs.screens.clubpage.CustomButton
+import com.example.hobbyclubs.general.CustomButton
 import com.example.hobbyclubs.screens.create.event.*
 import kotlinx.coroutines.launch
 
