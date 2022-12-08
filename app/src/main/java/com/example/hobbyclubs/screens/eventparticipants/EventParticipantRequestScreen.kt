@@ -81,8 +81,6 @@ fun ListOfParticipantRequests(
             EventRequestCard(
                 request = request,
                 onAccept = {
-                    val newListOfMembers = event.participants.toMutableList()
-                    newListOfMembers.add(request.userId)
                     val changeMap = mapOf(
                         Pair("acceptedStatus", true),
                         Pair("timeAccepted", Timestamp.now())
@@ -90,7 +88,7 @@ fun ListOfParticipantRequests(
                     vm.acceptJoinRequest(
                         eventId = event.id,
                         requestId = request.id,
-                        memberListWithNewUser = newListOfMembers,
+                        userId = request.userId,
                         changeMapForRequest = changeMap
                     )
                     Toast.makeText(context, "Accepted", Toast.LENGTH_SHORT).show()

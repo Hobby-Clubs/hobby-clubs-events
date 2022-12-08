@@ -16,7 +16,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.general.*
-import com.example.hobbyclubs.navigation.NavRoutes
+import com.example.hobbyclubs.navigation.NavRoute
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,7 +51,7 @@ fun ClubAllEventsScreen(
                         list = it,
                         vm = vm,
                         onClick = { eventId ->
-                            navController.navigate(NavRoutes.EventScreen.route + "/$eventId")
+                            navController.navigate(NavRoute.Event.name + "/$eventId")
                         }
                     )
                 }

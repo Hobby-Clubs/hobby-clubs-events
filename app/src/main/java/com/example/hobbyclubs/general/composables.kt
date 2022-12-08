@@ -51,8 +51,9 @@ import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.News
 import com.example.hobbyclubs.api.*
+import com.example.hobbyclubs.api.FirebaseHelper.getHasRequested
 import com.example.hobbyclubs.navigation.BottomBar
-import com.example.hobbyclubs.navigation.NavRoutes
+import com.example.hobbyclubs.navigation.NavRoute
 import com.example.hobbyclubs.notifications.AlarmReceiver
 import com.example.hobbyclubs.notifications.EventNotificationInfo
 import com.example.hobbyclubs.screens.clubmembers.MemberImage
@@ -67,7 +68,7 @@ import java.util.*
 fun MenuTopBar(
     drawerState: DrawerState,
     searchBar: (@Composable () -> Unit)? = null,
-    settingsIcon: (@Composable () -> Unit)? = null,
+    notificationsIcon: (@Composable () -> Unit)? = null,
 ) {
     val scope = rememberCoroutineScope()
     Row(
@@ -87,7 +88,7 @@ fun MenuTopBar(
         searchBar?.let {
             it()
         }
-        settingsIcon?.let {
+        notificationsIcon?.let {
             it()
         }
     }
@@ -106,7 +107,6 @@ fun TopSearchBar(
         OutlinedTextField(
             modifier = Modifier
                 .width((screenWidth * 0.72).dp)
-                .aspectRatio(5.5f)
                 .padding(top = 10.dp),
             value = input,
             onValueChange = { onTextChange(it) },
@@ -163,10 +163,10 @@ fun DrawerScreen(
         drawerState = drawerState,
         drawerContent = {
             MockDrawerContent(
-                navToFirstTime = { navController.navigate(NavRoutes.FirstTimeScreen.route) },
+                navToFirstTime = { navController.navigate(NavRoute.FirstTime.name) },
                 logout = {
                     FirebaseHelper.logout()
-                    navController.navigate(NavRoutes.LoginScreen.route)
+                    navController.navigate(NavRoute.Login.name)
                 }) {
                 scope.launch {
                     drawerState.close()
@@ -449,7 +449,6 @@ fun EventTile(
     fun refreshStatus() {
         scope.launch(Dispatchers.IO) {
             hasRequested = getHasRequested(event.id)
-
         }
     }
 
@@ -473,9 +472,14 @@ fun EventTile(
                     .fillMaxWidth()
                     .aspectRatio(3.07f)
             ) {
+                val data = if (event.bannerUris.isNotEmpty()) {
+                    event.bannerUris.first()
+                } else {
+                    null
+                }
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data(event.bannerUris.first())
+                        .data(data)
                         .crossfade(true)
                         .build(),
                     contentDescription = "Tile background",
@@ -493,7 +497,7 @@ fun EventTile(
                     verticalAlignment = Alignment.Top,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Row() {
+                    Row {
                         hasRequested?.let { hasRequested ->
                             JoinEventButton(
                                 isJoined = joined,
@@ -538,14 +542,14 @@ fun EventTile(
                         Spacer(modifier = Modifier.width(10.dp))
                         if(event.admins.contains(FirebaseHelper.uid)) {
                             ManageEventButton() {
-                                navController.navigate(NavRoutes.EventManagementScreen.route + "/${event.id}")
+                                navController.navigate(NavRoute.EventManagement.name + "/${event.id}")
                             }
                         }
                     }
 
                     if (!joined) {
                         LikeEventButton(isLiked = liked) {
-                            likeEvent(event, context)
+                            updateLikeEvent(event, context)
                         }
                     }
 

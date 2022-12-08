@@ -32,7 +32,7 @@ import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.general.DrawerScreen
 import com.example.hobbyclubs.general.LazyColumnHeader
 import com.example.hobbyclubs.general.MenuTopBar
-import com.example.hobbyclubs.navigation.NavRoutes
+import com.example.hobbyclubs.navigation.NavRoute
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
@@ -69,7 +69,7 @@ fun ClubsScreen(
                     ClubTile(
                         club = club,
                     ) {
-                        navController.navigate(NavRoutes.ClubPageScreen.route + "/${club.ref}")
+                        navController.navigate(NavRoute.ClubPage.name + "/${club.ref}")
                     }
                 }
                 stickyHeader {
@@ -79,7 +79,7 @@ fun ClubsScreen(
                     ClubTile(
                         club = club,
                     ) {
-                        navController.navigate(NavRoutes.ClubPageScreen.route + "/${club.ref}")
+                        navController.navigate(NavRoute.ClubPage.name + "/${club.ref}")
                     }
                 }
                 item {

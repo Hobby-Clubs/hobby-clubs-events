@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -28,9 +29,10 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.compose.linkBlue
+import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.general.*
-import com.example.hobbyclubs.navigation.NavRoutes
+import com.example.hobbyclubs.navigation.NavRoute
 import com.example.hobbyclubs.screens.clubpage.ClubSectionTitle
 import com.example.hobbyclubs.screens.clubpage.CustomButton
 import java.text.SimpleDateFormat
@@ -110,39 +112,32 @@ fun EventHeader(
                 .height((screenHeight * 0.25).dp)
 
         ) {
+            val data = if (event.bannerUris.isNotEmpty()) {
+                event.bannerUris.first()
+            } else {
+                null
+            }
             Box(modifier = Modifier.fillMaxSize()) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data(event.bannerUris.first())
+                        .data(data)
                         .crossfade(true)
                         .build(),
                     contentDescription = "background image",
                     modifier = Modifier
                         .fillMaxWidth()
                         .height((screenHeight * 0.25).dp),
-                    contentScale = ContentScale.FillWidth
+                    contentScale = ContentScale.FillWidth,
+                    error = painterResource(id = R.drawable.nokia_logo),
                 )
                 if (!hasJoinedEvent) {
-                    if (!hasLikedEvent) {
-                        LikeEventButton(
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .padding(15.dp),
-                            isLiked = hasLikedEvent
-                        ) {
-                            vm.likeEvent(event)
-                        }
-                    }
-
-                    if (hasLikedEvent) {
-                        LikeEventButton(
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .padding(15.dp),
-                            isLiked = hasLikedEvent
-                        ) {
-                            vm.removeLikeOnEvent(event)
-                        }
+                    LikeEventButton(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(15.dp),
+                        isLiked = hasLikedEvent
+                    ) {
+                        updateLikeEvent(event = event, context = context)
                     }
                 }
             }
@@ -181,7 +176,7 @@ fun EventHeader(
                     Row(
                         modifier = Modifier
                             .clickable {
-                                navController.navigate(NavRoutes.EventParticipantsScreen.route + "/${event.id}")
+                                navController.navigate(NavRoute.EventParticipants.name + "/${event.id}")
                             }
                             .fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -213,7 +208,7 @@ fun EventHeader(
                     CustomButton(
                         text = "Cancel",
                         onClick = {
-                            vm.leaveEvent(event.id)
+                            leaveEvent(event, context)
                         },
                         icon = Icons.Outlined.ExitToApp
                     )
@@ -238,7 +233,7 @@ fun EventHeader(
                     CustomButton(
                         text = "Join",
                         onClick = {
-                            vm.joinEvent(event.id)
+                            joinEvent(event, context)
                         },
                         icon = Icons.Outlined.PersonAddAlt
                     )
@@ -247,7 +242,7 @@ fun EventHeader(
                     CustomButton(
                         text = "Manage Event",
                         onClick = {
-                            navController.navigate(NavRoutes.EventManagementScreen.route + "/${event.id}")
+                            navController.navigate(NavRoute.EventManagement.name + "/${event.id}")
                         }
                     )
                 }

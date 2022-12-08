@@ -32,7 +32,6 @@ import com.example.hobbyclubs.api.News
 import com.example.hobbyclubs.general.CustomAlertDialog
 import com.example.hobbyclubs.general.CustomOutlinedTextField
 import com.example.hobbyclubs.general.TopBarBackButton
-import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.example.hobbyclubs.screens.create.event.ClubSelectionDropdownMenu
 import com.google.firebase.Timestamp
@@ -226,7 +225,7 @@ fun NewsCreationPage2(vm: CreateNewsViewModel, navController: NavController) {
                             }
                             vm.updateSingleNewsWithClubImageUri(clubId = selectedClub!!, newsId = newsId)
                             Toast.makeText(context, "News created.", Toast.LENGTH_SHORT).show()
-                            navController.navigate(NavRoutes.HomeScreen.route)
+                            navController.navigateUp()
                         }
                     },
                     text = "Create News",

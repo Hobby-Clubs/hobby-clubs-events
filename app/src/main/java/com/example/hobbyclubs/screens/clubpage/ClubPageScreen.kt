@@ -43,7 +43,7 @@ import com.example.hobbyclubs.api.ClubRequest
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.News
 import com.example.hobbyclubs.general.*
-import com.example.hobbyclubs.navigation.NavRoutes
+import com.example.hobbyclubs.navigation.NavRoute
 import com.google.firebase.Timestamp
 import java.util.*
 
@@ -171,7 +171,7 @@ fun ClubPageHeader(
                     modifier = Modifier.width((screenWidth * 0.45).dp)
                 )
                 TextButton(
-                    onClick = { navController.navigate(NavRoutes.ClubMembersScreen.route + "/${club.ref}") },
+                    onClick = { navController.navigate(NavRoute.ClubMembers.name + "/${club.ref}") },
                     colors = ButtonDefaults.buttonColors(
                         contentColor = colorScheme.onBackground,
                         containerColor = Color.Transparent
@@ -236,7 +236,7 @@ fun ClubPageHeader(
                     Button(
                         modifier = Modifier.weight(1f),
                         onClick = {
-                            navController.navigate(NavRoutes.ClubManagementScreen.route + "/${club.ref}")
+                            navController.navigate(NavRoute.ClubManagement.name + "/${club.ref}")
                         }
                     ) {
                         Icon(Icons.Outlined.Tune, null)
@@ -313,7 +313,7 @@ fun ClubSchedule(vm: ClubPageViewModel, navController: NavController) {
             EventTile(
                 event = event,
                 onClick = {
-                    navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
+                    navController.navigate(NavRoute.Event.name + "/${event.id}")
                 }, navController = navController
             )
             Spacer(modifier = Modifier.height(20.dp))
@@ -328,7 +328,7 @@ fun ClubNews(vm: ClubPageViewModel, navController: NavController, clubId: String
 
     Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 20.dp)) {
         ClubSectionTitle(text = "News", isNewsTitle = true,
-            onClick = {navController.navigate(NavRoutes.ClubNewsScreen.route + "/false/$clubId")})
+            onClick = {navController.navigate(NavRoute.ClubNews.name + "/false/$clubId")})
         Spacer(modifier = Modifier.height(20.dp))
         ClubNewsList(list = listOfNews.take(5), navController = navController)
     }
@@ -340,7 +340,7 @@ fun ClubNewsList(list: List<News>, navController: NavController) {
             SmallNewsTile(
                 news = singleNews,
                 onClick = {
-                    navController.navigate(NavRoutes.SingleNewsScreen.route + "/${singleNews.id}")
+                    navController.navigate(NavRoute.SingleNews.name + "/${singleNews.id}")
                 }
             )
             Spacer(modifier = Modifier.height(5.dp))

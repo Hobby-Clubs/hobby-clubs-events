@@ -26,7 +26,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.general.TopBarBackButton
-import com.example.hobbyclubs.navigation.NavRoutes
+import com.example.hobbyclubs.navigation.NavRoute
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,7 +70,7 @@ fun ClubManagementScreen(
                 title = { Text(text = it.name, fontSize = 16.sp) },
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
                 actions = {
-                    IconButton(onClick = { navController.navigate(NavRoutes.ClubSettingsScreen.route + "/$clubId") }) {
+                    IconButton(onClick = { navController.navigate(NavRoute.ClubSettings.name + "/$clubId") }) {
                         Icon(Icons.Outlined.Settings, null, modifier = Modifier.padding(end = 10.dp))
                     }
                 },
@@ -280,7 +280,7 @@ fun MembersSection(navController: NavController, clubId: String, club: Club, req
             iconDesc = "People Icon",
             title = "Members",
             numberOfItem = club.members.size,
-            onClick = { navController.navigate(NavRoutes.ClubMembersScreen.route + "/$clubId") }
+            onClick = { navController.navigate(NavRoute.ClubMembers.name + "/$clubId") }
         )
         Spacer(modifier = Modifier.height(10.dp))
         ClubManagementRowCard(
@@ -289,7 +289,7 @@ fun MembersSection(navController: NavController, clubId: String, club: Club, req
             title = "Member requests",
             numberOfItem = requestsAmount,
             isMemberRequest = true,
-            onClick = { navController.navigate(NavRoutes.ClubMemberRequestScreen.route + "/$clubId") }
+            onClick = { navController.navigate(NavRoute.ClubMemberRequest.name + "/$clubId") }
         )
     }
 }
@@ -304,7 +304,7 @@ fun NewsSection(navController: NavController, vm: ClubManagementViewModel, clubI
             iconDesc = "News feed",
             title = "News",
             numberOfItem = listOfNews?.size ?: 0,
-            onClick = { navController.navigate(NavRoutes.ClubAllNewsScreen.route + "/$clubId") }
+            onClick = { navController.navigate(NavRoute.ClubAllNews.name + "/$clubId") }
         )
     }
 }
@@ -319,7 +319,7 @@ fun EventsSection(navController: NavController, vm: ClubManagementViewModel, clu
             iconDesc = "Calendar",
             title = "Events",
             numberOfItem = listOfEvents?.size ?: 0,
-            onClick = { navController.navigate(NavRoutes.ClubAllEventsScreen.route + "/$clubId") }
+            onClick = { navController.navigate(NavRoute.ClubAllEvents.name + "/$clubId") }
         )
     }
 }

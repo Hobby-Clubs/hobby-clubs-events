@@ -26,7 +26,7 @@ class NewsViewModel: ViewModel() {
           listOfNews.value = newsList
       }
   }
-    fun getClub(clubId: String) = firebase.getClub(uid = clubId)
+    fun getClub(clubId: String) = firebase.getClub(clubId = clubId)
 
 
     fun getImage(newsRef: String) =

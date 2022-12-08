@@ -47,49 +47,13 @@ class EventScreenViewModel : ViewModel() {
     }
 
     fun getEventHostClub(event: Event) {
-        firebase.getClub(uid = event.clubId).get()
+        firebase.getClub(clubId = event.clubId).get()
             .addOnSuccessListener { data ->
                 val fetchedClub = data.toObject(Club::class.java)
                 fetchedClub?.let {
                     selectedEventHostClub.postValue(it)
                 }
             }
-    }
-
-    fun likeEvent(event: Event) {
-        val updatedList = event.likers.toMutableList()
-        firebase.uid?.let {
-            updatedList.add(it)
-        }
-        firebase.addUserLikeToEvent(eventId = event.id, updatedList)
-        getEvent(event.id)
-    }
-
-    fun removeLikeOnEvent(event: Event) {
-        val updatedList = event.likers.toMutableList()
-        firebase.uid?.let {
-            updatedList.remove(it)
-        }
-        firebase.addUserLikeToEvent(eventId = event.id, updatedList)
-        getEvent(event.id)
-    }
-
-    fun joinEvent(eventId: String) {
-        val updatedList = selectedEvent.value?.participants?.toMutableList()
-        firebase.uid?.let {
-            updatedList?.add(it)
-        }
-        firebase.updateUserInEvent(eventId = eventId, updatedList!!)
-        getEvent(eventId)
-    }
-
-    fun leaveEvent(eventId: String) {
-        val updatedList = selectedEvent.value?.participants?.toMutableList()
-        firebase.uid?.let {
-            updatedList?.remove(it)
-        }
-        firebase.updateUserInEvent(eventId = eventId, updatedList!!)
-        getEvent(eventId)
     }
 
     fun createEventRequest(event: Event, context: Context) {

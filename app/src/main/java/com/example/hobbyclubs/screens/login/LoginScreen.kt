@@ -14,7 +14,7 @@ import androidx.navigation.NavController
 import com.example.hobbyclubs.api.User
 import com.example.hobbyclubs.general.PicturePicker
 import com.example.hobbyclubs.general.SwitchPill
-import com.example.hobbyclubs.navigation.NavRoutes
+import com.example.hobbyclubs.navigation.NavRoute
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -29,7 +29,7 @@ fun LoginScreen(navController: NavController, vm: LoginViewModel = viewModel()) 
 
     LaunchedEffect(isLoggedIn) {
         if (isLoggedIn) {
-            navController.navigate(NavRoutes.HomeScreen.route)
+            navController.navigate(NavRoute.Home.name)
         }
     }
 

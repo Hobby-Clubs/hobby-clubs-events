@@ -27,6 +27,7 @@ class NotificationScreenViewModel(application: Application) : AndroidViewModel(a
     val helper = InAppNotificationHelper(application)
     val unreads = MutableLiveData<List<NotificationContent>>()
     val isRefreshing = MutableLiveData(false)
+    val isPausedPref = application.getSharedPreferences("paused", Context.MODE_PRIVATE)
 
     init {
         refresh()
@@ -42,7 +43,6 @@ class NotificationScreenViewModel(application: Application) : AndroidViewModel(a
         unreadFilter.addAction(InAppNotificationService.NOTIF_UNREAD)
         unreadReceiver = object : BroadcastReceiver() {
             override fun onReceive(p0: Context?, p1: Intent?) {
-                Log.d(HomeScreenViewModel.TAG, "onReceive: unreads")
                 val infos = p1?.getParcelableArrayExtra(
                     InAppNotificationService.EXTRA_NOTIF_UNREAD,
                 )?.toList() ?: listOf()
@@ -60,14 +60,26 @@ class NotificationScreenViewModel(application: Application) : AndroidViewModel(a
             val contents = notifInfos.map {
                 val type = valueOf(it.type)
                 when (type) {
-                    EVENT_CREATED -> withContext(coroutineContext) { helper.newEventToContent(it) }
-                    NEWS_CLUB -> withContext(coroutineContext) { helper.clubNewsToContent(it) }
-                    NEWS_GENERAL -> withContext(coroutineContext) { helper.generalNewsToContent(it) }
-                    REQUEST_PENDING -> withContext(coroutineContext) { helper.requestToContent(it) }
-                    REQUEST_ACCEPTED -> withContext(coroutineContext) {
-                        helper.acceptedRequestToContent(
-                            it
-                        )
+                    EVENT_CREATED -> withContext(coroutineContext) {
+                        helper.newEventToContent(it)
+                    }
+                    NEWS_CLUB -> withContext(coroutineContext) {
+                        helper.clubNewsToContent(it)
+                    }
+                    NEWS_GENERAL -> withContext(coroutineContext) {
+                        helper.generalNewsToContent(it)
+                    }
+                    CLUB_REQUEST_PENDING -> withContext(coroutineContext) {
+                        helper.clubRequestToContent(it)
+                    }
+                    CLUB_REQUEST_ACCEPTED -> withContext(coroutineContext) {
+                        helper.clubAcceptedRequestToContent(it)
+                    }
+                    EVENT_REQUEST_PENDING -> withContext(coroutineContext) {
+                        helper.eventRequestToContent(it)
+                    }
+                    EVENT_REQUEST_ACCEPTED -> withContext(coroutineContext) {
+                        helper.eventAcceptedRequestToContent(it)
                     }
                 }
             }
@@ -93,6 +105,7 @@ class NotificationScreenViewModel(application: Application) : AndroidViewModel(a
     }
 
     fun removeRead() {
+        setIsPaused(true)
         FirebaseHelper.uid?.let { uid ->
             FirebaseHelper.getNotifications().get()
                 .addOnSuccessListener {
@@ -105,16 +118,27 @@ class NotificationScreenViewModel(application: Application) : AndroidViewModel(a
                                     .await()
                             }
                         }
+                        setIsPaused(false)
                         fetchUnreads()
                     }
                 }
         }
     }
 
+    fun setIsPaused(isPaused: Boolean) {
+        isPausedPref.edit().apply {
+            putBoolean("isPaused", isPaused)
+            apply()
+        }
+    }
+
     fun markAllAsRead(contents: List<NotificationContent>) {
+        setIsPaused(true)
         contents.map { it.id }.forEach {
             FirebaseHelper.markNotificationAsSeen(it)
         }
         unreads.value = listOf()
+        setIsPaused(false)
+        refresh()
     }
 }

@@ -79,13 +79,13 @@ class EventParticipantsViewModel : ViewModel() {
     fun acceptJoinRequest(
         eventId: String,
         requestId: String,
-        memberListWithNewUser: List<String>,
+        userId: String,
         changeMapForRequest: Map<String, Any>
     ) {
         firebase.acceptEventRequest(
             eventId = eventId,
             requestId = requestId,
-            memberListWithNewUser = memberListWithNewUser,
+            userId = userId,
             changeMapForRequest = changeMapForRequest
         )
     }

@@ -89,7 +89,7 @@ class SingleScreenViewModel : ViewModel() {
             }
     }
 
-    fun getClub(clubId: String) = firebase.getClub(uid = clubId)
+    fun getClub(clubId: String) = firebase.getClub(clubId = clubId)
 
     fun getNews(newsId: String) {
         firebase.getNews(newsId).addSnapshotListener { data, e ->

@@ -9,14 +9,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.hobbyclubs.api.ClubCategory
 import com.example.hobbyclubs.api.FirebaseHelper
-import com.example.hobbyclubs.navigation.NavRoutes
-import java.util.*
+import com.example.hobbyclubs.navigation.NavRoute
 
 @Composable
 fun FirstTimeScreen(navController: NavController) {
@@ -39,7 +37,7 @@ fun FirstTimeScreen(navController: NavController) {
             )
             FirebaseHelper.updateUser(it, changeMap)
         }
-        navController.navigate(NavRoutes.HomeScreen.route)
+        navController.navigate(NavRoute.Home.name)
     }
 
     Surface {

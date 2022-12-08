@@ -53,7 +53,7 @@ class ClubPageViewModel : ViewModel() {
     }
 
     fun getClub(clubId: String) {
-        firebase.getClub(uid = clubId)
+        firebase.getClub(clubId = clubId)
             .addSnapshotListener { data, error ->
                 data ?: run {
                     Log.e("getClub", "getClub: ", error)

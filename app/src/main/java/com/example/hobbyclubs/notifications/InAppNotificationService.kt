@@ -7,7 +7,6 @@ import android.content.Intent
 import android.os.IBinder
 import android.util.Log
 import androidx.core.net.toUri
-import com.example.hobbyclubs.MainActivity
 import com.example.hobbyclubs.api.*
 import com.example.hobbyclubs.api.NotificationType.*
 import com.example.hobbyclubs.general.toString
@@ -58,10 +57,14 @@ class InAppNotificationService : Service() {
     }
 
     fun startFetchLoop(interval: Long, uid: String, context: Context) {
-        CoroutineScope(Dispatchers.IO).launch {
-            generateInAppNotif()
-            delay(interval)
-            startFetchLoop(interval, uid, context)
+        val isLoadingPref = applicationContext.getSharedPreferences("paused", MODE_PRIVATE)
+        val isLoading = isLoadingPref.getBoolean("isPaused", false)
+        if (!isLoading) {
+            CoroutineScope(Dispatchers.IO).launch {
+                generateInAppNotif()
+                delay(interval)
+                startFetchLoop(interval, uid, context)
+            }
         }
     }
 
@@ -94,11 +97,14 @@ class InAppNotificationService : Service() {
     }
 
     fun broadcastUnread(unreads: List<NotificationInfo>) {
-        val intent = Intent()
-        intent.action = NOTIF_UNREAD
-        intent.putExtra(EXTRA_NOTIF_UNREAD, unreads.toTypedArray())
-        sendBroadcast(intent)
-        Log.d(TAG, "broadcastUnread: send ${unreads.size}")
+        val isLoadingPref = applicationContext.getSharedPreferences("paused", MODE_PRIVATE)
+        val isLoading = isLoadingPref.getBoolean("isPaused", false)
+        if (!isLoading) {
+            val intent = Intent()
+            intent.action = NOTIF_UNREAD
+            intent.putExtra(EXTRA_NOTIF_UNREAD, unreads.toTypedArray())
+            sendBroadcast(intent)
+        }
     }
 
     fun createLatestNotification(lastNotification: NotificationInfo) {
@@ -108,8 +114,10 @@ class InAppNotificationService : Service() {
                 EVENT_CREATED -> helper.newEventToContent(lastNotification)
                 NEWS_CLUB -> helper.clubNewsToContent(lastNotification)
                 NEWS_GENERAL -> helper.generalNewsToContent(lastNotification)
-                REQUEST_PENDING -> helper.requestToContent(lastNotification)
-                REQUEST_ACCEPTED -> helper.acceptedRequestToContent(lastNotification)
+                CLUB_REQUEST_PENDING -> helper.clubRequestToContent(lastNotification)
+                CLUB_REQUEST_ACCEPTED -> helper.clubAcceptedRequestToContent(lastNotification)
+                EVENT_REQUEST_PENDING -> helper.eventRequestToContent(lastNotification)
+                EVENT_REQUEST_ACCEPTED -> helper.eventAcceptedRequestToContent(lastNotification)
             }
             notifContent?.let { content ->
                 NotificationHelper.createNotification(applicationContext, content)
@@ -135,7 +143,6 @@ class InAppNotificationService : Service() {
         val uid = intent?.getStringExtra("uid")
 
         uid?.let {
-            Log.d(TAG, "onStartCommand: service started")
             startFetchLoop(10 * 1000, it, applicationContext)
         }
         return START_NOT_STICKY

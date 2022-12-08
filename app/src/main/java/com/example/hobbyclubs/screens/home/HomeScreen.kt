@@ -36,7 +36,7 @@ import coil.request.ImageRequest
 import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.*
 import com.example.hobbyclubs.general.*
-import com.example.hobbyclubs.navigation.NavRoutes
+import com.example.hobbyclubs.navigation.NavRoute
 import com.example.hobbyclubs.notifications.InAppNotificationHelper
 import com.example.hobbyclubs.notifications.InAppNotificationService
 import com.example.hobbyclubs.screens.clubs.ClubTile
@@ -60,7 +60,7 @@ fun HomeScreen(
     LaunchedEffect(isFirst) {
         isFirst?.let {
             if (it) {
-                navController.navigate(NavRoutes.FirstTimeScreen.route)
+                navController.navigate(NavRoute.FirstTime.name)
             }
         }
     }
@@ -69,13 +69,18 @@ fun HomeScreen(
         FirebaseHelper.uid ?.let { uid ->
             val settings = InAppNotificationHelper(context).getNotificationSettings()
             if (settings.none { !it.name.contains("REMINDER", true) }) {
-//                vm.unregisterReceiver(context)
                 return@LaunchedEffect
             }
             if (!InAppNotificationService.isRunning(context)) {
                 InAppNotificationService.start(context, uid)
-                vm.receiveUnreads(context)
             }
+        }
+    }
+
+    DisposableEffect(vm) {
+        vm.receiveUnreads(context)
+        onDispose {
+            vm.unregisterReceiver(context)
         }
     }
 
@@ -99,14 +104,14 @@ fun HomeScreen(
                         }
                     )
                 },
-                settingsIcon = {
+                notificationsIcon = {
                     NotificationsButton(
                         modifier = Modifier
                             .padding(horizontal = 10.dp)
                             .size(50.dp),
                         notifCount = notifCount
                     ) {
-                        navController.navigate(NavRoutes.NotificationScreen.route)
+                        navController.navigate(NavRoute.Notifications.name)
                     }
                 }
             )
@@ -134,7 +139,7 @@ fun HomeScreen(
 @Composable
 fun NotificationsButton(modifier: Modifier = Modifier, notifCount: Int?, onClick: () -> Unit) {
     Box(modifier = modifier.clickable { onClick() }, contentAlignment = Alignment.Center) {
-        Box() {
+        Box {
             Icon(
                 imageVector = Icons.Outlined.Notifications,
                 contentDescription = null,
@@ -228,7 +233,7 @@ fun SearchUI(vm: HomeScreenViewModel, navController: NavController) {
         if (clubsExpanded) {
             items(clubsFiltered) { club ->
                 ClubTile(club = club) {
-                    navController.navigate(NavRoutes.ClubPageScreen.route + "/${club.ref}")
+                    navController.navigate(NavRoute.ClubPage.name + "/${club.ref}")
                 }
             }
         }
@@ -255,11 +260,8 @@ fun SearchUI(vm: HomeScreenViewModel, navController: NavController) {
         }
         if (eventsExpanded) {
             items(eventsFiltered) { event ->
-//                vm.getEventJoinRequests(event.id)
-//                val hasRequested by vm.hasRequested.observeAsState(false)
-
                 EventTile(event = event, navController = navController) {
-                    navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
+                    navController.navigate(NavRoute.Event.name + "/${event.id}")
                 }
             }
         }
@@ -291,7 +293,7 @@ fun MainScreenContent(
                 text = "My Clubs",
                 onHomeScreen = true,
                 onClick = {
-                    navController.navigate(NavRoutes.AllMyScreen.route + "/club")
+                    navController.navigate(NavRoute.AllMy.name + "/club")
                 }
             )
         }
@@ -300,13 +302,13 @@ fun MainScreenContent(
                 club = club,
                 vm = vm,
                 onClickNews = {
-                    navController.navigate(NavRoutes.ClubNewsScreen.route + "/true/${club.ref}")
+                    navController.navigate(NavRoute.ClubNews.name + "/true/${club.ref}")
                 },
                 onClickUpcoming = {
-                    navController.navigate(NavRoutes.EventScreen.route + "/${it}")
+                    navController.navigate(NavRoute.Event.name + "/${it}")
                 },
                 onClick = {
-                    navController.navigate(NavRoutes.ClubPageScreen.route + "/${club.ref}")
+                    navController.navigate(NavRoute.ClubPage.name + "/${club.ref}")
                 }
             )
         }
@@ -315,7 +317,7 @@ fun MainScreenContent(
             LazyColumnHeader(
                 text = "My Events",
                 onHomeScreen = true,
-                onClick = { navController.navigate(NavRoutes.AllMyScreen.route + "/event") })
+                onClick = { navController.navigate(NavRoute.AllMy.name + "/event") })
         }
         items(myEvents.take(5)) { event ->
 //            vm.getEventJoinRequests(event.id)
@@ -324,7 +326,7 @@ fun MainScreenContent(
             EventTile(
                 event = event,
                 onClick = {
-                    navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
+                    navController.navigate(NavRoute.Event.name + "/${event.id}")
                 }, navController = navController
             )
         }
@@ -334,7 +336,7 @@ fun MainScreenContent(
                 text = "My News",
                 onHomeScreen = true,
                 onClick = {
-                    navController.navigate(NavRoutes.AllMyScreen.route + "/news")
+                    navController.navigate(NavRoute.AllMy.name + "/news")
                 }
             )
         }
@@ -342,7 +344,7 @@ fun MainScreenContent(
             SmallNewsTile(
                 news = singleNews,
             ) {
-                navController.navigate(NavRoutes.SingleNewsScreen.route + "/${singleNews.id}")
+                navController.navigate(NavRoute.SingleNews.name + "/${singleNews.id}")
             }
         }
 
@@ -351,7 +353,7 @@ fun MainScreenContent(
                 text = "All News",
                 onHomeScreen = true,
                 onClick = {
-                    navController.navigate(NavRoutes.NewsScreen.route)
+                    navController.navigate(NavRoute.News.name)
                 }
             )
         }
@@ -359,7 +361,7 @@ fun MainScreenContent(
             SmallNewsTile(
                 news = it
             ) {
-                navController.navigate(NavRoutes.SingleNewsScreen.route + "/${it.id}")
+                navController.navigate(NavRoute.SingleNews.name + "/${it.id}")
             }
         }
 
@@ -582,9 +584,9 @@ fun UpcomingEvent(modifier: Modifier = Modifier, upcoming: Event?, onClick: () -
 @Composable
 fun FAB(isExpanded: Boolean, navController: NavController, onClick: () -> Unit) {
     val actions = listOf(
-        Pair("News") { navController.navigate(NavRoutes.CreateNewsScreen.route) },
-        Pair("Event") { navController.navigate(NavRoutes.CreateEvent.route) },
-        Pair("Club") { navController.navigate(NavRoutes.CreateClub.route) }
+        Pair("News") { navController.navigate(NavRoute.CreateNews.name) },
+        Pair("Event") { navController.navigate(NavRoute.CreateEvent.name) },
+        Pair("Club") { navController.navigate(NavRoute.CreateClub.name) }
     )
     Column(
         verticalArrangement = Arrangement.spacedBy(32.dp),

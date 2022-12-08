@@ -50,7 +50,7 @@ class CreateEventViewModel : ViewModel() {
         getSelectedClub(newVal)
     }
     fun getSelectedClub(clubId: String) {
-        firebase.getClub(uid = clubId).get()
+        firebase.getClub(clubId = clubId).get()
             .addOnSuccessListener { data ->
                 val fetchedClub = data.toObject(Club::class.java)
                 fetchedClub?.let { currentlySelectedClub.postValue(fetchedClub) }

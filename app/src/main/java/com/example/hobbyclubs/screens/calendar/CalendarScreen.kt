@@ -27,7 +27,7 @@ import com.example.compose.*
 import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.general.*
-import com.example.hobbyclubs.navigation.NavRoutes
+import com.example.hobbyclubs.navigation.NavRoute
 import io.github.boguszpawlowski.composecalendar.SelectableCalendar
 import io.github.boguszpawlowski.composecalendar.day.DayState
 import io.github.boguszpawlowski.composecalendar.header.MonthState
@@ -230,7 +230,7 @@ fun CalendarScreen(
                             modifier = Modifier.padding(bottom = 8.dp),
                             event = event,
                             onClick = {
-                                navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
+                                navController.navigate(NavRoute.Event.name + "/${event.id}")
                             }, navController = navController
                         )
                     }

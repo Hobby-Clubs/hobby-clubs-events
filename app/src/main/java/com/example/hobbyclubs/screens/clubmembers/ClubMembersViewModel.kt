@@ -33,7 +33,7 @@ class ClubMembersViewModel : ViewModel() {
     }
 
     fun getClub(clubId: String) {
-        firebase.getClub(uid = clubId).addSnapshotListener { data, e ->
+        firebase.getClub(clubId = clubId).addSnapshotListener { data, e ->
             data ?: run {
                 Log.e("FetchClub", "getClubFail: ", e)
                 return@addSnapshotListener
@@ -48,10 +48,7 @@ class ClubMembersViewModel : ViewModel() {
     }
 
     fun promoteToAdmin(clubId: String, userId: String) {
-        val updatedList = selectedClub.value?.admins?.toMutableList()
-        updatedList?.add(userId)
-        firebase.updateUserAdminStatus(clubId = clubId, updatedList!!)
-
+        firebase.updateUserAdminStatus(clubId = clubId, userId = userId)
     }
 
 //    fun removeAdminStatus(clubId: String, userId: String) {

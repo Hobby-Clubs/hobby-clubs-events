@@ -48,7 +48,7 @@ import com.example.hobbyclubs.general.CustomAlertDialog
 import com.example.hobbyclubs.general.CustomOutlinedTextField
 import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.general.Pill
-import com.example.hobbyclubs.navigation.NavRoutes
+import com.example.hobbyclubs.navigation.NavRoute
 import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -794,7 +794,7 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
                                 eventId = eventId
                             )
                             Toast.makeText(context, "Event created.", Toast.LENGTH_SHORT).show()
-                            navController.navigate(NavRoutes.HomeScreen.route)
+                            navController.navigate(NavRoute.Home.name)
                         }
                     },
                     text = "Create Event",

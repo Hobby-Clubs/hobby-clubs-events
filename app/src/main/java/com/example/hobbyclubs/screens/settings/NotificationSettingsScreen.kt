@@ -14,7 +14,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -26,7 +25,6 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -44,8 +42,11 @@ fun NotificationSettingsScreen(
 
     val context = LocalContext.current
     var notificationsAllowed by remember { mutableStateOf(false) }
-    val toggleSettings by vm.toggleSettings.observeAsState(listOf())
-    val hasChanged by vm.hasChanged.observeAsState(false)
+    val settingValues by vm.settingValues.observeAsState(listOf())
+    val retrieved by vm.retrievedSettings.observeAsState(listOf())
+    val hasChanged by remember {
+        derivedStateOf { settingValues != retrieved }
+    }
 
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
@@ -76,7 +77,7 @@ fun NotificationSettingsScreen(
                     ).show()
                     return@SettingsTopBar
                 }
-                vm.onSave(toggleSettings)
+                vm.onSave(settingValues)
                 Toast.makeText(context, "Settings saved", Toast.LENGTH_SHORT).show()
             }
         )
@@ -87,9 +88,9 @@ fun NotificationSettingsScreen(
                 .padding(16.dp),
         ) {
             SettingList(
-                settings = toggleSettings,
+                settings = settingValues,
                 onCheckedChange = { setting, isActive ->
-                    vm.changeSetting(toggleSettings, setting, isActive)
+                    vm.changeSetting(settingValues, setting.name, isActive)
                 }
             )
         }
@@ -115,7 +116,11 @@ fun SettingsTopBar(navController: NavController, showSave: Boolean = false, onSa
 }
 
 @Composable
-fun SettingsSwitchTile(data: NotificationSetting, onCheckedChange: (Boolean) -> Unit) {
+fun SettingsSwitchTile(
+    data: NotificationSetting,
+    isActive: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -130,19 +135,19 @@ fun SettingsSwitchTile(data: NotificationSetting, onCheckedChange: (Boolean) -> 
             Icon(data.icon, null, modifier = Modifier.size(30.dp))
             Text(
                 text = data.title,
-                fontSize = 16.sp,
+                fontSize = 14.sp,
                 modifier = Modifier
                     .weight(1f)
                     .padding(start = 30.dp)
             )
-            Switch(checked = data.isActive, onCheckedChange = onCheckedChange)
+            Switch(checked = isActive, onCheckedChange = onCheckedChange)
         }
     }
 }
 
 @Composable
 fun SettingList(
-    settings: List<NotificationSetting>,
+    settings: List<Pair<String, Boolean>>,
     onCheckedChange: (NotificationSetting, Boolean) -> Unit
 ) {
     LazyColumn(verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -150,90 +155,17 @@ fun SettingList(
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     ClubManagementSectionTitle(text = category.name)
-                    settings
+                    NotificationSetting.values()
                         .filter { it.category == category }
                         .forEach { data ->
                             SettingsSwitchTile(
                                 data = data,
+                                isActive = settings.find { it.first == data.name }?.second ?: false,
                                 onCheckedChange = { onCheckedChange(data, it) })
                         }
                 }
             }
         }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CardDropDown(
-    icon: ImageVector,
-    title: String,
-    expandablePart: @Composable () -> Unit,
-) {
-    var expandedState by remember { mutableStateOf(false) }
-    val rotationState by animateFloatAsState(
-        targetValue = if (expandedState) 180f else 0f
-    )
-    Card(modifier = Modifier
-        .fillMaxWidth()
-        .animateContentSize(
-            animationSpec = tween(
-                durationMillis = 300, easing = LinearOutSlowInEasing
-            )
-        ), onClick = { expandedState = !expandedState }) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 15.dp, vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    icon,
-                    null,
-                    modifier = Modifier.size(30.dp)
-                )
-                Text(
-                    text = title,
-                    fontSize = 16.sp,
-                    modifier = Modifier
-                        .weight(6f)
-                        .padding(start = 30.dp)
-                )
-                Icon(
-                    Icons.Outlined.KeyboardArrowDown,
-                    "arrow down",
-                    modifier = Modifier
-                        .weight(1f)
-                        .size(30.dp)
-                        .rotate(rotationState)
-                        .clickable { expandedState = !expandedState }
-                )
-            }
-        }
-        if (expandedState) {
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(
-                        md_theme_dark_outline
-                    )
-            )
-            expandablePart()
-        }
-    }
-}
-
-@Composable
-fun DropDownTile(text: String, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = text, Modifier.padding(8.dp))
     }
 }
 
@@ -278,34 +210,27 @@ enum class NotificationSetting(
         isActive = false
     ),
     REQUEST_MEMBERSHIP(
-        title = "New membership requests",
+        title = "Membership",
         category = SettingCategory.Requests,
         icon = Icons.Outlined.PersonAdd,
         isActive = false
     ),
-    REQUEST_ACCEPTED(
-        title = "Accepted membership requests",
+    REQUEST_MEMBERSHIP_ACCEPTED(
+        title = "Accepted membership",
+        category = SettingCategory.Requests,
+        icon = Icons.Outlined.Check,
+        isActive = false
+    ),
+    REQUEST_PARTICIPATION(
+        title = "Event participation",
+        category = SettingCategory.Requests,
+        icon = Icons.Outlined.PersonAdd,
+        isActive = false
+    ),
+    REQUEST_PARTICIPATION_ACCEPTED(
+        title = "Accepted participation",
         category = SettingCategory.Requests,
         icon = Icons.Outlined.Check,
         isActive = false
     ),
 }
-
-//@Composable
-//fun DropDownCheckTile(text: String, isChecked: Boolean, onClick: () -> Unit) {
-//    Row(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .clickable { onClick() }
-//            .padding(horizontal = 20.dp),
-//        verticalAlignment = Alignment.CenterVertically
-//    ) {
-//        Icon(
-//            imageVector = Icons.Outlined.CheckCircle,
-//            contentDescription = null,
-//            tint = if (isChecked) joinedColor else Color.Transparent,
-//            modifier = Modifier.padding(end = 16.dp)
-//        )
-//        Text(text = text)
-//    }
-//}

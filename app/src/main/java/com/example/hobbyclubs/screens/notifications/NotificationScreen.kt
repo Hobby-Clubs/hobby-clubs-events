@@ -1,6 +1,5 @@
 package com.example.hobbyclubs.screens.notifications
 
-import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -16,10 +15,8 @@ import androidx.compose.material.FabPosition
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.ClearAll
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.Undo
 import androidx.compose.material3.*
 import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
@@ -40,22 +37,17 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.compose.md_theme_light_primary
-import com.example.hobbyclubs.api.FirebaseHelper
-import com.example.hobbyclubs.api.NotificationInfo
-import com.example.hobbyclubs.api.NotificationType
 import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.general.toString
-import com.example.hobbyclubs.navigation.NavRoutes
+import com.example.hobbyclubs.navigation.NavRoute
 import com.example.hobbyclubs.notifications.NotificationContent
-import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.example.hobbyclubs.screens.settings.NotificationSetting
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-fun NotificationScreen(
+fun NotificationsScreen(
     navController: NavController,
     vm: NotificationScreenViewModel = viewModel()
 ) {
@@ -74,7 +66,7 @@ fun NotificationScreen(
         topBar = {
             NotificationsTopBar(
                 navController = navController,
-                onClickSettings = { navController.navigate(NavRoutes.SettingsScreen.route) })
+                onClickSettings = { navController.navigate(NavRoute.NotificationSettings.route) })
         },
         floatingActionButton = {
             unreads?.let {
@@ -199,7 +191,6 @@ fun NotificationTile(
     val dismissState = rememberDismissState()
 
     if (dismissState.isDismissed(DismissDirection.StartToEnd)) {
-        Log.d("markAsSeen", "NotificationScreen: ${content.id}")
         onDismiss(content.id)
     }
 
@@ -258,8 +249,10 @@ fun NotificationTile(
                         NotificationSetting.EVENT_DAY_REMINDER -> Color.White
                         NotificationSetting.NEWS_GENERAL -> Color.Black
                         NotificationSetting.NEWS_CLUB -> Color.Black
+                        NotificationSetting.REQUEST_PARTICIPATION -> md_theme_light_primary
+                        NotificationSetting.REQUEST_MEMBERSHIP_ACCEPTED -> Color.Green
                         NotificationSetting.REQUEST_MEMBERSHIP -> md_theme_light_primary
-                        NotificationSetting.REQUEST_ACCEPTED -> Color.Green
+                        NotificationSetting.REQUEST_PARTICIPATION_ACCEPTED -> Color.Green
                     }
                     Box(
                         modifier = Modifier
@@ -341,7 +334,7 @@ fun getDateText(notificationDate: Date): String {
         return "Yesterday at $timeString"
     }
     if (timeDiff < weekInMillis) {
-        return "Last $dayOfWeek at $timeString"
+        return "$dayOfWeek at $timeString"
     }
     if (yearNow == yearNotif) {
         return "$dateSameYear at $timeString"

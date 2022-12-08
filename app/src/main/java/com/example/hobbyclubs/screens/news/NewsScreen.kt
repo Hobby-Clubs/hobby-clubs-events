@@ -25,7 +25,7 @@ import coil.compose.AsyncImage
 import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.News
-import com.example.hobbyclubs.navigation.NavRoutes
+import com.example.hobbyclubs.navigation.NavRoute
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -76,7 +76,7 @@ fun Dashboard(newsList: List<News>, navController: NavController) {
                 news = singleNews,
                 vm = NewsViewModel(),
             ) {
-                navController.navigate(NavRoutes.SingleNewsScreen.route + "/${singleNews.id}")
+                navController.navigate(NavRoute.SingleNews.name + "/${singleNews.id}")
             }
         }
     }

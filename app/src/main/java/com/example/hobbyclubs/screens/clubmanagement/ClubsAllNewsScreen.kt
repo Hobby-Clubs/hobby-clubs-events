@@ -18,7 +18,7 @@ import com.example.hobbyclubs.api.News
 import com.example.hobbyclubs.general.CustomAlertDialog
 import com.example.hobbyclubs.general.SmallTileForClubManagement
 import com.example.hobbyclubs.general.TopBarBackButton
-import com.example.hobbyclubs.navigation.NavRoutes
+import com.example.hobbyclubs.navigation.NavRoute
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,7 +53,7 @@ fun ClubAllNewsScreen(
                         list = it,
                         vm = vm,
                         onClick = { newsId ->
-                            navController.navigate(NavRoutes.SingleNewsScreen.route + "/$newsId")
+                            navController.navigate(NavRoute.SingleNews.name + "/$newsId")
                         }
                     )
                 }

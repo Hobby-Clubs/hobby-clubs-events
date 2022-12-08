@@ -42,7 +42,7 @@ import androidx.navigation.NavController
 import com.example.hobbyclubs.general.CustomAlertDialog
 import com.example.hobbyclubs.general.CustomOutlinedTextField
 import com.example.hobbyclubs.general.TopBarBackButton
-import com.example.hobbyclubs.navigation.NavRoutes
+import com.example.hobbyclubs.navigation.NavRoute
 import com.example.hobbyclubs.screens.clubmanagement.EmptySurface
 import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.example.hobbyclubs.screens.create.event.SelectedImageItem
@@ -187,7 +187,7 @@ fun EventManagementScreen(
                         onConfirm = {
                             scope.launch {
                                 vm.deleteEvent(eventId)
-                                navController.navigate(NavRoutes.HomeScreen.route)
+                                navController.navigate(NavRoute.Home.name)
                             }
                         },
                         title = "Delete event",
@@ -247,13 +247,13 @@ fun EventManagementRowItem(text: String, onClick: () -> Unit) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ParticipantsSection(navController: NavController, eventId: String, participantAmount: Int, requestAmount: Int) {
-    Column() {
+    Column {
         EventManagementSectionTitle(text = "Participants")
         Card(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
-            onClick = { navController.navigate(NavRoutes.EventParticipantsScreen.route + "/$eventId") },
+            onClick = { navController.navigate(NavRoute.EventParticipants.name + "/$eventId") },
         ) {
             Row(
                 modifier = Modifier
@@ -282,7 +282,7 @@ fun ParticipantsSection(navController: NavController, eventId: String, participa
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
-            onClick = { navController.navigate(NavRoutes.EventParticipantRequestScreen.route + "/$eventId") },
+            onClick = { navController.navigate(NavRoute.EventParticipantRequest.name + "/$eventId") },
         ) {
             Row(
                 modifier = Modifier

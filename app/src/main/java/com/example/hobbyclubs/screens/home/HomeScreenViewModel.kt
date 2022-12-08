@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -18,8 +17,8 @@ class HomeScreenViewModel : ViewModel() {
         const val TAG = "HomeScreenViewModel"
     }
 
-    var unreadReceiver: BroadcastReceiver? = null
-    val unreadAmount = MutableLiveData<Int>(0)
+    private var unreadReceiver: BroadcastReceiver? = null
+    val unreadAmount = MutableLiveData(0)
     val isFirstTimeUser = MutableLiveData<Boolean>()
     val allClubs = MutableLiveData<List<Club>>()
     val myClubs = Transformations.map(allClubs) { clubs ->
@@ -31,24 +30,9 @@ class HomeScreenViewModel : ViewModel() {
             .filter { event ->
                 event.participants.contains(FirebaseHelper.uid)
                         || event.likers.contains(FirebaseHelper.uid)
+                        || event.admins.contains(FirebaseHelper.uid)
             }
             .sortedBy { it.date }
-    }
-
-    val eventRequests = MutableLiveData<List<EventRequest>>()
-    val hasRequested = Transformations.map(eventRequests) { list ->
-        list.any { it.userId == FirebaseHelper.uid && !it.acceptedStatus }
-    }
-    fun getEventJoinRequests(eventId: String) {
-        FirebaseHelper.getRequestsFromEvent(eventId)
-            .addSnapshotListener { data, error ->
-                data ?: run {
-                    Log.e("getAllRequests", "RequestFetchFail: ", error)
-                    return@addSnapshotListener
-                }
-                val fetchedRequests = data.toObjects(EventRequest::class.java)
-                eventRequests.value = fetchedRequests.filter { !it.acceptedStatus }
-            }
     }
 
     val allNews = MutableLiveData<List<News>>()
@@ -134,7 +118,6 @@ class HomeScreenViewModel : ViewModel() {
         unreadFilter.addAction(InAppNotificationService.NOTIF_UNREAD)
         unreadReceiver = object : BroadcastReceiver() {
             override fun onReceive(p0: Context?, p1: Intent?) {
-                Log.d(TAG, "onReceive: unreads")
                 val unreads = p1?.getParcelableArrayExtra(InAppNotificationService.EXTRA_NOTIF_UNREAD,)
                     ?.map { it as NotificationInfo }
                     ?.filter { !it.readBy.contains(FirebaseHelper.uid) }

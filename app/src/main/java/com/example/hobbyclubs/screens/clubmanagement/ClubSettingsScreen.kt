@@ -10,7 +10,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.NavigateNext
 import androidx.compose.material.rememberModalBottomSheetState
@@ -32,22 +31,18 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
 import com.example.hobbyclubs.general.CustomAlertDialog
 import com.example.hobbyclubs.general.CustomOutlinedTextField
 import com.example.hobbyclubs.general.TopBarBackButton
-import com.example.hobbyclubs.navigation.NavRoutes
+import com.example.hobbyclubs.navigation.NavRoute
 import com.example.hobbyclubs.screens.create.event.SelectedImageItem
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.HorizontalPagerIndicator
-import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun ClubSettingsScreen(
-    navController: NavHostController,
+    navController: NavController,
     clubId: String,
     vm: ClubManagementViewModel = viewModel()
 ) {
@@ -181,7 +176,7 @@ fun ClubSettingsScreen(
                         onConfirm = {
                             scope.launch {
                                 vm.deleteClub(clubId)
-                                navController.navigate(NavRoutes.HomeScreen.route)
+                                navController.navigate(NavRoute.Home.route)
                             }
                         },
                         title = "Delete Club?",

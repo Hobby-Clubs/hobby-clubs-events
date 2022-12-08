@@ -25,7 +25,7 @@ import com.example.hobbyclubs.api.News
 import com.example.hobbyclubs.general.EventTile
 import com.example.hobbyclubs.general.SmallNewsTile
 import com.example.hobbyclubs.general.TopBarBackButton
-import com.example.hobbyclubs.navigation.NavRoutes
+import com.example.hobbyclubs.navigation.NavRoute
 import com.example.hobbyclubs.screens.clubs.ClubTile
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -104,7 +104,7 @@ fun ListOfSelectedType(
         clubs?.let {
             items(it) { club ->
                 ClubTile(club = club) {
-                    navController.navigate(NavRoutes.ClubPageScreen.route + "/${club.ref}")
+                    navController.navigate(NavRoute.ClubPage.name + "/${club.ref}")
                 }
             }
         }
@@ -114,14 +114,14 @@ fun ListOfSelectedType(
                 val hasRequested by vm.hasRequested.observeAsState(false)
 
                 EventTile(event = event, navController = navController) {
-                    navController.navigate(NavRoutes.EventScreen.route + "/${event.id}")
+                    navController.navigate(NavRoute.Event.name + "/${event.id}")
                 }
             }
         }
         news?.let {
             items(it) { singleNews ->
                 SmallNewsTile(news = singleNews) {
-                    navController.navigate(NavRoutes.SingleNewsScreen.route + "/${singleNews.id}")
+                    navController.navigate(NavRoute.SingleNews.name + "/${singleNews.id}")
                 }
             }
         }
