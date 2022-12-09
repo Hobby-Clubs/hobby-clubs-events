@@ -26,7 +26,7 @@ import com.example.hobbyclubs.general.EventTile
 import com.example.hobbyclubs.general.SmallNewsTile
 import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.navigation.NavRoutes
-import com.example.hobbyclubs.screens.clubs.ClubTile
+import com.example.hobbyclubs.general.ClubTile
 
 /**
  * All my screen displays all items of selected types:

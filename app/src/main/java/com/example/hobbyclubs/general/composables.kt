@@ -49,9 +49,6 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.compose.*
 import com.example.hobbyclubs.R
-import com.example.hobbyclubs.api.Event
-import com.example.hobbyclubs.api.FirebaseHelper
-import com.example.hobbyclubs.api.News
 import com.example.hobbyclubs.api.*
 import com.example.hobbyclubs.navigation.BottomBar
 import com.example.hobbyclubs.navigation.NavRoutes
@@ -1267,6 +1264,81 @@ fun SelectPrivacy(
             ) {
                 onClickPrivate()
             }
+        }
+    }
+}
+
+/**
+ * Club tile displays a card that has the logo, banner and name of the club.
+ *
+ * @param modifier [Modifier]
+ * @param club Club object fetched from firebase
+ * @param onClick action to do when tile has been clicked
+ */
+@Composable
+fun ClubTile(
+    modifier: Modifier = Modifier,
+    club: Club,
+    onClick: () -> Unit
+) {
+    // joined the club displayed in tile
+    val isJoined = club.members.contains(FirebaseHelper.uid)
+    Card(
+        modifier = modifier.clickable { onClick() },
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, colorScheme.outlineVariant),
+        colors = CardDefaults.cardColors(colorScheme.surface)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(4.3f),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                AsyncImage(
+                    modifier = Modifier
+                        .size(50.dp)
+                        .aspectRatio(1f)
+                        .clip(CircleShape),
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(club.logoUri)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = "logo",
+                    error = painterResource(id = R.drawable.nokia_logo),
+                    contentScale = ContentScale.Crop
+                )
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = club.name,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 16.sp,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(text = if (isJoined) "Already joined" else "Join now!", fontSize = 14.sp)
+                }
+            }
+            AsyncImage(
+                modifier = Modifier.weight(1f),
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(club.bannerUri)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = "banner",
+                error = painterResource(id = R.drawable.nokia_logo),
+                contentScale = ContentScale.Crop
+            )
         }
     }
 }

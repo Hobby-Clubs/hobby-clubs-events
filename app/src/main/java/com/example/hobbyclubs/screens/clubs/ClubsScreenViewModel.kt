@@ -1,15 +1,16 @@
 package com.example.hobbyclubs.screens.clubs
 
-import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.hobbyclubs.api.Club
-import com.example.hobbyclubs.api.CollectionName
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.User
 import kotlin.math.min
 
+/**
+ * Clubs screen view model handles the functions for displaying suggested and all clubs
+ */
 class ClubsScreenViewModel : ViewModel() {
     companion object {
         const val TAG = "ClubsScreenViewModel"
@@ -24,18 +25,25 @@ class ClubsScreenViewModel : ViewModel() {
         refresh()
     }
 
+    /**
+     * Refresh fetches the clubs again from firebase and creates suggestion list from it
+     */
     fun refresh() {
         isRefreshing.value = true
         getClubs(suggestedAmount = 3)
     }
 
+    /**
+     * Get clubs from firebase and then create suggestion list from it
+     * @param suggestedAmount amount of suggestions shown on clubs page
+     */
     private fun getClubs(suggestedAmount: Int) {
         FirebaseHelper.getCurrentUser()
             .get()
             .addOnSuccessListener {
                 val fetchedUser = it.toObject(User::class.java)
-                fetchedUser?.let { u ->
-                    currentUser.value = u
+                fetchedUser?.let { user ->
+                    currentUser.value = user
                     FirebaseHelper.getAllClubs()
                         .get()
                         .addOnSuccessListener listener@{ clubList ->
@@ -58,15 +66,15 @@ class ClubsScreenViewModel : ViewModel() {
                             }
 
                             suggestedClubs.value =
-                                if (u.interests.isEmpty()) {
+                                if (user.interests.isEmpty()) {
                                     suggestedPool
-                                        .filter { club -> !club.members.contains(u.uid) }
+                                        .filter { club -> !club.members.contains(user.uid) }
                                         .shuffled()
                                         .take(suggestedCount)
                                 } else {
                                     suggestedPool
-                                        .filter { club -> u.interests.contains(club.category) }
-                                        .filter { club -> !club.members.contains(u.uid) }
+                                        .filter { club -> user.interests.contains(club.category) }
+                                        .filter { club -> !club.members.contains(user.uid) }
                                         .shuffled()
                                         .take(suggestedCount)
                                 }
@@ -83,11 +91,5 @@ class ClubsScreenViewModel : ViewModel() {
                 Log.e(TAG, "getCurrentUser: ", error)
                 isRefreshing.postValue(false)
             }
-    }
-
-    fun addMockClubs(amount: Int, club: Club, logoUri: Uri, bannerUri: Uri) {
-        repeat(amount) {
-            FirebaseHelper.addClub(club)
-        }
     }
 }

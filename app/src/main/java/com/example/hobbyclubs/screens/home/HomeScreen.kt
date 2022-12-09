@@ -21,21 +21,16 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.compose.linkBlue
@@ -45,7 +40,7 @@ import com.example.hobbyclubs.general.*
 import com.example.hobbyclubs.navigation.NavRoutes
 import com.example.hobbyclubs.notifications.InAppNotificationHelper
 import com.example.hobbyclubs.notifications.InAppNotificationService
-import com.example.hobbyclubs.screens.clubs.ClubTile
+import com.example.hobbyclubs.general.ClubTile
 import java.text.SimpleDateFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
