@@ -18,6 +18,14 @@ import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.general.*
 import com.example.hobbyclubs.navigation.NavRoutes
 
+/**
+ * Club all events screen displays all the events of the club.
+ * You are able to delete events from this screen.
+ *
+ * @param navController for Compose navigation
+ * @param vm [ClubManagementViewModel]
+ * @param clubId UID for the club you have selected on home or club screen
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClubAllEventsScreen(
@@ -28,6 +36,7 @@ fun ClubAllEventsScreen(
     val club by vm.selectedClub.observeAsState(null)
     val listOfEvents by vm.listOfEvents.observeAsState(null)
 
+    // fetch club data
     LaunchedEffect(Unit) {
         vm.getClub(clubId)
         vm.getClubEvents(clubId)
@@ -67,6 +76,13 @@ fun ClubAllEventsScreen(
     }
 }
 
+/**
+ * List of events displays a list of selected clubs events that are deletable
+ *
+ * @param list List of Event objects
+ * @param vm [ClubManagementViewModel]
+ * @param onClick action to do when user taps on the card instead of the delete button. Used for navigation.
+ */
 @Composable
 fun ListOfEvents(list: List<Event>, vm: ClubManagementViewModel, onClick: (String) -> Unit) {
     var showDeleteDialog by remember { mutableStateOf(false) }

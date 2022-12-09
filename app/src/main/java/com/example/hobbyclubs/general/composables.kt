@@ -4,13 +4,12 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,6 +29,7 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -39,11 +39,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.compose.*
 import com.example.hobbyclubs.R
@@ -480,7 +482,7 @@ fun EventTile(
                     .fillMaxWidth()
                     .aspectRatio(3.07f)
             ) {
-                val uris = if(event.bannerUris.isEmpty()) null else event.bannerUris.first()
+                val uris = if (event.bannerUris.isEmpty()) null else event.bannerUris.first()
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(uris)
@@ -1105,4 +1107,166 @@ fun CreationPageSubtitle(modifier: Modifier = Modifier, text: String) {
         fontWeight = FontWeight.SemiBold,
         modifier = modifier
     )
+}
+
+/**
+ * Page progression displays the current status on the creation pages. Supports 4 horizontal
+ * bars that get filled with color corresponding to which page you are on.
+ *
+ * @param numberOfLines The amount of lines you want to display as filled, maximum 4
+ * @param onClick1 changes page to 1
+ * @param onClick2 changes page to 2
+ * @param onClick3 changes page to 3
+ * @param onClick4 changes page to 4
+ */
+@Composable
+fun PageProgression(
+    numberOfLines: Int,
+    onClick1: () -> Unit,
+    onClick2: () -> Unit,
+    onClick3: () -> Unit,
+    onClick4: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(5.dp), horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        ProgressionBar(isMarked = numberOfLines >= 1, onClick = { onClick1() })
+        ProgressionBar(isMarked = numberOfLines > 1, onClick = { onClick2() })
+        ProgressionBar(isMarked = numberOfLines > 2, onClick = { onClick3() })
+        ProgressionBar(isMarked = numberOfLines > 3, onClick = { onClick4() })
+    }
+}
+
+/**
+ * Progression bar that is used in [PageProgression]
+ * @param isMarked if true bar is filled with primary color else show light gray
+ * @param onClick action to do when bar is clicked.
+ */
+@Composable
+fun ProgressionBar(isMarked: Boolean, onClick: () -> Unit) {
+    val screenWidth = LocalConfiguration.current.screenWidthDp
+    Box(modifier = Modifier
+        .width((screenWidth * 0.21).dp)
+        .height(13.dp)
+        .clip(RoundedCornerShape(20.dp))
+        .background(color = if (isMarked) colorScheme.primary else colorScheme.surfaceVariant)
+        .clickable { onClick() }
+    )
+}
+
+/**
+ * Selected image item displays an image on the screen. It receives either Bitmap or a Uri.
+ * @param bitmap The bitmap of an image wanted to be shown on screen
+ * @param uri The uri of an image wanted to be shown on screen
+ */
+@Composable
+fun SelectedImageItem(bitmap: Bitmap? = null, uri: Uri? = null) {
+    if (bitmap != null) {
+        Image(
+            bitmap = bitmap.asImageBitmap(),
+            contentDescription = null,
+            modifier = Modifier.height(100.dp),
+            contentScale = ContentScale.FillHeight
+        )
+    }
+    if (uri != null) {
+        Image(
+            painter = rememberAsyncImagePainter(uri),
+            contentDescription = null,
+            modifier = Modifier.height(100.dp),
+            contentScale = ContentScale.FillHeight
+        )
+    }
+}
+
+/**
+ * Club selection dropdown menu for selecting your joined clubs.
+ * @param clubList list of clubs you have joined
+ * @param onSelect action what happens when user selects the club on the dropdown menu
+ */
+@Composable
+fun ClubSelectionDropdownMenu(clubList: List<Club>, onSelect: (Club) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    var selectedIndex: Int? by remember { mutableStateOf(null) }
+
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .clickable { expanded = true }
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
+                .border(BorderStroke(1.dp, Color.Black))
+                .padding(horizontal = 15.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = if (selectedIndex != null) clubList[selectedIndex!!].name else "Select Club",
+                    modifier = Modifier.weight(6f),
+                    textAlign = TextAlign.Start
+                )
+                Icon(Icons.Outlined.KeyboardArrowDown, null, modifier = Modifier.weight(1f))
+            }
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .background(colorScheme.surface)
+        ) {
+            clubList.forEachIndexed { index, club ->
+                DropdownMenuItem(
+                    text = { Text(text = club.name) },
+                    onClick = {
+                        selectedIndex = index
+                        onSelect(club)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Select privacy in either club or event creation.
+ *
+ * @param selectedPublic when user has tapped on public this will be true otherwise false
+ * @param selectedPrivate when user has tapped on private this will be true otherwise false
+ * @param onClickPublic action to do when user pressed public button
+ * @param onClickPrivate action to do when user pressed private button
+ */
+@Composable
+fun SelectPrivacy(
+    selectedPublic: Boolean,
+    selectedPrivate: Boolean,
+    onClickPublic: () -> Unit,
+    onClickPrivate: () -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = "Privacy",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(bottom = 20.dp)
+        )
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Pill(modifier = Modifier.weight(1f), isSelected = selectedPublic, text = "Public") {
+                onClickPublic()
+            }
+            Pill(
+                modifier = Modifier.weight(1f),
+                isLeft = false,
+                isSelected = selectedPrivate,
+                text = "Private"
+            ) {
+                onClickPrivate()
+            }
+        }
+    }
 }

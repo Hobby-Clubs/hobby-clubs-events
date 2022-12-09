@@ -7,7 +7,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.hobbyclubs.api.*
 import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.ktx.toObjects
 import java.util.*
 
 /**
@@ -43,8 +42,8 @@ class CreateEventViewModel : ViewModel() {
     val givenLinksLiveData = MutableLiveData<Map<String, String>>(mapOf())
 
     // for event privacy
-    val leftSelected = MutableLiveData<Boolean>()
-    val rightSelected = MutableLiveData<Boolean>()
+    val publicSelected = MutableLiveData<Boolean>()
+    val privateSelected = MutableLiveData<Boolean>()
     val eventIsPrivate = MutableLiveData<Boolean>()
 
     init {
@@ -81,8 +80,8 @@ class CreateEventViewModel : ViewModel() {
      * @param rightVal Boolean for private selected
      */
     fun updateEventPrivacySelection(leftVal: Boolean, rightVal: Boolean) {
-        leftSelected.value = leftVal
-        rightSelected.value = rightVal
+        publicSelected.value = leftVal
+        privateSelected.value = rightVal
         eventIsPrivate.value = rightVal
     }
 
@@ -205,15 +204,6 @@ class CreateEventViewModel : ViewModel() {
      */
     fun addEvent(event: Event): String {
         return firebase.addEvent(event)
-    }
-
-    /**
-     * Add new event notif
-     *
-     * @param event
-     */
-    fun addNewEventNotif(event: Event) {
-        FirebaseHelper.addNewEventNotif(eventId = event.id, clubId = event.clubId)
     }
 
     // for storing multiple images with different name

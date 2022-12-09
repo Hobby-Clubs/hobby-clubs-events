@@ -39,7 +39,7 @@ import com.example.hobbyclubs.api.News
 import com.example.hobbyclubs.general.CustomOutlinedTextField
 import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.general.CustomButton
-import com.example.hobbyclubs.screens.create.event.SelectedImageItem
+import com.example.hobbyclubs.general.SelectedImageItem
 import com.google.firebase.firestore.FieldValue
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
