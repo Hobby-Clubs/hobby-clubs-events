@@ -140,6 +140,16 @@ class ClubManagementViewModel() : ViewModel() {
     }
 
     /**
+     * Remove selected image
+     * @param banner if banner should be removed
+     * @param logo if logo should be removed
+     */
+    fun removeSelectedImage(banner: Boolean = false, logo: Boolean = false) {
+        if (banner) selectedBannerImage.value = null
+        if (logo) selectedClubLogo.value = null
+    }
+
+    /**
      * Replace club images on firebase storage. Adds pictures to firebase after creation of club.
      * @param bannerUri uri of image selected from gallery for banner
      * @param logoUri uri of image selected from gallery for logo

@@ -228,12 +228,12 @@ fun ClubCreationPage2(vm: CreateClubViewModel) {
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(bottom = 10.dp)
                     )
-                    if (selectedLogo != null) {
-                        SelectedImageItem(uri = selectedLogo)
-                    } else {
-                        // just to take the space that the image would take height-wise
-                        Box(modifier = Modifier.size(100.dp))
-                    }
+                    selectedLogo?.let {
+                        SelectedImageItem(
+                            uri = selectedLogo,
+                            onDelete = { vm.removeSelectedImage(logo = true) })
+                    } ?: Box(modifier = Modifier.size(110.dp))
+                    // just to take the space that the image would take height-wise
                 }
             }
             Column(modifier = Modifier.fillMaxWidth()) {
@@ -257,11 +257,11 @@ fun ClubCreationPage2(vm: CreateClubViewModel) {
                         text = "Saved images",
                         modifier = Modifier.padding(bottom = 20.dp)
                     )
-                    if (selectedBanner != null) {
-                        SelectedImageItem(uri = selectedBanner)
-                    } else {
-                        Box(modifier = Modifier.size(100.dp))
-                    }
+                    selectedBanner?.let {
+                        SelectedImageItem(
+                            uri = selectedBanner,
+                            onDelete = { vm.removeSelectedImage(banner = true) })
+                    } ?: Box(modifier = Modifier.size(100.dp))
                 }
             }
         }

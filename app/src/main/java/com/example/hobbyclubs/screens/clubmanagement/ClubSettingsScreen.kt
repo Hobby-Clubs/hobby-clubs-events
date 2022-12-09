@@ -85,7 +85,7 @@ fun ClubSettingsScreen(
             }
         }
         club?.let { club ->
-            Scaffold() {
+            Scaffold {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -276,7 +276,7 @@ fun NameAndDescriptionSheet(vm: ClubManagementViewModel, clubId: String, onSave:
                 .padding(20.dp),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            Column() {
+            Column {
                 CreationPageTitle(
                     text = "Edit Name and Description",
                     modifier = Modifier.padding(bottom = 20.dp)
@@ -382,11 +382,9 @@ fun LogoAndBannerSheet(vm: ClubManagementViewModel, clubId: String, onSave: () -
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.padding(bottom = 10.dp)
                         )
-                        if (selectedLogo != null) {
-                            SelectedImageItem(uri = selectedLogo)
-                        } else {
-                            Box(modifier = Modifier.size(100.dp))
-                        }
+                        selectedLogo?.let {
+                            SelectedImageItem(uri = it, onDelete = { vm.removeSelectedImage(logo = true) })
+                        } ?:  Box(modifier = Modifier.size(110.dp))
                     }
                 }
                 Column(modifier = Modifier.fillMaxWidth()) {
@@ -405,15 +403,10 @@ fun LogoAndBannerSheet(vm: ClubManagementViewModel, clubId: String, onSave: () -
                             .fillMaxWidth()
                             .padding(vertical = 20.dp)
                     ) {
-                        Text(
-                            text = "Saved images",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier.padding(bottom = 20.dp)
-                        )
+                        CreationPageSubtitle(text = "Saved images", modifier = Modifier.padding(bottom = 20.dp))
                         selectedImage?.let { uri ->
-                            SelectedImageItem(uri = uri)
-                        } ?: Box(modifier = Modifier.size(100.dp))
+                            SelectedImageItem(uri = uri, onDelete = { vm.removeSelectedImage(banner = true) })
+                        } ?: Box(modifier = Modifier.size(110.dp))
                     }
                 }
             }
@@ -467,7 +460,7 @@ fun SocialLinksSheet(vm: ClubManagementViewModel, clubId: String, onSave: () -> 
                 .padding(20.dp),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            Column() {
+            Column {
                 CreationPageTitle(text = "Add social media links")
                 Text(
                     text = "Give people your community links (eg. Facebook, Discord, Twitter)",
@@ -580,8 +573,7 @@ fun ContactInfoSheet(vm: ClubManagementViewModel, clubId: String, onSave: () -> 
                 .padding(20.dp),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            Column(
-            ) {
+            Column {
                 CreationPageTitle(text = "Contact Information")
                 Text(
                     text = "Provide members a way to contact you directly",

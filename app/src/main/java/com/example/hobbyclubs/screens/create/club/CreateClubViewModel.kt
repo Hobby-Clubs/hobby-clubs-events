@@ -191,6 +191,16 @@ class CreateClubViewModel : ViewModel() {
     }
 
     /**
+     * Remove selected image
+     * @param banner if banner should be removed
+     * @param logo if logo should be removed
+     */
+    fun removeSelectedImage(banner: Boolean = false, logo: Boolean = false) {
+        if (banner) selectedBannerImage.value = null
+        if (logo) selectedClubLogo.value = null
+    }
+
+    /**
      * Get current users data from firebase
      */
     fun getCurrentUser() {

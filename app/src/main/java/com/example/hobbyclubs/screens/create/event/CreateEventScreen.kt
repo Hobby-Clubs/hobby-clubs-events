@@ -347,7 +347,7 @@ fun EventCreationPage1(vm: CreateEventViewModel) {
 @Composable
 fun EventCreationPage2(vm: CreateEventViewModel) {
 
-    val selectedImages by vm.selectedImages.observeAsState(mutableListOf())
+    val selectedImages by vm.selectedImages.observeAsState(null)
     var showImagePreview by remember { mutableStateOf(false) }
 
     // Launcher for selecting images from devices storage.
@@ -377,25 +377,26 @@ fun EventCreationPage2(vm: CreateEventViewModel) {
         ) {
             CreationPageSubtitle(text = "Saved images", modifier = Modifier.padding(bottom = 20.dp))
             val pagerState = rememberPagerState()
-            if (selectedImages.isNotEmpty()) {
+            selectedImages?.let {
                 HorizontalPager(
-                    count = selectedImages.size,
+                    count = it.size,
                     state = pagerState,
                     itemSpacing = 10.dp,
                     contentPadding = PaddingValues(end = 150.dp)
-                ) { page -> SelectedImageItem(uri = selectedImages[page]) }
-
-                HorizontalPagerIndicator(
-                    pagerState = pagerState,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(16.dp),
-                )
-            } else {
-                // just to take the space that the image would take height-wise
-                Box(modifier = Modifier.size(150.dp))
-            }
-
+                ) { page ->
+                    SelectedImageItem(
+                        uri = it[page],
+                        onDelete = { vm.removeImageFromList(uri = it[page]) })
+                }
+                if (it.size > 1) {
+                    HorizontalPagerIndicator(
+                        pagerState = pagerState,
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .padding(16.dp),
+                    )
+                }
+            } ?: Box(modifier = Modifier.size(150.dp))
         }
         Spacer(modifier = Modifier.weight(1f))
         Column() {

@@ -2,7 +2,6 @@ package com.example.hobbyclubs.screens.eventmanagement
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.util.Log
 import android.widget.DatePicker
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -685,7 +684,7 @@ fun SocialsSheet(vm: EventManagementViewModel, eventId: String, onSave:() -> Uni
 @Composable
 fun ImagesSheet(vm: EventManagementViewModel, eventId: String, onSave:() -> Unit) {
     val screenHeight = LocalConfiguration.current.screenHeightDp
-    val selectedImages by vm.selectedBannerImages.observeAsState(mutableListOf())
+    val selectedImages by vm.selectedBannerImages.observeAsState(null)
     var showImagesPreview by remember { mutableStateOf(false) }
     val galleryLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uriList ->
@@ -727,17 +726,16 @@ fun ImagesSheet(vm: EventManagementViewModel, eventId: String, onSave:() -> Unit
                         modifier = Modifier.padding(bottom = 20.dp)
                     )
                     val pagerState = rememberPagerState()
-                    if (selectedImages.isNotEmpty()) {
+                    selectedImages?.let {
                         HorizontalPager(
-                            count = selectedImages.size,
+                            count = it.size,
                             state = pagerState,
                             itemSpacing = 10.dp,
                             contentPadding = PaddingValues(end = 200.dp)
                         ) { page ->
-                            Log.d("imageList", "page: $page, index: ${selectedImages[page]}")
-                            SelectedImageItem(uri = selectedImages[page])
+                            SelectedImageItem(uri = it[page], onDelete = {vm.removeImageFromList(it[page])})
                         }
-                        if (selectedImages.size > 1) {
+                        if (it.size > 1) {
                             HorizontalPagerIndicator(
                                 pagerState = pagerState,
                                 modifier = Modifier
@@ -745,24 +743,21 @@ fun ImagesSheet(vm: EventManagementViewModel, eventId: String, onSave:() -> Unit
                                     .padding(16.dp),
                             )
                         }
-                    } else {
-                        Box(modifier = Modifier.size(100.dp))
-                    }
+                    } ?: Box(modifier = Modifier.size(110.dp))
                 }
             }
         }
         CustomButton(
             onClick = {
-                if (selectedImages.isNotEmpty()) {
+                selectedImages?.let {
                     vm.replaceEventImages(
                         eventId = eventId,
-                        newImages = selectedImages,
+                        newImages = it,
                     )
                     onSave()
-                } else
-                    Toast
-                        .makeText(context, "Select images first", Toast.LENGTH_SHORT)
-                        .show()
+                } ?: Toast
+                    .makeText(context, "Select images first", Toast.LENGTH_SHORT)
+                    .show()
             },
             text = "Save",
             modifier = Modifier

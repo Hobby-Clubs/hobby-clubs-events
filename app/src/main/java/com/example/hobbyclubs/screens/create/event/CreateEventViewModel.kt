@@ -29,7 +29,7 @@ class CreateEventViewModel : ViewModel() {
     val eventLocation = MutableLiveData<TextFieldValue>()
     val eventParticipantLimit = MutableLiveData<TextFieldValue>()
     val selectedDate = MutableLiveData<Date>()
-    val selectedImages = MutableLiveData<MutableList<Uri>>()
+    val selectedImages = MutableLiveData<List<Uri>?>()
 
     // contact information
     val contactInfoName = MutableLiveData<TextFieldValue>()
@@ -238,6 +238,18 @@ class CreateEventViewModel : ViewModel() {
      */
     fun temporarilyStoreImages(images: MutableList<Uri>) {
         selectedImages.value = images
+    }
+
+    /**
+     * Remove image from selected images list
+     * @param uri uri to remove from list
+     */
+    fun removeImageFromList(uri: Uri) {
+        val tempList =  selectedImages.value?.toMutableList()
+        tempList?.let {
+            it.remove(uri)
+            if (it.isEmpty()) selectedImages.value = null else selectedImages.value = it.toList()
+        }
     }
 
     /**

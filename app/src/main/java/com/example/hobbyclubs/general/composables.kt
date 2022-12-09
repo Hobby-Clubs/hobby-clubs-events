@@ -4,7 +4,6 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -29,7 +28,6 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -1155,26 +1153,30 @@ fun ProgressionBar(isMarked: Boolean, onClick: () -> Unit) {
 
 /**
  * Selected image item displays an image on the screen. It receives either Bitmap or a Uri.
- * @param bitmap The bitmap of an image wanted to be shown on screen
  * @param uri The uri of an image wanted to be shown on screen
+ * @param onDelete Action done when delete is pressed
  */
 @Composable
-fun SelectedImageItem(bitmap: Bitmap? = null, uri: Uri? = null) {
-    if (bitmap != null) {
-        Image(
-            bitmap = bitmap.asImageBitmap(),
-            contentDescription = null,
-            modifier = Modifier.height(100.dp),
-            contentScale = ContentScale.FillHeight
-        )
-    }
+fun SelectedImageItem(uri: Uri? = null, onDelete: () -> Unit) {
     if (uri != null) {
-        Image(
-            painter = rememberAsyncImagePainter(uri),
-            contentDescription = null,
-            modifier = Modifier.height(100.dp),
-            contentScale = ContentScale.FillHeight
-        )
+        Box(modifier = Modifier.height(110.dp).width(200.dp)) {
+            Image(
+                painter = rememberAsyncImagePainter(uri),
+                contentDescription = null,
+                modifier = Modifier.height(100.dp).width(180.dp).align(Alignment.BottomCenter),
+                contentScale = ContentScale.Crop
+            )
+            Card(
+                modifier = Modifier.align(Alignment.TopEnd).clickable { onDelete() },
+                shape = CircleShape,
+                colors = CardDefaults.cardColors(colorScheme.error)
+            ) {
+                Box(modifier = Modifier.size(20.dp), contentAlignment = Alignment.Center) {
+                    Icon(Icons.Outlined.Close, null)
+                }
+
+            }
+        }
     }
 }
 

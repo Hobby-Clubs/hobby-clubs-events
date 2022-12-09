@@ -36,10 +36,7 @@ import coil.compose.AsyncImage
 import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.News
-import com.example.hobbyclubs.general.CustomOutlinedTextField
-import com.example.hobbyclubs.general.TopBarBackButton
-import com.example.hobbyclubs.general.CustomButton
-import com.example.hobbyclubs.general.SelectedImageItem
+import com.example.hobbyclubs.general.*
 import com.google.firebase.firestore.FieldValue
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -83,15 +80,15 @@ fun SingleNewsScreen(
             vm.getCurrentUser()
         }
         hasRead?.let {
-        LaunchedEffect(it) {
-            Log.d("hasread", "SingleNewsScreen: $it ")
-            if (!it) {
-                val changeMap = mapOf(
-                    Pair("usersRead", FieldValue.arrayUnion(FirebaseHelper.uid))
-                )
-                vm.updateNews(newsId, changeMap)
+            LaunchedEffect(it) {
+                Log.d("hasread", "SingleNewsScreen: $it ")
+                if (!it) {
+                    val changeMap = mapOf(
+                        Pair("usersRead", FieldValue.arrayUnion(FirebaseHelper.uid))
+                    )
+                    vm.updateNews(newsId, changeMap)
+                }
             }
-        }
         }
         LaunchedEffect(news) {
             news?.let {
@@ -168,12 +165,7 @@ fun EditNewsSheet(vm: SingleScreenViewModel, newsId: String, onSave: () -> Unit)
                 .padding(20.dp)
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
-                Text(
-                    text = "Edit News",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(bottom = 20.dp)
-                )
+                CreationPageTitle(text = "Edit News", modifier = Modifier.padding(bottom = 20.dp))
                 CustomOutlinedTextField(
                     value = headline ?: TextFieldValue(""),
                     onValueChange = { vm.updateHeadline(it) },
@@ -196,12 +188,7 @@ fun EditNewsSheet(vm: SingleScreenViewModel, newsId: String, onSave: () -> Unit)
                         .fillMaxWidth()
                 )
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        text = "Change news image",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(bottom = 10.dp)
-                    )
+                    CreationPageTitle(text = "Change news image", modifier = Modifier.padding(bottom = 10.dp, top = 20.dp))
                     CustomButton(
                         onClick = { newsImageGallery.launch("image/*") },
                         text = "Choose banner from gallery",
@@ -214,17 +201,15 @@ fun EditNewsSheet(vm: SingleScreenViewModel, newsId: String, onSave: () -> Unit)
                             .fillMaxWidth()
                             .padding(vertical = 10.dp)
                     ) {
-                        Text(
+                        CreationPageSubtitle(
                             text = "Saved image",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.padding(bottom = 10.dp)
                         )
-                        if (selectedImage != null) {
-                            SelectedImageItem(uri = selectedImage)
-                        } else {
-                            Box(modifier = Modifier.size(100.dp))
-                        }
+                        selectedImage?.let {
+                            SelectedImageItem(
+                                uri = selectedImage,
+                                onDelete = { vm.removeSelectedImage() })
+                        } ?: Box(modifier = Modifier.size(110.dp))
                     }
                 }
             }

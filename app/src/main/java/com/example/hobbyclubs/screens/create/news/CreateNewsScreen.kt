@@ -270,7 +270,7 @@ fun ImagePicker(modifier: Modifier = Modifier, vm: CreateNewsViewModel) {
 
         CustomButton(
             onClick = { galleryLauncher.launch("image/*") },
-            text = "Add Image",
+            text = if (selectedImage != null) "Reselect Image" else "Add Image",
             modifier = Modifier
                 .wrapContentSize()
                 .padding(10.dp)
