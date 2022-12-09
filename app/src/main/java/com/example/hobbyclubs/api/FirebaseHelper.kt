@@ -835,7 +835,7 @@ object FirebaseHelper {
      * @param path of the directory
      * @return a task to get all the files in the directory
      */
-    fun getAllFiles(path: String): Task<ListResult> {
+    private fun getAllFiles(path: String): Task<ListResult> {
         return storage.reference.child(path).listAll()
     }
 }
@@ -958,7 +958,7 @@ data class Club(
  * @property admins list of event admins
  * @property participants list of participants
  * @property likers list of users who liked the event
- * @property bannerUris uri of event banner picture
+ * @property bannerUris uris of event banner pictures
  */
 @Parcelize
 data class Event(

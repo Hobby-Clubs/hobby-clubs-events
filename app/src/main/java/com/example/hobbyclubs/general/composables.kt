@@ -63,6 +63,14 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * TopAppBar which contains a burger menu and potentially a search bar and/or a notification button.
+ * The burger menu opens a side drawer menu.
+ *
+ * @param drawerState
+ * @param searchBar
+ * @param notificationsIcon
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MenuTopBar(
@@ -94,6 +102,14 @@ fun MenuTopBar(
     }
 }
 
+/**
+ * Search bar contained in the MenuTopBar
+ *
+ * @param modifier
+ * @param input
+ * @param onTextChange
+ * @param onCancel
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopSearchBar(
@@ -128,6 +144,11 @@ fun TopSearchBar(
     }
 }
 
+/**
+ * Button contained in the MenuTopBar, which opens the side menu drawer
+ *
+ * @param onClick
+ */
 @Composable
 fun BurgerMenuButton(onClick: () -> Unit) {
     Box(
@@ -144,7 +165,15 @@ fun BurgerMenuButton(onClick: () -> Unit) {
     }
 }
 
-
+/**
+ * Container for a screen which requires a side menu drawer
+ *
+ * @param navController
+ * @param drawerState
+ * @param fab
+ * @param topBar
+ * @param content
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DrawerScreen(
@@ -155,9 +184,6 @@ fun DrawerScreen(
     content: @Composable () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
-    val selectedItem by remember {
-        mutableStateOf(0)
-    }
     ModalNavigationDrawer(
         modifier = Modifier.fillMaxSize(),
         drawerState = drawerState,
@@ -190,6 +216,14 @@ fun DrawerScreen(
     }
 }
 
+/**
+ * Content of the side menu drawer which in reality should be the side menu of the whole
+ * MyCampus app
+ *
+ * @param navToFirstTime
+ * @param logout
+ * @param onClick
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MockDrawerContent(navToFirstTime: () -> Unit, logout: () -> Unit, onClick: () -> Unit) {
@@ -209,6 +243,8 @@ fun MockDrawerContent(navToFirstTime: () -> Unit, logout: () -> Unit, onClick: (
                 modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
             )
         }
+
+        // To set different interests in terms of club categories
         NavigationDrawerItem(
             label = { Text(text = "First time") },
             selected = false,
@@ -216,6 +252,7 @@ fun MockDrawerContent(navToFirstTime: () -> Unit, logout: () -> Unit, onClick: (
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
 
+        // To logout
         NavigationDrawerItem(
             label = { Text(text = "Logout") },
             selected = false,
@@ -223,6 +260,7 @@ fun MockDrawerContent(navToFirstTime: () -> Unit, logout: () -> Unit, onClick: (
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
 
+        // Test for event reminder notifications
         NavigationDrawerItem(
             label = { Text(text = "Test alarm") },
             selected = false,
@@ -257,6 +295,15 @@ fun MockDrawerContent(navToFirstTime: () -> Unit, logout: () -> Unit, onClick: (
     }
 }
 
+/**
+ * Header title for the subsections of the main lazy columns of the app (HomeScreen and ClubsScreen)
+ *
+ * @param modifier
+ * @param text
+ * @param onHomeScreen
+ * @param onClick
+ * @receiver
+ */
 @Composable
 fun LazyColumnHeader(modifier: Modifier = Modifier, text: String, onHomeScreen: Boolean = false, onClick: () -> Unit = {}) {
     Box(
@@ -285,6 +332,11 @@ fun LazyColumnHeader(modifier: Modifier = Modifier, text: String, onHomeScreen: 
     }
 }
 
+/**
+ * Standard back navigation button
+ *
+ * @param navController
+ */
 @Composable
 fun TopBarBackButton(navController: NavController) {
     Card(
@@ -312,6 +364,14 @@ fun TopBarBackButton(navController: NavController) {
     }
 }
 
+/**
+ * Picker for profile picture in the registration process.
+ * Opens a gallery and then shows the picked picture
+ *
+ * @param modifier
+ * @param uri
+ * @param onPick
+ */
 @Composable
 fun PicturePicker(modifier: Modifier = Modifier, uri: Uri?, onPick: (Uri) -> Unit) {
     val launcher = rememberLauncherForActivityResult(
@@ -339,6 +399,15 @@ fun PicturePicker(modifier: Modifier = Modifier, uri: Uri?, onPick: (Uri) -> Uni
     }
 }
 
+/**
+ * Switch button which toggles between two values
+ *
+ * @param modifier
+ * @param isFirstSelected
+ * @param onChange
+ * @param firstText
+ * @param secondText
+ */
 @Composable
 fun SwitchPill(
     modifier: Modifier = Modifier,
@@ -362,6 +431,15 @@ fun SwitchPill(
     }
 }
 
+/**
+ * Part of a SwitchPill
+ *
+ * @param modifier
+ * @param isLeft
+ * @param isSelected
+ * @param text
+ * @param onClick
+ */
 @Composable
 fun Pill(
     modifier: Modifier = Modifier,
@@ -391,6 +469,10 @@ fun Pill(
     }
 }
 
+/**
+ * Simple divider line for sections (e.g ClubPageScreen or EventScreen)
+ *
+ */
 @Composable
 fun DividerLine() {
     Box(
@@ -432,6 +514,15 @@ fun CustomOutlinedTextField(
     )
 }
 
+/**
+ * Represents an event with its name, banner picture, date, time and number of participants.
+ * The user can interact with it to navigate to the relevant EventScreen, join an event or like it
+ *
+ * @param navController
+ * @param modifier
+ * @param event
+ * @param onClick
+ */
 @Composable
 fun EventTile(
     navController: NavController,
@@ -472,11 +563,8 @@ fun EventTile(
                     .fillMaxWidth()
                     .aspectRatio(3.07f)
             ) {
-                val data = if (event.bannerUris.isNotEmpty()) {
-                    event.bannerUris.first()
-                } else {
-                    null
-                }
+                val hasBanner = event.bannerUris.isNotEmpty()
+                val data = if (hasBanner) event.bannerUris.first() else null
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(data)
@@ -510,7 +598,7 @@ fun EventTile(
                                                 Toast.LENGTH_SHORT
                                             ).show()
                                         } else if (event.isPrivate && event.participants.size < event.participantLimit && !event.admins.contains(FirebaseHelper.uid)) {
-                                            createEventRequest(event, context)
+                                            createEventRequest(event)
                                             refreshStatus()
                                         } else if (event.participants.size < event.participantLimit){
                                             joinEvent(event, context)
@@ -524,7 +612,7 @@ fun EventTile(
                                     }
                                     else {
                                         if(!hasRequested && event.isPrivate && !event.admins.contains(FirebaseHelper.uid)) {
-                                            createEventRequest(event, context)
+                                            createEventRequest(event)
                                             refreshStatus()
                                         } else {
                                             joinEvent(event, context)
@@ -541,7 +629,7 @@ fun EventTile(
 
                         Spacer(modifier = Modifier.width(10.dp))
                         if(event.admins.contains(FirebaseHelper.uid)) {
-                            ManageEventButton() {
+                            ManageEventButton {
                                 navController.navigate(NavRoute.EventManagement.name + "/${event.id}")
                             }
                         }
@@ -601,6 +689,16 @@ fun EventTile(
     }
 }
 
+/**
+ * Button to join or leave an event. Part of EventTile
+ *
+ * @param modifier
+ * @param isJoined
+ * @param isPrivate
+ * @param requested
+ * @param onJoinEvent
+ * @param onLeaveEvent
+ */
 @Composable
 fun JoinEventButton(
     modifier: Modifier = Modifier,
@@ -619,8 +717,7 @@ fun JoinEventButton(
         if(requested) {
             icon = Icons.Outlined.Pending
             text = "Pending.."
-        }
-        else if(isPrivate) {
+        } else if(isPrivate) {
             icon = Icons.Outlined.PersonAddAlt
             text = "Request to join"
         } else {
@@ -681,6 +778,12 @@ fun JoinEventButton(
     }
 }
 
+/**
+ * Button for an event admin to access the EventManagementScreen
+ *
+ * @param modifier
+ * @param onClick
+ */
 @Composable
 fun ManageEventButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
     Card(
@@ -715,6 +818,14 @@ fun ManageEventButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
     }
 }
 
+/**
+ * Button to like or unlike and event. Part of EventTile
+ *
+ * @param modifier
+ * @param isLiked
+ * @param onClick
+ * @receiver
+ */
 @Composable
 fun LikeEventButton(modifier: Modifier = Modifier, isLiked: Boolean, onClick: () -> Unit) {
     val icon = if (isLiked) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder
@@ -735,6 +846,14 @@ fun LikeEventButton(modifier: Modifier = Modifier, isLiked: Boolean, onClick: ()
     }
 }
 
+/**
+ * Items at the bottom of an EvenTile
+ *
+ * @param modifier
+ * @param icon
+ * @param iconDesc
+ * @param content
+ */
 @Composable
 fun EventTileRowItem(
     modifier: Modifier = Modifier,
@@ -749,6 +868,15 @@ fun EventTileRowItem(
     }
 }
 
+/**
+ * Small tile used in ClubAllEventsScreen and ClubAllNewsScreen. It allows a club admin to delete
+ * club-related news or events
+ *
+ * @param modifier
+ * @param data
+ * @param onClick
+ * @param onDelete
+ */
 @Composable
 fun SmallTileForClubManagement(
     modifier: Modifier = Modifier,
@@ -761,12 +889,13 @@ fun SmallTileForClubManagement(
     val isEvent = data is Event
     val title: String
     val date: String
-    val picUri: String
+    val picUri: String?
     if (isEvent) {
         val event = data as Event
         title = event.name
         date = sdf.format(event.date.toDate()) + " at " + time.format(event.date.toDate())
-        picUri = event.bannerUris.first()
+        val hasBanner = event.bannerUris.isNotEmpty()
+        picUri = if (hasBanner) event.bannerUris.first() else null
     } else {
         val news = data as News
         title = news.headline
@@ -833,6 +962,18 @@ fun SmallTileForClubManagement(
     }
 }
 
+/**
+ * Custom alert dialog, mainly used to confirm the exit of an important screen which would cause
+ * irreversible actions.
+ *
+ * @param onDismissRequest
+ * @param onConfirm
+ * @param title
+ * @param text
+ * @param confirmText
+ * @receiver
+ * @receiver
+ */
 @Composable
 fun CustomAlertDialog(
     onDismissRequest: () -> Unit,
@@ -863,6 +1004,14 @@ fun CustomAlertDialog(
     )
 }
 
+/**
+ * Small news tile used to display news in a more compact way on the HomeScreen
+ *
+ * @param modifier
+ * @param news
+ * @param onClick
+ * @receiver
+ */
 @Composable
 fun SmallNewsTile(
     modifier: Modifier = Modifier,
@@ -933,6 +1082,13 @@ fun SmallNewsTile(
     }
 }
 
+/**
+ * Card which represents a request to join a club. Allows to accept that request or decline it.
+ *
+ * @param request
+ * @param onAccept
+ * @param onReject
+ */
 @Composable
 fun RequestCard(
     request: ClubRequest,

@@ -10,6 +10,19 @@ import androidx.room.Update
 import com.google.firebase.Timestamp
 import java.io.Serializable
 
+/**
+ * Represents an alarm set for an event reminder. When notifications for event reminders are active,
+ * the user will receive timed notifications one hour and/or one day before the start of events
+ * they've joined or liked.
+ * This data class holds the data relevant to setting up an alarm with the device's AlarmManager
+ * which will trigger those notifications in the future.
+ *
+ * @property id
+ * @property eventId
+ * @property eventTime
+ * @property eventName
+ * @property hoursBefore amount of hours the reminder should ring prior to event
+ */
 @Entity
 data class EventAlarmData(
     @PrimaryKey(autoGenerate = true)
@@ -20,6 +33,10 @@ data class EventAlarmData(
     val hoursBefore: Int
 ): Serializable
 
+/**
+ * Data access object for the event alarm database
+ *
+ */
 @Dao
 interface EventAlarmDataDao {
     @Insert

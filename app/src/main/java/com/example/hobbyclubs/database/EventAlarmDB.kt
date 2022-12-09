@@ -1,17 +1,15 @@
 package com.example.hobbyclubs.database
 
 import android.content.Context
-import android.util.Log
 import androidx.room.*
-import com.example.hobbyclubs.api.Event
-import com.example.hobbyclubs.api.FirebaseHelper
-import com.example.hobbyclubs.notifications.AlarmHelper
 import com.google.firebase.Timestamp
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.util.*
 
+/**
+ * Database containing all the alarms set as event reminders.
+ * Keeps track of alarms set
+ *
+ */
 @Database(entities = [EventAlarmData::class], version = 1)
 @TypeConverters(Converters::class)
 abstract class EventAlarmDB : RoomDatabase() {
@@ -28,6 +26,10 @@ abstract class EventAlarmDB : RoomDatabase() {
     }
 }
 
+/**
+ * Converters for [EventAlarmDB]
+ *
+ */
 class Converters {
     @TypeConverter
     fun toTimeStamp(value: Long?): Timestamp? {

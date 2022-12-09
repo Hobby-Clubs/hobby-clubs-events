@@ -8,7 +8,6 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.*
-import com.example.hobbyclubs.screens.*
 import com.example.hobbyclubs.screens.allmyoftype.AllMyScreen
 import com.example.hobbyclubs.screens.calendar.CalendarScreen
 import com.example.hobbyclubs.screens.clubmanagement.ClubAllEventsScreen
@@ -28,19 +27,17 @@ import com.example.hobbyclubs.screens.eventmanagement.EventManagementScreen
 import com.example.hobbyclubs.screens.eventparticipants.EventParticipantRequestScreen
 import com.example.hobbyclubs.screens.eventparticipants.EventParticipantsScreen
 import com.example.hobbyclubs.screens.firstTime.FirstTimeScreen
-import com.example.hobbyclubs.screens.login.LoginScreen
 import com.example.hobbyclubs.screens.home.HomeScreen
+import com.example.hobbyclubs.screens.login.LoginScreen
 import com.example.hobbyclubs.screens.news.NewsScreen
 import com.example.hobbyclubs.screens.news.SingleNewsScreen
 import com.example.hobbyclubs.screens.notifications.NotificationsScreen
 import com.example.hobbyclubs.screens.settings.NotificationSettingsScreen
 
 /**
- * Navigation routes for compose navigation
+ * Helper for [NavRoute]
+ *
  */
-
-val baseUrl = "https://hobbyclubs.fi/"
-
 object NavHelper {
     const val baseUrl = "https://hobbyclubs.fi/"
 
@@ -54,6 +51,14 @@ object NavHelper {
     }
 }
 
+/**
+ * Enum class containing all the data necessary to the app's navigation
+ *
+ * @property route
+ * @property args
+ * @property deeplinks
+ * @property content
+ */
 enum class NavRoute(
     val route: String,
     val args: List<NamedNavArgument> = listOf(),
@@ -298,30 +303,4 @@ enum class NavRoute(
             }
         }
     ),
-}
-
-data class BarItem(
-    val title: String,
-    val icon: ImageVector,
-    val route: String
-)
-
-object NavBarItems {
-    val BarItems = listOf(
-        BarItem(
-            route = NavRoute.Home.route,
-            title = "Home",
-            icon = Icons.Outlined.Home
-        ),
-        BarItem(
-            route = NavRoute.Calendar.route,
-            title = "Events",
-            icon = Icons.Outlined.CalendarMonth
-        ),
-        BarItem(
-            route = NavRoute.Clubs.route,
-            title = "Clubs",
-            icon = Icons.Outlined.ClearAll
-        )
-    )
 }

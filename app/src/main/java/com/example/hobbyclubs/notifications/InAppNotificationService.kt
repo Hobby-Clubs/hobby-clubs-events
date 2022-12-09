@@ -5,7 +5,6 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
-import android.util.Log
 import androidx.core.net.toUri
 import com.example.hobbyclubs.api.*
 import com.example.hobbyclubs.api.NotificationType.*
@@ -16,20 +15,43 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
 
+/**
+ * Service which fetches the [NotificationInfo] relevant to the current user
+ * and creates notifications while the app is in the foreground or reduced
+ *
+ */
 class InAppNotificationService : Service() {
     companion object {
         const val TAG = "InAppNotificationService"
+
+        /**
+         * Starts [InAppNotificationService]
+         *
+         * @param context
+         * @param uid
+         */
         fun start(context: Context, uid: String) {
             val intent =
                 Intent(context, InAppNotificationService::class.java).apply { putExtra("uid", uid) }
             context.startService(intent)
         }
 
+        /**
+         * Stops [InAppNotificationService]
+         *
+         * @param context
+         */
         fun stop(context: Context) {
             val intent = Intent(context, InAppNotificationService::class.java)
             context.stopService(intent)
         }
 
+        /**
+         * Checks whether [InAppNotificationService] is currently running
+         *
+         * @param context
+         * @return true if it is running
+         */
         fun isRunning(context: Context): Boolean {
             val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
             manager.runningAppProcesses.forEach {
@@ -45,9 +67,8 @@ class InAppNotificationService : Service() {
         const val EXTRA_NOTIF_UNREAD = "EXTRA_NOTIF_UNREAD"
     }
 
-    var isFirst = true
-    val helper get() = InAppNotificationHelper(applicationContext)
-    val lastNotifPref
+    private val helper get() = InAppNotificationHelper(applicationContext)
+    private val lastNotifPref
         get() = applicationContext.getSharedPreferences(
             "lastNotif", Context.MODE_PRIVATE
         )
@@ -56,19 +77,35 @@ class InAppNotificationService : Service() {
         return null
     }
 
-    fun startFetchLoop(interval: Long, uid: String, context: Context) {
+    /**
+     * Starts a loop that fetches all relevant [NotificationInfo] according to an interval
+     *
+     * @param interval
+     * @param uid
+     * @param context
+     */
+    private fun startFetchLoop(interval: Long, uid: String, context: Context) {
         val isLoadingPref = applicationContext.getSharedPreferences("paused", MODE_PRIVATE)
         val isLoading = isLoadingPref.getBoolean("isPaused", false)
         if (!isLoading) {
             CoroutineScope(Dispatchers.IO).launch {
-                generateInAppNotif()
+                fetchInAppNotifs()
                 delay(interval)
                 startFetchLoop(interval, uid, context)
             }
         }
     }
 
-    fun generateInAppNotif() {
+    /**
+     * Fetches all the relevant [NotificationContent].
+     * If it is the first time of the day that the user opens the app, a notification will indicate
+     * the number of unread notifications. Otherwise, a notification will inform the user of any
+     * new notification.
+     * Also broadcasts a list of relevant [NotificationContent] so that they can be used in
+     * HomeScreen (notification indicator) and NotificationScreen (list of notifications)
+     *
+     */
+    private fun fetchInAppNotifs() {
         val lastNotifId = lastNotifPref.getString("lastNotifId", "")
         CoroutineScope(Dispatchers.IO).launch {
             val myNotifs = helper.getMyNotifs()
@@ -96,7 +133,13 @@ class InAppNotificationService : Service() {
         }
     }
 
-    fun broadcastUnread(unreads: List<NotificationInfo>) {
+    /**
+     * Broadcasts a list of relevant [NotificationContent] so that they can be used in
+     * HomeScreen (notification indicator) and NotificationScreen (list of notifications)
+     *
+     * @param unreads
+     */
+    private fun broadcastUnread(unreads: List<NotificationInfo>) {
         val isLoadingPref = applicationContext.getSharedPreferences("paused", MODE_PRIVATE)
         val isLoading = isLoadingPref.getBoolean("isPaused", false)
         if (!isLoading) {
@@ -107,7 +150,12 @@ class InAppNotificationService : Service() {
         }
     }
 
-    fun createLatestNotification(lastNotification: NotificationInfo) {
+    /**
+     * Creates a notification for latest unread notification
+     *
+     * @param lastNotification
+     */
+    private fun createLatestNotification(lastNotification: NotificationInfo) {
         val type = valueOf(lastNotification.type)
         CoroutineScope(Dispatchers.IO).launch {
             val notifContent = when (type) {
@@ -125,7 +173,13 @@ class InAppNotificationService : Service() {
         }
     }
 
-    fun createFirstNotification(amount: Int) {
+    /**
+     * Creates a notification for the first time of the day that the user opens the app.
+     * The notification indicates how many notifications are left unread.
+     *
+     * @param amount
+     */
+    private fun createFirstNotification(amount: Int) {
         val deeplink = "https://hobbyclubs.fi/notif={all}".toUri()
         val data = NotificationContent(
             title = "Good to have you back!",
@@ -139,6 +193,14 @@ class InAppNotificationService : Service() {
         NotificationHelper.createNotification(applicationContext, data)
     }
 
+    /**
+     * Starts the notification fetching loop when the service starts
+     *
+     * @param intent
+     * @param flags
+     * @param startId
+     * @return
+     */
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val uid = intent?.getStringExtra("uid")
 

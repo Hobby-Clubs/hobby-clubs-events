@@ -15,6 +15,13 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.util.*
 
+/**
+ * Adds the current user's user id to the participants array of an event in firestore.
+ * Adds the event reminder alarms accordingly.
+ *
+ * @param event
+ * @param context
+ */
 fun joinEvent(event: Event, context: Context) {
     FirebaseHelper.uid?.let { uid ->
         FirebaseHelper.updateJoinEvent(eventId = event.id, uid)
@@ -25,7 +32,13 @@ fun joinEvent(event: Event, context: Context) {
         }
     }
 }
-fun createEventRequest(event: Event, context: Context) {
+
+/**
+ * Adds a participation request to an event's request collection
+ *
+ * @param event
+ */
+fun createEventRequest(event: Event) {
     val request = EventRequest(
         userId = FirebaseHelper.uid!!,
         acceptedStatus = false,
@@ -35,6 +48,14 @@ fun createEventRequest(event: Event, context: Context) {
     )
     FirebaseHelper.addEventRequest(eventId = event.id, request = request)
 }
+
+/**
+ * Removes the current user's user id to the participants array of an event in firestore.
+ * Removes the event reminder alarms accordingly.
+ *
+ * @param event
+ * @param context
+ */
 fun leaveEvent(event: Event, context: Context) {
     FirebaseHelper.uid?.let { uid ->
         FirebaseHelper.updateJoinEvent(eventId = event.id, userId = uid, remove = true)
@@ -46,6 +67,13 @@ fun leaveEvent(event: Event, context: Context) {
     }
 }
 
+/**
+ * Adds or removes the current user's user id to/from the likers array of an event in firestore
+ * Updates the event reminder alarms accordingly.
+ *
+ * @param event
+ * @param context
+ */
 fun updateLikeEvent(event: Event, context: Context) {
     val remove = event.likers.contains(FirebaseHelper.uid)
     FirebaseHelper.updateLikeEvent(eventId = event.id, remove = remove)
@@ -56,8 +84,19 @@ fun updateLikeEvent(event: Event, context: Context) {
     }
 }
 
+/**
+ * Converts a LocalDate to a string representing that date
+ *
+ * @return string representing the date
+ */
 fun LocalDate.toDate(): Date = Date.from(this.atStartOfDay(ZoneId.systemDefault()).toInstant())
 
+/**
+ * Converts a Date to a string that represents the date according to a pattern
+ *
+ * @param pattern formatting of the date string (e.g. "dd:MM:yyyy")
+ * @return a date string
+ */
 fun Date.toString(pattern: String): String {
     return SimpleDateFormat(pattern, Locale.ENGLISH).format(this)
 }

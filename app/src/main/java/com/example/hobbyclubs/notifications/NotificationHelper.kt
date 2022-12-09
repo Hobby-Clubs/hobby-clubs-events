@@ -7,17 +7,25 @@ import android.app.TaskStackBuilder
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Parcelable
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.example.hobbyclubs.MainActivity
 import com.example.hobbyclubs.R
 import com.example.hobbyclubs.screens.settings.NotificationSetting
-import kotlinx.parcelize.Parcelize
 import java.util.*
 
+/**
+ * Contains the functions needed to create notification channels as well as notifications and their
+ * pending intent
+ *
+ */
 object NotificationHelper {
+    /**
+     * Creates a notification channel
+     *
+     * @param context
+     * @param data
+     */
     fun createNotificationChannel(context: Context, data: NotificationChannelData) {
         val importance = NotificationManager.IMPORTANCE_HIGH
         val channel = NotificationChannel(
@@ -32,6 +40,12 @@ object NotificationHelper {
         notificationManager.createNotificationChannel(channel)
     }
 
+    /**
+     * Creates a notification
+     *
+     * @param context
+     * @param data
+     */
     fun createNotification(context: Context, data: NotificationContent) {
         val notification =
             NotificationCompat.Builder(context, data.channelId)
@@ -47,6 +61,15 @@ object NotificationHelper {
         notificationManager.notify(data.requestCode, notification)
     }
 
+    /**
+     * Returns a pending intent which redirects to the relevant screen the user
+     * when they tap a notification
+     *
+     * @param context
+     * @param deepLink
+     * @param requestCode
+     * @return
+     */
     fun getDeepLinkTapPendingIntent(
         context: Context,
         deepLink: Uri,
@@ -68,12 +91,34 @@ object NotificationHelper {
     }
 }
 
+/**
+ * Data needed to create a notification channel
+ *
+ * @property id
+ * @property name
+ * @property description
+ * @constructor Create empty Notification channel data
+ */
 data class NotificationChannelData(
     val id: String,
     val name: String,
     val description: String,
 )
 
+/**
+ * Data needed to create a notification
+ *
+ * @property id
+ * @property title
+ * @property content
+ * @property pendingIntent
+ * @property requestCode
+ * @property channelId
+ * @property date
+ * @property setting
+ * @property navRoute
+ * @constructor Create empty Notification content
+ */
 data class NotificationContent(
     val id: String = "",
     val title: String,

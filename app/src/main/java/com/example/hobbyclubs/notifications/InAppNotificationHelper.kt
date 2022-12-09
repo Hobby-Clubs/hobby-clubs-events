@@ -13,9 +13,19 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * Contains all the functions necessary to fetching the relevant notifications according to the
+ * current user and their current notification settings
+ *
+ * @property context
+ */
 class InAppNotificationHelper(val context: Context) {
 
-    suspend fun getNewEventNotifs(): List<NotificationInfo> {
+    /**
+     * @return a list of [NotificationInfo] corresponding to newly added events by any club
+     * the current user is a member of
+     */
+    private suspend fun getNewEventNotifs(): List<NotificationInfo> {
         FirebaseHelper.uid?.let { uid ->
             val myClubIds =
                 FirebaseHelper.getAllClubs().whereArrayContains("members", uid).get().await()
@@ -29,13 +39,20 @@ class InAppNotificationHelper(val context: Context) {
         return listOf()
     }
 
-    suspend fun getGeneralNewsNotifs(): List<NotificationInfo> {
+    /**
+     * @return a list of [NotificationInfo] corresponding to general news
+     */
+    private suspend fun getGeneralNewsNotifs(): List<NotificationInfo> {
         return FirebaseHelper.getNotifications()
             .whereEqualTo("type", NotificationType.NEWS_GENERAL.name).get().await()
             .toObjects(NotificationInfo::class.java)
     }
 
-    suspend fun getClubNewsNotifs(): List<NotificationInfo> {
+    /**
+     * @return a list of [NotificationInfo] corresponding to the news of any club which the current user
+     * is a member of
+     */
+    private suspend fun getClubNewsNotifs(): List<NotificationInfo> {
         FirebaseHelper.uid?.let { uid ->
             val myClubIds =
                 FirebaseHelper.getAllClubs().whereArrayContains("members", uid).get().await()
@@ -48,7 +65,11 @@ class InAppNotificationHelper(val context: Context) {
         } ?: return listOf()
     }
 
-    suspend fun getClubRequestNotifs(): List<NotificationInfo> {
+    /**
+     * @return a list of [NotificationInfo] corresponding to membership requests made to any of the
+     * clubs the current user administers
+     */
+    private suspend fun getClubRequestNotifs(): List<NotificationInfo> {
         FirebaseHelper.uid?.let { uid ->
             val myAdminClubIds =
                 FirebaseHelper.getAllClubs().whereArrayContains("admins", uid).get().await()
@@ -63,7 +84,11 @@ class InAppNotificationHelper(val context: Context) {
         } ?: return listOf()
     }
 
-    suspend fun getAcceptedClubRequestNotifs(): List<NotificationInfo> {
+    /**
+     * @return a list of [NotificationInfo] corresponding to the request to join clubs that
+     * the current user made and which were accepted
+     */
+    private suspend fun getAcceptedClubRequestNotifs(): List<NotificationInfo> {
         FirebaseHelper.uid?.let { uid ->
             return FirebaseHelper.getNotifications().whereEqualTo("userId", uid)
                 .whereEqualTo("type", NotificationType.CLUB_REQUEST_ACCEPTED.name).get().await()
@@ -71,7 +96,11 @@ class InAppNotificationHelper(val context: Context) {
         } ?: return listOf()
     }
 
-    suspend fun getEventRequestNotifs(): List<NotificationInfo> {
+    /**
+     * @return a list of [NotificationInfo] corresponding to participation requests made to any of the
+     * events the current user administers
+     */
+    private suspend fun getEventRequestNotifs(): List<NotificationInfo> {
         FirebaseHelper.uid?.let { uid ->
             val myAdminEventIds =
                 FirebaseHelper.getAllEvents().whereArrayContains("admins", uid).get().await()
@@ -86,7 +115,11 @@ class InAppNotificationHelper(val context: Context) {
         } ?: return listOf()
     }
 
-    suspend fun getAcceptedEventRequestNotifs(): List<NotificationInfo> {
+    /**
+     * @return a list of [NotificationInfo] corresponding to the request to join events that
+     * the current user made and which were accepted
+     */
+    private suspend fun getAcceptedEventRequestNotifs(): List<NotificationInfo> {
         FirebaseHelper.uid?.let { uid ->
             return FirebaseHelper.getNotifications().whereEqualTo("userId", uid)
                 .whereEqualTo("type", NotificationType.EVENT_REQUEST_ACCEPTED.name).get().await()
@@ -94,6 +127,10 @@ class InAppNotificationHelper(val context: Context) {
         } ?: return listOf()
     }
 
+    /**
+     * @return a list of all the [NotificationInfo] relevant to the current user according to their
+     * notification settings
+     */
     suspend fun getMyNotifs(): List<NotificationInfo> {
         val mySettings = getNotificationSettings()
         val fetchedLists = mySettings.map { setting ->
@@ -127,6 +164,13 @@ class InAppNotificationHelper(val context: Context) {
             ?: listOf()
     }
 
+    /**
+     * Converts a [NotificationInfo] into a [NotificationContent] which contains all the data
+     * needed to create a notification for a new event created
+     *
+     * @param notification
+     * @return the content of notification for a new event created
+     */
     suspend fun newEventToContent(notification: NotificationInfo): NotificationContent? {
         val clubName = withContext(Dispatchers.IO) {
             FirebaseHelper.getClub(notification.clubId).get().await()
@@ -158,6 +202,13 @@ class InAppNotificationHelper(val context: Context) {
         } ?: return null
     }
 
+    /**
+     * Converts a [NotificationInfo] into a [NotificationContent] which contains all the data
+     * needed to create a notification for a general news
+     *
+     * @param notification
+     * @return the content of notification for a general news
+     */
     suspend fun generalNewsToContent(notification: NotificationInfo): NotificationContent? {
         val newsArticle =
             FirebaseHelper.getNews(notification.newsId).get().await().toObject(News::class.java)
@@ -179,6 +230,13 @@ class InAppNotificationHelper(val context: Context) {
         }
     }
 
+    /**
+     * Converts a [NotificationInfo] into a [NotificationContent] which contains all the data
+     * needed to create a notification for club news
+     *
+     * @param notification
+     * @return the content of notification for a club news
+     */
     suspend fun clubNewsToContent(notification: NotificationInfo): NotificationContent? {
         val clubName = withContext(Dispatchers.IO) {
             FirebaseHelper.getClub(notification.clubId).get().await()
@@ -205,6 +263,13 @@ class InAppNotificationHelper(val context: Context) {
         }
     }
 
+    /**
+     * Converts a [NotificationInfo] into a [NotificationContent] which contains all the data
+     * needed to create a notification for a club membership request
+     *
+     * @param notification
+     * @return the content of notification for a club membership request
+     */
     suspend fun clubRequestToContent(notification: NotificationInfo): NotificationContent? {
         val clubName = withContext(Dispatchers.IO) {
             FirebaseHelper.getClub(notification.clubId).get().await()
@@ -231,6 +296,13 @@ class InAppNotificationHelper(val context: Context) {
         }
     }
 
+    /**
+     * Converts a [NotificationInfo] into a [NotificationContent] which contains all the data
+     * needed to create a notification for an accepted club membership request
+     *
+     * @param notification
+     * @return the content of notification for an accepted club membership request
+     */
     suspend fun clubAcceptedRequestToContent(notification: NotificationInfo): NotificationContent? {
         val clubName = withContext(Dispatchers.IO) {
             FirebaseHelper.getClub(notification.clubId).get().await()
@@ -254,6 +326,13 @@ class InAppNotificationHelper(val context: Context) {
         }
     }
 
+    /**
+     * Converts a [NotificationInfo] into a [NotificationContent] which contains all the data
+     * needed to create a notification for an event participation request
+     *
+     * @param notification
+     * @return the content of notification for an event participation request
+     */
     suspend fun eventRequestToContent(notification: NotificationInfo): NotificationContent? {
         val eventName = withContext(Dispatchers.IO) {
             FirebaseHelper.getEvent(notification.eventId).get().await()
@@ -281,7 +360,14 @@ class InAppNotificationHelper(val context: Context) {
         }
     }
 
-    suspend fun eventAcceptedRequestToContent(notification: NotificationInfo): NotificationContent? {
+    /**
+     * Converts a [NotificationInfo] into a [NotificationContent] which contains all the data
+     * needed to create a notification for an accepted event participation request
+     *
+     * @param notification
+     * @return the content of notification for an accepted event participation request
+     */
+    suspend fun eventAcceptedRequestToContent(notification: NotificationInfo): NotificationContent {
         val eventName = withContext(Dispatchers.IO) {
             FirebaseHelper.getEvent(notification.eventId).get().await()
                 .toObject(Club::class.java)?.name
@@ -303,6 +389,10 @@ class InAppNotificationHelper(val context: Context) {
         )
     }
 
+    /**
+     * @return a list of all relevant [NotificationContent] which correspond to notifications the current
+     * user hasn't read yet
+     */
     suspend fun getMyNotifsContents(): List<NotificationContent> {
         val mySettings = getNotificationSettings()
         val fetchedLists = mySettings.map { setting ->
@@ -345,7 +435,7 @@ class InAppNotificationHelper(val context: Context) {
                 }
                 NotificationSetting.REQUEST_PARTICIPATION_ACCEPTED -> withContext(Dispatchers.IO) {
                     getAcceptedEventRequestNotifs().filter { !it.readBy.contains(FirebaseHelper.uid) }
-                        .mapNotNull {
+                        .map {
                             eventAcceptedRequestToContent(it)
                         }
                 }
@@ -357,7 +447,15 @@ class InAppNotificationHelper(val context: Context) {
             ?: listOf()
     }
 
-    fun getTapPendingIntent(context: Context, notification: NotificationInfo): PendingIntent {
+    /**
+     * Returns the pending intent which will redirect the user to the relevant screen when they
+     * tap a notification (e.g. New event notification -> EventScreen of the event)
+     *
+     * @param context
+     * @param notification
+     * @return a pending intent to navigate to the relevant screen when a notification is tapped
+     */
+    private fun getTapPendingIntent(context: Context, notification: NotificationInfo): PendingIntent {
         val type = NotificationType.valueOf(notification.type)
         val baseUrl = "https://hobbyclubs.fi/"
         val ending = when (type) {
@@ -374,13 +472,21 @@ class InAppNotificationHelper(val context: Context) {
         )
     }
 
+    /**
+     * @return a list of the notification settings which are currently enabled
+     */
     fun getNotificationSettings(): List<NotificationSetting> {
         return NotificationSetting.values()
             .map { setting -> setting.apply { isActive = getBoolVal(setting.name) } }
             .filter { it.isActive }
     }
 
-    fun getBoolVal(key: String) =
+    /**
+     * Returns a boolean which corresponds to the state of a notification setting in shared preferences
+     *
+     * @param key
+     */
+    private fun getBoolVal(key: String) =
         context.getSharedPreferences("settings", Context.MODE_PRIVATE).getBoolean(key, false)
 
 }

@@ -1,19 +1,28 @@
 package com.example.hobbyclubs.navigation
 
 import androidx.compose.material.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.ClearAll
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 
-
+/**
+ * Bottom navigation bar
+ *
+ * @param navController
+ */
 @Composable
 fun BottomBar(navController: NavController) {
-    NavigationBar() {
+    NavigationBar {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
         NavBarItems.BarItems.forEach { barItem ->
@@ -28,9 +37,9 @@ fun BottomBar(navController: NavController) {
                             saveState = true
                         }
                         // Avoid multiple copies of the same destination when
-                        // reselecting the same item
+                        // re-selecting the same item
                         launchSingleTop = true
-                        // Restore state when reselecting a previously selected item
+                        // Restore state when re-selecting a previously selected item
                         restoreState = true
                     }
                 },
@@ -46,3 +55,39 @@ fun BottomBar(navController: NavController) {
     }
 }
 
+/**
+ * Represents an item of the BottomNavigationBar
+ *
+ * @property title
+ * @property icon
+ * @property route
+ */
+data class BarItem(
+    val title: String,
+    val icon: ImageVector,
+    val route: String
+)
+
+/**
+ * Nav bar items
+ *
+ */
+object NavBarItems {
+    val BarItems = listOf(
+        BarItem(
+            route = NavRoute.Home.route,
+            title = "Home",
+            icon = Icons.Outlined.Home
+        ),
+        BarItem(
+            route = NavRoute.Calendar.route,
+            title = "Events",
+            icon = Icons.Outlined.CalendarMonth
+        ),
+        BarItem(
+            route = NavRoute.Clubs.route,
+            title = "Clubs",
+            icon = Icons.Outlined.ClearAll
+        )
+    )
+}
