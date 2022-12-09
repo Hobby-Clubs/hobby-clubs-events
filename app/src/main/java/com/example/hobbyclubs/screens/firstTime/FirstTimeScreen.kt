@@ -18,6 +18,14 @@ import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.navigation.NavRoutes
 import java.util.*
 
+/**
+ * First time screen
+ *
+ * This screen asks the user for his interests. These interests
+ * will later be used for suggesting clubs to the user.
+ *
+ * @param navController
+ */
 @Composable
 fun FirstTimeScreen(navController: NavController) {
     val interests: List<Interest> =
@@ -100,4 +108,11 @@ fun FirstTimeScreen(navController: NavController) {
     }
 }
 
+/**
+ * Interest
+ *
+ * @property name
+ * @property interested
+ * @constructor Create empty Interest
+ */
 class Interest(val name: String, val interested: MutableState<Boolean>)
