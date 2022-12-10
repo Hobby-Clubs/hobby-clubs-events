@@ -50,6 +50,13 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * Event management screen for displayed management options of an event for admin users
+ *
+ * @param navController To manage app navigation within the NavHost
+ * @param vm [EventManagementViewModel]
+ * @param eventId UID for the specific event
+ */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun EventManagementScreen(
@@ -203,6 +210,11 @@ fun EventManagementScreen(
     }
 }
 
+/**
+ * Title within the event management section
+ *
+ * @param text String that will be displayed as the title
+ */
 @Composable
 fun EventManagementSectionTitle(text: String) {
     Text(
@@ -213,6 +225,12 @@ fun EventManagementSectionTitle(text: String) {
     )
 }
 
+/**
+ * Row item within the event management section
+ *
+ * @param text String that will be displayed in the item
+ * @param onClick Action for when the item is clicked
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventManagementRowItem(text: String, onClick: () -> Unit) {
@@ -239,6 +257,14 @@ fun EventManagementRowItem(text: String, onClick: () -> Unit) {
     }
 }
 
+/**
+ * Participants within the event management section
+ *
+ * @param navController To manage app navigation within the NavHost
+ * @param eventId UID for the specific event
+ * @param participantAmount Amount of participants
+ * @param requestAmount Amount of join requests
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ParticipantsSection(navController: NavController, eventId: String, participantAmount: Int, requestAmount: Int) {
@@ -305,6 +331,13 @@ fun ParticipantsSection(navController: NavController, eventId: String, participa
     }
 }
 
+/**
+ * Container for the number displaying the amount of participants or join requests
+ *
+ * @param modifier Collection of modifier elements that decorate or add behavior to the UI element
+ * @param numberOfItem Number of participants/requests
+ * @param isParticipantRequestSection Boolean value of whether or not the number is related to join requests
+ */
 @Composable
 fun EventManagementRowNumberCount(
     modifier: Modifier,
@@ -327,6 +360,13 @@ fun EventManagementRowNumberCount(
     }
 }
 
+/**
+ * Sheet for editing the event's name and description
+ *
+ * @param vm [EventManagementViewModel]
+ * @param eventId UID for the specific event
+ * @param onSave Action for when the save button is clicked
+ */
 @Composable
 fun NameAndDescriptionSheet(vm: EventManagementViewModel, eventId: String, onSave:() -> Unit) {
     val screenHeight = LocalConfiguration.current.screenHeightDp
@@ -383,6 +423,13 @@ fun NameAndDescriptionSheet(vm: EventManagementViewModel, eventId: String, onSav
     }
 }
 
+/**
+ * Sheet for editing the event's location, date and participant limit
+ *
+ * @param vm [EventManagementViewModel]
+ * @param eventId UID for the specific event
+ * @param onSave Action for when the save button is clicked
+ */
 @Composable
 fun LocationDateParticipantsSheet(vm: EventManagementViewModel, eventId: String, onSave:() -> Unit) {
     val screenHeight = LocalConfiguration.current.screenHeightDp
@@ -443,6 +490,11 @@ fun LocationDateParticipantsSheet(vm: EventManagementViewModel, eventId: String,
     }
 }
 
+/**
+ * Selector for date of the event
+ *
+ * @param vm [EventManagementViewModel]
+ */
 @Composable
 fun DateSelector(vm: EventManagementViewModel) {
     val context = LocalContext.current
@@ -574,6 +626,13 @@ fun DateSelector(vm: EventManagementViewModel) {
     }
 }
 
+/**
+ * Sheet for managing the event's social links
+ *
+ * @param vm [EventManagementViewModel]
+ * @param eventId UID for the specific event
+ * @param onSave Action for when the save button is clicked
+ */
 @Composable
 fun SocialsSheet(vm: EventManagementViewModel, eventId: String, onSave:() -> Unit) {
     val screenHeight = LocalConfiguration.current.screenHeightDp
@@ -680,6 +739,13 @@ fun SocialsSheet(vm: EventManagementViewModel, eventId: String, onSave:() -> Uni
     }
 }
 
+/**
+ * Sheet for editing the event's images
+ *
+ * @param vm [EventManagementViewModel]
+ * @param eventId UID for the specific event
+ * @param onSave Action for when the save button is clicked
+ */
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun ImagesSheet(vm: EventManagementViewModel, eventId: String, onSave:() -> Unit) {
@@ -768,6 +834,13 @@ fun ImagesSheet(vm: EventManagementViewModel, eventId: String, onSave:() -> Unit
     }
 }
 
+/**
+ * Sheet for editing the event's contact information
+ *
+ * @param vm [EventManagementViewModel]
+ * @param eventId UID for the specific event
+ * @param onSave Action for when the save button is clicked
+ */
 @Composable
 fun ContactSheet(vm: EventManagementViewModel, eventId: String, onSave: () -> Unit) {
     val screenHeight = LocalConfiguration.current.screenHeightDp

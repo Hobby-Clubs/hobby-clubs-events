@@ -1,61 +1,43 @@
 package com.example.hobbyclubs.screens.calendar
 
-import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import com.example.hobbyclubs.api.CollectionName
-import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.Event
-import com.example.hobbyclubs.api.EventRequest
-import com.example.hobbyclubs.general.toDate
-import org.joda.time.DateTimeComparator
+import com.example.hobbyclubs.api.FirebaseHelper
 import java.time.LocalDate
 
-class CalendarScreenViewModel() : ViewModel() {
+/**
+ * Calendar screen view model for handling functions related to the calendar
+ *
+ * @constructor Create empty Calendar screen view model
+ */
+class CalendarScreenViewModel : ViewModel() {
     val firebase = FirebaseHelper
-    val dateTimeComparator = DateTimeComparator.getDateOnlyInstance()
-
     val allEvents = MutableLiveData<List<Event>>()
-    val filteredEvents = MutableLiveData<List<Event>>()
     val selection = MutableLiveData<List<LocalDate>>()
-
-    val listOfUri = MutableLiveData<List<Pair<String, Uri?>>>()
 
     init {
         getEvents()
     }
 
-    val eventRequests = MutableLiveData<List<EventRequest>>()
-    val hasRequested = Transformations.map(eventRequests) { list ->
-        list.any { it.userId == FirebaseHelper.uid && !it.acceptedStatus }
-    }
-    fun getEventJoinRequests(eventId: String) {
-        FirebaseHelper.getRequestsFromEvent(eventId)
-            .addSnapshotListener { data, error ->
-                data ?: run {
-                    Log.e("getAllRequests", "RequestFetchFail: ", error)
-                    return@addSnapshotListener
-                }
-                val fetchedRequests = data.toObjects(EventRequest::class.java)
-                eventRequests.value = fetchedRequests.filter { !it.acceptedStatus }
-            }
-    }
-
+    /**
+     * Change selection state when user selects/deselects a day within the calendar
+     *
+     * @param selection Current state of selection in the calendar
+     */
     fun onSelectionChanged(selection: List<LocalDate>) {
         if(selection.isNotEmpty()) {
             this.selection.value = selection
-//            filteredEvents.value = allEvents.value?.filter { event ->
-//                (dateTimeComparator.compare(event.date.toDate(), selection.first().toDate())) == 0
-//                // event.date.toDate() == selection.first().toDate()
-//            }
         } else {
             this.selection.value = null
-//            filteredEvents.value = emptyList()
         }
     }
 
+    /**
+     * Get all events from Firebase
+     *
+     */
     fun getEvents() {
         firebase.getAllEvents()
             .addSnapshotListener { data, error ->
@@ -66,40 +48,6 @@ class CalendarScreenViewModel() : ViewModel() {
                 val fetchedEvents = data.toObjects(Event::class.java)
                 val eventsByDate = fetchedEvents.sortedByDescending { event -> event.date }
                 allEvents.value = eventsByDate
-//                getUris(eventsByDate)
             }
     }
-
-//    fun getUris(listOfEvents: List<Event>) {
-//        val tempList = mutableListOf<Pair<String, Uri?>>()
-//
-//        listOfEvents.forEach { event ->
-//            FirebaseHelper.getAllFiles("${CollectionName.events}/${event.id}")
-//                .addOnSuccessListener { res ->
-//                    val items = res.items
-//                    if (items.isEmpty()) {
-//                        tempList.add(Pair(event.id, null))
-//                        if (tempList.size == listOfEvents.size) {
-//                            listOfUri.value = tempList.toList()
-//                        }
-//                        return@addOnSuccessListener
-//                    }
-//                    val bannerRef = items.find { it.name == "0.jpg" } ?: items.first()
-//                    bannerRef
-//                        .downloadUrl
-//                        .addOnSuccessListener {
-//                            tempList.add(Pair(event.id, it))
-//                            if (tempList.size == listOfEvents.size) {
-//                                listOfUri.value = tempList.toList()
-//                            }
-//                        }
-//                        .addOnFailureListener {
-//                            Log.e("getPicUri", "EventTile: ", it)
-//                        }
-//                }
-//                .addOnFailureListener {
-//                    Log.e("getAllFiles", "EventTile: ", it)
-//                }
-//        }
-//    }
 }

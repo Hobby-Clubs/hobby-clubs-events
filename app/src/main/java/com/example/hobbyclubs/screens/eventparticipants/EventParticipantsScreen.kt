@@ -19,6 +19,13 @@ import com.example.hobbyclubs.api.User
 import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.screens.clubmembers.MemberImage
 
+/**
+ * Event participants screen for displaying a list of the event's participants and admins
+ *
+ * @param navController To manage app navigation within the NavHost
+ * @param vm [EventParticipantsViewModel]
+ * @param eventId UID for the specific event
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventParticipantsScreen(
@@ -35,7 +42,7 @@ fun EventParticipantsScreen(
     }
 
     event?. let {
-        Box() {
+        Box {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -48,7 +55,7 @@ fun EventParticipantsScreen(
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(top = 75.dp, bottom = 20.dp),
                 )
-                ListOfEventParticipants(listOfParticipants, listOfAdmins, vm, it)
+                ListOfEventParticipants(listOfParticipants, listOfAdmins, it)
             }
             CenterAlignedTopAppBar(
                 title = { Text(text = it.name, fontSize = 16.sp) },
@@ -61,11 +68,17 @@ fun EventParticipantsScreen(
     }
 }
 
+/**
+ * List of the event's participants
+ *
+ * @param participants List of participants
+ * @param listOfAdmins List of admins
+ * @param event Event object
+ */
 @Composable
 fun ListOfEventParticipants(
     participants: List<User>,
     listOfAdmins: List<User>,
-    vm: EventParticipantsViewModel,
     event: Event
 ) {
     val listOfParticipants = participants.filter { !event.admins.contains(it.uid) }
@@ -96,6 +109,11 @@ fun ListOfEventParticipants(
     }
 }
 
+/**
+ * Card for a participant of the event
+ *
+ * @param user User object
+ */
 @Composable
 fun ParticipantCard(
     user: User,

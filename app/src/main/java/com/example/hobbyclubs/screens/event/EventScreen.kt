@@ -38,6 +38,13 @@ import com.example.hobbyclubs.general.CustomButton
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * Event screen for displaying detailed information of a specific event
+ *
+ * @param navController To manage app navigation within the NavHost
+ * @param vm [EventScreenViewModel]
+ * @param eventId UID for the specific event displayed
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventScreen(
@@ -84,6 +91,14 @@ fun EventScreen(
     }
 }
 
+/**
+ * Container for the event's header
+ *
+ * @param navController To manage app navigation within the NavHost
+ * @param event Event object that contains data about the event
+ * @param isAdmin Boolean value of whether or not the user is an admin of this specific event
+ * @param vm [EventScreenViewModel]
+ */
 @Composable
 fun EventHeader(
     navController: NavController,
@@ -119,7 +134,7 @@ fun EventHeader(
                         .data(uris)
                         .crossfade(true)
                         .build(),
-                    contentDescription = "background image",
+                    contentDescription = "event background image",
                     modifier = Modifier
                         .fillMaxWidth()
                         .height((screenHeight * 0.25).dp),
@@ -246,6 +261,11 @@ fun EventHeader(
     }
 }
 
+/**
+ * Container for the event's description
+ *
+ * @param desc Description string
+ */
 @Composable
 fun EventDescription(desc: String) {
     Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 20.dp)) {
@@ -255,6 +275,11 @@ fun EventDescription(desc: String) {
     }
 }
 
+/**
+ * Container for the event's location
+ *
+ * @param address Address string
+ */
 @Composable
 fun EventLocation(address: String) {
     Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 20.dp)) {
@@ -264,6 +289,12 @@ fun EventLocation(address: String) {
     }
 }
 
+/**
+ * Container for the event's list of links
+ *
+ * @param context LocalContext
+ * @param links Map of strings, links and their names
+ */
 @Composable
 fun EventLinks(context: Context, links: Map<String, String>) {
     Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 20.dp)) {
@@ -285,6 +316,13 @@ fun EventLinks(context: Context, links: Map<String, String>) {
     }
 }
 
+/**
+ * Container for a singular link related to the event
+ *
+ * @param link Link string
+ * @param onClick onClick function
+ * @receiver
+ */
 @Composable
 fun EventLinkRow(link: String, onClick: () -> Unit) {
     Text(
@@ -295,6 +333,13 @@ fun EventLinkRow(link: String, onClick: () -> Unit) {
             .padding(5.dp))
 }
 
+/**
+ * Container for the event's contact information
+ *
+ * @param name Name String
+ * @param phoneNumber Phone number string
+ * @param email Email string
+ */
 @Composable
 fun EventContactInfo(name: String, phoneNumber: String, email: String) {
     Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 20.dp)) {
@@ -306,6 +351,11 @@ fun EventContactInfo(name: String, phoneNumber: String, email: String) {
     }
 }
 
+/**
+ * Container for a title displayed on the event screen
+ *
+ * @param text Title string
+ */
 @Composable
 fun EventTitle(text: String) {
     Text(text = text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)

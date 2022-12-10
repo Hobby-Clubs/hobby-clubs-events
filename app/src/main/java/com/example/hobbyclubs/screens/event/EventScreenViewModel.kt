@@ -9,6 +9,11 @@ import androidx.lifecycle.ViewModel
 import com.example.hobbyclubs.api.*
 import com.google.firebase.Timestamp
 
+/**
+ * Event screen view model for handling functions related to the detailed view of an event
+ *
+ * @constructor Create empty Event screen view model
+ */
 class EventScreenViewModel : ViewModel() {
     val firebase = FirebaseHelper
     val selectedEvent = MutableLiveData<Event>()
@@ -31,6 +36,11 @@ class EventScreenViewModel : ViewModel() {
         it.likers.contains(firebase.uid)
     }
 
+    /**
+     * Fetch the event from Firebase
+     *
+     * @param eventId UID for the event displayed
+     */
     fun getEvent(eventId: String) {
         firebase.getEvent(eventId = eventId)
             .addSnapshotListener { data, error ->
@@ -46,6 +56,11 @@ class EventScreenViewModel : ViewModel() {
             }
     }
 
+    /**
+     * Get the event's host club
+     *
+     * @param event Event object
+     */
     fun getEventHostClub(event: Event) {
         firebase.getClub(clubId = event.clubId).get()
             .addOnSuccessListener { data ->
@@ -56,6 +71,12 @@ class EventScreenViewModel : ViewModel() {
             }
     }
 
+    /**
+     * Create a join request to an event
+     *
+     * @param event Event object
+     * @param context LocalContext
+     */
     fun createEventRequest(event: Event, context: Context) {
         val request = EventRequest(
             userId = FirebaseHelper.uid!!,
@@ -68,6 +89,11 @@ class EventScreenViewModel : ViewModel() {
         Toast.makeText(context, "Request sent", Toast.LENGTH_LONG).show()
     }
 
+    /**
+     * Get all join requests to an event
+     *
+     * @param eventId UID for the specific event
+     */
     fun getEventJoinRequests(eventId: String) {
         firebase.getRequestsFromEvent(eventId)
             .addSnapshotListener { data, error ->
@@ -76,7 +102,6 @@ class EventScreenViewModel : ViewModel() {
                     return@addSnapshotListener
                 }
                 val fetchedRequests = data.toObjects(EventRequest::class.java)
-                Log.d("fetchRequests", fetchedRequests.toString())
                 eventRequests.value = fetchedRequests.filter { !it.acceptedStatus }
             }
     }

@@ -39,6 +39,12 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.util.*
 
+/**
+ * Calendar screen for displaying of events within a customizable, selectable calendar
+ *
+ * @param navController To manage app navigation within the NavHost
+ * @param vm [CalendarScreenViewModel]
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CalendarScreen(
@@ -241,6 +247,15 @@ fun CalendarScreen(
 }
 
 
+/**
+ * Customizable and selectable day container within the calendar
+ *
+ * @param state DayState, contains information about current selection as well as date of rendered day
+ * @param event Event object
+ * @param joinedEvent Status of whether or not the user has joined an event on that day
+ * @param likedEvent Status of whether or not the user has liked an event on that day
+ * @param modifier Collection of modifier elements that decorate or add behavior to the UI element
+ */
 @Composable
 fun Day(
     state: DayState<DynamicSelectionState>,
@@ -312,6 +327,12 @@ fun Day(
     }
 }
 
+/**
+ * Customizable month header of the calendar
+ *
+ * @param monthState MonthState
+ * @param modifier Collection of modifier elements that decorate or add behavior to the UI element
+ */
 @Composable
 fun MonthHeader(monthState: MonthState, modifier: Modifier = Modifier) {
     Row(
@@ -354,6 +375,10 @@ fun MonthHeader(monthState: MonthState, modifier: Modifier = Modifier) {
     }
 }
 
+/**
+ * Customizable week header of the calendar
+ *
+ */
 @Composable
 fun WeekHeader(
 ) {
