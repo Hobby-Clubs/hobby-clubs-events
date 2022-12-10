@@ -285,10 +285,9 @@ fun Day(
         modifier = modifier
             .aspectRatio(1f)
             .padding(2.dp),
-        border =
-        if (isSelected)
-            BorderStroke(1.dp, colorScheme.primary)
-        else null,
+        border = if (isSelected)
+            BorderStroke(2.dp, md_theme_light_primary)
+                else null,
         colors = CardDefaults.cardColors(
             contentColor = textColorToday,
             containerColor =
@@ -316,8 +315,6 @@ fun Day(
                     border = BorderStroke(1.dp, textColorToday),
                     colors = CardDefaults.cardColors(containerColor = Color.Transparent)
                 ) {}
-            } else {
-                null
             }
             Text(
                 text = date.dayOfMonth.toString(),
