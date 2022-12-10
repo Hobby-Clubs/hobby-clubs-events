@@ -42,6 +42,13 @@ import com.example.hobbyclubs.notifications.InAppNotificationService
 import com.example.hobbyclubs.screens.clubs.ClubTile
 import java.text.SimpleDateFormat
 
+/**
+ * Screen which shows the user all relevant information: my clubs, my events, my news and all news.
+ * First screen that the user sees (unless it's the first time they open the app)
+ *
+ * @param navController
+ * @param vm
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -57,6 +64,7 @@ fun HomeScreen(
     val isFirst by vm.isFirstTimeUser.observeAsState()
     val notifCount by vm.unreadAmount.observeAsState()
 
+    // Navigates to FirstTimeScreen if it is the first time opening the app
     LaunchedEffect(isFirst) {
         isFirst?.let {
             if (it) {
@@ -65,6 +73,7 @@ fun HomeScreen(
         }
     }
 
+    // Starts the InAppNotificationService if notifications are enabled in the notification settings
     LaunchedEffect(Unit) {
         FirebaseHelper.uid ?.let { uid ->
             val settings = InAppNotificationHelper(context).getNotificationSettings()
@@ -77,6 +86,7 @@ fun HomeScreen(
         }
     }
 
+    // Starts broadcast receiver for InAppNotifications then stops it when the screen is closed
     DisposableEffect(vm) {
         vm.receiveUnreads(context)
         onDispose {
@@ -126,16 +136,24 @@ fun HomeScreen(
         }
     ) {
         if (!showSearch) {
-            MainScreenContent(
+            HomeScreenContent(
                 vm = vm,
                 navController = navController,
             )
         } else {
-            SearchUI(vm = vm, navController = navController)
+            SearchResults(vm = vm, navController = navController)
         }
     }
 }
 
+/**
+ * Bell button which has a red dot if there are new notifications. Opens the NotificationScreen
+ *
+ * @param modifier
+ * @param notifCount
+ * @param onClick
+ * @receiver
+ */
 @Composable
 fun NotificationsButton(modifier: Modifier = Modifier, notifCount: Int?, onClick: () -> Unit) {
     Box(modifier = modifier.clickable { onClick() }, contentAlignment = Alignment.Center) {
@@ -162,8 +180,123 @@ fun NotificationsButton(modifier: Modifier = Modifier, notifCount: Int?, onClick
     }
 }
 
+/**
+ * Content shown on the HomeScreen when the search bar has no input.
+ * Contains: my clubs (all the clubs that the user has joined) in order of upcoming events (the first
+ * one is the one that has the nearest upcoming event), my events (events that the user has
+ * joined or liked), my news (news that relate to the clubs the user has joined) and all news (all
+ * the news on the app). All of those lists are limited to the first 5 elements to limit the size
+ * of this screen. If the user wants to access more, they can click on the headers of the sections.
+ *
+ * @param vm
+ * @param navController
+ */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun SearchUI(vm: HomeScreenViewModel, navController: NavController) {
+fun HomeScreenContent(
+    vm: HomeScreenViewModel,
+    navController: NavController,
+) {
+    val myClubs by vm.myClubs.observeAsState(listOf())
+    val myEvents by vm.myEvents.observeAsState(listOf())
+    val myNews by vm.myNews.observeAsState(listOf())
+    val allNews by vm.allNews.observeAsState(listOf())
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        stickyHeader {
+            LazyColumnHeader(
+                text = "My Clubs",
+                onHomeScreen = true,
+                onClick = {
+                    navController.navigate(NavRoute.AllMy.name + "/club")
+                }
+            )
+        }
+        items(myClubs.take(5)) { club ->
+            MyClubTile(
+                club = club,
+                vm = vm,
+                onClickNews = {
+                    navController.navigate(NavRoute.ClubNews.name + "/true/${club.ref}")
+                },
+                onClickUpcoming = {
+                    navController.navigate(NavRoute.Event.name + "/${it}")
+                },
+                onClick = {
+                    navController.navigate(NavRoute.ClubPage.name + "/${club.ref}")
+                }
+            )
+        }
+
+        stickyHeader {
+            LazyColumnHeader(
+                text = "My Events",
+                onHomeScreen = true,
+                onClick = { navController.navigate(NavRoute.AllMy.name + "/event") })
+        }
+        items(myEvents.take(5)) { event ->
+            EventTile(
+                event = event,
+                onClick = {
+                    navController.navigate(NavRoute.Event.name + "/${event.id}")
+                }, navController = navController
+            )
+        }
+
+        stickyHeader {
+            LazyColumnHeader(
+                text = "My News",
+                onHomeScreen = true,
+                onClick = {
+                    navController.navigate(NavRoute.AllMy.name + "/news")
+                }
+            )
+        }
+        items(myNews.take(5)) { singleNews ->
+            SmallNewsTile(
+                news = singleNews,
+            ) {
+                navController.navigate(NavRoute.SingleNews.name + "/${singleNews.id}")
+            }
+        }
+
+        stickyHeader {
+            LazyColumnHeader(
+                text = "All News",
+                onHomeScreen = true,
+                onClick = {
+                    navController.navigate(NavRoute.News.name)
+                }
+            )
+        }
+        items(allNews.take(5)) {
+            SmallNewsTile(
+                news = it
+            ) {
+                navController.navigate(NavRoute.SingleNews.name + "/${it.id}")
+            }
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(32.dp))
+        }
+    }
+}
+
+/**
+ * Results of a search on the HomeScreen when using the top search bar. Shows all the clubs and all
+ * the relevant events (from my clubs) which correspond to the query (contain the searched string)
+ *
+ * @param vm
+ * @param navController
+ */
+@Composable
+fun SearchResults(vm: HomeScreenViewModel, navController: NavController) {
     val allClubs by vm.allClubs.observeAsState(listOf())
     val searchInput by vm.searchInput.observeAsState("")
     val allEvents by vm.allEvents.observeAsState(listOf())
@@ -175,6 +308,7 @@ fun SearchUI(vm: HomeScreenViewModel, navController: NavController) {
         }
     }
 
+    // Filters out the clubs that contain the searched string in their name
     val clubsFiltered by remember {
         derivedStateOf {
             if (searchInput.isNotBlank()) {
@@ -185,6 +319,7 @@ fun SearchUI(vm: HomeScreenViewModel, navController: NavController) {
         }
     }
 
+    // Filters out the events of my clubs that contain the searched string in their name
     val eventsFiltered by remember {
         derivedStateOf {
             if (searchInput.isNotBlank()) {
@@ -271,106 +406,11 @@ fun SearchUI(vm: HomeScreenViewModel, navController: NavController) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun MainScreenContent(
-    vm: HomeScreenViewModel,
-    navController: NavController,
-) {
-    val myClubs by vm.myClubs.observeAsState(listOf())
-    val myEvents by vm.myEvents.observeAsState(listOf())
-    val myNews by vm.myNews.observeAsState(listOf())
-    val allNews by vm.allNews.observeAsState(listOf())
-
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        stickyHeader {
-            LazyColumnHeader(
-                text = "My Clubs",
-                onHomeScreen = true,
-                onClick = {
-                    navController.navigate(NavRoute.AllMy.name + "/club")
-                }
-            )
-        }
-        items(myClubs.take(5)) { club ->
-            MyClubTile(
-                club = club,
-                vm = vm,
-                onClickNews = {
-                    navController.navigate(NavRoute.ClubNews.name + "/true/${club.ref}")
-                },
-                onClickUpcoming = {
-                    navController.navigate(NavRoute.Event.name + "/${it}")
-                },
-                onClick = {
-                    navController.navigate(NavRoute.ClubPage.name + "/${club.ref}")
-                }
-            )
-        }
-
-        stickyHeader {
-            LazyColumnHeader(
-                text = "My Events",
-                onHomeScreen = true,
-                onClick = { navController.navigate(NavRoute.AllMy.name + "/event") })
-        }
-        items(myEvents.take(5)) { event ->
-//            vm.getEventJoinRequests(event.id)
-//            val hasRequested by vm.hasRequested.observeAsState(false)
-
-            EventTile(
-                event = event,
-                onClick = {
-                    navController.navigate(NavRoute.Event.name + "/${event.id}")
-                }, navController = navController
-            )
-        }
-
-        stickyHeader {
-            LazyColumnHeader(
-                text = "My News",
-                onHomeScreen = true,
-                onClick = {
-                    navController.navigate(NavRoute.AllMy.name + "/news")
-                }
-            )
-        }
-        items(myNews.take(5)) { singleNews ->
-            SmallNewsTile(
-                news = singleNews,
-            ) {
-                navController.navigate(NavRoute.SingleNews.name + "/${singleNews.id}")
-            }
-        }
-
-        stickyHeader {
-            LazyColumnHeader(
-                text = "All News",
-                onHomeScreen = true,
-                onClick = {
-                    navController.navigate(NavRoute.News.name)
-                }
-            )
-        }
-        items(allNews.take(5)) {
-            SmallNewsTile(
-                news = it
-            ) {
-                navController.navigate(NavRoute.SingleNews.name + "/${it.id}")
-            }
-        }
-
-        item {
-            Spacer(modifier = Modifier.height(32.dp))
-        }
-    }
-}
-
+/**
+ * Label that shows that the user is the admin of a club on the MyClubTile
+ *
+ * @param modifier
+ */
 @Composable
 fun AdminLabel(modifier: Modifier = Modifier) {
     Card(
@@ -386,6 +426,19 @@ fun AdminLabel(modifier: Modifier = Modifier) {
     }
 }
 
+/**
+ * Represents a club joined by the current user.
+ * Contains the club's banner, name, next upcoming event and number of
+ * unread news.
+ * Shows an AdminLabel if the user is an admin of that club
+ *
+ * @param modifier
+ * @param club
+ * @param vm
+ * @param onClick
+ * @param onClickNews
+ * @param onClickUpcoming
+ */
 @Composable
 fun MyClubTile(
     modifier: Modifier = Modifier,
@@ -495,6 +548,15 @@ fun MyClubTile(
     }
 }
 
+/**
+ * On the MyClubTile, shows the number of unread news.
+ * Opens a screen where the user can see those news.
+ *
+ * @param modifier
+ * @param amount
+ * @param onClick
+ * @receiver
+ */
 @Composable
 fun NewsIconSection(modifier: Modifier = Modifier, amount: Int?, onClick: () -> Unit) {
     Box(modifier = modifier.clickable { onClick() }, contentAlignment = Alignment.Center) {
@@ -521,11 +583,18 @@ fun NewsIconSection(modifier: Modifier = Modifier, amount: Int?, onClick: () -> 
                 }
             }
         }
-
     }
-
 }
 
+/**
+ * On the MyClubTile, shows the next upcoming event.
+ * Opens the relevant EventScreen
+ *
+ * @param modifier
+ * @param upcoming
+ * @param onClick
+ * @receiver
+ */
 @Composable
 fun UpcomingEvent(modifier: Modifier = Modifier, upcoming: Event?, onClick: () -> Unit) {
     Column(
@@ -580,6 +649,14 @@ fun UpcomingEvent(modifier: Modifier = Modifier, upcoming: Event?, onClick: () -
     }
 }
 
+/**
+ * Floating action button which, when expanded, allows the user to create a new club, event or news
+ *
+ * @param isExpanded
+ * @param navController
+ * @param onClick
+ * @receiver
+ */
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun FAB(isExpanded: Boolean, navController: NavController, onClick: () -> Unit) {
@@ -635,6 +712,13 @@ fun FAB(isExpanded: Boolean, navController: NavController, onClick: () -> Unit) 
     }
 }
 
+/**
+ * Part of FAB, one of the button that expands when the FAB is clicked
+ *
+ * @param modifier
+ * @param text
+ * @param onClick
+ */
 @Composable
 fun FABAction(modifier: Modifier = Modifier, text: String, onClick: () -> Unit) {
     Card(

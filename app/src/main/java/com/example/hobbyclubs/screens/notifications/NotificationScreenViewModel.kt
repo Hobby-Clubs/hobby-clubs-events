@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -15,7 +14,6 @@ import com.example.hobbyclubs.api.NotificationType.*
 import com.example.hobbyclubs.notifications.InAppNotificationHelper
 import com.example.hobbyclubs.notifications.InAppNotificationService
 import com.example.hobbyclubs.notifications.NotificationContent
-import com.example.hobbyclubs.screens.home.HomeScreenViewModel
 import com.google.firebase.firestore.FieldValue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -24,20 +22,30 @@ import kotlinx.coroutines.withContext
 
 class NotificationScreenViewModel(application: Application) : AndroidViewModel(application) {
     private var unreadReceiver: BroadcastReceiver? = null
-    val helper = InAppNotificationHelper(application)
+    private val helper = InAppNotificationHelper(application)
     val unreads = MutableLiveData<List<NotificationContent>>()
     val isRefreshing = MutableLiveData(false)
-    val isPausedPref = application.getSharedPreferences("paused", Context.MODE_PRIVATE)
+    private val isPausedPref = application.getSharedPreferences("paused", Context.MODE_PRIVATE)
 
     init {
         refresh()
     }
 
+    /**
+     * Fetches the in app notifications again
+     *
+     */
     fun refresh() {
         isRefreshing.value = true
         fetchUnreads()
     }
 
+    /**
+     * Sets up a broadcast receiver for in app notifications.
+     * The broadcasts come from the [InAppNotificationService]
+     *
+     * @param context
+     */
     fun receiveUnreads(context: Context) {
         val unreadFilter = IntentFilter()
         unreadFilter.addAction(InAppNotificationService.NOTIF_UNREAD)
@@ -55,11 +63,16 @@ class NotificationScreenViewModel(application: Application) : AndroidViewModel(a
         context.registerReceiver(unreadReceiver, unreadFilter)
     }
 
+    /**
+     * Converts a received list of [NotificationInfo] into a list of [NotificationContent]
+     * which contain all the content to display in the list of in app notifications
+     *
+     * @param notifInfos
+     */
     fun convertToContents(notifInfos: List<NotificationInfo>) {
         viewModelScope.launch(Dispatchers.IO) {
             val contents = notifInfos.map {
-                val type = valueOf(it.type)
-                when (type) {
+                when (valueOf(it.type)) {
                     EVENT_CREATED -> withContext(coroutineContext) {
                         helper.newEventToContent(it)
                     }
@@ -87,7 +100,11 @@ class NotificationScreenViewModel(application: Application) : AndroidViewModel(a
         }
     }
 
-    fun fetchUnreads() {
+    /**
+     * Fetches unread in app notifications
+     *
+     */
+    private fun fetchUnreads() {
         viewModelScope.launch(Dispatchers.IO) {
             val list = helper.getMyNotifsContents()
             unreads.postValue(list)
@@ -95,15 +112,31 @@ class NotificationScreenViewModel(application: Application) : AndroidViewModel(a
         }
     }
 
+    /**
+     * Unregisters receiver for in app notifications from [InAppNotificationService]
+     *
+     * @param context
+     */
     fun unregisterReceiver(context: Context) {
         context.unregisterReceiver(unreadReceiver)
     }
 
+    /**
+     * Marks a notification as read by the current user by adding their user id to the readBy array
+     * of the corresponding [NotificationInfo] on firestore.
+     *
+     * @param id
+     */
     fun markAsRead(id: String) {
         FirebaseHelper.markNotificationAsSeen(id)
         unreads.value = unreads.value?.filter { it.id != id }
     }
 
+    /**
+     * For demo purposes, removes the current user's id from all readBy arrays in [NotificationInfo]
+     * to undo the dismissal of all in app notifications.
+     *
+     */
     fun removeRead() {
         setIsPaused(true)
         FirebaseHelper.uid?.let { uid ->
@@ -125,13 +158,25 @@ class NotificationScreenViewModel(application: Application) : AndroidViewModel(a
         }
     }
 
-    fun setIsPaused(isPaused: Boolean) {
+    /**
+     * Pauses the fetching of in app notifications by the [InAppNotificationService]
+     *
+     * @param isPaused
+     */
+    private fun setIsPaused(isPaused: Boolean) {
         isPausedPref.edit().apply {
             putBoolean("isPaused", isPaused)
             apply()
         }
     }
 
+    /**
+     * Dismisses all in app notifications by marking them as read.
+     * Pauses the fetching of in app notifications while doing so and refreshes
+     * the list when done
+     *
+     * @param contents the current list of [NotificationContent]
+     */
     fun markAllAsRead(contents: List<NotificationContent>) {
         setIsPaused(true)
         contents.map { it.id }.forEach {

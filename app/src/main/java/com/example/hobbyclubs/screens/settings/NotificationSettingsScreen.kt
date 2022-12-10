@@ -5,13 +5,6 @@ import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -21,7 +14,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -29,11 +21,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.compose.md_theme_dark_outline
 import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.screens.clubmanagement.ClubManagementSectionTitle
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+/**
+ * Screen where the user can enable/disable each of their notifications
+ *
+ * @param vm
+ * @param navController
+ */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationSettingsScreen(
     vm: NotificationSettingsViewModel = viewModel(),
@@ -44,10 +41,13 @@ fun NotificationSettingsScreen(
     var notificationsAllowed by remember { mutableStateOf(false) }
     val settingValues by vm.settingValues.observeAsState(listOf())
     val retrieved by vm.retrievedSettings.observeAsState(listOf())
+    // checks whether the notification settings have changed compared to the settings stored in
+    // SharedPreferences
     val hasChanged by remember {
         derivedStateOf { settingValues != retrieved }
     }
 
+    // Launcher for checking a permission
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = {
@@ -55,6 +55,7 @@ fun NotificationSettingsScreen(
         }
     )
 
+    // After Android Tiramisu, checks if the user has allowed Post Notifications for the app
     LaunchedEffect(Unit) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             notificationPermissionLauncher.launch(POST_NOTIFICATIONS)
@@ -97,6 +98,13 @@ fun NotificationSettingsScreen(
     }
 }
 
+/**
+ * Top app back for the NotificationSettingsScreen
+ *
+ * @param navController
+ * @param showSave
+ * @param onSave
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsTopBar(navController: NavController, showSave: Boolean = false, onSave: () -> Unit) {
@@ -115,6 +123,14 @@ fun SettingsTopBar(navController: NavController, showSave: Boolean = false, onSa
     )
 }
 
+/**
+ * Tile which contains an icon, a title and a switch.
+ * Allows to toggle a notification setting on or off
+ *
+ * @param data
+ * @param isActive
+ * @param onCheckedChange
+ */
 @Composable
 fun SettingsSwitchTile(
     data: NotificationSetting,
@@ -145,6 +161,13 @@ fun SettingsSwitchTile(
     }
 }
 
+/**
+ * List of all notification settings divided in [SettingCategory]
+ *
+ * @param settings
+ * @param onCheckedChange
+ * @receiver
+ */
 @Composable
 fun SettingList(
     settings: List<Pair<String, Boolean>>,
@@ -169,10 +192,25 @@ fun SettingList(
     }
 }
 
+/**
+ * Categories for notification settings
+ *
+ */
 enum class SettingCategory {
     Events, News, Requests
 }
 
+/**
+ * Enum class for all the different notification settings.
+ * Each enum contains the icon, title and boolean state for a SettingsSwitchTile,
+ * as well as their [SettingCategory] to sort them into subsections in the SettingList
+ *
+ * @property title
+ * @property category
+ * @property icon
+ * @property isActive
+ * @constructor Create empty Notification setting
+ */
 enum class NotificationSetting(
     val title: String,
     val category: SettingCategory,
@@ -232,5 +270,5 @@ enum class NotificationSetting(
         category = SettingCategory.Requests,
         icon = Icons.Outlined.Check,
         isActive = false
-    ),
+    )
 }

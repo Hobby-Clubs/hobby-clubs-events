@@ -220,20 +220,30 @@ object FirebaseHelper {
         ref.set(eventWithId)
             .addOnSuccessListener {
                 Log.d(TAG, "addEvent: $ref")
-                event.clubId.let { id ->
-                    getNextEvent(id)
-                        .get()
-                        .addOnSuccessListener {
-                            val next = it.toObjects(Event::class.java)[0]
-                            updateClubDetails(id, mapOf(Pair("nextEvent", next.date)))
-                        }
-                }
+                updateNextEvent(event.id, event.clubId)
                 addNewEventNotif(eventId = ref.id, clubId = event.clubId)
             }
             .addOnFailureListener { e ->
                 Log.e(TAG, "addEvent: ", e)
             }
         return ref.id
+    }
+
+    /**
+     * Update the nextEvent value of a club, which helps to sort them on the HomeScreen
+     *
+     * @param eventId
+     */
+    private fun updateNextEvent(eventId: String, clubId: String) {
+        getNextEvent(eventId)
+            .get()
+            .addOnSuccessListener {
+                if (it.isEmpty) {
+                    return@addOnSuccessListener
+                }
+                val next = it.toObjects(Event::class.java)[0]
+                updateClubDetails(clubId, mapOf(Pair("nextEvent", next.date)))
+            }
     }
 
     /**
@@ -312,6 +322,14 @@ object FirebaseHelper {
         val ref = db.collection(CollectionName.events).document(eventId)
         ref.update(changeMap)
             .addOnSuccessListener {
+                getEvent(eventId).get()
+                    .addOnSuccessListener { data ->
+                        val event = data.toObject(Event::class.java)
+                        if (event?.clubId?.isNotEmpty() == true) {
+                            updateNextEvent(event.id, event.clubId )
+                        }
+                    }
+
                 Log.d(TAG, "updateEventDetails: $it")
             }
             .addOnFailureListener {

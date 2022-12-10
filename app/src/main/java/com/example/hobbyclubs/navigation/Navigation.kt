@@ -1,12 +1,7 @@
 package com.example.hobbyclubs.navigation
 
 import android.content.Intent
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CalendarMonth
-import androidx.compose.material.icons.outlined.ClearAll
-import androidx.compose.material.icons.outlined.Home
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.*
 import com.example.hobbyclubs.screens.allmyoftype.AllMyScreen
 import com.example.hobbyclubs.screens.calendar.CalendarScreen
@@ -28,7 +23,7 @@ import com.example.hobbyclubs.screens.eventparticipants.EventParticipantRequestS
 import com.example.hobbyclubs.screens.eventparticipants.EventParticipantsScreen
 import com.example.hobbyclubs.screens.firstTime.FirstTimeScreen
 import com.example.hobbyclubs.screens.home.HomeScreen
-import com.example.hobbyclubs.screens.login.LoginScreen
+import com.example.hobbyclubs.screens.login.LoginAndRegisterScreen
 import com.example.hobbyclubs.screens.news.NewsScreen
 import com.example.hobbyclubs.screens.news.SingleNewsScreen
 import com.example.hobbyclubs.screens.notifications.NotificationsScreen
@@ -263,7 +258,7 @@ enum class NavRoute(
     Login(
         route = "Login",
         content = { _, navController ->
-            LoginScreen(navController = navController)
+            LoginAndRegisterScreen(navController = navController)
         }
     ),
     FirstTime(

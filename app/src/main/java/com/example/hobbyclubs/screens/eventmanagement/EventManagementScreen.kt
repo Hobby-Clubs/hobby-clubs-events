@@ -247,7 +247,7 @@ fun EventManagementRowItem(text: String, onClick: () -> Unit) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ParticipantsSection(navController: NavController, eventId: String, participantAmount: Int, requestAmount: Int) {
-    Column {
+    Column() {
         EventManagementSectionTitle(text = "Participants")
         Card(
             modifier = Modifier

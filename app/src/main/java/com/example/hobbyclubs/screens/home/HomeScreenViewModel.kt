@@ -12,17 +12,28 @@ import com.example.hobbyclubs.api.*
 import com.example.hobbyclubs.notifications.InAppNotificationService
 import com.google.firebase.Timestamp
 
+/**
+ * View model containing the logic behind the HomeScreen
+ */
 class HomeScreenViewModel : ViewModel() {
     companion object {
         const val TAG = "HomeScreenViewModel"
     }
 
+    // Receiver for in app notifications. To show a red dot on the NotificationButton
     private var unreadReceiver: BroadcastReceiver? = null
     val unreadAmount = MutableLiveData(0)
     val isFirstTimeUser = MutableLiveData<Boolean>()
     val allClubs = MutableLiveData<List<Club>>()
     val myClubs = Transformations.map(allClubs) { clubs ->
-        clubs.filter { club -> club.members.contains(FirebaseHelper.uid) }
+        val now = Timestamp.now()
+        val mClubs = clubs.filter { club -> club.members.contains(FirebaseHelper.uid) }
+        val firstOnes = mClubs
+            .filter { club -> club.nextEvent != null }
+            .filter { club -> club.nextEvent!! >= now }
+            .sortedBy { club -> club.nextEvent }
+
+        firstOnes + mClubs.filter { club -> !firstOnes.contains(club) }
     }
     val allEvents = MutableLiveData<List<Event>>()
     val myEvents = Transformations.map(allEvents) { events ->
@@ -46,6 +57,7 @@ class HomeScreenViewModel : ViewModel() {
 
     val searchInput = MutableLiveData("")
 
+    // On start, checks if the user opens the app for the first time then fetches all necessary data
     init {
         checkFirstTime()
         fetchAllClubs()
@@ -53,6 +65,10 @@ class HomeScreenViewModel : ViewModel() {
         fetchAllNews()
     }
 
+    /**
+     * Fetches the value of firstTime on the current user's firestore document
+     *
+     */
     private fun checkFirstTime() {
         FirebaseHelper.uid?.let {
             FirebaseHelper.getUser(it)
@@ -66,6 +82,10 @@ class HomeScreenViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Sets a snapshot listener which will fetch all upcoming events on the app
+     *
+     */
     private fun fetchAllEvents() {
         val now = Timestamp.now()
         FirebaseHelper.getAllEvents()
@@ -82,6 +102,10 @@ class HomeScreenViewModel : ViewModel() {
             }
     }
 
+    /**
+     * Sets a snapshot listener which will fetch all clubs on the app
+     *
+     */
     private fun fetchAllClubs() {
         FirebaseHelper.getAllClubs()
             .addSnapshotListener { data, error ->
@@ -97,7 +121,11 @@ class HomeScreenViewModel : ViewModel() {
             }
     }
 
-    fun fetchAllNews() {
+    /**
+     * Sets a snapshot listener which will fetch all news on the app
+     *
+     */
+    private fun fetchAllNews() {
         FirebaseHelper.getAllNews()
             .addSnapshotListener { data, error ->
                 data ?: run {
@@ -109,25 +137,45 @@ class HomeScreenViewModel : ViewModel() {
                 allNews.value = fetchedNews
             }
     }
+
+    /**
+     * When typing in the search bar, updates the search query to show relevant results
+     *
+     * @param newVal
+     */
     fun updateInput(newVal: String) {
         searchInput.value = newVal
     }
 
+
+    /**
+     * Sets a broadcast receiver for unread in app notifications.
+     * If there are unread notifications, the a red dot is shown on the NotificationButton of the
+     * HomeScreen
+     *
+     * @param context
+     */
     fun receiveUnreads(context: Context) {
         val unreadFilter = IntentFilter()
         unreadFilter.addAction(InAppNotificationService.NOTIF_UNREAD)
         unreadReceiver = object : BroadcastReceiver() {
             override fun onReceive(p0: Context?, p1: Intent?) {
-                val unreads = p1?.getParcelableArrayExtra(InAppNotificationService.EXTRA_NOTIF_UNREAD,)
-                    ?.map { it as NotificationInfo }
-                    ?.filter { !it.readBy.contains(FirebaseHelper.uid) }
-                    ?: listOf()
+                val unreads =
+                    p1?.getParcelableArrayExtra(InAppNotificationService.EXTRA_NOTIF_UNREAD)
+                        ?.map { it as NotificationInfo }
+                        ?.filter { !it.readBy.contains(FirebaseHelper.uid) }
+                        ?: listOf()
                 unreadAmount.value = unreads.size
             }
         }
         context.registerReceiver(unreadReceiver, unreadFilter)
     }
 
+    /**
+     * Unregisters the receiver for unread in app notifications
+     *
+     * @param context
+     */
     fun unregisterReceiver(context: Context) {
         context.unregisterReceiver(unreadReceiver)
     }

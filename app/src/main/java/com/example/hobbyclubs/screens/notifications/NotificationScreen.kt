@@ -46,6 +46,14 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import java.util.*
 
+/**
+ * Screen which shows all the unread in app notifications of a the current user, according
+ * to their notification settings.
+ * The user can then mark them as read individually or all at once
+ *
+ * @param navController
+ * @param vm
+ */
 @Composable
 fun NotificationsScreen(
     navController: NavController,
@@ -55,6 +63,7 @@ fun NotificationsScreen(
     val unreads by vm.unreads.observeAsState()
     val isRefreshing by vm.isRefreshing.observeAsState(false)
 
+    // starts the broadcast receiver for in app notifications then stops it when the screen is closed
     DisposableEffect(vm) {
         vm.receiveUnreads(context)
         onDispose {
@@ -71,7 +80,7 @@ fun NotificationsScreen(
         floatingActionButton = {
             unreads?.let {
                 if (it.isNotEmpty()) {
-                    ClearAllButton() {
+                    ClearAllButton {
                         vm.markAllAsRead(it)
                     }
                 } else {
@@ -105,6 +114,10 @@ fun NotificationsScreen(
     }
 }
 
+/**
+ * Shows a text when there are no new in app notifications
+ *
+ */
 @Composable
 fun NoNotifications() {
     Box(
@@ -115,6 +128,10 @@ fun NoNotifications() {
     }
 }
 
+/**
+ * Shows a loading animation and text when the app is fetching the in app notifications
+ *
+ */
 @Composable
 fun NotificationsLoading() {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -128,6 +145,16 @@ fun NotificationsLoading() {
     }
 }
 
+/**
+ * List of all unread in app notifications, according to the notification settings.
+ * Can be pulled down to fetch the in app notifications again
+ *
+ * @param isRefreshing
+ * @param onRefresh
+ * @param contents
+ * @param onMarkAsRead
+ * @param onClick
+ */
 @Composable
 fun NotificationList(
     isRefreshing: Boolean,
@@ -161,6 +188,13 @@ fun NotificationList(
     }
 }
 
+/**
+ * Top app bar for the NotificationScreen
+ *
+ * @param navController
+ * @param onClickSettings
+ * @receiver
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationsTopBar(navController: NavController, onClickSettings: () -> Unit) {
@@ -180,6 +214,14 @@ fun NotificationsTopBar(navController: NavController, onClickSettings: () -> Uni
     )
 }
 
+/**
+ * Tile that represents an unread in app notification with its icon, title and description.
+ * Can be dismissed by swiping left and opens a relevant screen when pressed
+ *
+ * @param content
+ * @param onDismiss
+ * @param onClick
+ */
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun NotificationTile(
@@ -265,7 +307,7 @@ fun NotificationTile(
                         Icon(imageVector = it, contentDescription = null, tint = Color.White)
                     }
                 }
-                Column() {
+                Column {
                     Text(text = content.title.trim(), fontWeight = FontWeight.SemiBold)
                     Text(text = content.content.trim(), fontSize = 12.sp, lineHeight = 15.sp)
                     Text(
@@ -279,6 +321,13 @@ fun NotificationTile(
     }
 }
 
+/**
+ * Button to mark all the current in app notifications as read
+ *
+ * @param modifier
+ * @param onClick
+ * @receiver
+ */
 @Composable
 fun ClearAllButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
     Card(
@@ -313,6 +362,12 @@ fun ClearAllButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
     }
 }
 
+/**
+ * Returns the date of an in app notification formatted in a relevant manner
+ *
+ * @param notificationDate
+ * @return a string of the date of a notification
+ */
 fun getDateText(notificationDate: Date): String {
     val now = Date()
     val yearNow = now.toString("yyyy")

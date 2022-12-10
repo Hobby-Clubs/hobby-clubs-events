@@ -111,13 +111,12 @@ data class NotificationChannelData(
  * @property id
  * @property title
  * @property content
- * @property pendingIntent
- * @property requestCode
- * @property channelId
+ * @property pendingIntent includes deeplink to redirect the user when tapping the notification
+ * @property requestCode notification request code
+ * @property channelId notification channel id
  * @property date
  * @property setting
- * @property navRoute
- * @constructor Create empty Notification content
+ * @property navRoute to navigate to a screen from the NotificationScreen
  */
 data class NotificationContent(
     val id: String = "",

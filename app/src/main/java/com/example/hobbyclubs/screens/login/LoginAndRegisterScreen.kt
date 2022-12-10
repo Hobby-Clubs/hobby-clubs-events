@@ -18,9 +18,16 @@ import com.example.hobbyclubs.navigation.NavRoute
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+/**
+ * Mock login/register screen. This should not appear in the MyCampus app but is needed on this prototype to
+ * simulate authentication. Should be replaced by the authentication of the MyCampus app
+ *
+ * @param navController
+ * @param vm
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(navController: NavController, vm: LoginViewModel = viewModel()) {
+fun LoginAndRegisterScreen(navController: NavController, vm: LoginAndRegisterViewModel = viewModel()) {
     val isLoggedIn by vm.isLoggedIn.observeAsState(false)
     val authException by vm.authException.observeAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -82,9 +89,14 @@ fun LoginScreen(navController: NavController, vm: LoginViewModel = viewModel()) 
 
 }
 
+/**
+ * A form that contains fields for email and password, as well as a button to submit those.
+ *
+ * @param vm
+ */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
-fun EmailPwdForm(vm: LoginViewModel) {
+fun EmailPwdForm(vm: LoginAndRegisterViewModel) {
     val kbController = LocalSoftwareKeyboardController.current
     val email by vm.email.observeAsState("")
     val pwd by vm.pwd.observeAsState("")
@@ -144,9 +156,14 @@ fun EmailPwdForm(vm: LoginViewModel) {
     }
 }
 
+/**
+ * When registering, this form allows a user to add a profile picture, their names and phone number
+ *
+ * @param vm
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileForm(vm: LoginViewModel) {
+fun ProfileForm(vm: LoginAndRegisterViewModel) {
     val picUri by vm.picUri.observeAsState()
     val fName by vm.fName.observeAsState("")
     val lName by vm.lName.observeAsState("")
