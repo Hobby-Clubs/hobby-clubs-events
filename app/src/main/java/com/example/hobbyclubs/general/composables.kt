@@ -345,27 +345,22 @@ fun LazyColumnHeader(
 @Composable
 fun TopBarBackButton(navController: NavController) {
     Card(
+        modifier = Modifier.size(30.dp),
         shape = CircleShape,
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        modifier = Modifier
-            .padding(start = 10.dp)
-            .size(30.dp)
-            .aspectRatio(1f)
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+        IconButton(
+            onClick = { navController.navigateUp() }
         ) {
-            IconButton(
-                onClick = { navController.navigateUp() }
-            ) {
-                Icon(
-                    Icons.Outlined.ArrowBack,
-                    contentDescription = "Back",
-                    modifier = Modifier.size(20.dp)
-                )
-            }
+            Icon(
+                Icons.Outlined.KeyboardArrowLeft,
+                contentDescription = "Back",
+                modifier = Modifier
+                    .width(24.dp)
+                    .padding(end = 2.dp)
+            )
         }
+
     }
 }
 
@@ -454,13 +449,13 @@ fun Pill(
     onClick: () -> Unit
 ) {
     val shape = if (isLeft) {
-        RoundedCornerShape(topStart = 10.dp, bottomStart = 10.dp)
+        RoundedCornerShape(topStart = 20.dp, bottomStart = 20.dp)
     } else {
-        RoundedCornerShape(topEnd = 10.dp, bottomEnd = 10.dp)
+        RoundedCornerShape(topEnd = 20.dp, bottomEnd = 20.dp)
     }
 
     val color =
-        if (isSelected) colorScheme.primary else colorScheme.secondary
+        if (isSelected) colorScheme.primary else colorScheme.surfaceVariant
 
     Card(
         shape = shape,
@@ -613,8 +608,7 @@ fun EventTile(
                                                 Toast.LENGTH_SHORT
                                             ).show()
                                         }
-                                    }
-                                    else {
+                                    } else {
                                         if(!hasRequested && event.isPrivate && !event.admins.contains(FirebaseHelper.uid)) {
                                             createEventRequest(event)
                                             refreshStatus()
@@ -794,7 +788,7 @@ fun JoinEventButton(
 fun ManageEventButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
     Card(
         shape = RoundedCornerShape(100.dp),
-        colors = CardDefaults.cardColors(containerColor = md_theme_light_surfaceTint),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.primary),
         modifier = modifier
             .clickable { onClick() }
     ) {
@@ -807,16 +801,16 @@ fun ManageEventButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
                 .padding(end = 4.dp)
         ) {
             Icon(
-                Icons.Outlined.Settings,
-                "Settings icon",
-                tint = Color.White,
+                Icons.Outlined.Tune,
+                "Manage icon",
+                tint = colorScheme.onPrimary,
                 modifier = Modifier
                     .padding(end = 8.dp)
                     .width(18.dp)
             )
             Text(
                 text = "Manage",
-                color = Color.White,
+                color = colorScheme.onPrimary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
             )

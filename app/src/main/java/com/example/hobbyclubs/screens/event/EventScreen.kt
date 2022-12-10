@@ -7,9 +7,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NavigateNext
-import androidx.compose.material.icons.outlined.ExitToApp
-import androidx.compose.material.icons.outlined.Pending
-import androidx.compose.material.icons.outlined.PersonAddAlt
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -34,7 +32,6 @@ import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.general.*
 import com.example.hobbyclubs.navigation.NavRoute
 import com.example.hobbyclubs.screens.clubpage.ClubSectionTitle
-import com.example.hobbyclubs.general.CustomButton
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -78,7 +75,9 @@ fun EventScreen(
                 DividerLine()
                 EventLinks(context, event.linkArray)
                 DividerLine()
-                EventContactInfo(event.contactInfoName, event.contactInfoNumber, event.contactInfoEmail)
+                EventContactInfo(
+                    event.contactInfoName, event.contactInfoNumber, event.contactInfoEmail
+                )
             }
             TopAppBar(
                 title = {},
@@ -190,8 +189,7 @@ fun EventHeader(
                             }
                             .fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End
-                    ) {
+                        horizontalArrangement = Arrangement.End) {
                         Text(
                             text = "${event.participants.size} ${if (event.participants.size == 1) "participant" else "participants"}",
                             fontSize = 14.sp,
@@ -203,58 +201,80 @@ fun EventHeader(
                             tint = Color.Black
                         )
                     }
-
                 }
             }
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 20.dp, top = 20.dp),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                if (hasJoinedEvent) {
-                    CustomButton(
-                        text = "Cancel",
-                        onClick = {
-                            leaveEvent(event, context)
-                        },
-                        icon = Icons.Outlined.ExitToApp
-                    )
-                }
-                if (!hasJoinedEvent && event.isPrivate && !hasRequested && !isAdmin) {
-                    CustomButton(
-                        text = "Request",
-                        onClick = {
-                            vm.createEventRequest(event, context)
-                        },
-                        icon = Icons.Outlined.PersonAddAlt
-                    )
-                }
-                if (!hasJoinedEvent && event.isPrivate && hasRequested) {
-                    CustomButton(
-                        text = "Pending",
-                        onClick = { },
-                        icon = Icons.Outlined.Pending
-                    )
-                }
-                if (!hasJoinedEvent && (!event.isPrivate || isAdmin)) {
-                    CustomButton(
-                        text = "Join",
-                        onClick = {
-                            joinEvent(event, context)
-                        },
-                        icon = Icons.Outlined.PersonAddAlt
-                    )
-                }
-                if (isAdmin) {
-                    CustomButton(
-                        text = "Manage Event",
-                        onClick = {
-                            navController.navigate(NavRoute.EventManagement.name + "/${event.id}")
+                Box(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    if (hasJoinedEvent) {
+                        Button(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = { leaveEvent(event, context) },
+                        ) {
+                            Icon(Icons.Outlined.Close, null)
+                            Text(
+                                modifier = Modifier.padding(start = 8.dp),
+                                text = "Cancel",
+                            )
                         }
-                    )
+                    } else {
+                        if (event.isPrivate && !hasRequested && !isAdmin) {
+                            Button(
+                                modifier = Modifier.fillMaxWidth(),
+                                onClick = { vm.createEventRequest(event, context) },
+                            ) {
+                                Icon(Icons.Outlined.PersonAdd, null)
+                                Text(
+                                    modifier = Modifier.padding(start = 8.dp),
+                                    text = "Request",
+                                )
+                            }
+                        } else if (event.isPrivate && hasRequested) {
+                            Button(
+                                modifier = Modifier.fillMaxWidth(),
+                                onClick = { },
+                            ) {
+                                Icon(Icons.Outlined.Pending, null)
+                                Text(
+                                    modifier = Modifier.padding(start = 8.dp),
+                                    text = "Pending",
+                                )
+                            }
+                        } else {
+                            Button(
+                                modifier = Modifier.fillMaxWidth(),
+                                onClick = { joinEvent(event, context) },
+                            ) {
+                                Icon(Icons.Outlined.PersonAdd, null)
+                                Text(
+                                    modifier = Modifier.padding(start = 8.dp),
+                                    text = "Join",
+                                )
+                            }
+                        }
+                    }
+                }
+                Box(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    if (isAdmin) {
+                        Button(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = { navController.navigate(NavRoute.EventManagement.name + "/${event.id}") },
+                        ) {
+                            Icon(Icons.Outlined.Tune, null)
+                            Text(
+                                modifier = Modifier.padding(start = 8.dp),
+                                text = "Manage Event",
+                            )
+                        }
+                    }
                 }
             }
         }

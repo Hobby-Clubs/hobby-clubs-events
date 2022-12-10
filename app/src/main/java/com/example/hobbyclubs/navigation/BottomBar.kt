@@ -5,8 +5,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.ClearAll
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -46,10 +48,11 @@ fun BottomBar(navController: NavController) {
                 icon = {
                     Icon(
                         imageVector = barItem.icon,
-                        contentDescription = null
+                        contentDescription = null,
+                        tint = colorScheme.onSurfaceVariant
                     )
                 },
-                label = { androidx.compose.material3.Text(text = barItem.title) }
+                label = { Text(text = barItem.title) }
             )
         }
     }

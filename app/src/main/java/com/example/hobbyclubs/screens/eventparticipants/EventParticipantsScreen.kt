@@ -41,12 +41,12 @@ fun EventParticipantsScreen(
         vm.getEvent(eventId)
     }
 
-    event?. let {
-        Box {
+    event?.let {
+        Scaffold { padding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 20.dp),
+                    .padding(vertical = padding.calculateBottomPadding(), horizontal = 20.dp),
                 horizontalAlignment = Alignment.Start,
             ) {
                 Text(
@@ -118,7 +118,7 @@ fun ListOfEventParticipants(
 fun ParticipantCard(
     user: User,
 ) {
-    Card(
+    ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
     ) {

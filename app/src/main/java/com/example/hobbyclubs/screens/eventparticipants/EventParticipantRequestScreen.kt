@@ -141,7 +141,7 @@ fun EventRequestCard(
         }
     }
     user?.let {
-        Card(
+        ElevatedCard(
             modifier = Modifier
                 .fillMaxWidth(),
         ) {

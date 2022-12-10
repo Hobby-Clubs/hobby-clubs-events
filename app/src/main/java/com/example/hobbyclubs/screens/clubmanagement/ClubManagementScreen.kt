@@ -124,7 +124,7 @@ fun ClubManagementRowCard(
     isMemberRequest: Boolean = false,
     onClick: () -> Unit
 ) {
-    Card(
+    ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
             .height(50.dp),
@@ -214,7 +214,8 @@ fun ExpandablePrivacyCard(
     val rotationState by animateFloatAsState(
         targetValue = if (expandedState) 180f else 0f
     )
-    Card(
+
+    ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
             .animateContentSize(

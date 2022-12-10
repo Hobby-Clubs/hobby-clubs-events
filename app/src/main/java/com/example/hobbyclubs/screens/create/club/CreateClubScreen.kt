@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -146,7 +147,7 @@ fun ClubCreationPage1(vm: CreateClubViewModel) {
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 75.dp)
+                .padding(bottom = 32.dp)
         ) {
             PageProgression(
                 numberOfLines = 1,
@@ -155,7 +156,8 @@ fun ClubCreationPage1(vm: CreateClubViewModel) {
                 onClick3 = { vm.changePageTo(3) },
                 onClick4 = { vm.changePageTo(4) },
             )
-            CustomButton(
+            Button(
+                modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     if (
                         clubName == null ||
@@ -171,11 +173,9 @@ fun ClubCreationPage1(vm: CreateClubViewModel) {
                         vm.changePageTo(2)
                     }
                 },
-                text = "Next",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(60.dp)
-            )
+            ) {
+                Text(text = "Next")
+            }
         }
     }
 }
@@ -210,13 +210,11 @@ fun ClubCreationPage2(vm: CreateClubViewModel) {
                     text = "Add a club logo",
                     modifier = Modifier.padding(bottom = 10.dp)
                 )
-                CustomButton(
-                    onClick = { galleryLauncherLogo.launch("image/*") },
-                    text = "Choose logo from gallery",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(0.dp)
-                )
+                FilledTonalButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { galleryLauncherLogo.launch("image/*") }) {
+                    Text(text = "Choose logo from gallery")
+                }
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -241,13 +239,11 @@ fun ClubCreationPage2(vm: CreateClubViewModel) {
                     text = "Add image about the club",
                     modifier = Modifier.padding(bottom = 10.dp)
                 )
-                CustomButton(
-                    onClick = { galleryLauncherBanner.launch("image/*") },
-                    text = "Choose image from gallery",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(0.dp)
-                )
+                FilledTonalButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { galleryLauncherBanner.launch("image/*") }) {
+                    Text(text = "Choose images from gallery")
+                }
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -268,7 +264,7 @@ fun ClubCreationPage2(vm: CreateClubViewModel) {
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 75.dp)
+                .padding(bottom = 32.dp)
         ) {
             PageProgression(
                 numberOfLines = 2,
@@ -277,23 +273,20 @@ fun ClubCreationPage2(vm: CreateClubViewModel) {
                 onClick3 = { vm.changePageTo(3) },
                 onClick4 = { vm.changePageTo(4) },
             )
-            Row {
-                CustomButton(
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(
+                    modifier = Modifier.weight(1f),
                     onClick = { vm.changePageTo(1) },
-                    text = "Previous",
                     colors = ButtonDefaults.buttonColors(
                         contentColor = colorScheme.onSurfaceVariant,
                         containerColor = colorScheme.surfaceVariant
                     ),
-                    modifier = Modifier
-                        .height(60.dp)
-                )
-                CustomButton(
-                    onClick = { vm.changePageTo(3) },
-                    text = "Next",
-                    modifier = Modifier
-                        .height(60.dp)
-                )
+                ) {
+                    Text(text = "Previous")
+                }
+                Button(modifier = Modifier.weight(1f), onClick = { vm.changePageTo(3) }) {
+                    Text(text = "Next")
+                }
             }
         }
     }
@@ -347,7 +340,10 @@ fun ClubCreationPage3(vm: CreateClubViewModel) {
                 modifier = Modifier
                     .fillMaxWidth()
             )
-            CustomButton(
+            FilledTonalButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 20.dp),
                 onClick = {
                     if (currentLinkName != null && currentLinkURL != null) {
                         vm.addLinkToList(
@@ -362,12 +358,9 @@ fun ClubCreationPage3(vm: CreateClubViewModel) {
                         Toast.makeText(context, "Please fill both fields.", Toast.LENGTH_SHORT)
                             .show()
                     }
-                },
-                text = "Add Link",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 20.dp)
-            )
+                }) {
+                Text(text = "Add Link")
+            }
             CreationPageSubtitle(
                 text = "Provided links",
                 modifier = Modifier.padding(bottom = 20.dp)
@@ -386,7 +379,7 @@ fun ClubCreationPage3(vm: CreateClubViewModel) {
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 75.dp)
+                .padding(bottom = 32.dp)
         ) {
             PageProgression(
                 numberOfLines = 3,
@@ -395,23 +388,20 @@ fun ClubCreationPage3(vm: CreateClubViewModel) {
                 onClick3 = { vm.changePageTo(3) },
                 onClick4 = { vm.changePageTo(4) },
             )
-            Row {
-                CustomButton(
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(
+                    modifier = Modifier.weight(1f),
                     onClick = { vm.changePageTo(2) },
-                    text = "Previous",
                     colors = ButtonDefaults.buttonColors(
                         contentColor = colorScheme.onSurfaceVariant,
                         containerColor = colorScheme.surfaceVariant
                     ),
-                    modifier = Modifier
-                        .height(60.dp)
-                )
-                CustomButton(
-                    onClick = { vm.changePageTo(4) },
-                    text = "Next",
-                    modifier = Modifier
-                        .height(60.dp)
-                )
+                ) {
+                    Text(text = "Previous")
+                }
+                Button(modifier = Modifier.weight(1f), onClick = { vm.changePageTo(4) }) {
+                    Text(text = "Next")
+                }
             }
         }
     }
@@ -500,15 +490,16 @@ fun ClubCreationPage4(vm: CreateClubViewModel, navController: NavController) {
             )
             Spacer(modifier = Modifier.height(20.dp))
             Text(text = "Or fill quickly using account details", fontSize = 12.sp)
-            CustomButton(
-                onClick = { currentUser?.let { vm.quickFillOptions(it) } },
-                text = "Quick fill"
-            )
+            FilledTonalButton(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { currentUser?.let { vm.quickFillOptions(it) } }) {
+                Text(text = "Quick fill")
+            }
         }
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 75.dp)
+                .padding(bottom = 32.dp)
         ) {
             PageProgression(
                 numberOfLines = 4,
@@ -517,65 +508,62 @@ fun ClubCreationPage4(vm: CreateClubViewModel, navController: NavController) {
                 onClick3 = { vm.changePageTo(3) },
                 onClick4 = { vm.changePageTo(4) },
             )
-            Row {
-                CustomButton(
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(
+                    modifier = Modifier.weight(1f),
                     onClick = { vm.changePageTo(3) },
-                    text = "Previous",
                     colors = ButtonDefaults.buttonColors(
                         contentColor = colorScheme.onSurfaceVariant,
                         containerColor = colorScheme.surfaceVariant
                     ),
-                    modifier = Modifier
-                        .height(60.dp)
-                )
-                CustomButton(
-                    onClick = {
-                        if (
-                            clubName == null ||
-                            clubDescription == null ||
-                            clubIsPrivate == null ||
-                            contactInfoName == null ||
-                            contactInfoEmail == null ||
-                            contactInfoNumber == null
-                        ) {
-                            Toast.makeText(
-                                context,
-                                "Please fill in all the fields",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            return@CustomButton
-                        } else {
-                            val listWithYouAsAdminAndParticipant = mutableListOf<String>()
-                            FirebaseHelper.uid?.let {
-                                listWithYouAsAdminAndParticipant.add(it)
-                            }
-                            val club = Club(
-                                name = clubName!!.text,
-                                description = clubDescription!!.text,
-                                isPrivate = clubIsPrivate,
-                                admins = listWithYouAsAdminAndParticipant,
-                                members = listWithYouAsAdminAndParticipant,
-                                socials = if (linkArray == null || linkArray!!.isEmpty()) mapOf() else linkArray!!,
-                                contactPerson = contactInfoName!!.text,
-                                contactEmail = contactInfoEmail!!.text,
-                                contactPhone = contactInfoNumber!!.text
-                            )
-                            val clubId = vm.addClub(club)
-                            val defaultUri =
-                                Uri.parse("android.resource://com.example.hobbyclubs/drawable/nokia_logo.png")
-                            vm.storeImagesOnFirebase(
-                                bannerUri = selectedImage ?: defaultUri,
-                                logoUri = selectedLogo ?: defaultUri,
-                                clubId = clubId
-                            )
-                            Toast.makeText(context, "Club created.", Toast.LENGTH_SHORT).show()
-                            navController.navigate(NavRoute.Home.name)
+                ) {
+                    Text(text = "Previous")
+                }
+                Button(modifier = Modifier.weight(1f), onClick = {
+                    if (
+                        clubName == null ||
+                        clubDescription == null ||
+                        clubIsPrivate == null ||
+                        contactInfoName == null ||
+                        contactInfoEmail == null ||
+                        contactInfoNumber == null
+                    ) {
+                        Toast.makeText(
+                            context,
+                            "Please fill in all the fields",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return@Button
+                    } else {
+                        val listWithYouAsAdminAndParticipant = mutableListOf<String>()
+                        FirebaseHelper.uid?.let {
+                            listWithYouAsAdminAndParticipant.add(it)
                         }
-                    },
-                    text = "Create Club",
-                    modifier = Modifier
-                        .height(60.dp)
-                )
+                        val club = Club(
+                            name = clubName!!.text,
+                            description = clubDescription!!.text,
+                            isPrivate = clubIsPrivate,
+                            admins = listWithYouAsAdminAndParticipant,
+                            members = listWithYouAsAdminAndParticipant,
+                            socials = if (linkArray == null || linkArray!!.isEmpty()) mapOf() else linkArray!!,
+                            contactPerson = contactInfoName!!.text,
+                            contactEmail = contactInfoEmail!!.text,
+                            contactPhone = contactInfoNumber!!.text
+                        )
+                        val clubId = vm.addClub(club)
+                        val defaultUri =
+                            Uri.parse("android.resource://com.example.hobbyclubs/drawable/nokia_logo.png")
+                        vm.storeImagesOnFirebase(
+                            bannerUri = selectedImage ?: defaultUri,
+                            logoUri = selectedLogo ?: defaultUri,
+                            clubId = clubId
+                        )
+                        Toast.makeText(context, "Club created.", Toast.LENGTH_SHORT).show()
+                        navController.navigate(NavRoute.Home.name)
+                    }
+                }) {
+                    Text(text = "Create CLub")
+                }
             }
         }
     }

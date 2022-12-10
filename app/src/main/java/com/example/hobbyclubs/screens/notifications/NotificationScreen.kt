@@ -2,7 +2,6 @@ package com.example.hobbyclubs.screens.notifications
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,24 +9,23 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.FabPosition
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FabPosition
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.ClearAll
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.material3.Card
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -37,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.compose.md_theme_light_primary
+import com.example.compose.*
 import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.general.toString
 import com.example.hobbyclubs.navigation.NavRoute
@@ -46,6 +45,7 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import java.util.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 /**
  * Screen which shows all the unread in app notifications of a the current user, according
  * to their notification settings.
@@ -84,13 +84,17 @@ fun NotificationsScreen(
                         vm.markAllAsRead(it)
                     }
                 } else {
-                    FloatingActionButton(onClick = { vm.removeRead() }) {
-                       Text(text = "Reset")
+                    FilledTonalButton(onClick = { vm.removeRead() }) {
+                        Icon(
+                            Icons.Outlined.Restore, "restore",
+                            modifier = Modifier.padding(end = 8.dp),
+                        )
+                        Text(text = "Reset")
                     }
                 }
             }
         },
-        floatingActionButtonPosition = FabPosition.Center
+        floatingActionButtonPosition = FabPosition.Center,
     ) { pad ->
         Box(modifier = Modifier.padding(pad)) {
             if (unreads == null) {
@@ -245,7 +249,7 @@ fun NotificationTile(
             val color by animateColorAsState(
                 when (dismissState.targetValue) {
                     DismissValue.Default -> Color.Transparent
-                    else -> MaterialTheme.colors.error
+                    else -> colorScheme.error
                 }
             )
             val alignment = Alignment.CenterStart
@@ -269,13 +273,12 @@ fun NotificationTile(
                         icon,
                         contentDescription = "Delete Icon",
                         modifier = Modifier.scale(scale),
-                        tint = MaterialTheme.colors.onPrimary
                     )
                 }
             }
         }
     ) {
-        Card(modifier = Modifier
+        ElevatedCard(modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }) {
             Row(
@@ -286,25 +289,30 @@ fun NotificationTile(
             ) {
                 content.setting?.icon?.let {
                     val color = when (content.setting) {
-                        NotificationSetting.EVENT_NEW -> MaterialTheme.colors.error
-                        NotificationSetting.EVENT_HOUR_REMINDER -> Color.White
-                        NotificationSetting.EVENT_DAY_REMINDER -> Color.White
-                        NotificationSetting.NEWS_GENERAL -> Color.Black
-                        NotificationSetting.NEWS_CLUB -> Color.Black
-                        NotificationSetting.REQUEST_PARTICIPATION -> md_theme_light_primary
-                        NotificationSetting.REQUEST_MEMBERSHIP_ACCEPTED -> Color.Green
-                        NotificationSetting.REQUEST_MEMBERSHIP -> md_theme_light_primary
-                        NotificationSetting.REQUEST_PARTICIPATION_ACCEPTED -> Color.Green
+                        NotificationSetting.EVENT_NEW -> colorScheme.primary
+                        NotificationSetting.EVENT_HOUR_REMINDER -> colorScheme.error
+                        NotificationSetting.EVENT_DAY_REMINDER -> colorScheme.error
+                        NotificationSetting.NEWS_GENERAL -> colorScheme.surfaceVariant
+                        NotificationSetting.NEWS_CLUB -> colorScheme.primary
+                        NotificationSetting.REQUEST_MEMBERSHIP -> colorScheme.primary
+                        NotificationSetting.REQUEST_MEMBERSHIP_ACCEPTED -> colorScheme.primary
+                        NotificationSetting.REQUEST_PARTICIPATION -> colorScheme.primary
+                        NotificationSetting.REQUEST_PARTICIPATION_ACCEPTED -> colorScheme.primary
+
+
                     }
-                    Box(
-                        modifier = Modifier
-                            .padding(end = 8.dp)
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .background(color),
-                        contentAlignment = Alignment.Center
+                    Card(
+                        modifier = Modifier.padding(end = 8.dp),
+                        shape = CircleShape,
+                        colors = CardDefaults.cardColors(color),
                     ) {
-                        Icon(imageVector = it, contentDescription = null, tint = Color.White)
+                        Icon(
+                            imageVector = it,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(50.dp)
+                                .padding(10.dp)
+                        )
                     }
                 }
                 Column {
@@ -332,7 +340,7 @@ fun NotificationTile(
 fun ClearAllButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
     Card(
         shape = RoundedCornerShape(100.dp),
-        colors = CardDefaults.cardColors(containerColor = androidx.compose.material3.MaterialTheme.colorScheme.primary),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.primary),
         modifier = modifier
             .clickable { onClick() }
     ) {
@@ -347,14 +355,14 @@ fun ClearAllButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
             Icon(
                 Icons.Outlined.ClearAll,
                 "clear icon",
-                tint = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary,
+                tint = colorScheme.onPrimary,
                 modifier = Modifier
                     .padding(end = 8.dp)
                     .width(18.dp)
             )
             Text(
                 text = "Clear all",
-                color = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary,
+                color = colorScheme.onPrimary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
             )

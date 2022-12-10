@@ -98,7 +98,7 @@ fun SingleNewsScreen(
             }
         }
         news?.let {
-            Box(Modifier.fillMaxSize()) {
+            Scaffold(Modifier.fillMaxSize()) { padding ->
                 NewsContent(vm, it)
                 CenterAlignedTopAppBar(
                     title = { },

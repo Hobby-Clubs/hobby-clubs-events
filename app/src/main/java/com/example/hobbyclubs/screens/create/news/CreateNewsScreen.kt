@@ -30,6 +30,13 @@ import coil.compose.AsyncImage
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.News
 import com.example.hobbyclubs.general.*
+import com.example.hobbyclubs.general.CustomAlertDialog
+import com.example.hobbyclubs.general.CustomOutlinedTextField
+import com.example.hobbyclubs.general.TopBarBackButton
+import com.example.hobbyclubs.navigation.NavRoutes
+import com.example.hobbyclubs.screens.clubpage.CustomButton
+import com.example.hobbyclubs.screens.create.event.ClubSelectionDropdownMenu
+import com.example.hobbyclubs.screens.create.event.SelectedImageItem
 import com.google.firebase.Timestamp
 import java.util.*
 
@@ -149,10 +156,11 @@ fun NewsCreationPage1(vm: CreateNewsViewModel) {
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 75.dp)
+                .padding(bottom = 32.dp)
         ) {
             PageProgression(numberOfLines = 1, vm)
-            CustomButton(
+            Button(
+                modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     if (headline == null || newsContent == null || selectedClub == null) {
                         Toast.makeText(
@@ -162,11 +170,9 @@ fun NewsCreationPage1(vm: CreateNewsViewModel) {
                         vm.changePageTo(2)
                     }
                 },
-                text = "Next",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(60.dp),
-            )
+            ) {
+                Text(text = "Next")
+            }
         }
     }
 }
@@ -181,27 +187,35 @@ fun NewsCreationPage2(vm: CreateNewsViewModel, navController: NavController) {
     val selectedClub by vm.selectedClub.observeAsState(null)
 
     Box(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier
+            .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            ImagePicker(vm = vm)
+        }
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 75.dp),
-            verticalArrangement = Arrangement.SpaceBetween
+                .padding(bottom = 32.dp)
         ) {
-            ImagePicker(modifier = Modifier.weight(1f), vm = vm)
             PageProgression(numberOfLines = 2, vm)
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            )
             {
-                CustomButton(
+                Button(
+                    modifier = Modifier.weight(1f),
                     onClick = { vm.changePageTo(1) },
-                    text = "Previous",
                     colors = ButtonDefaults.buttonColors(
                         contentColor = colorScheme.onSurfaceVariant,
                         containerColor = colorScheme.surfaceVariant
                     ),
-                    modifier = Modifier
-                        .height(60.dp)
-                )
-                CustomButton(
+                ) {
+                    Text(text = "Previous")
+                }
+                Button(
+                    modifier = Modifier.weight(1f),
                     onClick = {
                         if (headline == null || newsContent == null || selectedClub == null) {
                             Toast.makeText(
@@ -219,16 +233,17 @@ fun NewsCreationPage2(vm: CreateNewsViewModel, navController: NavController) {
                             selectedImage?.let {
                                 vm.storeNewsImage(it, newsId)
                             }
-                            vm.updateSingleNewsWithClubImageUri(clubId = selectedClub!!, newsId = newsId)
+                            vm.updateSingleNewsWithClubImageUri(
+                                clubId = selectedClub!!,
+                                newsId = newsId
+                            )
                             Toast.makeText(context, "News created.", Toast.LENGTH_SHORT).show()
                             navController.navigateUp()
                         }
                     },
-                    text = "Create News",
-                    modifier = Modifier
-                        .height(60.dp)
-                )
-
+                ) {
+                    Text(text = "Create News")
+                }
             }
         }
     }
@@ -266,14 +281,13 @@ fun ImagePicker(modifier: Modifier = Modifier, vm: CreateNewsViewModel) {
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center
     ) {
-
-        CustomButton(
-            onClick = { galleryLauncher.launch("image/*") },
-            text = if (selectedImage != null) "Reselect Image" else "Add Image",
+        FilledTonalButton(
             modifier = Modifier
                 .wrapContentSize()
-                .padding(10.dp)
-        )
+                .padding(10.dp),
+            onClick = { galleryLauncher.launch("image/*") }) {
+            Text(text = "Add image")
+        }
     }
 
 }
