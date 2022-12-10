@@ -24,6 +24,13 @@ import com.example.hobbyclubs.screens.clubmembers.MemberImage
 import com.example.hobbyclubs.general.CustomButton
 import com.google.firebase.Timestamp
 
+/**
+ * Event participant request screen for displaying the event's join requests
+ *
+ * @param navController To manage app navigation within the NavHost
+ * @param vm [EventParticipantsViewModel]
+ * @param eventId UID for the specific event
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventParticipantRequestScreen(
@@ -40,7 +47,7 @@ fun EventParticipantRequestScreen(
     }
 
     event?.let {
-        Scaffold() { padding ->
+        Scaffold { padding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -68,6 +75,13 @@ fun EventParticipantRequestScreen(
     }
 }
 
+/**
+ * List of all participant requests related to this event
+ *
+ * @param listOfRequests List of the join requests
+ * @param vm [EventParticipantsViewModel]
+ * @param event Event object
+ */
 @Composable
 fun ListOfParticipantRequests(
     listOfRequests: List<EventRequest>,
@@ -105,6 +119,13 @@ fun ListOfParticipantRequests(
 
 }
 
+/**
+ * Card for a join request
+ *
+ * @param request EventRequest object
+ * @param onAccept Action for when the accept button is clicked
+ * @param onReject Action for when the reject button is clicked
+ */
 @Composable
 fun EventRequestCard(
     request: EventRequest,

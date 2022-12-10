@@ -8,6 +8,11 @@ import androidx.lifecycle.ViewModel
 import com.example.hobbyclubs.api.*
 import java.util.*
 
+/**
+ * Event management view model for handling functions related to the management view of an event
+ *
+ * @constructor Create empty Event management view model
+ */
 class EventManagementViewModel : ViewModel() {
     val firebase = FirebaseHelper
     val selectedEvent = MutableLiveData<Event>()
@@ -26,6 +31,11 @@ class EventManagementViewModel : ViewModel() {
     val givenLinks = MutableLiveData<Map<String, String>>(mapOf())
     val listOfRequests = MutableLiveData<List<EventRequest>>()
 
+    /**
+     * Fetch the event from Firebase
+     *
+     * @param eventId UID for the specific event
+     */
     fun getEvent(eventId: String) {
         firebase.getEvent(eventId = eventId).get()
             .addOnSuccessListener { data ->
@@ -39,6 +49,11 @@ class EventManagementViewModel : ViewModel() {
             }
     }
 
+    /**
+     * Fill previous event data during editing process
+     *
+     * @param event Event object
+     */
     fun fillPreviousEventData(event: Event) {
         eventName.value = TextFieldValue(event.name)
         eventDescription.value = TextFieldValue(event.description)
@@ -52,35 +67,78 @@ class EventManagementViewModel : ViewModel() {
 
     }
 
+    /**
+     * Update edited event name
+     *
+     * @param newVal New value for event name
+     */
     fun updateEventName(newVal: TextFieldValue) {
         eventName.value = newVal
     }
 
+    /**
+     * Update edited event description
+     *
+     * @param newVal New value for event description
+     */
     fun updateEventDescription(newVal: TextFieldValue) {
         eventDescription.value = newVal
     }
 
+    /**
+     * Update edited event address
+     *
+     * @param newVal New value for event address
+     */
     fun updateEventAddress(newVal: TextFieldValue) {
         eventAddress.value = newVal
     }
 
+    /**
+     * Update edited event date
+     *
+     * @param years
+     * @param month
+     * @param day
+     * @param hour
+     * @param minutes
+     */
     fun updateEventDate(years: Int, month: Int, day: Int, hour: Int, minutes: Int) {
         eventDate.value = Date(years, month, day, hour, minutes)
-        Log.d("dateSelection", eventDate.value.toString())
     }
 
+    /**
+     * Update edited event participant limit
+     *
+     * @param newVal New value for event participant limit
+     */
     fun updateEventParticipantLimit(newVal: TextFieldValue) {
         eventParticipantLimit.value = newVal
     }
 
+    /**
+     * Update edited link name
+     *
+     * @param newVal New value for event link name
+     */
     fun updateCurrentLinkName(newVal: TextFieldValue) {
         currentLinkName.value = newVal
     }
 
+    /**
+     * Update edited link url
+     *
+     * @param newVal New value for event link URL
+     */
     fun updateCurrentLinkURL(newVal: TextFieldValue) {
         currentLinkURL.value = newVal
     }
 
+    /**
+     * Add link to a list
+     *
+     * @param pair Pair of strings, name and URL of link
+     */
     fun addLinkToList(pair: Pair<String, String>) {
         givenLinks.value?.let {
             val newMap = it.toMutableMap().apply { put(pair.first, pair.second) }
@@ -90,27 +148,56 @@ class EventManagementViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Update edited contact name
+     *
+     * @param newVal New value for event contact information name
+     */
     fun updateContactName(newVal: TextFieldValue) {
         eventContactName.value = newVal
     }
 
+    /**
+     * Update edited contact email
+     *
+     * @param newVal New value for event contact information email
+     */
     fun updateContactEmail(newVal: TextFieldValue) {
         eventContactEmail.value = newVal
     }
 
+    /**
+     * Update edited contact number
+     *
+     * @param newVal New value for event contact information phone number
+     */
     fun updateContactNumber(newVal: TextFieldValue) {
         eventContactNumber.value = newVal
     }
 
+    /**
+     * Clear all link fields
+     *
+     */
     fun clearLinkFields() {
         currentLinkName.value = null
         currentLinkURL.value = null
     }
 
+    /**
+     * Temporarily store selected images
+     *
+     * @param bannerUri Uri of banner image
+     */
     fun temporarilyStoreImages(bannerUri: MutableList<Uri>? = null) {
         bannerUri?.let { selectedBannerImages.value = it }
     }
 
+    /**
+     * Remove image from list
+     *
+     * @param uri Uri of image being removed
+     */
     fun removeImageFromList(uri: Uri) {
         val tempList = selectedBannerImages.value?.toMutableList()
         tempList?.let {
@@ -120,6 +207,13 @@ class EventManagementViewModel : ViewModel() {
     }
 
     var count = 0
+
+    /**
+     * Replace selected event images
+     *
+     * @param eventId UID for the specific event
+     * @param newImages List of uri's for the new images
+     */
     fun replaceEventImages(eventId: String, newImages: List<Uri>) {
         val tempList = mutableListOf<Uri>()
         newImages.forEach { uri ->
@@ -142,14 +236,30 @@ class EventManagementViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Delete the event
+     *
+     * @param eventId UID for the specific event
+     */
     fun deleteEvent(eventId: String) {
         firebase.deleteEvent(eventId)
     }
 
+    /**
+     * Update the event's information
+     *
+     * @param eventId UID for the specific event
+     * @param changeMap Map of changes
+     */
     fun updateEventDetails(eventId: String, changeMap: Map<String, Any>) {
         firebase.updateEventDetails(eventId, changeMap)
     }
 
+    /**
+     * Get all join requests from this event
+     *
+     * @param eventId UID for the specific event
+     */
     fun getAllJoinRequests(eventId: String) {
         firebase.getRequestsFromEvent(eventId)
             .addSnapshotListener { data, error ->
@@ -158,7 +268,6 @@ class EventManagementViewModel : ViewModel() {
                     return@addSnapshotListener
                 }
                 val fetchedRequests = data.toObjects(EventRequest::class.java)
-                Log.d("fetchRequests", fetchedRequests.toString())
                 listOfRequests.value = fetchedRequests.filter { !it.acceptedStatus }
             }
     }
