@@ -34,6 +34,8 @@ import com.example.hobbyclubs.general.CustomOutlinedTextField
 import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.example.hobbyclubs.screens.create.event.ClubSelectionDropdownMenu
+import com.example.hobbyclubs.general.*
+import com.example.hobbyclubs.navigation.NavRoutes
 import com.google.firebase.Timestamp
 import java.util.*
 
@@ -273,7 +275,7 @@ fun ImagePicker(modifier: Modifier = Modifier, vm: CreateNewsViewModel) {
 
         CustomButton(
             onClick = { galleryLauncher.launch("image/*") },
-            text = "Add Image",
+            text = if (selectedImage != null) "Reselect Image" else "Add Image",
             modifier = Modifier
                 .wrapContentSize()
                 .padding(10.dp)

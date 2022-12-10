@@ -2,9 +2,6 @@ package com.example.hobbyclubs.screens.create.event
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.graphics.Bitmap
-import android.net.Uri
-import android.util.Log
 import android.widget.DatePicker
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -12,10 +9,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarMonth
-import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -23,16 +18,12 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -40,8 +31,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import coil.compose.rememberAsyncImagePainter
-import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.general.CustomAlertDialog
@@ -50,6 +39,9 @@ import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.general.Pill
 import com.example.hobbyclubs.navigation.NavRoute
 import com.example.hobbyclubs.screens.clubpage.CustomButton
+import com.example.hobbyclubs.general.*
+import com.example.hobbyclubs.navigation.NavRoutes
+import com.example.hobbyclubs.general.SelectPrivacy
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
@@ -59,6 +51,12 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * Create event screen allows the user to create new events for your own club
+ * or create a general event for everyone.
+ * @param navController for Compose navigation
+ * @param vm [CreateEventViewModel]
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateEventScreen(
@@ -108,106 +106,10 @@ fun CreateEventScreen(
 }
 
 
-@Composable
-fun PageProgression(
-    numberOfLines: Int,
-    onClick1: () -> Unit,
-    onClick2: () -> Unit,
-    onClick3: () -> Unit,
-    onClick4: () -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(5.dp), horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        ProgressionBar(isMarked = numberOfLines >= 1, onClick = { onClick1() })
-        ProgressionBar(isMarked = numberOfLines > 1, onClick = { onClick2() })
-        ProgressionBar(isMarked = numberOfLines > 2, onClick = { onClick3() })
-        ProgressionBar(isMarked = numberOfLines > 3, onClick = { onClick4() })
-    }
-}
-
-@Composable
-fun ProgressionBar(isMarked: Boolean, onClick: () -> Unit) {
-    val screenWidth = LocalConfiguration.current.screenWidthDp
-    Box(modifier = Modifier
-        .width((screenWidth * 0.21).dp)
-        .height(13.dp)
-        .clip(RoundedCornerShape(20.dp))
-        .background(color = if (isMarked) colorScheme.primary else colorScheme.surfaceVariant)
-        .clickable { onClick() }
-    )
-}
-
-@Composable
-fun SelectedImageItem(bitmap: Bitmap? = null, uri: Uri? = null) {
-    if (bitmap != null) {
-        Image(
-            bitmap = bitmap.asImageBitmap(),
-            contentDescription = null,
-            modifier = Modifier.height(100.dp),
-            contentScale = ContentScale.FillHeight
-        )
-    }
-    if (uri != null) {
-        Image(
-            painter = rememberAsyncImagePainter(uri),
-            contentDescription = null,
-            modifier = Modifier.height(100.dp),
-            contentScale = ContentScale.FillHeight
-        )
-    }
-}
-
-@Composable
-fun ClubSelectionDropdownMenu(clubList: List<Club>, onSelect: (Club) -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-    var selectedIndex: Int? by remember { mutableStateOf(null) }
-
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .clickable { expanded = true }
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp)
-                .border(BorderStroke(1.dp, Color.Black))
-                .padding(horizontal = 15.dp),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = if (selectedIndex != null) clubList[selectedIndex!!].name else "Select Club",
-                    modifier = Modifier.weight(6f),
-                    textAlign = TextAlign.Start
-                )
-                Icon(Icons.Outlined.KeyboardArrowDown, null, modifier = Modifier.weight(1f))
-            }
-        }
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .background(colorScheme.surface)
-        ) {
-            clubList.forEachIndexed { index, club ->
-                DropdownMenuItem(
-                    text = { Text(text = club.name) },
-                    onClick = {
-                        selectedIndex = index
-                        onSelect(club)
-                        expanded = false
-                    }
-                )
-            }
-        }
-    }
-
-}
-
+/**
+ * Date selector allows user to select a date and time for the event
+ * @param vm [CreateEventViewModel]
+ */
 @Composable
 fun DateSelector(vm: CreateEventViewModel) {
     val context = LocalContext.current
@@ -227,8 +129,7 @@ fun DateSelector(vm: CreateEventViewModel) {
     val selectedHour = remember { mutableStateOf(0) }
     val selectedMinute = remember { mutableStateOf(0) }
 
-
-
+    // Dialog for picking date
     val datePickerDialog = DatePickerDialog(
         context,
         { _: DatePicker, mYear: Int, mMonth: Int, dayOfMonth: Int ->
@@ -238,9 +139,9 @@ fun DateSelector(vm: CreateEventViewModel) {
         },
         year, month, day,
     )
-    datePickerDialog.datePicker .minDate = calendar.timeInMillis
+    datePickerDialog.datePicker.minDate = calendar.timeInMillis
 
-
+    // Dialog for picking a time
     val timePickerDialog = TimePickerDialog(
         context,
         3,
@@ -330,26 +231,33 @@ fun DateSelector(vm: CreateEventViewModel) {
     }
 }
 
+/**
+ * Event creation page 1 asks the user to select:
+ * - A club to post it in
+ * - Name and description
+ * - Location of event
+ * - Date and time
+ * - How many members can participate
+ *
+ * @param vm [CreateEventViewModel]
+ */
 @Composable
 fun EventCreationPage1(vm: CreateEventViewModel) {
     val context = LocalContext.current
-    val selectedClub by vm.selectedClub.observeAsState(null)
-    val selectedDate by vm.selectedDate.observeAsState(null)
     val focusManager = LocalFocusManager.current
     val screenHeight = LocalConfiguration.current.screenHeightDp
+    val joinedClubs by vm.joinedClubs.observeAsState(listOf())
+
+    // Event details
+    val selectedClub by vm.selectedClub.observeAsState(null)
+    val selectedDate by vm.selectedDate.observeAsState(null)
     val eventName by vm.eventName.observeAsState(null)
     val eventDescription by vm.eventDescription.observeAsState(null)
     val eventLocation by vm.eventLocation.observeAsState(null)
     val eventParticipantLimit by vm.eventParticipantLimit.observeAsState(null)
-    val joinedClubs by vm.joinedClubs.observeAsState(listOf())
 
     Column(modifier = Modifier.fillMaxSize()) {
-        Text(
-            text = "Create a new event!",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(bottom = 20.dp)
-        )
+        CreationPageTitle(text = "Create a new event!", modifier = Modifier.padding(bottom = 20.dp))
         ClubSelectionDropdownMenu(joinedClubs, onSelect = {
             vm.updateSelectedClub(it.ref)
         })
@@ -416,7 +324,6 @@ fun EventCreationPage1(vm: CreateEventViewModel) {
                         eventName == null ||
                         eventDescription == null ||
                         eventLocation == null
-
                     ) {
                         Toast.makeText(
                             context,
@@ -425,7 +332,8 @@ fun EventCreationPage1(vm: CreateEventViewModel) {
                         ).show()
                     } else {
                         vm.changePageTo(2)
-                    } },
+                    }
+                },
                 text = "Next",
                 modifier = Modifier
                     .fillMaxWidth()
@@ -433,29 +341,32 @@ fun EventCreationPage1(vm: CreateEventViewModel) {
             )
         }
     }
-
-
-
 }
 
+/**
+ * Event creation page 2 asks the user to select:
+ * - Event banner images
+ *
+ * @param vm [CreateEventViewModel]
+ */
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun EventCreationPage2(vm: CreateEventViewModel) {
 
-    val selectedImages by vm.selectedImages.observeAsState(mutableListOf())
+    val selectedImages by vm.selectedImages.observeAsState(null)
     var showImagePreview by remember { mutableStateOf(false) }
+
+    // Launcher for selecting images from devices storage.
+    // Returns a list of uris for images you have selected.
     val galleryLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uriList ->
             vm.temporarilyStoreImages(uriList.toMutableList())
             showImagePreview = true
         }
 
-
     Column(modifier = Modifier.fillMaxSize()) {
-        Text(
+        CreationPageTitle(
             text = "Add images about the event",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(bottom = 10.dp)
         )
         CustomButton(
@@ -470,33 +381,28 @@ fun EventCreationPage2(vm: CreateEventViewModel) {
                 .fillMaxWidth()
                 .padding(vertical = 20.dp)
         ) {
-            Text(
-                text = "Saved images",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(bottom = 20.dp)
-            )
+            CreationPageSubtitle(text = "Saved images", modifier = Modifier.padding(bottom = 20.dp))
             val pagerState = rememberPagerState()
-            if (selectedImages.isNotEmpty()) {
+            selectedImages?.let {
                 HorizontalPager(
-                    count = selectedImages.size,
+                    count = it.size,
                     state = pagerState,
                     itemSpacing = 10.dp,
                     contentPadding = PaddingValues(end = 150.dp)
                 ) { page ->
-                    Log.d("imageList", "page: $page, index: ${selectedImages[page]}")
-                    SelectedImageItem(uri = selectedImages[page])
+                    SelectedImageItem(
+                        uri = it[page],
+                        onDelete = { vm.removeImageFromList(uri = it[page]) })
                 }
-                HorizontalPagerIndicator(
-                    pagerState = pagerState,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(16.dp),
-                )
-            } else {
-                Box(modifier = Modifier.size(150.dp))
-            }
-
+                if (it.size > 1) {
+                    HorizontalPagerIndicator(
+                        pagerState = pagerState,
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .padding(16.dp),
+                    )
+                }
+            } ?: Box(modifier = Modifier.size(150.dp))
         }
         Spacer(modifier = Modifier.weight(1f))
         Column() {
@@ -531,24 +437,27 @@ fun EventCreationPage2(vm: CreateEventViewModel) {
 
 }
 
+/**
+ * Event creation page 3 asks the user to provide:
+ * - Link name
+ * - Url for that link
+ *
+ * @param vm [CreateEventViewModel]
+ */
 @Composable
 fun EventCreationPage3(vm: CreateEventViewModel) {
+    val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
+    // for changing focus after link added
     var linkSent by remember { mutableStateOf(false) }
-    val context = LocalContext.current
 
     val currentLinkName by vm.currentLinkName.observeAsState(null)
     val currentLinkURL by vm.currentLinkURL.observeAsState(null)
     val givenLinks by vm.givenLinksLiveData.observeAsState(mapOf())
 
-
     Column(modifier = Modifier.fillMaxSize()) {
-        Text(
-            text = "Add social media links",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.SemiBold,
-        )
+        CreationPageTitle(text = "Add social media links")
         Text(
             text = "Give people your community links (eg. Facebook, Discord, Twitter)",
             fontSize = 12.sp,
@@ -596,15 +505,11 @@ fun EventCreationPage3(vm: CreateEventViewModel) {
                 .fillMaxWidth()
                 .padding(vertical = 20.dp)
         )
-        Text(
-            text = "Provided links",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(bottom = 20.dp)
-        )
+        CreationPageSubtitle(text = "Provided links", modifier = Modifier.padding(bottom = 20.dp))
         givenLinks.forEach {
             Text(text = it.key)
         }
+        // when link button pressed then change focus back on link name text field
         DisposableEffect(linkSent) {
             if (linkSent) {
                 focusRequester.requestFocus()
@@ -642,6 +547,14 @@ fun EventCreationPage3(vm: CreateEventViewModel) {
     }
 }
 
+/**
+ * Event creation page 4 asks the user to provide:
+ * - Contact information
+ * - Event Privacy
+ *
+ * @param vm [CreateEventViewModel]
+ * @param navController for Compose navigation
+ */
 @Composable
 fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
     val focusManager = LocalFocusManager.current
@@ -654,38 +567,38 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
     val eventDescription by vm.eventDescription.observeAsState(null)
     val eventLocation by vm.eventLocation.observeAsState(null)
     val eventParticipantLimit by vm.eventParticipantLimit.observeAsState(null)
-    val linkArray by vm.givenLinksLiveData.observeAsState(null)
-    val currentUser by vm.currentUser.observeAsState()
-    val currentlySelectedClub by vm.currentlySelectedClub.observeAsState(null)
 
+    // Second page
     val selectedImages by vm.selectedImages.observeAsState()
 
+    // Third Page
+    val linkArray by vm.givenLinksLiveData.observeAsState(null)
+
     // Last Page
+    val currentUser by vm.currentUser.observeAsState()
     val contactInfoName by vm.contactInfoName.observeAsState(null)
     val contactInfoEmail by vm.contactInfoEmail.observeAsState(null)
     val contactInfoNumber by vm.contactInfoNumber.observeAsState(null)
     val eventIsPrivate by vm.eventIsPrivate.observeAsState(false)
+    val publicSelected by vm.publicSelected.observeAsState(true)
+    val privateSelected by vm.privateSelected.observeAsState(false)
+
     val scope = rememberCoroutineScope()
 
+    // fetch details for the current user for quick fill options
     if (currentUser == null) {
         LaunchedEffect(Unit) {
             scope.launch {
                 vm.getCurrentUser()
-                Log.d("fetchUser", "current user fetched")
             }
         }
     }
-
 
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Text(
-            text = "Contact Information",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.SemiBold,
-        )
+        CreationPageTitle(text = "Contact Information")
         Text(
             text = "Provide members a way to contact you directly",
             fontSize = 12.sp,
@@ -727,7 +640,12 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
             onClick = { currentUser?.let { vm.quickFillOptions(it) } },
             text = "Quick fill"
         )
-        SelectPrivacy(vm)
+        SelectPrivacy(
+            selectedPublic = publicSelected,
+            selectedPrivate = privateSelected,
+            onClickPublic = { vm.updateEventPrivacySelection(leftVal = true, rightVal = false) },
+            onClickPrivate = { vm.updateEventPrivacySelection(leftVal = false, rightVal = true) }
+        )
         Spacer(modifier = Modifier.weight(1f))
         Column() {
             PageProgression(
@@ -803,33 +721,5 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
                 )
             }
         }
-    }
-}
-
-@Composable
-fun SelectPrivacy(vm: CreateEventViewModel) {
-    val leftSelected by vm.leftSelected.observeAsState(true)
-    val rightSelected by vm.rightSelected.observeAsState(false)
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = "Privacy",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(bottom = 20.dp)
-        )
-        Row(modifier = Modifier.fillMaxWidth()) {
-            Pill(modifier = Modifier.weight(1f), isSelected = leftSelected, text = "Public") {
-                vm.updateEventPrivacySelection(leftVal = true, rightVal = false)
-            }
-            Pill(
-                modifier = Modifier.weight(1f),
-                isLeft = false,
-                isSelected = rightSelected,
-                text = "Private"
-            ) {
-                vm.updateEventPrivacySelection(leftVal = false, rightVal = true)
-            }
-        }
-
     }
 }

@@ -62,6 +62,13 @@ class SingleScreenViewModel : ViewModel() {
         newsUri?.let { selectedImage.value = it }
     }
 
+    /**
+     * Remove selected image
+     */
+    fun removeSelectedImage() {
+        selectedImage.value = null
+    }
+
     fun fillPreviousClubData(news: News) {
         headline.value = TextFieldValue(news.headline)
         newsContent.value = TextFieldValue(news.newsContent)

@@ -1,18 +1,14 @@
 package com.example.hobbyclubs.screens.clubmembers
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,9 +18,15 @@ import androidx.navigation.NavHostController
 import com.example.hobbyclubs.api.*
 import com.example.hobbyclubs.general.RequestCard
 import com.example.hobbyclubs.general.TopBarBackButton
-import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.google.firebase.Timestamp
 
+/**
+ * Club member request screen for displaying selected clubs join requests
+ *
+ * @param navController for Compose navigation
+ * @param clubId UID for the club you have selected on home or club screen
+ * @param vm [ClubMembersViewModel]
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClubMemberRequestScreen(
@@ -34,6 +36,8 @@ fun ClubMemberRequestScreen(
 ) {
     val club by vm.selectedClub.observeAsState(null)
     val listOfRequests by vm.listOfRequests.observeAsState(listOf())
+
+    // Get all info about selected club
     LaunchedEffect(Unit) {
         vm.getClub(clubId)
         vm.getAllJoinRequests(clubId)
@@ -65,14 +69,19 @@ fun ClubMemberRequestScreen(
     }
 }
 
+/**
+ * List of member requests displays a list of requests
+ *
+ * @param listOfRequests Provided list of a clubs join requests
+ * @param vm [ClubMembersViewModel]
+ * @param club Club object that was converted from firebase
+ */
 @Composable
 fun ListOfMemberRequests(
     listOfRequests: List<ClubRequest>,
     vm: ClubMembersViewModel,
     club: Club,
 ) {
-    val context = LocalContext.current
-
     LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         items(listOfRequests) { request ->
             RequestCard(
@@ -88,11 +97,9 @@ fun ListOfMemberRequests(
                         userId = request.userId,
                         changeMapForRequest = changeMap
                     )
-                    Toast.makeText(context, "Accepted", Toast.LENGTH_SHORT).show()
                 },
                 onReject = {
                     vm.declineJoinRequest(club.ref, request.id)
-                    Toast.makeText(context, "Rejected", Toast.LENGTH_SHORT).show()
                 },
             )
         }

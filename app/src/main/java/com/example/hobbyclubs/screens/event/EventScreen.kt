@@ -34,7 +34,7 @@ import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.general.*
 import com.example.hobbyclubs.navigation.NavRoute
 import com.example.hobbyclubs.screens.clubpage.ClubSectionTitle
-import com.example.hobbyclubs.screens.clubpage.CustomButton
+import com.example.hobbyclubs.general.CustomButton
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -112,15 +112,11 @@ fun EventHeader(
                 .height((screenHeight * 0.25).dp)
 
         ) {
-            val data = if (event.bannerUris.isNotEmpty()) {
-                event.bannerUris.first()
-            } else {
-                null
-            }
             Box(modifier = Modifier.fillMaxSize()) {
+                val uris = if(event.bannerUris.isEmpty()) null else event.bannerUris.first()
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data(data)
+                        .data(uris)
                         .crossfade(true)
                         .build(),
                     contentDescription = "background image",
@@ -128,7 +124,7 @@ fun EventHeader(
                         .fillMaxWidth()
                         .height((screenHeight * 0.25).dp),
                     contentScale = ContentScale.FillWidth,
-                    error = painterResource(id = R.drawable.nokia_logo),
+                    error = painterResource(id = R.drawable.nokia_logo)
                 )
                 if (!hasJoinedEvent) {
                     LikeEventButton(
@@ -165,14 +161,13 @@ fun EventHeader(
                     )
                 }
                 Column(modifier = Modifier.width((screenWidth * 0.5).dp)) {
-                    hostClub?.let {
                         Text(
-                            text = it.name,
+                            text = if (hostClub != null) hostClub!!.name else "Nokia",
                             fontSize = 18.sp,
                             textAlign = TextAlign.End,
                             modifier = Modifier.fillMaxWidth()
                         )
-                    }
+
                     Row(
                         modifier = Modifier
                             .clickable {

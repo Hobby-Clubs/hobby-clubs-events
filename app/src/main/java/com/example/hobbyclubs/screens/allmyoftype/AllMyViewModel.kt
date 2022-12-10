@@ -8,13 +8,16 @@ import com.example.hobbyclubs.api.*
 import com.example.hobbyclubs.screens.home.HomeScreenViewModel
 import com.google.firebase.Timestamp
 
+/**
+ * All my view model for handling functions for getting all data for different types
+ */
 class AllMyViewModel : ViewModel() {
 
-    val allClubs = MutableLiveData<List<Club>>()
+    private val allClubs = MutableLiveData<List<Club>>()
     val myClubs = Transformations.map(allClubs) { clubs ->
         clubs.filter { club -> club.members.contains(FirebaseHelper.uid) }
     }
-    val allEvents = MutableLiveData<List<Event>>()
+    private val allEvents = MutableLiveData<List<Event>>()
     val myEvents = Transformations.map(allEvents) { events ->
         events
             .filter { event ->
@@ -24,7 +27,7 @@ class AllMyViewModel : ViewModel() {
             .sortedBy { it.date }
     }
 
-    val allNews = MutableLiveData<List<News>>()
+    private val allNews = MutableLiveData<List<News>>()
     val myNews = Transformations.map(allNews) { news ->
         myClubs.value?.let { clubList ->
             news.filter { singleNews ->
@@ -33,22 +36,9 @@ class AllMyViewModel : ViewModel() {
         }
     }
 
-    val eventRequests = MutableLiveData<List<EventRequest>>()
-    val hasRequested = Transformations.map(eventRequests) { list ->
-        list.any { it.userId == FirebaseHelper.uid && !it.acceptedStatus }
-    }
-    fun getEventJoinRequests(eventId: String) {
-        FirebaseHelper.getRequestsFromEvent(eventId)
-            .addSnapshotListener { data, error ->
-                data ?: run {
-                    Log.e("getAllRequests", "RequestFetchFail: ", error)
-                    return@addSnapshotListener
-                }
-                val fetchedRequests = data.toObjects(EventRequest::class.java)
-                eventRequests.value = fetchedRequests.filter { !it.acceptedStatus }
-            }
-    }
-
+    /**
+     * Fetch all events that exists on firebase
+     */
     fun fetchAllEvents() {
         val now = Timestamp.now()
         FirebaseHelper.getAllEvents()
@@ -65,6 +55,9 @@ class AllMyViewModel : ViewModel() {
             }
     }
 
+    /**
+     * Fetch all clubs that exists on firebase
+     */
     fun fetchAllClubs() {
         FirebaseHelper.getAllClubs()
             .addSnapshotListener { data, error ->
@@ -79,6 +72,10 @@ class AllMyViewModel : ViewModel() {
                 allClubs.value = clubs.sortedByDescending { club -> club.members.size }
             }
     }
+
+    /**
+     * Fetch all news that exists on firebase
+     */
     fun fetchAllNews() {
         FirebaseHelper.getAllNews()
             .addSnapshotListener { data, error ->

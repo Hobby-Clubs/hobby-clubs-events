@@ -1,6 +1,9 @@
 package com.example.hobbyclubs.general
 
 import android.content.Context
+import android.widget.Toast
+import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.EventRequest
 import com.example.hobbyclubs.api.FirebaseHelper
@@ -99,4 +102,32 @@ fun LocalDate.toDate(): Date = Date.from(this.atStartOfDay(ZoneId.systemDefault(
  */
 fun Date.toString(pattern: String): String {
     return SimpleDateFormat(pattern, Locale.ENGLISH).format(this)
+}
+
+suspend fun getHasRequested(eventId: String): Boolean {
+    FirebaseHelper.uid?.let { uid ->
+        val allRequests = FirebaseHelper.getRequestsFromEvent(eventId)
+            .get()
+            .await()
+            .toObjects(EventRequest::class.java)
+
+        return allRequests.filter { !it.acceptedStatus }.find { it.userId == uid } != null
+    } ?: return false
+}
+
+
+fun navigateToNewTab(navController: NavController, route: String) {
+    navController.navigate(route) {
+        // Pop up to the start destination of the graph to
+        // avoid building up a large stack of destinations
+        // on the back stack as users select items
+        popUpTo(navController.graph.findStartDestination().id) {
+            saveState = true
+        }
+        // Avoid multiple copies of the same destination when
+        // reselecting the same item
+        launchSingleTop = true
+        // Restore state when reselecting a previously selected item
+        restoreState = true
+    }
 }

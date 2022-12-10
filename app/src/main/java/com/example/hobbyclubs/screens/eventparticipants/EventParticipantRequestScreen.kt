@@ -21,7 +21,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.hobbyclubs.api.*
 import com.example.hobbyclubs.screens.clubmembers.MemberImage
-import com.example.hobbyclubs.screens.clubpage.CustomButton
+import com.example.hobbyclubs.general.CustomButton
 import com.google.firebase.Timestamp
 
 @OptIn(ExperimentalMaterial3Api::class)

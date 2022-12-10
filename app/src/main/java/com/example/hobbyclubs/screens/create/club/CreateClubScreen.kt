@@ -1,7 +1,6 @@
 package com.example.hobbyclubs.screens.create.club
 
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -34,9 +33,15 @@ import com.example.hobbyclubs.general.Pill
 import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.navigation.NavRoute
 import com.example.hobbyclubs.screens.clubpage.CustomButton
+import com.example.hobbyclubs.general.*
 import com.example.hobbyclubs.screens.create.event.*
 import kotlinx.coroutines.launch
 
+/**
+ * Create club screen allows the user to create new club for their community.
+ * @param navController for Compose navigation
+ * @param vm [CreateClubViewModel]
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateClubScreen(
@@ -85,26 +90,37 @@ fun CreateClubScreen(
     }
 }
 
+/**
+ * Club creation page 1 asks the user to select:
+ * - Name and description
+ * - Privacy
+ *
+ * @param vm [CreateClubViewModel]
+ */
 @Composable
 fun ClubCreationPage1(vm: CreateClubViewModel) {
+    val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val screenHeight = LocalConfiguration.current.screenHeightDp
+
+    // Club details
     val clubName by vm.clubName.observeAsState(null)
     val clubDescription by vm.clubDescription.observeAsState(null)
-    val context = LocalContext.current
     val clubIsPrivate by vm.clubIsPrivate.observeAsState(false)
+
+    // for privacy selection
+    val publicSelected by vm.publicSelected.observeAsState(true)
+    val privateSelected by vm.privateSelected.observeAsState(false)
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            Text(
+            CreationPageTitle(
                 text = "Create a Nokia hobby club!\nUnite People!\nShare Interests!",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(bottom = 20.dp)
             )
             CustomOutlinedTextField(
                 value = clubName ?: TextFieldValue(""),
-                onValueChange = { vm.updateEventName(it) },
+                onValueChange = { vm.updateClubName(it) },
                 focusManager = focusManager,
                 keyboardType = KeyboardType.Text,
                 label = "Name *",
@@ -115,7 +131,7 @@ fun ClubCreationPage1(vm: CreateClubViewModel) {
             )
             CustomOutlinedTextField(
                 value = clubDescription ?: TextFieldValue(""),
-                onValueChange = { vm.updateEventDescription(it) },
+                onValueChange = { vm.updateClubDescription(it) },
                 focusManager = focusManager,
                 keyboardType = KeyboardType.Text,
                 label = "Description *",
@@ -125,7 +141,12 @@ fun ClubCreationPage1(vm: CreateClubViewModel) {
                     .fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(10.dp))
-            SelectPrivacy(vm)
+            SelectPrivacy(
+                selectedPublic = publicSelected,
+                selectedPrivate = privateSelected,
+                onClickPublic = { vm.updateClubPrivacySelection(leftVal = true, rightVal = false) },
+                onClickPrivate = { vm.updateClubPrivacySelection(leftVal = false, rightVal = true) }
+            )
         }
         Column(
             modifier = Modifier
@@ -164,11 +185,21 @@ fun ClubCreationPage1(vm: CreateClubViewModel) {
     }
 }
 
+/**
+ * Club creation page 2 asks the user to select:
+ * - Club Logo
+ * - Club Banner
+ *
+ * @param vm [CreateClubViewModel]
+ */
 @Composable
 fun ClubCreationPage2(vm: CreateClubViewModel) {
-    val selectedImage by vm.selectedBannerImage.observeAsState(null)
+    val selectedBanner by vm.selectedBannerImage.observeAsState(null)
     val selectedLogo by vm.selectedClubLogo.observeAsState(null)
-    val galleryLauncher =
+
+    // Launchers for selecting images from devices storage.
+    // Returns a uri for the image you have selected.
+    val galleryLauncherBanner =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uriList ->
             vm.temporarilyStoreImages(bannerUri = uriList)
         }
@@ -180,10 +211,8 @@ fun ClubCreationPage2(vm: CreateClubViewModel) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.wrapContentSize()) {
             Column(modifier = Modifier.fillMaxWidth()) {
-                Text(
+                CreationPageTitle(
                     text = "Add a club logo",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(bottom = 10.dp)
                 )
                 CustomButton(
@@ -204,23 +233,22 @@ fun ClubCreationPage2(vm: CreateClubViewModel) {
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(bottom = 10.dp)
                     )
-                    if (selectedLogo != null) {
-                        SelectedImageItem(uri = selectedLogo)
-                    } else {
-                        Box(modifier = Modifier.size(100.dp))
-                    }
+                    selectedLogo?.let {
+                        SelectedImageItem(
+                            uri = selectedLogo,
+                            onDelete = { vm.removeSelectedImage(logo = true) })
+                    } ?: Box(modifier = Modifier.size(110.dp))
+                    // just to take the space that the image would take height-wise
                 }
             }
             Column(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = "Add images about the club",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.SemiBold,
+                CreationPageTitle(
+                    text = "Add image about the club",
                     modifier = Modifier.padding(bottom = 10.dp)
                 )
                 CustomButton(
-                    onClick = { galleryLauncher.launch("image/*") },
-                    text = "Choose images from gallery",
+                    onClick = { galleryLauncherBanner.launch("image/*") },
+                    text = "Choose image from gallery",
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(0.dp)
@@ -230,17 +258,15 @@ fun ClubCreationPage2(vm: CreateClubViewModel) {
                         .fillMaxWidth()
                         .padding(vertical = 20.dp)
                 ) {
-                    Text(
+                    CreationPageSubtitle(
                         text = "Saved images",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(bottom = 20.dp)
                     )
-                    if (selectedImage != null) {
-                        SelectedImageItem(uri = selectedImage)
-                    } else {
-                        Box(modifier = Modifier.size(100.dp))
-                    }
+                    selectedBanner?.let {
+                        SelectedImageItem(
+                            uri = selectedBanner,
+                            onDelete = { vm.removeSelectedImage(banner = true) })
+                    } ?: Box(modifier = Modifier.size(100.dp))
                 }
             }
         }
@@ -278,12 +304,20 @@ fun ClubCreationPage2(vm: CreateClubViewModel) {
     }
 }
 
+/**
+ * Club creation page 3 asks the user to provide:
+ * - Link name
+ * - Url for that link
+ *
+ * @param vm [CreateClubViewModel]
+ */
 @Composable
 fun ClubCreationPage3(vm: CreateClubViewModel) {
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
-    var linkSent by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    // for changing focus after link added
+    var linkSent by remember { mutableStateOf(false) }
 
     val currentLinkName by vm.currentLinkName.observeAsState(null)
     val currentLinkURL by vm.currentLinkURL.observeAsState(null)
@@ -291,11 +325,7 @@ fun ClubCreationPage3(vm: CreateClubViewModel) {
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            Text(
-                text = "Add social media links",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.SemiBold,
-            )
+            CreationPageTitle(text = "Add social media links")
             Text(
                 text = "Give people your community links (eg. Facebook, Discord, Twitter)",
                 fontSize = 12.sp,
@@ -343,15 +373,14 @@ fun ClubCreationPage3(vm: CreateClubViewModel) {
                     .fillMaxWidth()
                     .padding(vertical = 20.dp)
             )
-            Text(
+            CreationPageSubtitle(
                 text = "Provided links",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(bottom = 20.dp)
             )
             givenLinks.forEach {
                 Text(text = it.key)
             }
+            // when link button pressed then change focus back on link name text field
             DisposableEffect(linkSent) {
                 if (linkSent) {
                     focusRequester.requestFocus()
@@ -393,31 +422,42 @@ fun ClubCreationPage3(vm: CreateClubViewModel) {
     }
 }
 
+/**
+ * Club creation page 4 asks the user to provide:
+ * - Contact information
+ *
+ * @param vm [CreateClubViewModel]
+ * @param navController for Compose navigation
+ */
 @Composable
 fun ClubCreationPage4(vm: CreateClubViewModel, navController: NavController) {
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
 
+    // First page
     val clubName by vm.clubName.observeAsState(null)
     val clubDescription by vm.clubDescription.observeAsState(null)
     val clubIsPrivate by vm.clubIsPrivate.observeAsState(false)
-    val linkArray by vm.givenLinksLiveData.observeAsState(null)
-    val currentUser by vm.currentUser.observeAsState()
+
+    // Second Page
     val selectedImage by vm.selectedBannerImage.observeAsState()
     val selectedLogo by vm.selectedClubLogo.observeAsState()
 
+    // Third Page
+    val linkArray by vm.givenLinksLiveData.observeAsState(null)
+
     // Last Page
+    val currentUser by vm.currentUser.observeAsState()
     val contactInfoName by vm.contactInfoName.observeAsState(null)
     val contactInfoEmail by vm.contactInfoEmail.observeAsState(null)
     val contactInfoNumber by vm.contactInfoNumber.observeAsState(null)
-
     val scope = rememberCoroutineScope()
 
+    // fetch details for the current user for quick fill options
     if (currentUser == null) {
         LaunchedEffect(Unit) {
             scope.launch {
                 vm.getCurrentUser()
-                Log.d("fetchUser", "current user fetched")
             }
         }
     }
@@ -427,11 +467,7 @@ fun ClubCreationPage4(vm: CreateClubViewModel, navController: NavController) {
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Text(
-                text = "Contact Information",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.SemiBold,
-            )
+            CreationPageTitle(text = "Contact Information")
             Text(
                 text = "Provide members a way to contact you directly",
                 fontSize = 12.sp,
@@ -547,33 +583,5 @@ fun ClubCreationPage4(vm: CreateClubViewModel, navController: NavController) {
                 )
             }
         }
-    }
-}
-
-@Composable
-fun SelectPrivacy(vm: CreateClubViewModel) {
-    val leftSelected by vm.leftSelected.observeAsState(true)
-    val rightSelected by vm.rightSelected.observeAsState(false)
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = "Privacy",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(bottom = 20.dp)
-        )
-        Row(modifier = Modifier.fillMaxWidth()) {
-            Pill(modifier = Modifier.weight(1f), isSelected = leftSelected, text = "Public") {
-                vm.updateClubPrivacySelection(leftVal = true, rightVal = false)
-            }
-            Pill(
-                modifier = Modifier.weight(1f),
-                isLeft = false,
-                isSelected = rightSelected,
-                text = "Private"
-            ) {
-                vm.updateClubPrivacySelection(leftVal = false, rightVal = true)
-            }
-        }
-
     }
 }

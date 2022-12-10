@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import com.example.hobbyclubs.api.*
 import java.util.*
 
-class EventManagementViewModel: ViewModel() {
+class EventManagementViewModel : ViewModel() {
     val firebase = FirebaseHelper
     val selectedEvent = MutableLiveData<Event>()
 
@@ -22,7 +22,7 @@ class EventManagementViewModel: ViewModel() {
     val eventContactNumber = MutableLiveData<TextFieldValue>()
     val currentLinkName = MutableLiveData<TextFieldValue>()
     val currentLinkURL = MutableLiveData<TextFieldValue>()
-    val selectedBannerImages = MutableLiveData<MutableList<Uri>>()
+    val selectedBannerImages = MutableLiveData<List<Uri>?>()
     val givenLinks = MutableLiveData<Map<String, String>>(mapOf())
     val listOfRequests = MutableLiveData<List<EventRequest>>()
 
@@ -41,10 +41,10 @@ class EventManagementViewModel: ViewModel() {
 
     fun fillPreviousEventData(event: Event) {
         eventName.value = TextFieldValue(event.name)
-        eventDescription.value  = TextFieldValue(event.description)
-        eventContactEmail.value  = TextFieldValue(event.contactInfoEmail)
-        eventContactNumber.value  = TextFieldValue(event.contactInfoNumber)
-        eventContactName.value  = TextFieldValue(event.contactInfoName)
+        eventDescription.value = TextFieldValue(event.description)
+        eventContactEmail.value = TextFieldValue(event.contactInfoEmail)
+        eventContactNumber.value = TextFieldValue(event.contactInfoNumber)
+        eventContactName.value = TextFieldValue(event.contactInfoName)
         eventAddress.value = TextFieldValue(event.address)
         eventDate.value = event.date.toDate()
         eventParticipantLimit.value = TextFieldValue(event.participantLimit.toString())
@@ -65,7 +65,7 @@ class EventManagementViewModel: ViewModel() {
     }
 
     fun updateEventDate(years: Int, month: Int, day: Int, hour: Int, minutes: Int) {
-        eventDate.value = Date(years, month, day, hour,minutes)
+        eventDate.value = Date(years, month, day, hour, minutes)
         Log.d("dateSelection", eventDate.value.toString())
     }
 
@@ -111,6 +111,14 @@ class EventManagementViewModel: ViewModel() {
         bannerUri?.let { selectedBannerImages.value = it }
     }
 
+    fun removeImageFromList(uri: Uri) {
+        val tempList = selectedBannerImages.value?.toMutableList()
+        tempList?.let {
+            it.remove(uri)
+            if (it.isEmpty()) selectedBannerImages.value = null else selectedBannerImages.value = it.toList()
+        }
+    }
+
     var count = 0
     fun replaceEventImages(eventId: String, newImages: List<Uri>) {
         val tempList = mutableListOf<Uri>()
@@ -138,7 +146,7 @@ class EventManagementViewModel: ViewModel() {
         firebase.deleteEvent(eventId)
     }
 
-    fun updateEventDetails(eventId: String, changeMap: Map<String,Any>) {
+    fun updateEventDetails(eventId: String, changeMap: Map<String, Any>) {
         firebase.updateEventDetails(eventId, changeMap)
     }
 

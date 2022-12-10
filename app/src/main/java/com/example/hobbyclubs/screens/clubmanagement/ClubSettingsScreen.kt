@@ -31,6 +31,9 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import com.example.hobbyclubs.general.*
+import com.example.hobbyclubs.navigation.NavRoutes
 import androidx.navigation.NavController
 import com.example.hobbyclubs.general.CustomAlertDialog
 import com.example.hobbyclubs.general.CustomOutlinedTextField
@@ -39,6 +42,13 @@ import com.example.hobbyclubs.navigation.NavRoute
 import com.example.hobbyclubs.screens.create.event.SelectedImageItem
 import kotlinx.coroutines.launch
 
+/**
+ * Club settings screen allows user to edit the existing club details
+ *
+ * @param navController for Compose navigation
+ * @param clubId UID for the club you have selected on home or club screen
+ * @param vm [ClubManagementViewModel]
+ */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun ClubSettingsScreen(
@@ -46,15 +56,19 @@ fun ClubSettingsScreen(
     clubId: String,
     vm: ClubManagementViewModel = viewModel()
 ) {
+
     val club by vm.selectedClub.observeAsState(null)
     val sheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
         confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded }
     )
     val scope = rememberCoroutineScope()
+
+    // content to show on the bottom sheet. defaults to empty surface.
     var sheetContent: @Composable () -> Unit by remember { mutableStateOf({ EmptySurface() }) }
     var showDeleteClubDialog by remember { mutableStateOf(false) }
 
+    // if bottom sheet is open, close bottom sheet when user presses back button
     BackHandler(sheetState.isVisible) {
         scope.launch { sheetState.hide() }
     }
@@ -65,16 +79,19 @@ fun ClubSettingsScreen(
         modifier = Modifier.fillMaxSize(),
         sheetShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
     ) {
+        // fetch club data
         LaunchedEffect(Unit) {
             vm.getClub(clubId)
         }
+        // fill mutableLiveData with clubs previous details
+        // for displaying previous data when opening sheets.
         LaunchedEffect(club) {
             club?.let {
                 vm.fillPreviousClubData(it)
             }
         }
         club?.let { club ->
-            Scaffold() {
+            Scaffold {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -197,6 +214,12 @@ fun ClubSettingsScreen(
     }
 }
 
+/**
+ * Club settings row item is a card that opens a specific bottom sheet.
+ *
+ * @param text Text to show on the card
+ * @param onClick action to do when user taps on the card (open bottom sheet with correct content)
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClubSettingsRowItem(text: String, onClick: () -> Unit) {
@@ -225,15 +248,22 @@ fun ClubSettingsRowItem(text: String, onClick: () -> Unit) {
 
 }
 
+/**
+ * Empty surface for default value of bottom sheet
+ */
 @Composable
 fun EmptySurface() {
     Surface(Modifier.fillMaxSize()) {
-        Box(Modifier.fillMaxSize()) {
-
-        }
+        Box(Modifier.fillMaxSize()) {}
     }
 }
 
+/**
+ * Name and description sheet for editing the the name and description of the club.
+ * @param vm [ClubManagementViewModel]
+ * @param clubId UID for the club you have selected on home or club screen
+ * @param onSave action to do when user wants to save the changes.
+ */
 @Composable
 fun NameAndDescriptionSheet(vm: ClubManagementViewModel, clubId: String, onSave: () -> Unit) {
     val screenHeight = LocalConfiguration.current.screenHeightDp
@@ -252,11 +282,9 @@ fun NameAndDescriptionSheet(vm: ClubManagementViewModel, clubId: String, onSave:
                 .padding(20.dp),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            Column() {
-                Text(
+            Column {
+                CreationPageTitle(
                     text = "Edit Name and Description",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(bottom = 20.dp)
                 )
                 CustomOutlinedTextField(
@@ -270,7 +298,6 @@ fun NameAndDescriptionSheet(vm: ClubManagementViewModel, clubId: String, onSave:
                         .fillMaxWidth()
                         .padding(bottom = 10.dp)
                 )
-
                 CustomOutlinedTextField(
                     value = clubDescription ?: TextFieldValue(""),
                     onValueChange = { vm.updateClubDescription(it) },
@@ -300,19 +327,28 @@ fun NameAndDescriptionSheet(vm: ClubManagementViewModel, clubId: String, onSave:
                 Text(text = "Save")
             }
         }
-
     }
 }
 
+/**
+ * Logo and banner sheet for changing the logo and banner of the selected club.
+ *
+ * @param vm [ClubManagementViewModel]
+ * @param clubId UID for the club you have selected on home or club screen
+ * @param onSave action to do when user wants to save the changes.
+ */
 @Composable
 fun LogoAndBannerSheet(vm: ClubManagementViewModel, clubId: String, onSave: () -> Unit) {
     val screenHeight = LocalConfiguration.current.screenHeightDp
     val selectedImage by vm.selectedBannerImage.observeAsState()
     val selectedLogo by vm.selectedClubLogo.observeAsState(null)
-    val galleryLauncher =
+
+    // Launcher for Banner
+    val galleryLauncherBanner =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             vm.temporarilyStoreImages(bannerUri = uri)
         }
+    // Launcher for Logo
     val galleryLauncherLogo =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             vm.temporarilyStoreImages(logoUri = uri)
@@ -331,10 +367,8 @@ fun LogoAndBannerSheet(vm: ClubManagementViewModel, clubId: String, onSave: () -
         ) {
             Column(modifier = Modifier.wrapContentSize()) {
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    Text(
+                    CreationPageTitle(
                         text = "Add a club logo",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(bottom = 10.dp)
                     )
                     FilledTonalButton(
@@ -354,41 +388,31 @@ fun LogoAndBannerSheet(vm: ClubManagementViewModel, clubId: String, onSave: () -
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.padding(bottom = 10.dp)
                         )
-                        if (selectedLogo != null) {
-                            SelectedImageItem(uri = selectedLogo)
-                        } else {
-                            Box(modifier = Modifier.size(100.dp))
-                        }
+                        selectedLogo?.let {
+                            SelectedImageItem(uri = it, onDelete = { vm.removeSelectedImage(logo = true) })
+                        } ?:  Box(modifier = Modifier.size(110.dp))
                     }
                 }
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    Text(
+                    CreationPageTitle(
                         text = "Add images about the club",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(bottom = 10.dp)
                     )
                     FilledTonalButton(
                         modifier = Modifier.fillMaxWidth(),
-                        onClick = { galleryLauncher.launch("image/*") },
+                        onClick = { galleryLauncherBanner.launch("image/*") },
                     ) {
                         Text(text = "Choose images from gallery")
                     }
-
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 20.dp)
                     ) {
-                        Text(
-                            text = "Saved images",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier.padding(bottom = 20.dp)
-                        )
+                        CreationPageSubtitle(text = "Saved images", modifier = Modifier.padding(bottom = 20.dp))
                         selectedImage?.let { uri ->
-                            SelectedImageItem (uri = uri)
-                        } ?: Box(modifier = Modifier.size(100.dp))
+                            SelectedImageItem(uri = uri, onDelete = { vm.removeSelectedImage(banner = true) })
+                        } ?: Box(modifier = Modifier.size(110.dp))
                     }
                 }
             }
@@ -409,10 +433,16 @@ fun LogoAndBannerSheet(vm: ClubManagementViewModel, clubId: String, onSave: () -
                 Text(text = "Save")
             }
         }
-
     }
 }
 
+/**
+ * Social links sheet for adding new links to the club.
+ *
+ * @param vm [ClubManagementViewModel]
+ * @param clubId UID for the club you have selected on home or club screen
+ * @param onSave action to do when user wants to save the changes.
+ */
 @Composable
 fun SocialLinksSheet(vm: ClubManagementViewModel, clubId: String, onSave: () -> Unit) {
     val screenHeight = LocalConfiguration.current.screenHeightDp
@@ -436,12 +466,8 @@ fun SocialLinksSheet(vm: ClubManagementViewModel, clubId: String, onSave: () -> 
                 .padding(20.dp),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            Column() {
-                Text(
-                    text = "Add social media links",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.SemiBold,
-                )
+            Column {
+                CreationPageTitle(text = "Add social media links")
                 Text(
                     text = "Give people your community links (eg. Facebook, Discord, Twitter)",
                     fontSize = 12.sp,
@@ -499,6 +525,7 @@ fun SocialLinksSheet(vm: ClubManagementViewModel, clubId: String, onSave: () -> 
                 givenLinks.forEach {
                     Text(text = it.key)
                 }
+                // change focus after pressed the add link button
                 DisposableEffect(linkSent) {
                     if (linkSent) {
                         focusRequester.requestFocus()
@@ -522,10 +549,16 @@ fun SocialLinksSheet(vm: ClubManagementViewModel, clubId: String, onSave: () -> 
                 Text(text = "Save")
             }
         }
-
     }
 }
 
+/**
+ * Contact info sheet for editing the contact information of the club.
+ *
+ * @param vm [ClubManagementViewModel]
+ * @param clubId UID for the club you have selected on home or club screen
+ * @param onSave action to do when user wants to save the changes.
+ */
 @Composable
 fun ContactInfoSheet(vm: ClubManagementViewModel, clubId: String, onSave: () -> Unit) {
     val screenHeight = LocalConfiguration.current.screenHeightDp
@@ -546,13 +579,8 @@ fun ContactInfoSheet(vm: ClubManagementViewModel, clubId: String, onSave: () -> 
                 .padding(20.dp),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            Column(
-            ) {
-                Text(
-                    text = "Contact Information",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.SemiBold,
-                )
+            Column {
+                CreationPageTitle(text = "Contact Information")
                 Text(
                     text = "Provide members a way to contact you directly",
                     fontSize = 12.sp,
@@ -607,9 +635,7 @@ fun ContactInfoSheet(vm: ClubManagementViewModel, clubId: String, onSave: () -> 
             ) {
                 Text(text = "Save")
             }
-
         }
-
     }
 }
 

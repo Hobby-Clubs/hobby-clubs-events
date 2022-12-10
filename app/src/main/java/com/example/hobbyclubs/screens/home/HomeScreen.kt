@@ -33,13 +33,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.compose.linkBlue
 import com.example.hobbyclubs.R
 import com.example.hobbyclubs.api.*
 import com.example.hobbyclubs.general.*
 import com.example.hobbyclubs.navigation.NavRoute
 import com.example.hobbyclubs.notifications.InAppNotificationHelper
 import com.example.hobbyclubs.notifications.InAppNotificationService
-import com.example.hobbyclubs.screens.clubs.ClubTile
+import com.example.hobbyclubs.general.ClubTile
 import java.text.SimpleDateFormat
 
 /**
@@ -75,7 +76,7 @@ fun HomeScreen(
 
     // Starts the InAppNotificationService if notifications are enabled in the notification settings
     LaunchedEffect(Unit) {
-        FirebaseHelper.uid ?.let { uid ->
+        FirebaseHelper.uid?.let { uid ->
             val settings = InAppNotificationHelper(context).getNotificationSettings()
             if (settings.none { !it.name.contains("REMINDER", true) }) {
                 return@LaunchedEffect

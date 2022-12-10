@@ -20,6 +20,14 @@ import com.example.hobbyclubs.general.SmallTileForClubManagement
 import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.navigation.NavRoute
 
+/**
+ * Club all news screen displays all the news of the club.
+ * You are able to delete news from this screen.
+ *
+ * @param navController for Compose navigation
+ * @param vm [ClubManagementViewModel]
+ * @param clubId UID for the club you have selected on home or club screen
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClubAllNewsScreen(
@@ -30,6 +38,7 @@ fun ClubAllNewsScreen(
     val club by vm.selectedClub.observeAsState(null)
     val listOfNews by vm.listOfNews.observeAsState(null)
 
+    // fetch club data
     LaunchedEffect(Unit) {
         vm.getClub(clubId)
         vm.getAllNews(clubId)
@@ -69,6 +78,13 @@ fun ClubAllNewsScreen(
     }
 }
 
+/**
+ * List of news displays a list of selected clubs news that are deletable
+ *
+ * @param list List of News objects
+ * @param vm [ClubManagementViewModel]
+ * @param onClick action to do when user taps on the card instead of the delete button. Used for navigation.
+ */
 @Composable
 fun ListOfNews(list: List<News>, vm: ClubManagementViewModel, onClick: (String) -> Unit) {
     var showDeleteDialog by remember { mutableStateOf(false) }

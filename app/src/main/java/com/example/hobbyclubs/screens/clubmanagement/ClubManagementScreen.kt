@@ -28,6 +28,13 @@ import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.navigation.NavRoute
 
+/**
+ * Club management screen for managing the clubs members, events, news and privacy
+ *
+ * @param navController for Compose navigation
+ * @param vm [ClubManagementViewModel]
+ * @param clubId UID for the club you have selected on home or club screen
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClubManagementScreen(
@@ -38,6 +45,7 @@ fun ClubManagementScreen(
     val club by vm.selectedClub.observeAsState(null)
     val listOfRequests by vm.listOfRequests.observeAsState(listOf())
 
+    // get all data needed for managing club
     LaunchedEffect(Unit) {
         vm.getClub(clubId)
         vm.getClubEvents(clubId)
@@ -80,9 +88,12 @@ fun ClubManagementScreen(
             )
         }
     }
-
 }
 
+/**
+ * Club management section title
+ * @param text Text to be shown as title
+ */
 @Composable
 fun ClubManagementSectionTitle(text: String) {
     Text(
@@ -93,6 +104,16 @@ fun ClubManagementSectionTitle(text: String) {
     )
 }
 
+/**
+ * Club management row card showing the icon, title, and value how many of certain type.
+ *
+ * @param icon Icon to display on the left of the card
+ * @param iconDesc Description of icon
+ * @param title Text on the card
+ * @param numberOfItem How many items of certain type
+ * @param isMemberRequest if member request card, show red notification circle around the number of item.
+ * @param onClick action to do when user taps on the card.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClubManagementRowCard(
@@ -138,11 +159,17 @@ fun ClubManagementRowCard(
                     numberOfItem = numberOfItem
                 )
             }
-
         }
     }
 }
 
+/**
+ * Club management row number count
+ *
+ * @param modifier [Modifier]
+ * @param numberOfItem number of item
+ * @param isMemberRequestSection if member request card, show red notification circle around the number of item.
+ */
 @Composable
 fun ClubManagementRowNumberCount(
     modifier: Modifier,
@@ -165,6 +192,15 @@ fun ClubManagementRowNumberCount(
     }
 }
 
+/**
+ * Expandable privacy card for selecting private or public club.
+ *
+ * @param icon Icon to display
+ * @param iconDesc Description of icon
+ * @param title Text to show on card
+ * @param clubId UID for the club you have selected on home or club screen
+ * @param vm [ClubManagementViewModel]
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExpandablePrivacyCard(
@@ -178,7 +214,6 @@ fun ExpandablePrivacyCard(
     val rotationState by animateFloatAsState(
         targetValue = if (expandedState) 180f else 0f
     )
-
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -244,6 +279,14 @@ fun ExpandablePrivacyCard(
     }
 }
 
+/**
+ * Privacy row item shows in the privacy dropdown menu
+ *
+ * @param icon Icon to be shown
+ * @param iconDesc Description of icon
+ * @param title Text to be shown on card
+ * @param onClick action to do when user taps on the row item.
+ */
 @Composable
 fun PrivacyRowItem(
     icon: ImageVector,
@@ -271,6 +314,14 @@ fun PrivacyRowItem(
     }
 }
 
+/**
+ * Members section includes Members and Member requests cards
+ *
+ * @param navController for Compose navigation
+ * @param clubId UID for the club you have selected on home or club screen
+ * @param club Club object fetched from firebase
+ * @param requestsAmount amount of join requests
+ */
 @Composable
 fun MembersSection(navController: NavController, clubId: String, club: Club, requestsAmount: Int) {
     Column() {
@@ -294,6 +345,13 @@ fun MembersSection(navController: NavController, clubId: String, club: Club, req
     }
 }
 
+/**
+ * News section to show news card
+ *
+ * @param navController for Compose navigation
+ * @param vm [ClubManagementViewModel]
+ * @param clubId UID for the club you have selected on home or club screen
+ */
 @Composable
 fun NewsSection(navController: NavController, vm: ClubManagementViewModel, clubId: String) {
     val listOfNews by vm.listOfNews.observeAsState(null)
@@ -309,6 +367,13 @@ fun NewsSection(navController: NavController, vm: ClubManagementViewModel, clubI
     }
 }
 
+/**
+ * Events section to show event card
+ *
+ * @param navController for Compose navigation
+ * @param vm [ClubManagementViewModel]
+ * @param clubId UID for the club you have selected on home or club screen
+ */
 @Composable
 fun EventsSection(navController: NavController, vm: ClubManagementViewModel, clubId: String) {
     val listOfEvents by vm.listOfEvents.observeAsState(null)
@@ -324,6 +389,12 @@ fun EventsSection(navController: NavController, vm: ClubManagementViewModel, clu
     }
 }
 
+/**
+ * Privacy section to change clubs privacy
+ *
+ * @param vm [ClubManagementViewModel]
+ * @param clubId UID for the club you have selected on home or club screen
+ */
 @Composable
 fun PrivacySection(vm: ClubManagementViewModel, clubId: String) {
     val isPrivate by vm.isPrivate.observeAsState()

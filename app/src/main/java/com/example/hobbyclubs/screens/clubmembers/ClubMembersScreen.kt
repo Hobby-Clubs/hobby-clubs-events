@@ -31,8 +31,15 @@ import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.User
 import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.screens.clubmanagement.ClubManagementSectionTitle
-import com.example.hobbyclubs.screens.clubpage.CustomButton
+import com.example.hobbyclubs.general.CustomButton
 
+/**
+ * Club members screen displays a list of joined members. It is separated by admins and normal members
+ *
+ * @param navController for Compose navigation
+ * @param vm [ClubMembersViewModel]
+ * @param clubId UID for the club you have selected on home or club screen
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClubMembersScreen(
@@ -42,6 +49,8 @@ fun ClubMembersScreen(
 ) {
     val club by vm.selectedClub.observeAsState(null)
     val listOfMembers by vm.listOfMembers.observeAsState(listOf())
+
+    // get data of selected club
     LaunchedEffect(Unit) {
         vm.getClub(clubId)
     }
@@ -72,6 +81,13 @@ fun ClubMembersScreen(
     }
 }
 
+/**
+ * List of club members displays a list of all members divided into admins and normal members
+ *
+ * @param listOfMembers all members that have joined club
+ * @param vm [ClubMembersViewModel]
+ * @param club Club object fetched from firebase
+ */
 @Composable
 fun ListOfClubMembers(
     listOfMembers: List<User>,
@@ -120,6 +136,17 @@ fun ListOfClubMembers(
 
 }
 
+/**
+ * Member card is the card that shows request details
+ *
+ * @param user User object that is fetched from firebase
+ * @param setSelectedMemberUid action to do when card is pressed
+ * @param onPromote action to do when user has pressed the promote button on the request card
+ * @param isSelected when user has pressed the card this becomes true,
+ * when user presses another card afterwards it becomes false.
+ * @param vm [ClubMembersViewModel]
+ * @param club Club object fetched from firebase
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MemberCard(
@@ -131,7 +158,9 @@ fun MemberCard(
     club: Club,
 ) {
     var expandedState by remember { mutableStateOf(false) }
+    // promotable to admin
     val isPromotable = !club.admins.contains(user.uid)
+    // kickable from club (not admin)
     val isKickable = (user.uid != FirebaseHelper.uid && !club.admins.contains(user.uid))
 
     Card(
@@ -145,8 +174,9 @@ fun MemberCard(
             ),
         onClick = {
             setSelectedMemberUid()
-            expandedState = true
-
+            if (isPromotable) {
+                expandedState = true
+            }
         },
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -158,7 +188,9 @@ fun MemberCard(
             ) {
                 MemberImage(uri = user.profilePicUri)
                 Text(
-                    text = "${user.fName} ${user.lName}", fontSize = 16.sp, modifier = Modifier
+                    text = "${user.fName} ${user.lName}",
+                    fontSize = 16.sp,
+                    modifier = Modifier
                         .weight(6f)
                         .padding(start = 30.dp)
                 )
@@ -192,6 +224,11 @@ fun MemberCard(
     }
 }
 
+/**
+ * Member image displays members profile picture if they have one, defaults to Nokia logo
+ *
+ * @param uri The Uri of the members profile picture
+ */
 @Composable
 fun MemberImage(uri: String?) {
     Card(

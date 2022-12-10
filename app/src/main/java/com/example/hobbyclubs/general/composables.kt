@@ -8,9 +8,7 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -39,17 +37,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.compose.*
 import com.example.hobbyclubs.R
-import com.example.hobbyclubs.api.Event
-import com.example.hobbyclubs.api.FirebaseHelper
-import com.example.hobbyclubs.api.News
 import com.example.hobbyclubs.api.*
 import com.example.hobbyclubs.api.FirebaseHelper.getHasRequested
 import com.example.hobbyclubs.navigation.BottomBar
@@ -57,7 +54,6 @@ import com.example.hobbyclubs.navigation.NavRoute
 import com.example.hobbyclubs.notifications.AlarmReceiver
 import com.example.hobbyclubs.notifications.EventNotificationInfo
 import com.example.hobbyclubs.screens.clubmembers.MemberImage
-import com.example.hobbyclubs.screens.clubpage.CustomButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -305,7 +301,12 @@ fun MockDrawerContent(navToFirstTime: () -> Unit, logout: () -> Unit, onClick: (
  * @receiver
  */
 @Composable
-fun LazyColumnHeader(modifier: Modifier = Modifier, text: String, onHomeScreen: Boolean = false, onClick: () -> Unit = {}) {
+fun LazyColumnHeader(
+    modifier: Modifier = Modifier,
+    text: String,
+    onHomeScreen: Boolean = false,
+    onClick: () -> Unit = {}
+) {
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -327,7 +328,11 @@ fun LazyColumnHeader(modifier: Modifier = Modifier, text: String, onHomeScreen: 
                 fontWeight = FontWeight.Light,
                 fontSize = 24.sp
             )
-            if (onHomeScreen) Icon(Icons.Outlined.NavigateNext, null, modifier = Modifier.size(24.dp))
+            if (onHomeScreen) Icon(
+                Icons.Outlined.NavigateNext,
+                null,
+                modifier = Modifier.size(24.dp)
+            )
         }
     }
 }
@@ -563,11 +568,10 @@ fun EventTile(
                     .fillMaxWidth()
                     .aspectRatio(3.07f)
             ) {
-                val hasBanner = event.bannerUris.isNotEmpty()
-                val data = if (hasBanner) event.bannerUris.first() else null
+                val uris = if (event.bannerUris.isEmpty()) null else event.bannerUris.first()
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data(data)
+                        .data(uris)
                         .crossfade(true)
                         .build(),
                     contentDescription = "Tile background",
@@ -591,7 +595,7 @@ fun EventTile(
                                 isJoined = joined,
                                 onJoinEvent = {
                                     if (event.participantLimit != -1) {
-                                        if(hasRequested) {
+                                        if (hasRequested) {
                                             Toast.makeText(
                                                 context,
                                                 "Request pending approval",
@@ -600,7 +604,7 @@ fun EventTile(
                                         } else if (event.isPrivate && event.participants.size < event.participantLimit && !event.admins.contains(FirebaseHelper.uid)) {
                                             createEventRequest(event)
                                             refreshStatus()
-                                        } else if (event.participants.size < event.participantLimit){
+                                        } else if (event.participants.size < event.participantLimit) {
                                             joinEvent(event, context)
                                         } else {
                                             Toast.makeText(
@@ -622,7 +626,9 @@ fun EventTile(
                                 onLeaveEvent = {
                                     leaveEvent(event, context)
                                 },
-                                isPrivate = !joined && event.isPrivate && !event.admins.contains(FirebaseHelper.uid),
+                                isPrivate = !joined && event.isPrivate && !event.admins.contains(
+                                    FirebaseHelper.uid
+                                ),
                                 requested = hasRequested
                             )
                         }
@@ -714,10 +720,10 @@ fun JoinEventButton(
         icon = Icons.Outlined.Close
         text = "Cancel"
     } else {
-        if(requested) {
+        if (requested) {
             icon = Icons.Outlined.Pending
             text = "Pending.."
-        } else if(isPrivate) {
+        } else if (isPrivate) {
             icon = Icons.Outlined.PersonAddAlt
             text = "Request to join"
         } else {
@@ -996,7 +1002,7 @@ fun CustomAlertDialog(
         confirmButton = {
             TextButton(
                 onClick = { onConfirm() },
-                colors =  ButtonDefaults.textButtonColors(contentColor = colorScheme.error),
+                colors = ButtonDefaults.textButtonColors(contentColor = colorScheme.error),
             ) {
                 Text(text = confirmText)
             }
@@ -1149,6 +1155,347 @@ fun RequestCard(
                     )
                 }
             }
+        }
+    }
+}
+
+/**
+ * Custom button
+ *
+ * @param modifier
+ * @param onClick
+ * @param text
+ * @param colors
+ * @param icon
+ * @receiver
+ */
+@Composable
+fun CustomButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    text: String,
+    colors: ButtonColors = ButtonDefaults.buttonColors(
+        containerColor = colorScheme.primary,
+        contentColor = colorScheme.onPrimary,
+    ),
+    icon: ImageVector? = null
+) {
+    Button(
+        onClick = { onClick() },
+        modifier = modifier
+            .width(175.dp)
+            .height(50.dp)
+            .padding(5.dp),
+        colors = colors,
+        shape = RoundedCornerShape(10.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            if (icon != null) {
+                Icon(
+                    icon, null, modifier = Modifier
+                        .padding(end = 5.dp)
+                        .size(14.dp)
+                )
+            }
+            Text(text = text, fontSize = 14.sp)
+        }
+    }
+}
+
+@Composable
+fun JoinLeaveOrManageButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    type: String
+) {
+    val text: String = when (type) {
+        "join" -> "Join club"
+        "leave" -> "Leave club"
+        "manage" -> "Manage club"
+        "pending" -> "Pending"
+        else -> ""
+    }
+    val icon: ImageVector = when (type) {
+        "join" -> Icons.Outlined.PersonAdd
+        "leave" -> Icons.Outlined.ExitToApp
+        "manage" -> Icons.Outlined.Tune
+        "pending" -> Icons.Outlined.Pending
+        else -> Icons.Outlined.QuestionMark
+    }
+
+    Button(
+        modifier = modifier,
+        onClick = { onClick() }
+    ) {
+        Icon(icon, null)
+        Text(
+            modifier = Modifier.padding(start = 8.dp),
+            text = text,
+        )
+    }
+}
+
+@Composable
+fun CreationPageTitle(modifier: Modifier = Modifier, text: String) {
+    Text(
+        modifier = modifier,
+        text = text,
+        fontSize = 24.sp,
+        fontWeight = FontWeight.SemiBold,
+    )
+}
+
+@Composable
+fun CreationPageSubtitle(modifier: Modifier = Modifier, text: String) {
+    Text(
+        text = text,
+        fontSize = 16.sp,
+        fontWeight = FontWeight.SemiBold,
+        modifier = modifier
+    )
+}
+
+/**
+ * Page progression displays the current status on the creation pages. Supports 4 horizontal
+ * bars that get filled with color corresponding to which page you are on.
+ *
+ * @param numberOfLines The amount of lines you want to display as filled, maximum 4
+ * @param onClick1 changes page to 1
+ * @param onClick2 changes page to 2
+ * @param onClick3 changes page to 3
+ * @param onClick4 changes page to 4
+ */
+@Composable
+fun PageProgression(
+    numberOfLines: Int,
+    onClick1: () -> Unit,
+    onClick2: () -> Unit,
+    onClick3: () -> Unit,
+    onClick4: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(5.dp), horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        ProgressionBar(isMarked = numberOfLines >= 1, onClick = { onClick1() })
+        ProgressionBar(isMarked = numberOfLines > 1, onClick = { onClick2() })
+        ProgressionBar(isMarked = numberOfLines > 2, onClick = { onClick3() })
+        ProgressionBar(isMarked = numberOfLines > 3, onClick = { onClick4() })
+    }
+}
+
+/**
+ * Progression bar that is used in [PageProgression]
+ * @param isMarked if true bar is filled with primary color else show light gray
+ * @param onClick action to do when bar is clicked.
+ */
+@Composable
+fun ProgressionBar(isMarked: Boolean, onClick: () -> Unit) {
+    val screenWidth = LocalConfiguration.current.screenWidthDp
+    Box(modifier = Modifier
+        .width((screenWidth * 0.21).dp)
+        .height(13.dp)
+        .clip(RoundedCornerShape(20.dp))
+        .background(color = if (isMarked) colorScheme.primary else colorScheme.surfaceVariant)
+        .clickable { onClick() }
+    )
+}
+
+/**
+ * Selected image item displays an image on the screen. It receives either Bitmap or a Uri.
+ * @param uri The uri of an image wanted to be shown on screen
+ * @param onDelete Action done when delete is pressed
+ */
+@Composable
+fun SelectedImageItem(uri: Uri? = null, onDelete: () -> Unit) {
+    if (uri != null) {
+        Box(modifier = Modifier.height(110.dp).width(200.dp)) {
+            Image(
+                painter = rememberAsyncImagePainter(uri),
+                contentDescription = null,
+                modifier = Modifier.height(100.dp).width(180.dp).align(Alignment.BottomCenter),
+                contentScale = ContentScale.Crop
+            )
+            Card(
+                modifier = Modifier.align(Alignment.TopEnd).clickable { onDelete() },
+                shape = CircleShape,
+                colors = CardDefaults.cardColors(colorScheme.error)
+            ) {
+                Box(modifier = Modifier.size(20.dp), contentAlignment = Alignment.Center) {
+                    Icon(Icons.Outlined.Close, null)
+                }
+
+            }
+        }
+    }
+}
+
+/**
+ * Club selection dropdown menu for selecting your joined clubs.
+ * @param clubList list of clubs you have joined
+ * @param onSelect action what happens when user selects the club on the dropdown menu
+ */
+@Composable
+fun ClubSelectionDropdownMenu(clubList: List<Club>, onSelect: (Club) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    var selectedIndex: Int? by remember { mutableStateOf(null) }
+
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .clickable { expanded = true }
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
+                .border(BorderStroke(1.dp, Color.Black))
+                .padding(horizontal = 15.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = if (selectedIndex != null) clubList[selectedIndex!!].name else "Select Club",
+                    modifier = Modifier.weight(6f),
+                    textAlign = TextAlign.Start
+                )
+                Icon(Icons.Outlined.KeyboardArrowDown, null, modifier = Modifier.weight(1f))
+            }
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .background(colorScheme.surface)
+        ) {
+            clubList.forEachIndexed { index, club ->
+                DropdownMenuItem(
+                    text = { Text(text = club.name) },
+                    onClick = {
+                        selectedIndex = index
+                        onSelect(club)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Select privacy in either club or event creation.
+ *
+ * @param selectedPublic when user has tapped on public this will be true otherwise false
+ * @param selectedPrivate when user has tapped on private this will be true otherwise false
+ * @param onClickPublic action to do when user pressed public button
+ * @param onClickPrivate action to do when user pressed private button
+ */
+@Composable
+fun SelectPrivacy(
+    selectedPublic: Boolean,
+    selectedPrivate: Boolean,
+    onClickPublic: () -> Unit,
+    onClickPrivate: () -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = "Privacy",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(bottom = 20.dp)
+        )
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Pill(modifier = Modifier.weight(1f), isSelected = selectedPublic, text = "Public") {
+                onClickPublic()
+            }
+            Pill(
+                modifier = Modifier.weight(1f),
+                isLeft = false,
+                isSelected = selectedPrivate,
+                text = "Private"
+            ) {
+                onClickPrivate()
+            }
+        }
+    }
+}
+
+/**
+ * Club tile displays a card that has the logo, banner and name of the club.
+ *
+ * @param modifier [Modifier]
+ * @param club Club object fetched from firebase
+ * @param onClick action to do when tile has been clicked
+ */
+@Composable
+fun ClubTile(
+    modifier: Modifier = Modifier,
+    club: Club,
+    onClick: () -> Unit
+) {
+    // joined the club displayed in tile
+    val isJoined = club.members.contains(FirebaseHelper.uid)
+    Card(
+        modifier = modifier.clickable { onClick() },
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, colorScheme.outlineVariant),
+        colors = CardDefaults.cardColors(colorScheme.surface)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(4.3f),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                AsyncImage(
+                    modifier = Modifier
+                        .size(50.dp)
+                        .aspectRatio(1f)
+                        .clip(CircleShape),
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(club.logoUri)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = "logo",
+                    error = painterResource(id = R.drawable.nokia_logo),
+                    contentScale = ContentScale.Crop
+                )
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = club.name,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 16.sp,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(text = if (isJoined) "Already joined" else "Join now!", fontSize = 14.sp)
+                }
+            }
+            AsyncImage(
+                modifier = Modifier.weight(1f),
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(club.bannerUri)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = "banner",
+                error = painterResource(id = R.drawable.nokia_logo),
+                contentScale = ContentScale.Crop
+            )
         }
     }
 }
