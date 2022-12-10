@@ -29,13 +29,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.News
-import com.example.hobbyclubs.general.CustomAlertDialog
-import com.example.hobbyclubs.general.CustomOutlinedTextField
-import com.example.hobbyclubs.general.TopBarBackButton
-import com.example.hobbyclubs.screens.clubpage.CustomButton
-import com.example.hobbyclubs.screens.create.event.ClubSelectionDropdownMenu
 import com.example.hobbyclubs.general.*
-import com.example.hobbyclubs.navigation.NavRoutes
 import com.google.firebase.Timestamp
 import java.util.*
 
@@ -47,7 +41,7 @@ fun CreateNewsScreen(
 ) {
     val currentNewsCreationPage by vm.currentCreationProgressPage.observeAsState(1)
     var showLeaveDialog by remember { mutableStateOf(false) }
-    Scaffold() {
+    Scaffold {
         Column(
             modifier = Modifier
                 .fillMaxSize()

@@ -27,13 +27,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.FirebaseHelper
-import com.example.hobbyclubs.general.CustomAlertDialog
-import com.example.hobbyclubs.general.CustomOutlinedTextField
-import com.example.hobbyclubs.general.Pill
-import com.example.hobbyclubs.general.TopBarBackButton
-import com.example.hobbyclubs.navigation.NavRoute
-import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.example.hobbyclubs.general.*
+import com.example.hobbyclubs.navigation.NavRoute
 import com.example.hobbyclubs.screens.create.event.*
 import kotlinx.coroutines.launch
 
@@ -50,7 +45,7 @@ fun CreateClubScreen(
 ) {
     val currentClubCreationPage by vm.currentCreationProgressPage.observeAsState(1)
     var showLeaveDialog by remember { mutableStateOf(false) }
-    Scaffold() {
+    Scaffold {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -282,7 +277,7 @@ fun ClubCreationPage2(vm: CreateClubViewModel) {
                 onClick3 = { vm.changePageTo(3) },
                 onClick4 = { vm.changePageTo(4) },
             )
-            Row() {
+            Row {
                 CustomButton(
                     onClick = { vm.changePageTo(1) },
                     text = "Previous",
@@ -400,7 +395,7 @@ fun ClubCreationPage3(vm: CreateClubViewModel) {
                 onClick3 = { vm.changePageTo(3) },
                 onClick4 = { vm.changePageTo(4) },
             )
-            Row() {
+            Row {
                 CustomButton(
                     onClick = { vm.changePageTo(2) },
                     text = "Previous",
@@ -522,7 +517,7 @@ fun ClubCreationPage4(vm: CreateClubViewModel, navController: NavController) {
                 onClick3 = { vm.changePageTo(3) },
                 onClick4 = { vm.changePageTo(4) },
             )
-            Row() {
+            Row {
                 CustomButton(
                     onClick = { vm.changePageTo(3) },
                     text = "Previous",

@@ -31,15 +31,9 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
-import com.example.hobbyclubs.general.*
-import com.example.hobbyclubs.navigation.NavRoutes
 import androidx.navigation.NavController
-import com.example.hobbyclubs.general.CustomAlertDialog
-import com.example.hobbyclubs.general.CustomOutlinedTextField
-import com.example.hobbyclubs.general.TopBarBackButton
+import com.example.hobbyclubs.general.*
 import com.example.hobbyclubs.navigation.NavRoute
-import com.example.hobbyclubs.screens.create.event.SelectedImageItem
 import kotlinx.coroutines.launch
 
 /**

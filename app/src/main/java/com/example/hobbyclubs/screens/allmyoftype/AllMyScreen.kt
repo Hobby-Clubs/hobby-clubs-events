@@ -22,13 +22,11 @@ import androidx.navigation.NavController
 import com.example.hobbyclubs.api.Club
 import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.News
+import com.example.hobbyclubs.general.ClubTile
 import com.example.hobbyclubs.general.EventTile
 import com.example.hobbyclubs.general.SmallNewsTile
 import com.example.hobbyclubs.general.TopBarBackButton
 import com.example.hobbyclubs.navigation.NavRoute
-import com.example.hobbyclubs.screens.clubs.ClubTile
-import com.example.hobbyclubs.navigation.NavRoutes
-import com.example.hobbyclubs.general.ClubTile
 
 /**
  * All my screen displays all items of selected types:
@@ -73,7 +71,7 @@ fun AllMyScreen(
     val myNews by vm.myNews.observeAsState(null)
 
     if (myClubs != null || myEvents != null || myNews != null) {
-        Scaffold() { padding ->
+        Scaffold { padding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -91,7 +89,6 @@ fun AllMyScreen(
                     clubs = if (type == "club") myClubs else null,
                     events = if (type == "event") myEvents else null,
                     news = if (type == "news") myNews else null,
-                    vm
                 )
             }
             CenterAlignedTopAppBar(
@@ -112,7 +109,6 @@ fun AllMyScreen(
  * @param clubs if user selected my clubs on home screen this will not be null
  * @param events if user selected my events on home screen this will not be null
  * @param news if user selected my news on home screen this will not be null
- * @param vm [AllMyViewModel]
  */
 @Composable
 fun ListOfSelectedType(
@@ -120,7 +116,6 @@ fun ListOfSelectedType(
     clubs: List<Club>? = null,
     events: List<Event>? = null,
     news: List<News>? = null,
-    vm: AllMyViewModel,
 ) {
     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         clubs?.let {

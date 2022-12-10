@@ -218,20 +218,39 @@ fun HomeScreenContent(
                 }
             )
         }
-        items(myClubs.take(5)) { club ->
-            MyClubTile(
-                club = club,
-                vm = vm,
-                onClickNews = {
-                    navController.navigate(NavRoute.ClubNews.name + "/true/${club.ref}")
-                },
-                onClickUpcoming = {
-                    navController.navigate(NavRoute.Event.name + "/${it}")
-                },
-                onClick = {
-                    navController.navigate(NavRoute.ClubPage.name + "/${club.ref}")
+        if (myClubs.isNullOrEmpty()) {
+            item {
+                Column {
+                    Text(text = "You have not joined any clubs yet.")
+                    Row {
+                        Text(text = "Press ")
+                        Text(
+                            text = "here ",
+                            color = linkBlue,
+                            modifier = Modifier.clickable {
+                                navigateToNewTab(navController, NavRoute.Clubs.name)
+                            }
+                        )
+                        Text(text = "to see new clubs")
+                    }
                 }
-            )
+            }
+        } else {
+            items(myClubs.take(5)) { club ->
+                MyClubTile(
+                    club = club,
+                    vm = vm,
+                    onClickNews = {
+                        navController.navigate(NavRoute.ClubNews.name + "/true/${club.ref}")
+                    },
+                    onClickUpcoming = {
+                        navController.navigate(NavRoute.Event.name + "/${it}")
+                    },
+                    onClick = {
+                        navController.navigate(NavRoute.ClubPage.name + "/${club.ref}")
+                    }
+                )
+            }
         }
 
         stickyHeader {
@@ -240,13 +259,32 @@ fun HomeScreenContent(
                 onHomeScreen = true,
                 onClick = { navController.navigate(NavRoute.AllMy.name + "/event") })
         }
-        items(myEvents.take(5)) { event ->
-            EventTile(
-                event = event,
-                onClick = {
-                    navController.navigate(NavRoute.Event.name + "/${event.id}")
-                }, navController = navController
-            )
+        if (myEvents.isNullOrEmpty()) {
+            item {
+                Column {
+                    Text(text = "You have not joined or liked any events yet.")
+                    Row {
+                        Text(text = "Press ")
+                        Text(
+                            text = "here ",
+                            color = linkBlue,
+                            modifier = Modifier.clickable {
+                                navigateToNewTab(navController, NavRoute.Calendar.name)
+                            }
+                        )
+                        Text(text = "to see new events")
+                    }
+                }
+            }
+        } else {
+            items(myEvents.take(5)) { event ->
+                EventTile(
+                    event = event,
+                    onClick = {
+                        navController.navigate(NavRoute.Event.name + "/${event.id}")
+                    }, navController = navController
+                )
+            }
         }
 
         stickyHeader {
@@ -258,14 +296,32 @@ fun HomeScreenContent(
                 }
             )
         }
-        items(myNews.take(5)) { singleNews ->
-            SmallNewsTile(
-                news = singleNews,
-            ) {
-                navController.navigate(NavRoute.SingleNews.name + "/${singleNews.id}")
+        if (myNews.isNullOrEmpty()) {
+            item {
+                Column {
+                    Text(text = "You have not joined any clubs yet.")
+                    Row {
+                        Text(text = "Press ")
+                        Text(
+                            text = "here ",
+                            color = linkBlue,
+                            modifier = Modifier.clickable {
+                                navigateToNewTab(navController, NavRoute.Clubs.name)
+                            }
+                        )
+                        Text(text = "to see new clubs")
+                    }
+                }
+            }
+        } else {
+            items(myNews.take(5)) { singleNews ->
+                SmallNewsTile(
+                    news = singleNews,
+                ) {
+                    navController.navigate(NavRoute.SingleNews.name + "/${singleNews.id}")
+                }
             }
         }
-
         stickyHeader {
             LazyColumnHeader(
                 text = "All News",

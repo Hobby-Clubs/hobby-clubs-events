@@ -33,15 +33,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.FirebaseHelper
-import com.example.hobbyclubs.general.CustomAlertDialog
-import com.example.hobbyclubs.general.CustomOutlinedTextField
-import com.example.hobbyclubs.general.TopBarBackButton
-import com.example.hobbyclubs.general.Pill
-import com.example.hobbyclubs.navigation.NavRoute
-import com.example.hobbyclubs.screens.clubpage.CustomButton
 import com.example.hobbyclubs.general.*
-import com.example.hobbyclubs.navigation.NavRoutes
-import com.example.hobbyclubs.general.SelectPrivacy
+import com.example.hobbyclubs.navigation.NavRoute
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
@@ -65,7 +58,7 @@ fun CreateEventScreen(
 ) {
     val currentEventCreationPage by vm.currentCreationProgressPage.observeAsState(1)
     var showLeaveDialog by remember { mutableStateOf(false) }
-    Scaffold() {
+    Scaffold {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -308,7 +301,7 @@ fun EventCreationPage1(vm: CreateEventViewModel) {
                 .fillMaxWidth()
         )
         Spacer(modifier = Modifier.weight(1f))
-        Column() {
+        Column {
             PageProgression(
                 numberOfLines = 1,
                 onClick1 = { vm.changePageTo(1) },
@@ -405,7 +398,7 @@ fun EventCreationPage2(vm: CreateEventViewModel) {
             } ?: Box(modifier = Modifier.size(150.dp))
         }
         Spacer(modifier = Modifier.weight(1f))
-        Column() {
+        Column {
             PageProgression(
                 numberOfLines = 2,
                 onClick1 = { vm.changePageTo(1) },
@@ -413,7 +406,7 @@ fun EventCreationPage2(vm: CreateEventViewModel) {
                 onClick3 = { vm.changePageTo(3) },
                 onClick4 = { vm.changePageTo(4) },
             )
-            Row() {
+            Row {
                 CustomButton(
                     onClick = { vm.changePageTo(1) },
                     text = "Previous",
@@ -517,7 +510,7 @@ fun EventCreationPage3(vm: CreateEventViewModel) {
             onDispose {}
         }
         Spacer(modifier = Modifier.weight(1f))
-        Column() {
+        Column {
             PageProgression(
                 numberOfLines = 3,
                 onClick1 = { vm.changePageTo(1) },
@@ -525,7 +518,7 @@ fun EventCreationPage3(vm: CreateEventViewModel) {
                 onClick3 = { vm.changePageTo(3) },
                 onClick4 = { vm.changePageTo(4) },
             )
-            Row() {
+            Row {
                 CustomButton(
                     onClick = { vm.changePageTo(2) },
                     text = "Previous",
@@ -647,7 +640,7 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
             onClickPrivate = { vm.updateEventPrivacySelection(leftVal = false, rightVal = true) }
         )
         Spacer(modifier = Modifier.weight(1f))
-        Column() {
+        Column {
             PageProgression(
                 numberOfLines = 4,
                 onClick1 = { vm.changePageTo(1) },
@@ -655,7 +648,7 @@ fun EventCreationPage4(vm: CreateEventViewModel, navController: NavController) {
                 onClick3 = { vm.changePageTo(3) },
                 onClick4 = { vm.changePageTo(4) },
             )
-            Row() {
+            Row {
                 CustomButton(
                     onClick = { vm.changePageTo(3) },
                     text = "Previous",

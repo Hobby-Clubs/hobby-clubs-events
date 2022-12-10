@@ -38,12 +38,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.hobbyclubs.general.CustomAlertDialog
-import com.example.hobbyclubs.general.CustomOutlinedTextField
-import com.example.hobbyclubs.general.TopBarBackButton
-import com.example.hobbyclubs.navigation.NavRoute
 import com.example.hobbyclubs.general.*
-import com.example.hobbyclubs.navigation.NavRoutes
+import com.example.hobbyclubs.navigation.NavRoute
 import com.example.hobbyclubs.screens.clubmanagement.EmptySurface
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -91,7 +87,7 @@ fun EventManagementScreen(
         }
 
         event?.let {
-            Box() {
+            Box {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -246,7 +242,7 @@ fun EventManagementRowItem(text: String, onClick: () -> Unit) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ParticipantsSection(navController: NavController, eventId: String, participantAmount: Int, requestAmount: Int) {
-    Column() {
+    Column {
         EventManagementSectionTitle(text = "Participants")
         Card(
             modifier = Modifier
