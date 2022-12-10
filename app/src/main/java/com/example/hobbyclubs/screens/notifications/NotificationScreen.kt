@@ -298,8 +298,6 @@ fun NotificationTile(
                         NotificationSetting.REQUEST_MEMBERSHIP_ACCEPTED -> colorScheme.primary
                         NotificationSetting.REQUEST_PARTICIPATION -> colorScheme.primary
                         NotificationSetting.REQUEST_PARTICIPATION_ACCEPTED -> colorScheme.primary
-
-
                     }
                     Card(
                         modifier = Modifier.padding(end = 8.dp),

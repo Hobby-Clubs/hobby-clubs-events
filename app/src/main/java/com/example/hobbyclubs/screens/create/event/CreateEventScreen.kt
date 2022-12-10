@@ -35,11 +35,6 @@ import com.example.hobbyclubs.api.Event
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.general.*
 import com.example.hobbyclubs.navigation.NavRoute
-import com.example.hobbyclubs.general.CustomAlertDialog
-import com.example.hobbyclubs.general.CustomOutlinedTextField
-import com.example.hobbyclubs.general.TopBarBackButton
-import com.example.hobbyclubs.general.Pill
-import com.example.hobbyclubs.navigation.NavRoutes
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
@@ -82,7 +77,10 @@ fun CreateEventScreen(
             title = { },
             colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
             navigationIcon = {
-                TopBarBackButton(navController = navController)
+                TopBarBackButton(
+                    navController = navController,
+                    extraOnClick = { showLeaveDialog = true }
+                )
             }
         )
         if (showLeaveDialog) {
@@ -341,8 +339,6 @@ fun EventCreationPage1(vm: CreateEventViewModel) {
             }
         }
     }
-
-
 }
 
 /**
@@ -406,36 +402,35 @@ fun EventCreationPage2(vm: CreateEventViewModel) {
         }
         Spacer(modifier = Modifier.weight(1f))
         Column {
-        Column(
-            modifier = Modifier
-                .padding(bottom = 32.dp),
-        ) {
-            PageProgression(
-                numberOfLines = 2,
-                onClick1 = { vm.changePageTo(1) },
-                onClick2 = { vm.changePageTo(2) },
-                onClick3 = { vm.changePageTo(3) },
-                onClick4 = { vm.changePageTo(4) },
-            )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(
-                    modifier = Modifier.weight(1f),
-                    onClick = { vm.changePageTo(1) },
-                    colors = ButtonDefaults.buttonColors(
-                        contentColor = colorScheme.onSurfaceVariant,
-                        containerColor = colorScheme.surfaceVariant
-                    ),
-                ) {
-                    Text(text = "Previous")
-                }
-                Button(modifier = Modifier.weight(1f), onClick = { vm.changePageTo(3) }) {
-                    Text(text = "Next")
+            Column(
+                modifier = Modifier
+                    .padding(bottom = 32.dp),
+            ) {
+                PageProgression(
+                    numberOfLines = 2,
+                    onClick1 = { vm.changePageTo(1) },
+                    onClick2 = { vm.changePageTo(2) },
+                    onClick3 = { vm.changePageTo(3) },
+                    onClick4 = { vm.changePageTo(4) },
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(
+                        modifier = Modifier.weight(1f),
+                        onClick = { vm.changePageTo(1) },
+                        colors = ButtonDefaults.buttonColors(
+                            contentColor = colorScheme.onSurfaceVariant,
+                            containerColor = colorScheme.surfaceVariant
+                        ),
+                    ) {
+                        Text(text = "Previous")
+                    }
+                    Button(modifier = Modifier.weight(1f), onClick = { vm.changePageTo(3) }) {
+                        Text(text = "Next")
+                    }
                 }
             }
         }
     }
-
-
 }
 
 /**

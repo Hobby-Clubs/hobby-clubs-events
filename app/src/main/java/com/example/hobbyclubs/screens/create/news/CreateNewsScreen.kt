@@ -1,6 +1,7 @@
 package com.example.hobbyclubs.screens.create.news
 
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -30,13 +31,6 @@ import coil.compose.AsyncImage
 import com.example.hobbyclubs.api.FirebaseHelper
 import com.example.hobbyclubs.api.News
 import com.example.hobbyclubs.general.*
-import com.example.hobbyclubs.general.CustomAlertDialog
-import com.example.hobbyclubs.general.CustomOutlinedTextField
-import com.example.hobbyclubs.general.TopBarBackButton
-import com.example.hobbyclubs.navigation.NavRoutes
-import com.example.hobbyclubs.screens.clubpage.CustomButton
-import com.example.hobbyclubs.screens.create.event.ClubSelectionDropdownMenu
-import com.example.hobbyclubs.screens.create.event.SelectedImageItem
 import com.google.firebase.Timestamp
 import java.util.*
 
@@ -64,7 +58,10 @@ fun CreateNewsScreen(
         CenterAlignedTopAppBar(title = { },
             colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
             navigationIcon = {
-                TopBarBackButton(navController = navController)
+                TopBarBackButton(
+                    navController = navController,
+                    extraOnClick = { showLeaveDialog = true }
+                )
             })
         if (showLeaveDialog) {
             CustomAlertDialog(
@@ -77,6 +74,9 @@ fun CreateNewsScreen(
                 text = "Are you sure you want to leave? All information will be lost.",
                 confirmText = "Leave"
             )
+        }
+        BackHandler(enabled = true) {
+            showLeaveDialog = true
         }
     }
 }
@@ -271,9 +271,6 @@ fun ImagePicker(modifier: Modifier = Modifier, vm: CreateNewsViewModel) {
             modifier = Modifier
                 .padding(16.dp, 8.dp)
                 .size(400.dp)
-                .clickable {
-
-                }
         )
     }
     Spacer(modifier = Modifier.padding(50.dp))
@@ -286,10 +283,9 @@ fun ImagePicker(modifier: Modifier = Modifier, vm: CreateNewsViewModel) {
                 .wrapContentSize()
                 .padding(10.dp),
             onClick = { galleryLauncher.launch("image/*") }) {
-            Text(text = "Add image")
+            Text(text = if (selectedImage != null) "Re-select image" else "Add image")
         }
     }
-
 }
 
 

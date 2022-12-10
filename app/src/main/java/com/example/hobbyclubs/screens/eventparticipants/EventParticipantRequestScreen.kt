@@ -22,6 +22,7 @@ import androidx.navigation.NavController
 import com.example.hobbyclubs.api.*
 import com.example.hobbyclubs.screens.clubmembers.MemberImage
 import com.example.hobbyclubs.general.CustomButton
+import com.example.hobbyclubs.general.TopBarBackButton
 import com.google.firebase.Timestamp
 
 /**
@@ -66,9 +67,7 @@ fun EventParticipantRequestScreen(
                 title = { Text(text = it.name, fontSize = 16.sp) },
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
                 navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")
-                    }
+                    TopBarBackButton(navController = navController)
                 }
             )
         }

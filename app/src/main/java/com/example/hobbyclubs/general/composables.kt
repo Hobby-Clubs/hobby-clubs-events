@@ -343,14 +343,18 @@ fun LazyColumnHeader(
  * @param navController
  */
 @Composable
-fun TopBarBackButton(navController: NavController) {
+fun TopBarBackButton(navController: NavController, extraOnClick: (() -> Unit)? = null) {
     Card(
         modifier = Modifier.size(30.dp),
         shape = CircleShape,
         colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
     ) {
         IconButton(
-            onClick = { navController.navigateUp() }
+            onClick = {
+                extraOnClick?.let {
+                    it()
+                } ?: navController.navigateUp()
+            }
         ) {
             Icon(
                 Icons.Outlined.KeyboardArrowLeft,
@@ -1308,15 +1312,22 @@ fun ProgressionBar(isMarked: Boolean, onClick: () -> Unit) {
 @Composable
 fun SelectedImageItem(uri: Uri? = null, onDelete: () -> Unit) {
     if (uri != null) {
-        Box(modifier = Modifier.height(110.dp).width(200.dp)) {
+        Box(modifier = Modifier
+            .height(110.dp)
+            .width(200.dp)) {
             Image(
                 painter = rememberAsyncImagePainter(uri),
                 contentDescription = null,
-                modifier = Modifier.height(100.dp).width(180.dp).align(Alignment.BottomCenter),
+                modifier = Modifier
+                    .height(100.dp)
+                    .width(180.dp)
+                    .align(Alignment.BottomCenter),
                 contentScale = ContentScale.Crop
             )
             Card(
-                modifier = Modifier.align(Alignment.TopEnd).clickable { onDelete() },
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .clickable { onDelete() },
                 shape = CircleShape,
                 colors = CardDefaults.cardColors(colorScheme.error)
             ) {

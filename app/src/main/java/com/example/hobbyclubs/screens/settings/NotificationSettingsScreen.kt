@@ -137,7 +137,7 @@ fun SettingsSwitchTile(
     isActive: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
-    Card(
+    ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
             .height(50.dp),

@@ -65,7 +65,10 @@ fun CreateClubScreen(
             title = { },
             colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
             navigationIcon = {
-                TopBarBackButton(navController = navController)
+                TopBarBackButton(
+                    navController = navController,
+                    extraOnClick = { showLeaveDialog = true }
+                )
             }
         )
         if (showLeaveDialog) {
