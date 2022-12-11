@@ -128,8 +128,8 @@ class NotificationScreenViewModel(application: Application) : AndroidViewModel(a
      * @param id
      */
     fun markAsRead(id: String) {
-        FirebaseHelper.markNotificationAsSeen(id)
         unreads.value = unreads.value?.filter { it.id != id }
+        FirebaseHelper.markNotificationAsSeen(id)
     }
 
     /**

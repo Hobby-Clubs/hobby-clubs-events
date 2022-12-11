@@ -469,14 +469,14 @@ fun SearchResults(vm: HomeScreenViewModel, navController: NavController) {
  * @param modifier
  */
 @Composable
-fun AdminLabel(modifier: Modifier = Modifier) {
+fun StatusLabel(modifier: Modifier = Modifier, text: String) {
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(colorScheme.primary),
         shape = RoundedCornerShape(100.dp)
     ) {
         Text(
-            text = "Admin",
+            text = text,
             fontSize = 10.sp,
             modifier = Modifier.padding(vertical = 4.dp, horizontal = 12.dp)
         )
@@ -549,10 +549,11 @@ fun MyClubTile(
                     contentScale = ContentScale.Crop
                 )
                 if (isAdmin) {
-                    AdminLabel(
+                    StatusLabel(
                         modifier = Modifier
                             .align(Alignment.TopStart)
-                            .padding(8.dp)
+                            .padding(8.dp),
+                        text = "Admin"
                     )
                 }
             }

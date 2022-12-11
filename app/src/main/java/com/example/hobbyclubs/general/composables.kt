@@ -54,6 +54,7 @@ import com.example.hobbyclubs.navigation.NavRoute
 import com.example.hobbyclubs.notifications.AlarmReceiver
 import com.example.hobbyclubs.notifications.EventNotificationInfo
 import com.example.hobbyclubs.screens.clubmembers.MemberImage
+import com.example.hobbyclubs.screens.home.StatusLabel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -1549,16 +1550,26 @@ fun ClubTile(
                     Text(text = if (isJoined) "Already joined" else "Join now!", fontSize = 14.sp)
                 }
             }
-            AsyncImage(
-                modifier = Modifier.weight(1f),
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(club.bannerUri)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = "banner",
-                error = painterResource(id = R.drawable.nokia_logo),
-                contentScale = ContentScale.Crop
-            )
+            Box(modifier = Modifier.weight(1f)) {
+                AsyncImage(
+                    modifier = Modifier.fillMaxSize(),
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(club.bannerUri)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = "banner",
+                    error = painterResource(id = R.drawable.nokia_logo),
+                    contentScale = ContentScale.Crop
+                )
+                if(club.isPrivate) {
+                    StatusLabel(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(8.dp),
+                        text = "Private"
+                    )
+                }
+            }
         }
     }
 }

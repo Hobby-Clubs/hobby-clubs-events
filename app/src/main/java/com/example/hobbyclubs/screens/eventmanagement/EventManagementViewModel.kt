@@ -62,7 +62,8 @@ class EventManagementViewModel : ViewModel() {
         eventContactName.value = TextFieldValue(event.contactInfoName)
         eventAddress.value = TextFieldValue(event.address)
         eventDate.value = event.date.toDate()
-        eventParticipantLimit.value = TextFieldValue(event.participantLimit.toString())
+        eventParticipantLimit.value =
+            if (event.participantLimit == -1) TextFieldValue("") else TextFieldValue(event.participantLimit.toString())
         givenLinks.value = event.linkArray
 
     }
@@ -202,7 +203,8 @@ class EventManagementViewModel : ViewModel() {
         val tempList = selectedBannerImages.value?.toMutableList()
         tempList?.let {
             it.remove(uri)
-            if (it.isEmpty()) selectedBannerImages.value = null else selectedBannerImages.value = it.toList()
+            if (it.isEmpty()) selectedBannerImages.value = null else selectedBannerImages.value =
+                it.toList()
         }
     }
 

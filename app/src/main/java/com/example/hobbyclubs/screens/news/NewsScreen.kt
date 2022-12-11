@@ -107,12 +107,17 @@ fun ImageCard(
 
     LaunchedEffect(Unit) {
         if (club == null) {
-            vm.getClub(news.clubId).get().addOnSuccessListener { data ->
+            if(news.clubId.isNotEmpty()) {
+                vm.getClub(news.clubId).get().addOnSuccessListener { data ->
                     val fetchedClub = data.toObject(Club::class.java)
                     fetchedClub?.let { club = it }
                 }.addOnFailureListener {
                     Log.e("FetchClub", "getClubFail: ", it)
                 }
+            } else {
+                club = Club(name = "Nokia")
+            }
+
         }
     }
     club?.let {
