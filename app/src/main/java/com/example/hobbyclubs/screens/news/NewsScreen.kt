@@ -29,6 +29,12 @@ import com.example.hobbyclubs.navigation.NavRoute
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * News screen
+ * This screen contains cards of news, (all news) that each card contain an image, headline, 1 line content,timestamp, and to which club this news belongs.
+ * @param navController for Compose navigation
+ * @param vm [NewsViewModel]
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewsScreen(
@@ -46,23 +52,26 @@ fun NewsScreen(
                 .fillMaxSize()
                 .padding(it)
         ) {
-            CenterAlignedTopAppBar(
-                title = { Text(text = "News") },
+            CenterAlignedTopAppBar(title = { Text(text = "News") },
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")
                     }
-                }
-            )
+                })
             if (allNews.value.isNotEmpty()) {
                 Dashboard(newsList = allNews.value, navController)
             }
-
         }
     }
 }
 
+/**
+ * Dashboard
+ * This composable, contains the function of the news list
+ * @param newsList
+ * @param navController for Compose navigation
+ */
 @Composable
 fun Dashboard(newsList: List<News>, navController: NavController) {
     LazyColumn(
@@ -82,22 +91,26 @@ fun Dashboard(newsList: List<News>, navController: NavController) {
     }
 }
 
+/**
+ * Image card
+ * This composable, contains functions fetches the information from the database using functions from the News View Model.
+ * @param news
+ * @param vm [NewsViewModel]
+ * @param onClick
+ * @receiver
+ */
 @Composable
 fun ImageCard(
-    news: News,
-    vm: NewsViewModel,
-    onClick: () -> Unit
+    news: News, vm: NewsViewModel, onClick: () -> Unit
 ) {
     var club: Club? by remember { mutableStateOf(null) }
 
     LaunchedEffect(Unit) {
         if (club == null) {
-            vm.getClub(news.clubId).get()
-                .addOnSuccessListener { data ->
+            vm.getClub(news.clubId).get().addOnSuccessListener { data ->
                     val fetchedClub = data.toObject(Club::class.java)
                     fetchedClub?.let { club = it }
-                }
-                .addOnFailureListener {
+                }.addOnFailureListener {
                     Log.e("FetchClub", "getClubFail: ", it)
                 }
         }
@@ -112,8 +125,7 @@ fun ImageCard(
             border = BorderStroke(1.dp, colorScheme.outlineVariant)
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
             ) {
                 AsyncImage(
                     model = news.newsImageUri,

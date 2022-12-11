@@ -35,6 +35,12 @@ import com.google.firebase.Timestamp
 import java.util.*
 
 
+/**
+ * Create news screen
+ * This screen contains functions to create news.
+ * @param navController for Compose navigation
+ * @param vm [CreateNewsViewModel]
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateNewsScreen(
@@ -81,6 +87,12 @@ fun CreateNewsScreen(
     }
 }
 
+/**
+ * Page progression
+ * This composable contain the function of gray/blue bar over the next button.
+ * @param numberOfLines
+ * @param vm [CreateNewsViewModel]
+ */
 @Composable
 fun PageProgression(numberOfLines: Int, vm: CreateNewsViewModel) {
     Row(
@@ -100,6 +112,14 @@ fun PageProgression(numberOfLines: Int, vm: CreateNewsViewModel) {
     }
 }
 
+/**
+ * Progression bar
+ * The bar turns blue to show you on which page you are and how many page left to create the news.
+ * The bar is grey if you are not on the page.
+ * @param modifier
+ * @param isMarked
+ * @param onClick
+ */
 @Composable
 fun ProgressionBar(modifier: Modifier = Modifier, isMarked: Boolean, onClick: () -> Unit) {
     Box(modifier = modifier
@@ -109,6 +129,11 @@ fun ProgressionBar(modifier: Modifier = Modifier, isMarked: Boolean, onClick: ()
         .clickable { onClick() })
 }
 
+/**
+ * News creation page1
+ * This composable contains the content of first page ( headline, news content and club selection), and the check validation for the first screen.
+ * @param vm [CreateNewsViewModel]
+ */
 @Composable
 fun NewsCreationPage1(vm: CreateNewsViewModel) {
     val context = LocalContext.current
@@ -177,11 +202,16 @@ fun NewsCreationPage1(vm: CreateNewsViewModel) {
     }
 }
 
+/**
+ * News creation page2
+ * This page contains the image selector and the button to create news, and the validation for the second screen.
+ * @param vm [CreateNewsViewModel]
+ * @param navController for Compose navigation
+ */
 @Composable
 fun NewsCreationPage2(vm: CreateNewsViewModel, navController: NavController) {
     val context = LocalContext.current
     val selectedImage by vm.selectedImage.observeAsState(null)
-    // First page
     val headline by vm.headline.observeAsState(null)
     val newsContent by vm.newsContent.observeAsState(null)
     val selectedClub by vm.selectedClub.observeAsState(null)
@@ -249,18 +279,21 @@ fun NewsCreationPage2(vm: CreateNewsViewModel, navController: NavController) {
     }
 }
 
+/**
+ * Image picker
+ * This composable contains the function for image selector.
+ * @param modifier
+ * @param vm [CreateNewsViewModel]
+ */
 @Composable
 fun ImagePicker(modifier: Modifier = Modifier, vm: CreateNewsViewModel) {
     val selectedImage by vm.selectedImage.observeAsState(null)
-
     val galleryLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             vm.storeSelectedImage(uri)
         }
-
     Column(
-        modifier = modifier
-            .fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
@@ -287,5 +320,3 @@ fun ImagePicker(modifier: Modifier = Modifier, vm: CreateNewsViewModel) {
         }
     }
 }
-
-

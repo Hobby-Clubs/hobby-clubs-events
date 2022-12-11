@@ -45,6 +45,15 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * Single news screen
+ * This screen contain the single news that you clicked on from NewsScreen(any kind of news card that you click on will bring you to this.
+ * This screen also contain the function of (has read, marks the news been read by user)
+ * Also the edit screen function.
+ * @param navController for Compose navigation
+ * @param vm [SingleScreenViewModel]
+ * @param newsId selected items newsId
+ */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun SingleNewsScreen(
@@ -79,11 +88,9 @@ fun SingleNewsScreen(
     ) {
         LaunchedEffect(Unit) {
             vm.getNews(newsId)
-            vm.getCurrentUser()
         }
         hasRead?.let {
             LaunchedEffect(it) {
-                Log.d("hasread", "SingleNewsScreen: $it ")
                 if (!it) {
                     val changeMap = mapOf(
                         Pair("usersRead", FieldValue.arrayUnion(FirebaseHelper.uid))
@@ -144,6 +151,13 @@ fun SingleNewsScreen(
     }
 }
 
+/**
+ * Edit news sheet
+ *  This composable, contained function that check if the user is the creator of the news, and show them an edit button to edit the news, headline, content, picture.
+ * @param vm [SingleScreenViewModel]
+ * @param newsId selected items newsId
+ * @param onSave action to do when user press the Save button
+ */
 @Composable
 fun EditNewsSheet(vm: SingleScreenViewModel, newsId: String, onSave: () -> Unit) {
     val focusManager = LocalFocusManager.current
@@ -252,9 +266,14 @@ fun EditNewsSheet(vm: SingleScreenViewModel, newsId: String, onSave: () -> Unit)
             CircularProgressIndicator(modifier = Modifier.size(100.dp))
         }
     }
-
 }
 
+/**
+ * News content
+ * This composable contains functions that fetch the single news by id, with headline, content, club, timestamp and the publisher.
+ * @param vm [SingleScreenViewModel]
+ * @param news
+ */
 @Composable
 fun NewsContent(
     vm: SingleScreenViewModel = viewModel(),
@@ -300,8 +319,7 @@ fun NewsContent(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text(text = news.headline, fontSize = 20.sp)
                     Spacer(modifier = Modifier.size(10.dp))
