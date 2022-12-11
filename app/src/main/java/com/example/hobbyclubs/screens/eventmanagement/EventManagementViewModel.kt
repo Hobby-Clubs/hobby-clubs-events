@@ -30,6 +30,10 @@ class EventManagementViewModel : ViewModel() {
     val selectedBannerImages = MutableLiveData<List<Uri>?>()
     val givenLinks = MutableLiveData<Map<String, String>>(mapOf())
     val listOfRequests = MutableLiveData<List<EventRequest>>()
+    // for event privacy
+    val publicSelected = MutableLiveData<Boolean>()
+    val privateSelected = MutableLiveData<Boolean>()
+    val eventIsPrivate = MutableLiveData<Boolean>()
 
     /**
      * Fetch the event from Firebase
@@ -64,7 +68,15 @@ class EventManagementViewModel : ViewModel() {
         eventDate.value = event.date.toDate()
         eventParticipantLimit.value = TextFieldValue(event.participantLimit.toString())
         givenLinks.value = event.linkArray
-
+        eventIsPrivate.value = event.isPrivate
+        if(event.isPrivate) {
+            privateSelected.value = true
+            publicSelected.value = false
+        }
+        else {
+            publicSelected.value = true
+            privateSelected.value = false
+        }
     }
 
     /**
@@ -270,5 +282,16 @@ class EventManagementViewModel : ViewModel() {
                 val fetchedRequests = data.toObjects(EventRequest::class.java)
                 listOfRequests.value = fetchedRequests.filter { !it.acceptedStatus }
             }
+    }
+
+    /**
+     * Update event privacy selection
+     * @param leftVal Boolean for public selected
+     * @param rightVal Boolean for private selected
+     */
+    fun updateEventPrivacySelection(leftVal: Boolean, rightVal: Boolean) {
+        publicSelected.value = leftVal
+        privateSelected.value = rightVal
+        eventIsPrivate.value = rightVal
     }
 }

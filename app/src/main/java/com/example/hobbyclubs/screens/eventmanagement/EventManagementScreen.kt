@@ -117,7 +117,7 @@ fun EventManagementScreen(
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     EventManagementSectionTitle(text = "Edit event details")
-                    EventManagementRowItem(text = "Name and description") {
+                    EventManagementRowItem(text = "Name, description, privacy") {
                         sheetContent = {
                             NameAndDescriptionSheet(vm = vm, eventId = eventId) {
                                 scope.launch { if (sheetState.isVisible) sheetState.hide() }
@@ -390,6 +390,9 @@ fun NameAndDescriptionSheet(vm: EventManagementViewModel, eventId: String, onSav
     val focusManager = LocalFocusManager.current
     val eventName by vm.eventName.observeAsState(TextFieldValue(""))
     val eventDescription by vm.eventDescription.observeAsState(TextFieldValue(""))
+    val eventIsPrivate by vm.eventIsPrivate.observeAsState(false)
+    val publicSelected by vm.publicSelected.observeAsState(true)
+    val privateSelected by vm.privateSelected.observeAsState(false)
 
     Surface(
         modifier = Modifier
@@ -432,6 +435,17 @@ fun NameAndDescriptionSheet(vm: EventManagementViewModel, eventId: String, onSav
                         .height((screenHeight * 0.3).dp)
                         .fillMaxWidth()
                 )
+
+                SelectPrivacy(
+                    selectedPublic = publicSelected,
+                    selectedPrivate = privateSelected,
+                    onClickPublic = {
+                        vm.updateEventPrivacySelection(leftVal = true, rightVal = false)
+                    },
+                    onClickPrivate = {
+                        vm.updateEventPrivacySelection(leftVal = false, rightVal = true)
+                    }
+                )
             }
             Button(
                 modifier = Modifier
@@ -441,6 +455,7 @@ fun NameAndDescriptionSheet(vm: EventManagementViewModel, eventId: String, onSav
                         val changeMap = mapOf(
                             Pair("name", eventName!!.text),
                             Pair("description", eventDescription!!.text),
+                            Pair("isPrivate", eventIsPrivate)
                         )
                         vm.updateEventDetails(eventId = eventId, changeMap)
                         onSave()
