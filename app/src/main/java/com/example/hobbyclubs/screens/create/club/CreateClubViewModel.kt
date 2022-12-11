@@ -5,11 +5,7 @@ import android.util.Log
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.hobbyclubs.api.Club
-import com.example.hobbyclubs.api.CollectionName
-import com.example.hobbyclubs.api.FirebaseHelper
-import com.example.hobbyclubs.api.User
-import com.google.firebase.firestore.FieldValue
+import com.example.hobbyclubs.api.*
 
 /**
  * Create club view model for handling club creation functions
@@ -24,6 +20,7 @@ class CreateClubViewModel : ViewModel() {
     // club details
     val clubName = MutableLiveData<TextFieldValue?>()
     val clubDescription = MutableLiveData<TextFieldValue>()
+    val clubCategory = MutableLiveData<ClubCategory>()
     val selectedClubLogo = MutableLiveData<Uri?>()
     val selectedBannerImage = MutableLiveData<Uri?>()
 
@@ -65,6 +62,14 @@ class CreateClubViewModel : ViewModel() {
      */
     fun updateClubDescription(newVal: TextFieldValue) {
         clubDescription.value = newVal
+    }
+
+    /**
+     * Update club category based on newVal
+     * @param newVal value to put into clubCategory
+     */
+    fun updateClubCategory(newVal: ClubCategory) {
+        clubCategory.value = newVal
     }
 
     /**
@@ -168,9 +173,9 @@ class CreateClubViewModel : ViewModel() {
             .addOnSuccessListener {
                 it.storage.downloadUrl.addOnSuccessListener { downloadUrl ->
                     val changeMap = mapOf(
-                        Pair("logoUri", FieldValue.arrayUnion(downloadUrl))
+                        Pair("logoUri", downloadUrl)
                     )
-                    firebase.updateEventDetails(clubId, changeMap)
+                    firebase.updateClubDetails(clubId, changeMap)
                 }
             }
             .addOnFailureListener {

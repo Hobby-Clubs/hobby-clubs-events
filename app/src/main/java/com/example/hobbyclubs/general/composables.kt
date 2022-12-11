@@ -1341,6 +1341,61 @@ fun SelectedImageItem(uri: Uri? = null, onDelete: () -> Unit) {
 }
 
 /**
+ * Category selection dropdown menu for selecting the most fitting category for your club.
+ * @param onSelect action what happens when user selects the category from the dropdown menu
+ */
+@Composable
+fun CategorySelectionDropdownMenu(onSelect: (ClubCategory) -> Unit) {
+    val categoryList = ClubCategory.values().toList()
+    var expanded by remember { mutableStateOf(false) }
+    var selectedIndex: Int? by remember { mutableStateOf(null) }
+
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .clickable { expanded = true }
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
+                .border(
+                    BorderStroke(1.dp, colorScheme.outline),
+                    shape = RoundedCornerShape(5.dp)
+                )
+                .padding(horizontal = 15.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = if (selectedIndex != null) categoryList[selectedIndex!!].text else "Select Category",
+                    modifier = Modifier.weight(6f),
+                    textAlign = TextAlign.Start
+                )
+                Icon(Icons.Outlined.KeyboardArrowDown, null, modifier = Modifier.weight(1f))
+            }
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .background(colorScheme.surface)
+        ) {
+            categoryList.forEachIndexed { index, category ->
+                DropdownMenuItem(
+                    text = { Text(text = category.text) },
+                    onClick = {
+                        selectedIndex = index
+                        onSelect(category)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+/**
  * Club selection dropdown menu for selecting your joined clubs.
  * @param clubList list of clubs you have joined
  * @param onSelect action what happens when user selects the club on the dropdown menu
@@ -1358,7 +1413,10 @@ fun ClubSelectionDropdownMenu(clubList: List<Club>, onSelect: (Club) -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
-                .border(BorderStroke(1.dp, Color.Black))
+                .border(
+                    BorderStroke(1.dp, colorScheme.outline),
+                    shape = RoundedCornerShape(5.dp)
+                )
                 .padding(horizontal = 15.dp),
             contentAlignment = Alignment.CenterStart
         ) {

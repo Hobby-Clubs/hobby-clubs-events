@@ -28,12 +28,12 @@ import com.example.hobbyclubs.navigation.NavRoute
 @Composable
 fun FirstTimeScreen(navController: NavController) {
     val interests: List<Interest> = listOf(
-        Interest(ClubCategory.boardGames, remember { mutableStateOf(false) }),
-        Interest(ClubCategory.videoGames, remember { mutableStateOf(false) }),
-        Interest(ClubCategory.music, remember { mutableStateOf(false) }),
-        Interest(ClubCategory.movies, remember { mutableStateOf(false) }),
-        Interest(ClubCategory.sports, remember { mutableStateOf(false) }),
-        Interest(ClubCategory.other, remember { mutableStateOf(false) }),
+        Interest(ClubCategory.BoardGames.name, remember { mutableStateOf(false) }),
+        Interest(ClubCategory.VideoGames.name, remember { mutableStateOf(false) }),
+        Interest(ClubCategory.Music.name, remember { mutableStateOf(false) }),
+        Interest(ClubCategory.Movies.name, remember { mutableStateOf(false) }),
+        Interest(ClubCategory.Sports.name, remember { mutableStateOf(false) }),
+        Interest(ClubCategory.Other.name, remember { mutableStateOf(false) }),
     )
 
     //on confirm the selection will be passed into the database

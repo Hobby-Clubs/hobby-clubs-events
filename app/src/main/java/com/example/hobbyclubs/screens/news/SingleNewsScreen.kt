@@ -204,7 +204,10 @@ fun EditNewsSheet(vm: SingleScreenViewModel, newsId: String, onSave: () -> Unit)
                         .fillMaxWidth()
                 )
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    CreationPageTitle(text = "Change news image", modifier = Modifier.padding(bottom = 10.dp, top = 20.dp))
+                    CreationPageTitle(
+                        text = "Change news image",
+                        modifier = Modifier.padding(bottom = 10.dp, top = 20.dp)
+                    )
                     CustomButton(
                         onClick = { newsImageGallery.launch("image/*") },
                         text = "Choose banner from gallery",
@@ -284,14 +287,18 @@ fun NewsContent(
 
     LaunchedEffect(Unit) {
         if (club == null) {
-            vm.getClub(news.clubId).get()
-                .addOnSuccessListener { data ->
-                    val fetchedClub = data.toObject(Club::class.java)
-                    fetchedClub?.let { club = it }
-                }
-                .addOnFailureListener {
-                    Log.e("FetchClub", "getClubFail: ", it)
-                }
+            if (news.clubId.isNotEmpty()) {
+                vm.getClub(news.clubId).get()
+                    .addOnSuccessListener { data ->
+                        val fetchedClub = data.toObject(Club::class.java)
+                        fetchedClub?.let { club = it }
+                    }
+                    .addOnFailureListener {
+                        Log.e("FetchClub", "getClubFail: ", it)
+                    }
+            } else {
+                club = Club(name = "Nokia")
+            }
         }
         if (publisher == null) {
             vm.getPublisher(news.publisherId)

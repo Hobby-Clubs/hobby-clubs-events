@@ -263,10 +263,12 @@ fun NewsCreationPage2(vm: CreateNewsViewModel, navController: NavController) {
                             selectedImage?.let {
                                 vm.storeNewsImage(it, newsId)
                             }
-                            vm.updateSingleNewsWithClubImageUri(
-                                clubId = selectedClub!!,
-                                newsId = newsId
-                            )
+                            if (selectedClub!!.isNotEmpty()) {
+                                vm.updateSingleNewsWithClubImageUri(
+                                    clubId = selectedClub!!,
+                                    newsId = newsId
+                                )
+                            }
                             Toast.makeText(context, "News created.", Toast.LENGTH_SHORT).show()
                             navController.navigateUp()
                         }

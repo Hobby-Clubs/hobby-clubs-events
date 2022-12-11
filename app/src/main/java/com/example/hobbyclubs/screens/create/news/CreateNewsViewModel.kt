@@ -12,8 +12,6 @@ import com.example.hobbyclubs.api.News
 
 /**
  * Create news view model for create news
- *
- * @constructor Create empty Create news view model
  */
 class CreateNewsViewModel : ViewModel() {
 
@@ -119,9 +117,11 @@ class CreateNewsViewModel : ViewModel() {
     private fun getJoinedClubs() {
         firebase.uid?.let {
             firebase.getAllClubs().whereArrayContains("members", it).get()
-                .addOnSuccessListener { data ->
-                    val fetchedClubs = data.toObjects(Club::class.java)
-                    clubsJoined.value = fetchedClubs
+                .addOnSuccessListener { clubs ->
+                    val fetchedJoinedClubs = clubs.toObjects(Club::class.java)
+                    val generalClub = Club(name = "General")
+                    fetchedJoinedClubs.add(generalClub)
+                    clubsJoined.value = fetchedJoinedClubs
                 }
         }
     }

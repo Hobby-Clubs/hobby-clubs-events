@@ -9,6 +9,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Timer
@@ -165,7 +166,10 @@ fun DateSelector(vm: CreateEventViewModel) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
-                    .border(BorderStroke(1.dp, Color.Black))
+                    .border(
+                        BorderStroke(1.dp, colorScheme.outline),
+                        shape = RoundedCornerShape(5.dp)
+                    )
                     .padding(horizontal = 15.dp),
                 contentAlignment = Alignment.CenterStart
             ) {
@@ -202,7 +206,10 @@ fun DateSelector(vm: CreateEventViewModel) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
-                    .border(BorderStroke(1.dp, Color.Black))
+                    .border(
+                        BorderStroke(1.dp, colorScheme.outline),
+                        shape = RoundedCornerShape(5.dp)
+                    )
                     .padding(horizontal = 15.dp),
                 contentAlignment = Alignment.CenterStart
             ) {

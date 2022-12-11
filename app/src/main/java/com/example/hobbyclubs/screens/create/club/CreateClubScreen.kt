@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -117,6 +116,7 @@ fun ClubCreationPage1(vm: CreateClubViewModel) {
                 text = "Create a Nokia hobby club!\nUnite People!\nShare Interests!",
                 modifier = Modifier.padding(bottom = 20.dp)
             )
+            CategorySelectionDropdownMenu(onSelect = { vm.updateClubCategory(it) })
             CustomOutlinedTextField(
                 value = clubName ?: TextFieldValue(""),
                 onValueChange = { vm.updateClubName(it) },
@@ -425,6 +425,7 @@ fun ClubCreationPage4(vm: CreateClubViewModel, navController: NavController) {
     // First page
     val clubName by vm.clubName.observeAsState(null)
     val clubDescription by vm.clubDescription.observeAsState(null)
+    val clubCategory by vm.clubCategory.observeAsState(null)
     val clubIsPrivate by vm.clubIsPrivate.observeAsState(false)
 
     // Second Page
@@ -526,6 +527,7 @@ fun ClubCreationPage4(vm: CreateClubViewModel, navController: NavController) {
                     if (
                         clubName == null ||
                         clubDescription == null ||
+                        clubCategory == null ||
                         clubIsPrivate == null ||
                         contactInfoName == null ||
                         contactInfoEmail == null ||
@@ -545,6 +547,7 @@ fun ClubCreationPage4(vm: CreateClubViewModel, navController: NavController) {
                         val club = Club(
                             name = clubName!!.text,
                             description = clubDescription!!.text,
+                            category = clubCategory!!.name,
                             isPrivate = clubIsPrivate,
                             admins = listWithYouAsAdminAndParticipant,
                             members = listWithYouAsAdminAndParticipant,

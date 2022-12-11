@@ -11,7 +11,6 @@ import com.google.firebase.firestore.*
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ListResult
-import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.tasks.await
 import kotlinx.parcelize.Parcelize
@@ -326,7 +325,7 @@ object FirebaseHelper {
                     .addOnSuccessListener { data ->
                         val event = data.toObject(Event::class.java)
                         if (event?.clubId?.isNotEmpty() == true) {
-                            updateNextEvent(event.id, event.clubId )
+                            updateNextEvent(event.id, event.clubId)
                         }
                     }
 
@@ -474,7 +473,8 @@ object FirebaseHelper {
      */
     fun addClubRequest(clubId: String, request: ClubRequest) {
         val ref =
-            db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.clubRequests)
+            db.collection(CollectionName.clubs).document(clubId)
+                .collection(CollectionName.clubRequests)
                 .document()
         val requestWithId = request.apply { id = ref.id }
         ref.set(requestWithId)
@@ -504,7 +504,8 @@ object FirebaseHelper {
         changeMapForRequest: Map<String, Any>
     ) {
         val ref =
-            db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.clubRequests)
+            db.collection(CollectionName.clubs).document(clubId)
+                .collection(CollectionName.clubRequests)
                 .document(requestId)
         ref.update(changeMapForRequest)
             .addOnSuccessListener {
@@ -526,7 +527,8 @@ object FirebaseHelper {
      */
     fun declineClubRequest(clubId: String, requestId: String) {
         val ref =
-            db.collection(CollectionName.clubs).document(clubId).collection(CollectionName.clubRequests)
+            db.collection(CollectionName.clubs).document(clubId)
+                .collection(CollectionName.clubRequests)
                 .document(requestId)
         ref.delete()
             .addOnSuccessListener {
@@ -545,7 +547,8 @@ object FirebaseHelper {
      * @param eventId firestore reference id of the event
      */
     fun getRequestsFromEvent(eventId: String) =
-        db.collection(CollectionName.events).document(eventId).collection(CollectionName.eventRequests)
+        db.collection(CollectionName.events).document(eventId)
+            .collection(CollectionName.eventRequests)
 
     /**
      * Adds a participation request to the requests collection of an event. Also creates a notification
@@ -556,7 +559,8 @@ object FirebaseHelper {
      */
     fun addEventRequest(eventId: String, request: EventRequest) {
         val ref =
-            db.collection(CollectionName.events).document(eventId).collection(CollectionName.eventRequests)
+            db.collection(CollectionName.events).document(eventId)
+                .collection(CollectionName.eventRequests)
                 .document()
         val requestWithId = request.apply { id = ref.id }
         ref.set(requestWithId)
@@ -586,7 +590,8 @@ object FirebaseHelper {
         changeMapForRequest: Map<String, Any>
     ) {
         val ref =
-            db.collection(CollectionName.events).document(eventId).collection(CollectionName.eventRequests)
+            db.collection(CollectionName.events).document(eventId)
+                .collection(CollectionName.eventRequests)
                 .document(requestId)
         ref.update(changeMapForRequest)
             .addOnSuccessListener {
@@ -608,7 +613,8 @@ object FirebaseHelper {
      */
     fun declineEventRequest(eventId: String, requestId: String) {
         val ref =
-            db.collection(CollectionName.events).document(eventId).collection(CollectionName.eventRequests)
+            db.collection(CollectionName.events).document(eventId)
+                .collection(CollectionName.eventRequests)
                 .document(requestId)
         ref.delete()
             .addOnSuccessListener {
@@ -651,7 +657,7 @@ object FirebaseHelper {
      * @param eventId firestore reference id of the event
      * @param clubId firestore reference id of the club
      */
-    fun addNewEventNotif(eventId: String, clubId: String) {
+    private fun addNewEventNotif(eventId: String, clubId: String) {
         addNotification(
             NotificationInfo(
                 type = NotificationType.EVENT_CREATED.name,
@@ -791,6 +797,7 @@ object FirebaseHelper {
     // Auth
 
     private val auth = Firebase.auth
+
     // unique identifier of the current signed in user
     val uid get() = auth.uid
     val currentUser = auth.currentUser
@@ -838,16 +845,6 @@ object FirebaseHelper {
     fun addPic(uri: Uri, path: String) = storage.reference.child(path).putFile(uri)
 
     /**
-     * Returns the reference to a file in firebase storage
-     *
-     * @param path path of the file to retrieve
-     * @return firebase storage reference to the file
-     */
-    fun getFile(path: String): StorageReference {
-        return storage.reference.child(path)
-    }
-
-    /**
      * Attempts to get all the files contained in a firebase storage directory
      *
      * @param path of the directory
@@ -879,15 +876,13 @@ class CollectionName {
  * Contains all the club categories
  *
  */
-class ClubCategory {
-    companion object {
-        const val sports = "sports"
-        const val boardGames = "board games"
-        const val videoGames = "video games"
-        const val music = "music"
-        const val movies = "movies"
-        const val other = "other"
-    }
+enum class ClubCategory(val text: String) {
+    Sports("Sports"),
+    BoardGames("Board games"),
+    VideoGames("Video games"),
+    Music("Music"),
+    Movies("Movies"),
+    Other("Other")
 }
 
 /**
@@ -952,7 +947,7 @@ data class Club(
     @set:PropertyName("isPrivate")
     var isPrivate: Boolean = false,
     val created: Timestamp = Timestamp.now(),
-    val category: String = ClubCategory.other,
+    val category: String = ClubCategory.Other.name,
     val nextEvent: Timestamp? = null,
     val logoUri: String = "",
     val bannerUri: String = "",
@@ -1098,16 +1093,22 @@ data class NotificationInfo(
 enum class NotificationType(val channelName: String) {
     // New event created
     EVENT_CREATED("New events"),
+
     // News related to a club
     NEWS_CLUB("Club news"),
+
     // General news
     NEWS_GENERAL("General news"),
+
     // Pending club membership request
     CLUB_REQUEST_PENDING("Pending membership requests"),
+
     // Accepted club membership request
     CLUB_REQUEST_ACCEPTED("Accepted membership requests"),
+
     // Pending event participation request
     EVENT_REQUEST_PENDING("Event participation requests"),
+
     // Accepted event participation request
     EVENT_REQUEST_ACCEPTED("Accepted membership requests"),
 }
