@@ -63,5 +63,7 @@ val md_theme_dark_surfaceTint = Color(0xFFB0C6FF)
 val md_theme_dark_outlineVariant = Color(0xFF44464F)
 val md_theme_dark_scrim = Color(0xFF000000)
 
-
-val seed = Color(0xFF124191)
+val suggestedEventColor = Color(0xFF006A60)
+val linkBlue = Color(0xFF3366CC)
+val surface3light = Color(0xFFE8E9F6)
+val surface3dark = Color(0xFF2B2E38)
