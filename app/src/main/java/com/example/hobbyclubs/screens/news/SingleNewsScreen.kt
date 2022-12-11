@@ -46,21 +46,26 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * Single news screen
+ * This screen contain the single news that you clicked on from NewsScreen(any kind of news card that you click on will bring you to this.
+ * This screen also contain the function of (has read, marks the news been read by user)
+ * Also the edit screen function.
+ * @param navController for Compose navigation
+ * @param vm [SingleScreenViewModel]
+ * @param newsId selected items newsId
+ */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun SingleNewsScreen(
-    navController: NavController,
-    vm: SingleScreenViewModel = viewModel(),
-    newsId: String
+    navController: NavController, vm: SingleScreenViewModel = viewModel(), newsId: String
 ) {
     val news by vm.selectedNews.observeAsState(null)
     val isPublisher by vm.isPublisher.observeAsState()
     val hasRead by vm.hasRead.observeAsState(null)
 
-    val sheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-        confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded }
-    )
+    val sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden,
+        confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded })
     val scope = rememberCoroutineScope()
 
     BackHandler(sheetState.isVisible) {
@@ -68,30 +73,24 @@ fun SingleNewsScreen(
     }
 
     ModalBottomSheetLayout(
-        sheetState = sheetState,
-        sheetContent = {
-            EditNewsSheet(
-                vm = vm,
+        sheetState = sheetState, sheetContent = {
+            EditNewsSheet(vm = vm,
                 newsId = newsId,
-                onSave = { scope.launch { if (sheetState.isVisible) sheetState.hide() } }
-            )
-        },
-        modifier = Modifier.fillMaxSize()
+                onSave = { scope.launch { if (sheetState.isVisible) sheetState.hide() } })
+        }, modifier = Modifier.fillMaxSize()
     ) {
         LaunchedEffect(Unit) {
             vm.getNews(newsId)
-            vm.getCurrentUser()
         }
         hasRead?.let {
-        LaunchedEffect(it) {
-            Log.d("hasread", "SingleNewsScreen: $it ")
-            if (!it) {
-                val changeMap = mapOf(
-                    Pair("usersRead", FieldValue.arrayUnion(FirebaseHelper.uid))
-                )
-                vm.updateNews(newsId, changeMap)
+            LaunchedEffect(it) {
+                if (!it) {
+                    val changeMap = mapOf(
+                        Pair("usersRead", FieldValue.arrayUnion(FirebaseHelper.uid))
+                    )
+                    vm.updateNews(newsId, changeMap)
+                }
             }
-        }
         }
         LaunchedEffect(news) {
             news?.let {
@@ -101,8 +100,7 @@ fun SingleNewsScreen(
         news?.let {
             Box(Modifier.fillMaxSize()) {
                 NewsContent(vm, it)
-                CenterAlignedTopAppBar(
-                    title = { },
+                CenterAlignedTopAppBar(title = { },
                     colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
                     actions = {
                         if (isPublisher == true) {
@@ -118,13 +116,11 @@ fun SingleNewsScreen(
                                     modifier = Modifier.fillMaxSize(),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    IconButton(
-                                        onClick = {
-                                            scope.launch {
-                                                sheetState.animateTo(ModalBottomSheetValue.Expanded)
-                                            }
+                                    IconButton(onClick = {
+                                        scope.launch {
+                                            sheetState.animateTo(ModalBottomSheetValue.Expanded)
                                         }
-                                    ) {
+                                    }) {
                                         Icon(
                                             Icons.Outlined.Edit,
                                             null,
@@ -138,13 +134,19 @@ fun SingleNewsScreen(
                     },
                     navigationIcon = {
                         TopBarBackButton(navController = navController)
-                    }
-                )
+                    })
             }
         }
     }
 }
 
+/**
+ * Edit news sheet
+ *  This composable, contained function that check if the user is the creator of the news, and show them an edit button to edit the news, headline, content, picture.
+ * @param vm [SingleScreenViewModel]
+ * @param newsId selected items newsId
+ * @param onSave action to do when user press the Save button
+ */
 @Composable
 fun EditNewsSheet(vm: SingleScreenViewModel, newsId: String, onSave: () -> Unit) {
     val focusManager = LocalFocusManager.current
@@ -259,31 +261,32 @@ fun EditNewsSheet(vm: SingleScreenViewModel, newsId: String, onSave: () -> Unit)
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(min = (screenHeight * 0.95).dp, max = (screenHeight * 0.95).dp)
-                .padding(20.dp),
-            contentAlignment = Alignment.Center
+                .padding(20.dp), contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator(modifier = Modifier.size(100.dp))
         }
     }
-
 }
 
+/**
+ * News content
+ * This composable contains functions that fetch the single news by id, with headline, content, club, timestamp and the publisher.
+ * @param vm [SingleScreenViewModel]
+ * @param news
+ */
 @Composable
 fun NewsContent(
-    vm: SingleScreenViewModel = viewModel(),
-    news: News
+    vm: SingleScreenViewModel = viewModel(), news: News
 ) {
     val publisher by vm.publisher.observeAsState(null)
     var club: Club? by rememberSaveable { mutableStateOf(null) }
 
     LaunchedEffect(Unit) {
         if (club == null) {
-            vm.getClub(news.clubId).get()
-                .addOnSuccessListener { data ->
+            vm.getClub(news.clubId).get().addOnSuccessListener { data ->
                     val fetchedClub = data.toObject(Club::class.java)
                     fetchedClub?.let { club = it }
-                }
-                .addOnFailureListener {
+                }.addOnFailureListener {
                     Log.e("FetchClub", "getClubFail: ", it)
                 }
         }
@@ -312,8 +315,7 @@ fun NewsContent(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text(text = news.headline, fontSize = 20.sp)
                     Spacer(modifier = Modifier.size(10.dp))
