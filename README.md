@@ -38,22 +38,22 @@ Application was designed and developed using Android Studio, Kotlin, Jetpack Com
 		5. You can click on club to see the information, join or request to join if it's private.
 		
 ### Single Club screen:
-		1. You can see all the information about the club.
-			 _ The members of the club
-			 _ The Upcoming events
-			 _ The Club News
-			 _ The social Media links
-			 _ The contact information of the Club manager
-			 _ You can share the club
-			 _ You can Join or leave the club
+	1. You can see all the information about the club.
+			 . The members of the club
+			 . The Upcoming events
+			 . The Club News
+			 . The social Media links
+			 . The contact information of the Club manager
+			 . You can share the club
+			 . You can Join or leave the club
 			 
-	  2. If you are an admin in the club you will see extra button to manage the club
-			 - Edit or Delete the club
-			 - Edit or Delete the clubs events
-			 - Edit or Delete the clubs news
-			 - kickout a memeber in the club
-			 - Approve and Decline new Coming memebrs
-			 - Change Club privacy Public/Private
+	2. If you are an admin in the club you will see extra button to manage the club
+			 . Edit or Delete the club
+			 . Edit or Delete the clubs events
+			 . Edit or Delete the clubs news
+			 . kickout a memeber in the club
+			 . Approve and Decline new Coming memebrs
+			 . Change Club privacy Public/Private
 	 
 		
 		
