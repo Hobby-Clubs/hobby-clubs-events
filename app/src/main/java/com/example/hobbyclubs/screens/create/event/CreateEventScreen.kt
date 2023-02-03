@@ -178,7 +178,7 @@ fun DateSelector(vm: CreateEventViewModel) {
                         if (selectedYear.value == 0 && selectedMonth.value == 0 && selectedDay.value == 0) {
                             "Select date"
                         } else {
-                            "${selectedDay.value}.${selectedMonth.value}.${selectedYear.value}"
+                            "${selectedDay.value}.${selectedMonth.value + 1}.${selectedYear.value}"
                         }
                     Text(
                         text = dateText,
@@ -193,7 +193,7 @@ fun DateSelector(vm: CreateEventViewModel) {
         Box(modifier = Modifier
             .weight(1f)
             .clickable {
-                if (selectedYear.value == 0 || selectedMonth.value == 0 || selectedDay.value == 0) {
+                if (selectedYear.value == 0 && selectedMonth.value == 0 && selectedDay.value == 0) {
                     Toast
                         .makeText(context, "Select date first", Toast.LENGTH_SHORT)
                         .show()

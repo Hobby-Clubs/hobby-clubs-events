@@ -108,7 +108,7 @@ fun NotificationsScreen(
                             isRefreshing = isRefreshing,
                             onRefresh = { vm.refresh() },
                             contents = data,
-                            onMarkAsRead = { vm.markAsRead(it) },
+                            onMarkAsRead = { vm.markAsRead(it, data) },
                             onClick = { navController.navigate(it) }
                         )
                     }
