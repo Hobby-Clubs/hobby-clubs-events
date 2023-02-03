@@ -16,6 +16,7 @@ import com.example.hobbyclubs.notifications.InAppNotificationService
 import com.example.hobbyclubs.notifications.NotificationContent
 import com.google.firebase.firestore.FieldValue
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -26,6 +27,7 @@ class NotificationScreenViewModel(application: Application) : AndroidViewModel(a
     val unreads = MutableLiveData<List<NotificationContent>>()
     val isRefreshing = MutableLiveData(false)
     private val isPausedPref = application.getSharedPreferences("paused", Context.MODE_PRIVATE)
+    private val isPaused get() = isPausedPref.getBoolean("isPaused", false)
 
     init {
         refresh()
@@ -51,6 +53,7 @@ class NotificationScreenViewModel(application: Application) : AndroidViewModel(a
         unreadFilter.addAction(InAppNotificationService.NOTIF_UNREAD)
         unreadReceiver = object : BroadcastReceiver() {
             override fun onReceive(p0: Context?, p1: Intent?) {
+                if (isPaused) return
                 val infos = p1?.getParcelableArrayExtra(
                     InAppNotificationService.EXTRA_NOTIF_UNREAD,
                 )?.toList() ?: listOf()
@@ -128,9 +131,13 @@ class NotificationScreenViewModel(application: Application) : AndroidViewModel(a
      * @param id
      */
     fun markAsRead(id: String, currentUnreads: List<NotificationContent>) {
-        unreads.value = currentUnreads.filter { it.id != id }
-        unreads.value = unreads.value?.filter { it.id != id }
-        FirebaseHelper.markNotificationAsSeen(id)
+        viewModelScope.launch {
+            setIsPaused(true)
+            unreads.value = currentUnreads.filter { it.id != id }
+            FirebaseHelper.markNotificationAsSeen(id)
+            delay(4000)
+            setIsPaused(false)
+        }
     }
 
     /**
